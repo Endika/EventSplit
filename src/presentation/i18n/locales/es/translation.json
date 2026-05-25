@@ -1,5 +1,7 @@
 {
   "offline": "Sin conexión — solo lectura",
+  "updateAvailable": "Nueva versión disponible",
+  "updateNow": "Actualizar ahora",
   "app": { "title": "EventSplit", "notFound": "Evento no encontrado" },
   "common": { "you": "Tú", "cancel": "Cancelar", "save": "Guardar", "next": "Siguiente", "back": "Atrás" },
   "home": {

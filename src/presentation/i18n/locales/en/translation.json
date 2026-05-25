@@ -1,5 +1,7 @@
 {
   "offline": "Offline — read only",
+  "updateAvailable": "New version available",
+  "updateNow": "Update now",
   "app": { "title": "EventSplit", "notFound": "Event not found" },
   "common": { "you": "You", "cancel": "Cancel", "save": "Save", "next": "Next", "back": "Back" },
   "home": {

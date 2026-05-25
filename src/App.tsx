@@ -6,6 +6,7 @@ import { SyncProvider } from '@/presentation/context/SyncContext'
 import { HomePage } from '@/presentation/components/features/home/HomePage'
 import { EventPage } from '@/presentation/components/features/event/EventPage'
 import { OfflineBanner } from '@/presentation/components/features/pwa/OfflineBanner'
+import { UpdateBanner } from '@/presentation/components/features/pwa/UpdateBanner'
 
 function useEventIdFromUrl(): string | null {
   const [id, setId] = useState<string | null>(() =>
@@ -27,6 +28,7 @@ export default function App() {
         <EventProvider>
           <UserProvider>
               <OfflineBanner />
+              <UpdateBanner />
               {eventId ? <EventPage eventId={eventId} /> : <HomePage />}
             </UserProvider>
         </EventProvider>

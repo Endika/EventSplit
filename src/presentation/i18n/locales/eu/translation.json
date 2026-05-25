@@ -1,5 +1,7 @@
 {
   "offline": "Konexiorik gabe — irakurri soilik",
+  "updateAvailable": "Bertsio berria eskuragarri",
+  "updateNow": "Eguneratu orain",
   "app": { "title": "EventSplit", "notFound": "Ekitaldia ez da aurkitu" },
   "common": { "you": "Zu", "cancel": "Utzi", "save": "Gorde", "next": "Hurrengoa", "back": "Atzera" },
   "home": {
