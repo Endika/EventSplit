@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.0.1](https://github.com/Endika/EventSplit/compare/v1.0.0...v1.0.1) (2026-05-25)
+
+
+### Documentation
+
+* add readme matching sister-apps template ([46d79dd](https://github.com/Endika/EventSplit/commit/46d79dd4afae513e6ad470f7ab253d27e533d306))
+
 ## 1.0.0 (2026-05-25)
 
 
