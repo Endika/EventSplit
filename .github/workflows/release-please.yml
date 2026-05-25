@@ -1,0 +1,44 @@
+name: Release Please
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  actions: write
+  contents: write
+  pull-requests: write
+
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  release-please:
+    runs-on: ubuntu-latest
+    steps:
+      - id: release
+        uses: googleapis/release-please-action@v5
+        with:
+          config-file: release-please-config.json
+          manifest-file: .release-please-manifest.json
+
+      - if: ${{ steps.release.outputs.pr }}
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          REPO: ${{ github.repository }}
+          WORKFLOW: ${{ github.workflow }}
+          PR_JSON: ${{ steps.release.outputs.pr }}
+        run: |
+          PR=$(echo "$PR_JSON" | jq -r .number)
+          BRANCH=$(echo "$PR_JSON" | jq -r .headBranchName)
+          gh pr merge --rebase --auto -R "$REPO" "$PR" \
+            || gh pr merge --rebase -R "$REPO" "$PR"
+          for _ in $(seq 1 30); do
+            STATE=$(gh pr view "$PR" -R "$REPO" --json state --jq .state)
+            [ "$STATE" = "MERGED" ] && break
+            sleep 2
+          done
+          gh api -X DELETE "repos/$REPO/git/refs/heads/$BRANCH" 2>/dev/null || true
+          gh workflow run "$WORKFLOW" -R "$REPO" --ref main
