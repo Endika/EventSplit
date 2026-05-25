@@ -19,5 +19,21 @@
     "confirm": "Confirmar",
     "back": "Atrás",
     "nameNeedsAlias": "Ya hay un \"{{name}}\". Añade un apodo para diferenciarte."
+  },
+  "purchases": {
+    "add": "Añadir compra",
+    "empty": "Aún no hay compras.",
+    "createdBy": "Añadida por {{name}}",
+    "totalQuantity": "Total a comprar: {{n}} {{unit}}",
+    "form": {
+      "category": "Categoría",
+      "item": "Producto",
+      "quantity": "Cantidad inicial",
+      "unit": "Unidad",
+      "dailyConsumption": "Consumo diario por persona",
+      "days": "Duración del evento (días)",
+      "consumers": "Quién consume",
+      "submit": "Guardar compra"
+    }
   }
 }

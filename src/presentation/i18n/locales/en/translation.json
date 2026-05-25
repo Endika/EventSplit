@@ -19,5 +19,21 @@
     "confirm": "Confirm",
     "back": "Back",
     "nameNeedsAlias": "There is already a \"{{name}}\". Add a nickname to differentiate."
+  },
+  "purchases": {
+    "add": "Add purchase",
+    "empty": "No purchases yet.",
+    "createdBy": "Created by {{name}}",
+    "totalQuantity": "Total to buy: {{n}} {{unit}}",
+    "form": {
+      "category": "Category",
+      "item": "Item name",
+      "quantity": "Quantity to start with",
+      "unit": "Unit",
+      "dailyConsumption": "Daily consumption per share",
+      "days": "Event duration (days)",
+      "consumers": "Who consumes this",
+      "submit": "Save purchase"
+    }
   }
 }

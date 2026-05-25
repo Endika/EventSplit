@@ -19,5 +19,21 @@
     "confirm": "Berretsi",
     "back": "Atzera",
     "nameNeedsAlias": "Dagoeneko \"{{name}}\" izeneko bat dago. Erantsi goitizena bereizteko."
+  },
+  "purchases": {
+    "add": "Erosketa gehitu",
+    "empty": "Oraindik ez dago erosketarik.",
+    "createdBy": "Gehitu duena: {{name}}",
+    "totalQuantity": "Erosi beharrekoa: {{n}} {{unit}}",
+    "form": {
+      "category": "Kategoria",
+      "item": "Produktua",
+      "quantity": "Hasierako kopurua",
+      "unit": "Unitatea",
+      "dailyConsumption": "Eguneko kontsumoa pertsonako",
+      "days": "Iraupena (egunak)",
+      "consumers": "Nork kontsumitzen du",
+      "submit": "Gorde erosketa"
+    }
   }
 }
