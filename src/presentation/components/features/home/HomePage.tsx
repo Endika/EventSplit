@@ -5,10 +5,12 @@ import type { CreateEventHandler } from '@/application/handlers/CreateEventHandl
 import type { LocalStorageCache } from '@/infrastructure/persistence/LocalStorageCache'
 import { Button } from '@/presentation/components/common/Button'
 import { Input } from '@/presentation/components/common/Input'
+import { useOnlineStatus } from '@/presentation/context/SyncContext'
 
 export function HomePage() {
   const { t } = useTranslation()
   const container = useContainer()
+  const online = useOnlineStatus()
   const [name, setName] = useState('')
   const [yourName, setYourName] = useState('')
   const [alias, setAlias] = useState('')
@@ -70,7 +72,7 @@ export function HomePage() {
           maxLength={50}
         />
         {error && <p className="text-sm text-red-600">{error}</p>}
-        <Button type="submit" disabled={busy}>
+        <Button type="submit" disabled={busy || !online}>
           {busy ? '…' : t('home.submit')}
         </Button>
       </form>

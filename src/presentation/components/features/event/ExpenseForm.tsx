@@ -6,11 +6,13 @@ import type { AddExpenseHandler } from '@/application/handlers/AddExpenseHandler
 import type { LocalStorageCache } from '@/infrastructure/persistence/LocalStorageCache'
 import { Button } from '@/presentation/components/common/Button'
 import { Input } from '@/presentation/components/common/Input'
+import { useOnlineStatus } from '@/presentation/context/SyncContext'
 
 export function ExpenseForm({ onDone }: { onDone: () => void }) {
   const { t } = useTranslation()
   const container = useContainer()
   const { event, setEvent } = useEventState()
+  const online = useOnlineStatus()
   const [paidBy, setPaidBy] = useState('')
   const [amount, setAmount] = useState('')
   const [description, setDescription] = useState('')
@@ -85,7 +87,7 @@ export function ExpenseForm({ onDone }: { onDone: () => void }) {
         <Button type="button" variant="secondary" onClick={onDone} disabled={busy}>
           {t('common.cancel')}
         </Button>
-        <Button type="submit" disabled={busy || !paidBy || !amount}>
+        <Button type="submit" disabled={busy || !online || !paidBy || !amount}>
           {t('expenses.form.submit')}
         </Button>
       </div>

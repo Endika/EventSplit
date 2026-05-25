@@ -8,6 +8,7 @@ import type { LocalStorageCache } from '@/infrastructure/persistence/LocalStorag
 import { Button } from '@/presentation/components/common/Button'
 import { Input } from '@/presentation/components/common/Input'
 import { YouLabel } from '@/presentation/components/common/YouLabel'
+import { useOnlineStatus } from '@/presentation/context/SyncContext'
 
 const CATEGORIES = ['food', 'drinks', 'snacks', 'other'] as const
 const UNITS = ['units', 'bottles', 'cans', 'kg', 'liters'] as const
@@ -17,6 +18,7 @@ export function PurchaseForm({ onDone }: { onDone: () => void }) {
   const container = useContainer()
   const { event, setEvent } = useEventState()
   const me = useCurrentUser()
+  const online = useOnlineStatus()
   const [category, setCategory] = useState<(typeof CATEGORIES)[number]>('drinks')
   const [item, setItem] = useState('')
   const [quantity, setQuantity] = useState(1)
@@ -168,7 +170,7 @@ export function PurchaseForm({ onDone }: { onDone: () => void }) {
         <Button type="button" variant="secondary" onClick={onDone} disabled={busy}>
           {t('common.cancel')}
         </Button>
-        <Button type="submit" disabled={busy || !item || Object.keys(consumers).length === 0}>
+        <Button type="submit" disabled={busy || !online || !item || Object.keys(consumers).length === 0}>
           {t('purchases.form.submit')}
         </Button>
       </div>

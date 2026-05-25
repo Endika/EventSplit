@@ -1,4 +1,5 @@
 {
+  "offline": "Sin conexión — solo lectura",
   "app": { "title": "EventSplit", "notFound": "Evento no encontrado" },
   "common": { "you": "Tú", "cancel": "Cancelar", "save": "Guardar", "next": "Siguiente", "back": "Atrás" },
   "home": {

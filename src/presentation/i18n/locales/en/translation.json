@@ -1,4 +1,5 @@
 {
+  "offline": "Offline — read only",
   "app": { "title": "EventSplit", "notFound": "Event not found" },
   "common": { "you": "You", "cancel": "Cancel", "save": "Save", "next": "Next", "back": "Back" },
   "home": {
