@@ -9,6 +9,7 @@
     "yourAlias": "Goitizena (aukerakoa)",
     "submit": "Sortu"
   },
+  "tabs": { "participants": "Lagunak", "purchases": "Erosketak", "expenses": "Gastuak" },
   "id": {
     "who": "Nor zara \"{{eventName}}\" ekitaldian?",
     "pick": "Aukeratu zeure burua zerrendatik",

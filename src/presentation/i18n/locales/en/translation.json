@@ -9,6 +9,7 @@
     "yourAlias": "Nickname (optional)",
     "submit": "Create"
   },
+  "tabs": { "participants": "People", "purchases": "Shopping", "expenses": "Expenses" },
   "id": {
     "who": "Who are you in \"{{eventName}}\"?",
     "pick": "Pick yourself from the list",

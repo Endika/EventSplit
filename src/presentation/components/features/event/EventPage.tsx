@@ -6,6 +6,8 @@ import { useCurrentUser, useSetCurrentUser } from '@/presentation/context/UserCo
 import type { LocalStorageCache } from '@/infrastructure/persistence/LocalStorageCache'
 import type { IEventRepository } from '@/domain/repositories/IEventRepository'
 import type { JoinAsNewUserHandler } from '@/application/handlers/JoinAsNewUserHandler'
+import type { RealtimeSync } from '@/infrastructure/sync/RealtimeSync'
+import type { SyncEventHandler } from '@/application/handlers/SyncEventHandler'
 import {
   IdentificationModal,
   type IdentificationResult,
@@ -51,6 +53,27 @@ export function EventPage({ eventId }: { eventId: string }) {
         setLoading(false)
       })
   }, [eventId, container, setEvent, setMe, t])
+
+  useEffect(() => {
+    const realtime = container.resolve<RealtimeSync>('realtime')
+    const syncHandler = container.resolve<SyncEventHandler>('syncEvent')
+    const cache = container.resolve<LocalStorageCache>('cache')
+
+    const unsub = realtime.subscribe(eventId, ({ snapshot, version }) => {
+      const localFromCache = cache.get(eventId)
+      if (!localFromCache) {
+        cache.set(eventId, { snapshot, version })
+        setEvent(snapshot, version)
+        return
+      }
+      const result = syncHandler.merge({ local: localFromCache, remote: { snapshot, version } })
+      if (result.applied) {
+        cache.set(eventId, { snapshot: result.snapshot, version: result.version })
+        setEvent(result.snapshot, result.version)
+      }
+    })
+    return unsub
+  }, [eventId, container, setEvent])
 
   async function handleIdentification(r: IdentificationResult) {
     const cache = container.resolve<LocalStorageCache>('cache')

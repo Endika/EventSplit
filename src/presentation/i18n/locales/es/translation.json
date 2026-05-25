@@ -9,6 +9,7 @@
     "yourAlias": "Apodo (opcional)",
     "submit": "Crear"
   },
+  "tabs": { "participants": "Personas", "purchases": "Compra", "expenses": "Gastos" },
   "id": {
     "who": "¿Quién eres en \"{{eventName}}\"?",
     "pick": "Elígete de la lista",
