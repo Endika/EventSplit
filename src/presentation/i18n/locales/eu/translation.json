@@ -8,5 +8,15 @@
     "yourName": "Zure izena",
     "yourAlias": "Goitizena (aukerakoa)",
     "submit": "Sortu"
+  },
+  "id": {
+    "who": "Nor zara \"{{eventName}}\" ekitaldian?",
+    "pick": "Aukeratu zeure burua zerrendatik",
+    "imNew": "+ Berria naiz — gehitu",
+    "myName": "Zure izena",
+    "myAlias": "Goitizena (aukerakoa)",
+    "confirm": "Berretsi",
+    "back": "Atzera",
+    "nameNeedsAlias": "Dagoeneko \"{{name}}\" izeneko bat dago. Erantsi goitizena bereizteko."
   }
 }

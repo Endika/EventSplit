@@ -8,5 +8,15 @@
     "yourName": "Your name",
     "yourAlias": "Nickname (optional)",
     "submit": "Create"
+  },
+  "id": {
+    "who": "Who are you in \"{{eventName}}\"?",
+    "pick": "Pick yourself from the list",
+    "imNew": "+ I'm new — add me",
+    "myName": "Your name",
+    "myAlias": "Nickname (optional)",
+    "confirm": "Confirm",
+    "back": "Back",
+    "nameNeedsAlias": "There is already a \"{{name}}\". Add a nickname to differentiate."
   }
 }

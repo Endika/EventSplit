@@ -8,5 +8,15 @@
     "yourName": "Tu nombre",
     "yourAlias": "Apodo (opcional)",
     "submit": "Crear"
+  },
+  "id": {
+    "who": "¿Quién eres en \"{{eventName}}\"?",
+    "pick": "Elígete de la lista",
+    "imNew": "+ Soy nuevo — añádeme",
+    "myName": "Tu nombre",
+    "myAlias": "Apodo (opcional)",
+    "confirm": "Confirmar",
+    "back": "Atrás",
+    "nameNeedsAlias": "Ya hay un \"{{name}}\". Añade un apodo para diferenciarte."
   }
 }
