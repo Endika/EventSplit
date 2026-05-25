@@ -1,1 +1,10 @@
-{ "app": { "title": "EventSplit" } }
+{
+  "app": { "title": "EventSplit" },
+  "common": {
+    "you": "Zu",
+    "cancel": "Utzi",
+    "save": "Gorde",
+    "next": "Hurrengoa",
+    "back": "Atzera"
+  }
+}

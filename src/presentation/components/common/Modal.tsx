@@ -1,0 +1,34 @@
+import type { ReactNode } from 'react'
+
+export function Modal({
+  open,
+  title,
+  children,
+  dismissable = true,
+  onClose,
+}: {
+  open: boolean
+  title: string
+  children: ReactNode
+  dismissable?: boolean
+  onClose?: () => void
+}) {
+  if (!open) return null
+  return (
+    <div
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="modal-title"
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4"
+      onClick={dismissable ? onClose : undefined}
+    >
+      <div
+        className="w-full max-w-md rounded-2xl bg-white p-6 shadow-xl"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <h2 id="modal-title" className="mb-4 text-lg font-semibold">{title}</h2>
+        {children}
+      </div>
+    </div>
+  )
+}

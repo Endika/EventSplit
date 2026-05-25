@@ -1,1 +1,10 @@
-{ "app": { "title": "EventSplit" } }
+{
+  "app": { "title": "EventSplit" },
+  "common": {
+    "you": "Tú",
+    "cancel": "Cancelar",
+    "save": "Guardar",
+    "next": "Siguiente",
+    "back": "Atrás"
+  }
+}
