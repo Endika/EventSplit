@@ -1,10 +1,12 @@
 {
-  "app": { "title": "EventSplit" },
-  "common": {
-    "you": "Zu",
-    "cancel": "Utzi",
-    "save": "Gorde",
-    "next": "Hurrengoa",
-    "back": "Atzera"
+  "app": { "title": "EventSplit", "notFound": "Ekitaldia ez da aurkitu" },
+  "common": { "you": "Zu", "cancel": "Utzi", "save": "Gorde", "next": "Hurrengoa", "back": "Atzera" },
+  "home": {
+    "tagline": "Banatu ekitaldiko gastuak lagunekin — login gabe.",
+    "createEvent": "Sortu ekitaldia",
+    "eventName": "Ekitaldiaren izena",
+    "yourName": "Zure izena",
+    "yourAlias": "Goitizena (aukerakoa)",
+    "submit": "Sortu"
   }
 }

@@ -1,10 +1,12 @@
 {
-  "app": { "title": "EventSplit" },
-  "common": {
-    "you": "Tú",
-    "cancel": "Cancelar",
-    "save": "Guardar",
-    "next": "Siguiente",
-    "back": "Atrás"
+  "app": { "title": "EventSplit", "notFound": "Evento no encontrado" },
+  "common": { "you": "Tú", "cancel": "Cancelar", "save": "Guardar", "next": "Siguiente", "back": "Atrás" },
+  "home": {
+    "tagline": "Divide los gastos del evento entre amigos — sin login.",
+    "createEvent": "Crear evento",
+    "eventName": "Nombre del evento",
+    "yourName": "Tu nombre",
+    "yourAlias": "Apodo (opcional)",
+    "submit": "Crear"
   }
 }
