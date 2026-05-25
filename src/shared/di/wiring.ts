@@ -1,0 +1,31 @@
+import { Container } from '@/shared/di/Container'
+import { getSupabase } from '@/infrastructure/sync/SupabaseClient'
+import { SupabaseEventRepository } from '@/infrastructure/persistence/SupabaseEventRepository'
+import { LocalStorageCache } from '@/infrastructure/persistence/LocalStorageCache'
+import { RealtimeSync } from '@/infrastructure/sync/RealtimeSync'
+import { OnlineDetector } from '@/infrastructure/network/OnlineDetector'
+import { CreateEventHandler } from '@/application/handlers/CreateEventHandler'
+import { JoinAsNewUserHandler } from '@/application/handlers/JoinAsNewUserHandler'
+import { AddPurchaseHandler } from '@/application/handlers/AddPurchaseHandler'
+import { AddExpenseHandler } from '@/application/handlers/AddExpenseHandler'
+import { SyncEventHandler } from '@/application/handlers/SyncEventHandler'
+import type { IEventRepository } from '@/domain/repositories/IEventRepository'
+
+export function buildContainer(): Container {
+  const c = new Container()
+  c.register('supabase', () => getSupabase())
+  c.register<IEventRepository>('eventRepo', () => new SupabaseEventRepository(c.resolve('supabase')))
+  c.register('cache', () => new LocalStorageCache())
+  c.register('realtime', () => new RealtimeSync(c.resolve('supabase')))
+  c.register('online', () => {
+    const d = new OnlineDetector()
+    d.start()
+    return d
+  })
+  c.register('createEvent', () => new CreateEventHandler(c.resolve('eventRepo')))
+  c.register('joinAsNewUser', () => new JoinAsNewUserHandler(c.resolve('eventRepo')))
+  c.register('addPurchase', () => new AddPurchaseHandler(c.resolve('eventRepo')))
+  c.register('addExpense', () => new AddExpenseHandler(c.resolve('eventRepo')))
+  c.register('syncEvent', () => new SyncEventHandler())
+  return c
+}
