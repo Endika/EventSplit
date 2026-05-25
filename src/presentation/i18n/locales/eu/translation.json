@@ -35,5 +35,25 @@
       "consumers": "Nork kontsumitzen du",
       "submit": "Gorde erosketa"
     }
+  },
+  "expenses": {
+    "add": "Gastua gehitu",
+    "empty": "Oraindik ez dago gasturik.",
+    "paidBy": "Ordaindu duena: {{name}}",
+    "form": {
+      "paidBy": "Nork ordaindu du",
+      "amount": "Zenbatekoa (€)",
+      "description": "Zer izan zen",
+      "submit": "Gorde gastua"
+    },
+    "summary": {
+      "total": "Guztira",
+      "perPerson": "Pertsonako",
+      "person": "Pertsona",
+      "spent": "Gastatua",
+      "balance": "Balantzea",
+      "transfers": "Likidazioa",
+      "transferLine": "{{from}}-(e)k €{{euros}} ordaintzen dizkio {{to}}-(r)i"
+    }
   }
 }

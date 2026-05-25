@@ -35,5 +35,25 @@
       "consumers": "Quién consume",
       "submit": "Guardar compra"
     }
+  },
+  "expenses": {
+    "add": "Añadir gasto",
+    "empty": "Aún no hay gastos.",
+    "paidBy": "Pagado por {{name}}",
+    "form": {
+      "paidBy": "Quién pagó",
+      "amount": "Importe (€)",
+      "description": "Concepto",
+      "submit": "Guardar gasto"
+    },
+    "summary": {
+      "total": "Total gastado",
+      "perPerson": "Por persona",
+      "person": "Persona",
+      "spent": "Gastado",
+      "balance": "Balance",
+      "transfers": "Liquidación",
+      "transferLine": "{{from}} paga €{{euros}} a {{to}}"
+    }
   }
 }

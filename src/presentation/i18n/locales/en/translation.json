@@ -35,5 +35,25 @@
       "consumers": "Who consumes this",
       "submit": "Save purchase"
     }
+  },
+  "expenses": {
+    "add": "Add expense",
+    "empty": "No expenses yet.",
+    "paidBy": "Paid by {{name}}",
+    "form": {
+      "paidBy": "Who paid",
+      "amount": "Amount (€)",
+      "description": "What was it for",
+      "submit": "Save expense"
+    },
+    "summary": {
+      "total": "Total spent",
+      "perPerson": "Per person",
+      "person": "Person",
+      "spent": "Spent",
+      "balance": "Balance",
+      "transfers": "Settlement",
+      "transferLine": "{{from}} pays €{{euros}} to {{to}}"
+    }
   }
 }
