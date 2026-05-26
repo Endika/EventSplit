@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.33.0](https://github.com/Endika/EventSplit/compare/v1.32.0...v1.33.0) (2026-05-26)
+
+
+### Features
+
+* **ui:** restrict edit-pin management to event creator ([46fe73d](https://github.com/Endika/EventSplit/commit/46fe73d2b24187d0df7aad6e1617895647a4b1b9))
+* **ui:** scroll to expense form, remount on switch, unsaved guard ([40565e3](https://github.com/Endika/EventSplit/commit/40565e30cf06b2693a28ca86c364db4f32b181f4))
+
 ## [1.32.0](https://github.com/Endika/EventSplit/compare/v1.31.0...v1.32.0) (2026-05-26)
 
 
