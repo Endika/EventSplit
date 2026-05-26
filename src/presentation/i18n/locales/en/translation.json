@@ -34,6 +34,12 @@
       "revert": "Reverted",
       "edit_pin_set": "PIN set",
       "edit_pin_cleared": "PIN cleared"
+    },
+    "diff": {
+      "before": "Before",
+      "after": "After",
+      "noChanges": "No diff data",
+      "revert": "Revert to this version"
     }
   },
   "allergens": {

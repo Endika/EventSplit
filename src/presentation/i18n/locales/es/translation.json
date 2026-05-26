@@ -34,6 +34,12 @@
       "revert": "Versión revertida",
       "edit_pin_set": "PIN configurado",
       "edit_pin_cleared": "PIN eliminado"
+    },
+    "diff": {
+      "before": "Antes",
+      "after": "Después",
+      "noChanges": "Sin datos de diff",
+      "revert": "Revertir a esta versión"
     }
   },
   "allergens": {

@@ -34,6 +34,12 @@
       "revert": "Bertsioa itzuli",
       "edit_pin_set": "PIN ezarri",
       "edit_pin_cleared": "PIN kendu"
+    },
+    "diff": {
+      "before": "Lehen",
+      "after": "Ondoren",
+      "noChanges": "Diff daturik ez",
+      "revert": "Bertsio honetara itzuli"
     }
   },
   "allergens": {
