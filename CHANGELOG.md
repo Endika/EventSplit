@@ -1,5 +1,28 @@
 # Changelog
 
+## [1.3.0](https://github.com/Endika/EventSplit/compare/v1.2.0...v1.3.0) (2026-05-26)
+
+
+### Features
+
+* **app:** add edit-event-details handler with maps url ([8810ea1](https://github.com/Endika/EventSplit/commit/8810ea1c8088867a7eaae6f4af9c0654fdfb2543))
+* **app:** add set-availability handler with length check ([6ae2e73](https://github.com/Endika/EventSplit/commit/6ae2e73427b93f054f1f1e55377e6eec736823cd))
+* **app:** add set-event-days handler with availability re-align ([30d2fe0](https://github.com/Endika/EventSplit/commit/30d2fe0898ea0833ee9cd24a8cd0e494010dd18d))
+* **app:** add update-profile handler with allergies ([da8f911](https://github.com/Endika/EventSplit/commit/da8f911049c9e596061faf52ea2bbd6ab68f65b1))
+* **domain:** add allergen value object with 14 common types ([a3c2c86](https://github.com/Endika/EventSplit/commit/a3c2c868b15cb13ec842e48cb6cc61dba0b1228a))
+* **domain:** add allergy checker with en/es keyword detection ([bbc3f5a](https://github.com/Endika/EventSplit/commit/bbc3f5a438c14d05371af5f5ed18b5d439ca21ff))
+* **domain:** extend user entity with profile fields and allergies ([6ef277a](https://github.com/Endika/EventSplit/commit/6ef277a4e950a1578d009bcf3d9cec0c32f300a0))
+* **ui:** add doodle-style availability tab with matrix ([e8c2621](https://github.com/Endika/EventSplit/commit/e8c26215314b1b5a55ad43ace3018d0a88de072e))
+* **ui:** add location tab with maps link and event details ([7e9efe4](https://github.com/Endika/EventSplit/commit/7e9efe46a1dd330c385603990652dc60a89c0f10))
+* **ui:** add profile editor with allergies and editable own card ([946262a](https://github.com/Endika/EventSplit/commit/946262ae45c6c2fe4a4d7d917a4057e257fc6663))
+* **ui:** show allergy alert when adding purchases ([fad091d](https://github.com/Endika/EventSplit/commit/fad091d60885fdb020d790cba80cbd4d71cb394e))
+* **ui:** wire availability and location tabs in event nav ([6e0a571](https://github.com/Endika/EventSplit/commit/6e0a57161f9ada007c5dcd7a9b833192f59cfcd8))
+
+
+### Chores
+
+* **infra:** register slice 2 handlers in container ([07214d3](https://github.com/Endika/EventSplit/commit/07214d3f63129fefc58b2d2d8e2b52ed09071474))
+
 ## [1.2.0](https://github.com/Endika/EventSplit/compare/v1.1.0...v1.2.0) (2026-05-26)
 
 
