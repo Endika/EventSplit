@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.38.0](https://github.com/Endika/EventSplit/compare/v1.37.0...v1.38.0) (2026-05-26)
+
+
+### Features
+
+* **i18n:** keep planning label for the first stage ([0de1ff5](https://github.com/Endika/EventSplit/commit/0de1ff544fa2f3eadbde966962d24c0932a365b8))
+
 ## [1.37.0](https://github.com/Endika/EventSplit/compare/v1.36.0...v1.37.0) (2026-05-26)
 
 
