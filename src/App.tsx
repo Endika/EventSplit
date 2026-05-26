@@ -8,6 +8,7 @@ import { HomePage } from '@/presentation/components/features/home/HomePage'
 import { PinPromptModal } from '@/presentation/components/features/security/PinPromptModal'
 import { OfflineBanner } from '@/presentation/components/features/pwa/OfflineBanner'
 import { UpdateBanner } from '@/presentation/components/features/pwa/UpdateBanner'
+import { InstallPrompt } from '@/presentation/components/features/pwa/InstallPrompt'
 import { ErrorBanner } from '@/presentation/components/common/ErrorBanner'
 import { Footer } from '@/presentation/components/common/Footer'
 
@@ -39,6 +40,7 @@ export default function App() {
             <WriteGuardProvider>
               <OfflineBanner />
               <UpdateBanner />
+              <InstallPrompt />
               <ErrorBanner />
               <Suspense fallback={<div className="p-6 text-slate-400">…</div>}>
                 {eventId ? <EventPage eventId={eventId} /> : <HomePage />}

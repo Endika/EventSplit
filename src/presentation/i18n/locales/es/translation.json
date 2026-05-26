@@ -2,6 +2,12 @@
   "offline": "Sin conexión — solo lectura",
   "updateAvailable": "Nueva versión disponible",
   "updateNow": "Actualizar ahora",
+  "install": {
+    "title": "Instala EventSplit en tu dispositivo",
+    "button": "Instalar",
+    "iosHint": "Para instalar: pulsa el botón Compartir y luego \"Añadir a pantalla de inicio\".",
+    "dismiss": "Cerrar"
+  },
   "app": {
     "title": "EventSplit",
     "notFound": "Evento no encontrado"

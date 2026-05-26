@@ -2,6 +2,12 @@
   "offline": "Sense connexió — només lectura",
   "updateAvailable": "Nova versió disponible",
   "updateNow": "Actualitza ara",
+  "install": {
+    "title": "Instal·la EventSplit al teu dispositiu",
+    "button": "Instal·lar",
+    "iosHint": "Per a instal·lar: toca el botó Comparteix i després \"Afig a la pantalla d'inici\".",
+    "dismiss": "Tancar"
+  },
   "app": {
     "title": "EventSplit",
     "notFound": "Esdeveniment no trobat"
