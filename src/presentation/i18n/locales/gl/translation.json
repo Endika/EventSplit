@@ -289,7 +289,9 @@
     "removePin": "Quitar PIN",
     "removeConfirm": "Quitar o PIN de edición? Calquera coa ligazón poderá editar.",
     "removeYes": "Quitar PIN",
-    "manageHint": "O PIN protexe as edicións se compartes a ligazón con moita xente."
+    "manageHint": "O PIN protexe as edicións se compartes a ligazón con moita xente.",
+    "lockDevice": "Bloquear este dispositivo (pedir PIN de novo)",
+    "ownerVerifiedHint": "O teu dispositivo xa está verificado porque puxeches o PIN — aos demais si llelo pedirá."
   },
   "errorBanner": {
     "title": "Erro",

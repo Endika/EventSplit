@@ -289,7 +289,9 @@
     "removePin": "Kendu PINa",
     "removeConfirm": "Edizio PINa kendu? Esteka duen edonork editatu ahal izango du.",
     "removeYes": "Kendu PINa",
-    "manageHint": "PINak edizioak babesten ditu esteka jende askorekin partekatzen baduzu."
+    "manageHint": "PINak edizioak babesten ditu esteka jende askorekin partekatzen baduzu.",
+    "lockDevice": "Blokeatu gailu hau (PINa berriz eskatu)",
+    "ownerVerifiedHint": "Zure gailua egiaztatuta dago zuk PINa ezarri duzulako — besteei eskatuko zaie."
   },
   "errorBanner": {
     "title": "Errorea",

@@ -289,7 +289,9 @@
     "removePin": "Remove PIN",
     "removeConfirm": "Remove the edit PIN? Anyone with the link will be able to edit.",
     "removeYes": "Remove PIN",
-    "manageHint": "The PIN protects edits if the event link is shared widely."
+    "manageHint": "The PIN protects edits if the event link is shared widely.",
+    "lockDevice": "Lock this device (require PIN again)",
+    "ownerVerifiedHint": "Your device is already verified because you set the PIN — others will be asked for it."
   },
   "errorBanner": {
     "title": "Error",

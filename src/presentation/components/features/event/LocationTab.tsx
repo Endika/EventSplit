@@ -374,8 +374,21 @@ export function LocationTab() {
             )}
           </>
         )}
+        {hasPin && (
+          <button
+            type="button"
+            onClick={() => {
+              localStorage.removeItem(`eventsplit.pin.${event.id}`)
+              window.location.reload()
+            }}
+            className="text-xs text-slate-400 hover:text-slate-200"
+          >
+            {t('pin.lockDevice')}
+          </button>
+        )}
         {pinError && <p className="text-xs text-rose-400">{pinError}</p>}
         <p className="text-xs text-slate-600">{t('pin.manageHint')}</p>
+        <p className="text-xs text-slate-600">{t('pin.ownerVerifiedHint')}</p>
       </div>
     </div>
   )

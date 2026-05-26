@@ -289,7 +289,9 @@
     "removePin": "Llevar PIN",
     "removeConfirm": "Llevar el PIN d'edició? Qualsevol amb l'enllaç podrà editar.",
     "removeYes": "Llevar PIN",
-    "manageHint": "El PIN protegix les edicions si compartixes l'enllaç amb molta gent."
+    "manageHint": "El PIN protegix les edicions si compartixes l'enllaç amb molta gent.",
+    "lockDevice": "Bloquejar este dispositiu (tornar a demanar PIN)",
+    "ownerVerifiedHint": "El teu dispositiu ja està verificat perquè tu vas posar el PIN — als altres sí que se'ls demanarà."
   },
   "errorBanner": {
     "title": "Error",
