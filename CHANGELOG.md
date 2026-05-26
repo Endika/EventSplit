@@ -1,5 +1,15 @@
 # Changelog
 
+## [1.27.0](https://github.com/Endika/EventSplit/compare/v1.26.0...v1.27.0) (2026-05-26)
+
+
+### Features
+
+* **app:** add set-availability-meta handler ([dad2948](https://github.com/Endika/EventSplit/commit/dad2948ef7e224d9523ef02261d2c337b986ef1f))
+* **domain:** add availability note and chosen day to event ([00d79ec](https://github.com/Endika/EventSplit/commit/00d79eca8fd9c084be35af5263d03b9599294194))
+* **ui:** allergy notes field, especially for other ([87a8ea2](https://github.com/Endika/EventSplit/commit/87a8ea25dcc2c4107f728209ebbcbb8ba134e25c))
+* **ui:** availability description and chosen day highlight ([f709750](https://github.com/Endika/EventSplit/commit/f70975076bc51a23a023c6fbf02c74e366a49250))
+
 ## [1.26.0](https://github.com/Endika/EventSplit/compare/v1.25.0...v1.26.0) (2026-05-26)
 
 
