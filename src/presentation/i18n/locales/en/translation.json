@@ -212,6 +212,15 @@
     "removeYes": "Yes, remove",
     "removeCancel": "Cancel"
   },
+  "stage": {
+    "title": "Stage",
+    "doodle": "Planning",
+    "shopping": "Shopping",
+    "expenses": "Expenses",
+    "doodleHint": "Pick the days",
+    "shoppingHint": "List what to buy",
+    "expensesHint": "Track who paid"
+  },
   "event": {
     "share": "Share",
     "shareTitle": "Share event",

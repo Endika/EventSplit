@@ -7,8 +7,16 @@ import { LocationTab } from './LocationTab'
 import { PurchasesTab } from './PurchasesTab'
 import { ExpensesTab } from './ExpensesTab'
 import { HistoryTab } from './HistoryTab'
+import { StageSelector } from './StageSelector'
 
 type Tab = 'participants' | 'availability' | 'location' | 'purchases' | 'expenses' | 'history'
+
+function defaultTabForStage(stage: string | undefined): Tab {
+  if (stage === 'shopping') return 'purchases'
+  if (stage === 'expenses') return 'expenses'
+  if (stage === 'doodle') return 'availability'
+  return 'participants'
+}
 
 const TAB_ICONS: Record<Tab, string> = {
   participants: '👥',
@@ -22,7 +30,7 @@ const TAB_ICONS: Record<Tab, string> = {
 export function EventTabs() {
   const { t } = useTranslation()
   const { event } = useEventState()
-  const [active, setActive] = useState<Tab>('participants')
+  const [active, setActive] = useState<Tab>(() => defaultTabForStage(event?.stage))
   const [drawerOpen, setDrawerOpen] = useState(false)
 
   const tabs: { key: Tab; label: string }[] = [
@@ -78,9 +86,16 @@ export function EventTabs() {
             <line x1="3" y1="18" x2="21" y2="18"/>
           </svg>
         </button>
-        <h1 className="flex-1 truncate text-base font-semibold text-slate-100">
-          {event?.name ?? ''}
-        </h1>
+        <div className="flex flex-1 flex-col truncate">
+          <h1 className="truncate text-base font-semibold text-slate-100">
+            {event?.name ?? ''}
+          </h1>
+          {event?.stage && (
+            <span className="text-[10px] uppercase tracking-wide text-violet-300">
+              {t(`stage.${event.stage}`)}
+            </span>
+          )}
+        </div>
         <button
           type="button"
           onClick={shareEvent}
@@ -138,6 +153,9 @@ export function EventTabs() {
                 </svg>
               </button>
             </div>
+            <div className="border-b border-slate-800 px-4 py-3">
+              <StageSelector />
+            </div>
             <nav className="py-2">
               {tabs.map((tab) => {
                 const isActive = active === tab.key
@@ -171,6 +189,11 @@ export function EventTabs() {
           </aside>
         </div>
       )}
+
+      {/* DESKTOP — stage selector */}
+      <div className="mb-3 hidden md:block">
+        <StageSelector />
+      </div>
 
       {/* DESKTOP — horizontal nav */}
       <nav className="mb-4 hidden gap-2 overflow-x-auto border-b border-slate-800 md:flex">

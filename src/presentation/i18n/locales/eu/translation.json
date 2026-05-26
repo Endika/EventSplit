@@ -212,6 +212,15 @@
     "removeYes": "Bai, kendu",
     "removeCancel": "Utzi"
   },
+  "stage": {
+    "title": "Fasea",
+    "doodle": "Plangintza",
+    "shopping": "Erosketa",
+    "expenses": "Gastuak",
+    "doodleHint": "Egunak aukeratu",
+    "shoppingHint": "Erosi beharrekoa",
+    "expensesHint": "Nork ordaindu duen"
+  },
   "event": {
     "share": "Partekatu",
     "shareTitle": "Ekitaldia partekatu",

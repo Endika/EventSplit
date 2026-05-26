@@ -212,6 +212,15 @@
     "removeYes": "Sí, quitar",
     "removeCancel": "Cancelar"
   },
+  "stage": {
+    "title": "Fase",
+    "doodle": "Planificación",
+    "shopping": "Compra",
+    "expenses": "Gastos",
+    "doodleHint": "Elegir los días",
+    "shoppingHint": "Lista de la compra",
+    "expensesHint": "Quién pagó qué"
+  },
   "event": {
     "share": "Compartir",
     "shareTitle": "Compartir evento",
