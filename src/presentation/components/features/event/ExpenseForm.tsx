@@ -2,6 +2,7 @@ import { type FormEvent, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useContainer } from '@/presentation/context/ContainerProvider'
 import { useEventState } from '@/presentation/context/EventContext'
+import { useCurrentUser } from '@/presentation/context/UserContext'
 import type { AddExpenseHandler } from '@/application/handlers/AddExpenseHandler'
 import type { LocalStorageCache } from '@/infrastructure/persistence/LocalStorageCache'
 import { Button } from '@/presentation/components/common/Button'
@@ -14,9 +15,10 @@ export function ExpenseForm({ onDone }: { onDone: () => void }) {
   const { t } = useTranslation()
   const container = useContainer()
   const { event, setEvent } = useEventState()
+  const me = useCurrentUser()
   const online = useOnlineStatus()
   const { guardedExecute } = useWriteGuard()
-  const [paidBy, setPaidBy] = useState('')
+  const [paidBy, setPaidBy] = useState(me?.id ?? '')
   const [amount, setAmount] = useState('')
   const [description, setDescription] = useState('')
   const [busy, setBusy] = useState(false)
