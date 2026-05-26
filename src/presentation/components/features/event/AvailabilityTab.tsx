@@ -5,6 +5,7 @@ import { useEventState } from '@/presentation/context/EventContext'
 import { useCurrentUser } from '@/presentation/context/UserContext'
 import type { SetEventDaysHandler } from '@/application/handlers/SetEventDaysHandler'
 import type { SetAvailabilityBatchHandler } from '@/application/handlers/SetAvailabilityBatchHandler'
+import type { SetAvailabilityMetaHandler } from '@/application/handlers/SetAvailabilityMetaHandler'
 import type { LocalStorageCache } from '@/infrastructure/persistence/LocalStorageCache'
 import { useWriteGuard } from '@/presentation/context/WriteGuardContext'
 import { reportError } from '@/shared/utils/reportError'
@@ -47,6 +48,7 @@ export function AvailabilityTab() {
   const { guardedExecute } = useWriteGuard()
 
   const [newDay, setNewDay] = useState('')
+  const [note, setNote] = useState(event?.availabilityNote ?? '')
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [drafts, setDrafts] = useState<Drafts>(() =>
@@ -129,11 +131,64 @@ export function AvailabilityTab() {
     })
   }
 
+  function saveNote() {
+    if (!event || !me) return
+    if ((event.availabilityNote ?? '') === note.trim()) return // no change
+    guardedExecute(async () => {
+      try {
+        const handler = container.resolve<SetAvailabilityMetaHandler>('setAvailabilityMeta')
+        const result = await handler.execute({
+          eventId: event.id,
+          userId: me.id,
+          note: note.trim() || null,
+          chosenDay: event.chosenDay,
+        })
+        container
+          .resolve<LocalStorageCache>('cache')
+          .set(event.id, { snapshot: result.event, version: result.version })
+        setEvent(result.event, result.version)
+      } catch (err) {
+        reportError('AvailabilityTab', err)
+      }
+    })
+  }
+
+  function pickDay(day: string) {
+    if (!event || !me) return
+    const next = event.chosenDay === day ? null : day
+    guardedExecute(async () => {
+      try {
+        const handler = container.resolve<SetAvailabilityMetaHandler>('setAvailabilityMeta')
+        const result = await handler.execute({
+          eventId: event.id,
+          userId: me.id,
+          note: event.availabilityNote ?? null,
+          chosenDay: next,
+        })
+        container
+          .resolve<LocalStorageCache>('cache')
+          .set(event.id, { snapshot: result.event, version: result.version })
+        setEvent(result.event, result.version)
+      } catch (err) {
+        reportError('AvailabilityTab', err)
+      }
+    })
+  }
+
   return (
     <div className="space-y-4">
       <h2 className="text-sm font-semibold uppercase tracking-wide text-slate-400">
         {t('availability.title')}
       </h2>
+
+      <input
+        className="w-full rounded-lg border border-slate-700 bg-slate-900 px-3 py-2 text-sm text-slate-100 placeholder-slate-500 focus:border-violet-500 focus:outline-none focus:ring-1 focus:ring-violet-500"
+        value={note}
+        onChange={(e) => setNote(e.target.value)}
+        onBlur={saveNote}
+        maxLength={200}
+        placeholder={t('availability.notePlaceholder')}
+      />
 
       <form onSubmit={addDay} className="flex gap-2">
         <Input
@@ -164,11 +219,25 @@ export function AvailabilityTab() {
               <thead className="text-xs uppercase text-slate-500">
                 <tr>
                   <th className="p-3 text-left">&nbsp;</th>
-                  {event.days.map((d) => (
-                    <th key={d} className="p-3 text-center font-medium text-slate-300">
-                      {formatDate(d, i18n.language)}
-                    </th>
-                  ))}
+                  {event.days.map((d) => {
+                    const isChosen = event.chosenDay === d
+                    return (
+                      <th
+                        key={d}
+                        className={`p-3 text-center font-medium ${isChosen ? 'bg-violet-900/40 text-violet-200' : 'text-slate-300'}`}
+                      >
+                        <button
+                          type="button"
+                          onClick={() => pickDay(d)}
+                          className="flex flex-col items-center gap-0.5"
+                          title={t('availability.pickDay')}
+                        >
+                          <span>{formatDate(d, i18n.language)}</span>
+                          <span className={isChosen ? 'text-violet-300' : 'text-slate-600'}>📌</span>
+                        </button>
+                      </th>
+                    )
+                  })}
                 </tr>
               </thead>
               <tbody>
@@ -183,7 +252,7 @@ export function AvailabilityTab() {
                       {event.days.map((d) => {
                         const checked = drafts[u.id]?.[d] ?? false
                         return (
-                          <td key={d} className="p-3 text-center">
+                          <td key={d} className={`p-3 text-center ${event.chosenDay === d ? 'bg-violet-900/20' : ''}`}>
                             <input
                               type="checkbox"
                               checked={checked}
@@ -208,7 +277,7 @@ export function AvailabilityTab() {
                       0,
                     )
                     return (
-                      <td key={d} className="p-3 text-center">
+                      <td key={d} className={`p-3 text-center ${event.chosenDay === d ? 'bg-violet-900/20' : ''}`}>
                         <span className="font-semibold text-teal-300">{count}</span>
                         <span className="text-slate-500">/{event.users.length}</span>
                       </td>

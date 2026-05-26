@@ -113,7 +113,10 @@
     "myVotes": "Tus votos",
     "othersVotes": "Otros",
     "editAnyoneHint": "Marca cualquier casilla para indicar disponibilidad — puedes rellenar por quien viva contigo.",
-    "votes": "Disponibles"
+    "votes": "Disponibles",
+    "notePlaceholder": "Añade una nota (ej. solo fines de semana)",
+    "pickDay": "Marcar como día elegido",
+    "chosenDay": "Día elegido"
   },
   "id": {
     "who": "¿Quién eres en \"{{eventName}}\"?",

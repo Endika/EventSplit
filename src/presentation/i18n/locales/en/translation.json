@@ -113,7 +113,10 @@
     "myVotes": "Your votes",
     "othersVotes": "Others",
     "editAnyoneHint": "Tap any checkbox to set availability — you can fill in for people who live with you.",
-    "votes": "Available"
+    "votes": "Available",
+    "notePlaceholder": "Add a note (e.g. weekends only)",
+    "pickDay": "Mark as chosen day",
+    "chosenDay": "Chosen day"
   },
   "id": {
     "who": "Who are you in \"{{eventName}}\"?",
