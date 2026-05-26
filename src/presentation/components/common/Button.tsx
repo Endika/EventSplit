@@ -8,7 +8,7 @@ export function Button({
   const base = 'rounded-lg px-4 py-2 text-sm font-medium transition disabled:opacity-50'
   const styles =
     variant === 'primary'
-      ? 'bg-indigo-600 text-white hover:bg-indigo-700'
-      : 'bg-gray-100 text-gray-900 hover:bg-gray-200'
+      ? 'bg-gradient-to-br from-violet-500 to-teal-400 text-white hover:from-violet-400 hover:to-teal-300 shadow-lg shadow-violet-900/30'
+      : 'bg-slate-800 text-slate-100 hover:bg-slate-700 border border-slate-700'
   return <button className={`${base} ${styles} ${className}`} {...rest} />
 }

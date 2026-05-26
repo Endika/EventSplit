@@ -16,14 +16,14 @@ export function EventTabs() {
   ]
   return (
     <div>
-      <nav className="mb-4 flex gap-2 border-b">
+      <nav className="mb-4 flex gap-2 border-b border-slate-800">
         {tabs.map((tab) => (
           <button
             key={tab.key}
             className={`px-4 py-2 text-sm font-medium ${
               active === tab.key
-                ? 'border-b-2 border-indigo-600 text-indigo-700'
-                : 'text-gray-600'
+                ? 'border-b-2 border-violet-400 text-violet-300'
+                : 'text-slate-400 hover:text-slate-200'
             }`}
             onClick={() => setActive(tab.key)}
           >

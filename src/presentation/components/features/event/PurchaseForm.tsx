@@ -76,11 +76,11 @@ export function PurchaseForm({ onDone }: { onDone: () => void }) {
   }
 
   return (
-    <form onSubmit={submit} className="space-y-3 rounded-lg border p-4">
-      <label className="block text-sm">
+    <form onSubmit={submit} className="space-y-3 rounded-lg border border-slate-800 bg-slate-900 p-4">
+      <label className="block text-sm text-slate-300">
         {t('purchases.form.category')}
         <select
-          className="mt-1 block w-full rounded-lg border-gray-300 p-2 text-sm"
+          className="mt-1 block w-full rounded-lg border border-slate-700 bg-slate-900 p-2 text-sm text-slate-100"
           value={category}
           onChange={(e) => setCategory(e.target.value as (typeof CATEGORIES)[number])}
         >
@@ -108,7 +108,7 @@ export function PurchaseForm({ onDone }: { onDone: () => void }) {
           onChange={(e) => setQuantity(parseFloat(e.target.value))}
         />
         <select
-          className="rounded-lg border-gray-300 p-2 text-sm"
+          className="rounded-lg border border-slate-700 bg-slate-900 p-2 text-sm text-slate-100"
           value={unit}
           onChange={(e) => setUnit(e.target.value as (typeof UNITS)[number])}
         >
@@ -135,7 +135,7 @@ export function PurchaseForm({ onDone }: { onDone: () => void }) {
         onChange={(e) => setDays(parseInt(e.target.value, 10))}
       />
       <div>
-        <p className="mb-2 text-sm font-medium">{t('purchases.form.consumers')}</p>
+        <p className="mb-2 text-sm font-medium text-slate-300">{t('purchases.form.consumers')}</p>
         <ul className="space-y-1">
           {event.users.map((u) => {
             const selected = consumers[u.id] !== undefined
@@ -151,7 +151,7 @@ export function PurchaseForm({ onDone }: { onDone: () => void }) {
                 <YouLabel userId={u.id} />
                 {selected && (
                   <select
-                    className="ml-auto rounded border p-1"
+                    className="ml-auto rounded border border-slate-700 bg-slate-900 p-1 text-slate-200"
                     value={m}
                     onChange={(e) => setMultiplier(u.id, parseFloat(e.target.value))}
                   >
@@ -165,7 +165,7 @@ export function PurchaseForm({ onDone }: { onDone: () => void }) {
           })}
         </ul>
       </div>
-      {error && <p className="text-sm text-red-600">{error}</p>}
+      {error && <p className="text-sm text-rose-400">{error}</p>}
       <div className="flex gap-2">
         <Button type="button" variant="secondary" onClick={onDone} disabled={busy}>
           {t('common.cancel')}

@@ -46,8 +46,8 @@ export function HomePage() {
 
   return (
     <main className="mx-auto max-w-md p-6">
-      <h1 className="mb-2 text-3xl font-bold">{t('app.title')}</h1>
-      <p className="mb-6 text-gray-600">{t('home.tagline')}</p>
+      <h1 className="mb-2 text-3xl font-bold text-slate-100">{t('app.title')}</h1>
+      <p className="mb-6 text-slate-400">{t('home.tagline')}</p>
       <form onSubmit={onSubmit} className="space-y-3">
         <Input
           placeholder={t('home.eventName')}
@@ -71,7 +71,7 @@ export function HomePage() {
           onChange={(e) => setAlias(e.target.value)}
           maxLength={50}
         />
-        {error && <p className="text-sm text-red-600">{error}</p>}
+        {error && <p className="text-sm text-rose-400">{error}</p>}
         <Button type="submit" disabled={busy || !online}>
           {busy ? '…' : t('home.submit')}
         </Button>

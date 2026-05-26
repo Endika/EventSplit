@@ -8,7 +8,7 @@ export function OfflineBanner() {
   return (
     <div
       role="status"
-      className="bg-amber-200 px-4 py-2 text-center text-sm font-medium text-amber-900"
+      className="bg-amber-400 px-4 py-2 text-center text-sm font-medium text-amber-950"
     >
       {t('offline')}
     </div>

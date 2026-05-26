@@ -47,11 +47,11 @@ export function ExpenseForm({ onDone }: { onDone: () => void }) {
   }
 
   return (
-    <form onSubmit={submit} className="space-y-3 rounded-lg border p-4">
-      <label className="block text-sm">
+    <form onSubmit={submit} className="space-y-3 rounded-lg border border-slate-800 bg-slate-900 p-4">
+      <label className="block text-sm text-slate-300">
         {t('expenses.form.paidBy')}
         <select
-          className="mt-1 block w-full rounded-lg border-gray-300 p-2 text-sm"
+          className="mt-1 block w-full rounded-lg border border-slate-700 bg-slate-900 p-2 text-sm text-slate-100"
           required
           value={paidBy}
           onChange={(e) => setPaidBy(e.target.value)}
@@ -82,7 +82,7 @@ export function ExpenseForm({ onDone }: { onDone: () => void }) {
         minLength={3}
         maxLength={100}
       />
-      {error && <p className="text-sm text-red-600">{error}</p>}
+      {error && <p className="text-sm text-rose-400">{error}</p>}
       <div className="flex gap-2">
         <Button type="button" variant="secondary" onClick={onDone} disabled={busy}>
           {t('common.cancel')}

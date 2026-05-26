@@ -21,16 +21,16 @@ export function ExpensesTab() {
       {!adding && <Button onClick={() => setAdding(true)}>{t('expenses.add')}</Button>}
       {adding && <ExpenseForm onDone={() => setAdding(false)} />}
       {event.expenses.length === 0 && (
-        <p className="text-sm text-gray-500">{t('expenses.empty')}</p>
+        <p className="text-sm text-slate-400">{t('expenses.empty')}</p>
       )}
       <ul className="space-y-2">
         {event.expenses.map((e) => (
-          <li key={e.id} className="rounded-lg border p-3">
+          <li key={e.id} className="rounded-lg border border-slate-800 bg-slate-900 p-3">
             <div className="flex items-center justify-between">
-              <span className="font-medium">{e.description}</span>
-              <span className="text-sm">€{fmt(e.cents)}</span>
+              <span className="font-medium text-slate-100">{e.description}</span>
+              <span className="text-sm text-slate-200">€{fmt(e.cents)}</span>
             </div>
-            <div className="text-xs text-gray-500">
+            <div className="text-xs text-slate-500">
               {t('expenses.paidBy', { name: nameOf(e.paidBy) })}
               <YouLabel userId={e.paidBy} />
             </div>
