@@ -243,9 +243,9 @@ export function PurchaseForm({
             <Input
               className="mt-1"
               type="number"
-              min="0.5"
+              min="0.01"
               max="100"
-              step="0.5"
+              step="any"
               value={dailyConsumption}
               onChange={(e) => setDailyConsumption(parseFloat(e.target.value))}
             />
