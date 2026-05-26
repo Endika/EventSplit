@@ -1,5 +1,14 @@
 # Changelog
 
+## [1.9.0](https://github.com/Endika/EventSplit/compare/v1.8.0...v1.9.0) (2026-05-26)
+
+
+### Features
+
+* **domain:** add adult child kind to user entity ([21d4646](https://github.com/Endika/EventSplit/commit/21d4646e039751cbf89c47caa60bf047a20c9948))
+* **ui:** add participant modal and kind selector ([ab8271b](https://github.com/Endika/EventSplit/commit/ab8271bbb9cf6422b7d2422f05486324c2fca1a7))
+* **ui:** default purchase multiplier by participant kind ([f1c8e78](https://github.com/Endika/EventSplit/commit/f1c8e783eae6563fc18ad827a6952e83ffce3551))
+
 ## [1.8.0](https://github.com/Endika/EventSplit/compare/v1.7.0...v1.8.0) (2026-05-26)
 
 
