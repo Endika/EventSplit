@@ -18,7 +18,7 @@ import type { LocalStorageCache } from '@/infrastructure/persistence/LocalStorag
 import { reportError } from '@/shared/utils/reportError'
 import { PurchaseForm } from './PurchaseForm'
 
-const KNOWN_UNITS = ['units', 'bottles', 'cans', 'kg', 'liters']
+const KNOWN_UNITS = ['units', 'bottles', 'cans', 'kg', 'liters', 'single']
 function displayUnit(unit: string, t: (k: string) => string): string {
   return KNOWN_UNITS.includes(unit) ? t(`purchases.form.units.${unit}`) : unit
 }

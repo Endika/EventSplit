@@ -29,6 +29,12 @@ export interface PurchaseSnapshot {
 
 export const VALID_UNITS = ['units', 'bottles', 'cans', 'kg', 'liters'] as const
 
+/**
+ * Sentinel unit for shared staples (salt, sugar, oil): the quantity is FIXED
+ * and not multiplied by consumers/days — you only need one for the whole group.
+ */
+export const SHARED_UNIT = 'single'
+
 function validateUnit(unit: string): string {
   const trimmed = unit.trim()
   if (trimmed.length < 1 || trimmed.length > 30)
@@ -69,7 +75,10 @@ export class Purchase {
       (sum, c) => sum + input.dailyConsumption * c.multiplier,
       0,
     )
-    const totalQuantity = Math.round(totalDaily * input.days * 100) / 100
+    const totalQuantity =
+      unit === SHARED_UNIT
+        ? Math.round(input.quantity * 100) / 100
+        : Math.round(totalDaily * input.days * 100) / 100
 
     return new Purchase({
       id: uuidv7(),
@@ -192,7 +201,10 @@ export class Purchase {
       (sum, c) => sum + input.dailyConsumption * c.multiplier,
       0,
     )
-    const totalQuantity = Math.round(totalDaily * input.days * 100) / 100
+    const totalQuantity =
+      unit === SHARED_UNIT
+        ? Math.round(input.quantity * 100) / 100
+        : Math.round(totalDaily * input.days * 100) / 100
 
     return new Purchase({
       ...this.s,

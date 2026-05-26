@@ -217,6 +217,7 @@
       "consumers": "Qui consumeix",
       "itemPlaceholder": "ex. Coca-Cola",
       "dailyConsumptionHelp": "Quant consumeix cada persona al dia",
+      "singleHelp": "Quantitat fixa — no es reparteix per persona ni dia (sal, sucre, oli…).",
       "daysHelp": "Quants dies dura l'esdeveniment",
       "totalPreview": "Total a comprar: {{n}} {{unit}}",
       "selectAll": "Tots",
@@ -229,7 +230,8 @@
         "bottles": "ampolles",
         "cans": "llaunes",
         "kg": "kg",
-        "liters": "litres"
+        "liters": "litres",
+        "single": "Unitat única (compartida)"
       },
       "unitPlaceholder": "ex. ampolles, garrafa 8L",
       "assignedTo": "Qui ho compra",

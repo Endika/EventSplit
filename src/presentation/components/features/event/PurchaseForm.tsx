@@ -20,7 +20,7 @@ import { AllergyAlertModal } from './AllergyAlertModal'
 import { reportError } from '@/shared/utils/reportError'
 import { parseDecimal } from '@/shared/utils/parseDecimal'
 
-const UNITS = ['units', 'bottles', 'cans', 'kg', 'liters'] as const
+const UNITS = ['units', 'bottles', 'cans', 'kg', 'liters', 'single'] as const
 
 export function PurchaseForm({
   onDone,
@@ -51,10 +51,13 @@ export function PurchaseForm({
   const [item, setItem] = useState(purchase?.item ?? '')
   const [quantity, _setQuantity] = useState(purchase?.quantity ?? 1)
   const [bringQtyStr, setBringQtyStr] = useState(String(purchase?.quantity ?? 1))
+  const [singleQtyStr, setSingleQtyStr] = useState(String(purchase?.quantity ?? 1))
   const [broughtBy, setBroughtBy] = useState<string | null>(purchase?.assignedTo ?? me?.id ?? null)
   const [unit, setUnit] = useState<string>(purchase?.unit ?? 'units')
   const [dailyStr, setDailyStr] = useState(String(purchase?.dailyConsumption ?? 1))
   const dailyConsumption = parseDecimal(dailyStr)
+  // Shared staples (unit "single"): fixed quantity, no per-person/day calc.
+  const isSingle = mode === 'buy' && unit === 'single'
   const [days, setDays] = useState(inferredDays)
   const [consumers, setConsumers] = useState<Record<string, number>>(() => {
     if (purchase) {
@@ -82,7 +85,7 @@ export function PurchaseForm({
   }, [])
 
   const currentSnapshot = JSON.stringify({
-    mode, item, quantity, unit, dailyStr, days, consumers, assignedTo, group, bringQtyStr, broughtBy,
+    mode, item, quantity, unit, dailyStr, days, consumers, assignedTo, group, bringQtyStr, broughtBy, singleQtyStr,
   })
   const [initialSnapshot] = useState(currentSnapshot)
   const isDirty = initialSnapshot !== currentSnapshot
@@ -177,7 +180,22 @@ export function PurchaseForm({
           onDone()
           return
         }
-        const list = Object.entries(consumers).map(([userId, multiplier]) => ({ userId, multiplier }))
+        // Shared-staple items use a fixed quantity and skip the per-person calc;
+        // pass valid placeholders for the calc fields the domain still validates.
+        let buyQuantity = quantity
+        if (isSingle) {
+          buyQuantity = parseDecimal(singleQtyStr)
+          if (!Number.isFinite(buyQuantity) || buyQuantity <= 0) {
+            setError(t('purchases.form.invalidQuantity'))
+            setBusy(false)
+            return
+          }
+        }
+        const buyDaily = isSingle ? 1 : dailyConsumption
+        const buyDays = isSingle ? 1 : days
+        const list = isSingle
+          ? event.users.map((u) => ({ userId: u.id, multiplier: 1 }))
+          : Object.entries(consumers).map(([userId, multiplier]) => ({ userId, multiplier }))
         if (purchase) {
           const handler = container.resolve<EditPurchaseHandler>('editPurchase')
           const result = await handler.execute({
@@ -185,11 +203,11 @@ export function PurchaseForm({
             purchaseId: purchase.id,
             editedBy: me.id,
             item,
-            quantity,
+            quantity: buyQuantity,
             unit,
-            dailyConsumption,
+            dailyConsumption: buyDaily,
             consumers: list,
-            days,
+            days: buyDays,
             assignedTo: purchase.assignedTo ?? null,
             group: group.trim() || null,
           })
@@ -203,11 +221,11 @@ export function PurchaseForm({
             eventId: event.id,
             createdBy: me.id,
             item,
-            quantity,
+            quantity: buyQuantity,
             unit,
-            dailyConsumption,
+            dailyConsumption: buyDaily,
             consumers: list,
-            days,
+            days: buyDays,
             assignedTo,
             group: group.trim() || null,
           })
@@ -364,13 +382,13 @@ export function PurchaseForm({
         <>
         <div className="grid grid-cols-2 gap-3">
           <label className="block text-sm text-slate-300">
-            {t('purchases.form.dailyConsumption')}
+            {isSingle ? t('purchases.form.quantity') : t('purchases.form.dailyConsumption')}
             <Input
               className="mt-1"
               type="text"
               inputMode="decimal"
-              value={dailyStr}
-              onChange={(e) => setDailyStr(e.target.value)}
+              value={isSingle ? singleQtyStr : dailyStr}
+              onChange={(e) => (isSingle ? setSingleQtyStr(e.target.value) : setDailyStr(e.target.value))}
             />
           </label>
           <label className="block text-sm text-slate-300">
@@ -389,6 +407,11 @@ export function PurchaseForm({
             </select>
           </label>
         </div>
+        {isSingle && (
+          <p className="-mt-1 text-xs text-slate-500">{t('purchases.form.singleHelp')}</p>
+        )}
+        {!isSingle && (
+        <>
         <p className="-mt-1 text-xs text-slate-500">{t('purchases.form.dailyConsumptionHelp')}</p>
         <label className="block text-sm text-slate-300">
           {t('purchases.form.days')}
@@ -443,6 +466,8 @@ export function PurchaseForm({
             })}
           </ul>
         </div>
+        </>
+        )}
         <label className="block text-sm text-slate-300">
           {t('purchases.form.assignedTo')}
           <select
@@ -458,7 +483,7 @@ export function PurchaseForm({
               ))}
           </select>
         </label>
-        {(() => {
+        {!isSingle && (() => {
           const totalDaily = Object.values(consumers).reduce(
             (sum, mul) => sum + dailyConsumption * mul,
             0,
@@ -503,7 +528,7 @@ export function PurchaseForm({
           >
             {t('common.cancel')}
           </Button>
-          <Button type="submit" disabled={busy || !online || (!purchase && !item) || (mode === 'buy' && Object.keys(consumers).length === 0)}>
+          <Button type="submit" disabled={busy || !online || (!purchase && !item) || (mode === 'buy' && !isSingle && Object.keys(consumers).length === 0)}>
             {purchase ? t('purchases.form.update') : t('purchases.form.submit')}
           </Button>
         </div>

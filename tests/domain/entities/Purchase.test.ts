@@ -37,6 +37,19 @@ describe('Purchase', () => {
     expect(p.totalQuantity).toBe(9) // (2*1 + 2*0.5) * 3 = 9
   })
 
+  it('uses a fixed quantity for the "single" shared unit (no per-person calc)', () => {
+    const p = Purchase.create({
+      createdBy: u1, item: 'Salt', quantity: 1, unit: 'single',
+      dailyConsumption: 5,
+      consumers: [
+        { userId: u1, multiplier: 1 },
+        { userId: u2, multiplier: 1 },
+      ],
+      days: 4,
+    })
+    expect(p.totalQuantity).toBe(1) // fixed, ignores 5 * 2 * 4
+  })
+
   it('validates each multiplier via the VO', () => {
     expect(() =>
       Purchase.create({

@@ -217,6 +217,7 @@
       "consumers": "Nork kontsumitzen du",
       "itemPlaceholder": "adib. Coca-Cola",
       "dailyConsumptionHelp": "Pertsona bakoitzak egunean zenbat kontsumitzen duen",
+      "singleHelp": "Kopuru finkoa — ez da pertsonaka edo egunka banatzen (gatza, azukrea, olioa…).",
       "daysHelp": "Ekitaldiak zenbat egun irauten duen",
       "totalPreview": "Erosi beharrekoa: {{n}} {{unit}}",
       "selectAll": "Denak",
@@ -229,7 +230,8 @@
         "bottles": "botilak",
         "cans": "latak",
         "kg": "kg",
-        "liters": "litroak"
+        "liters": "litroak",
+        "single": "Unitate bakarra (partekatua)"
       },
       "unitPlaceholder": "adib. botilak, garrafa 8L",
       "assignedTo": "Nork erosiko du",
