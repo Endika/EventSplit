@@ -4,6 +4,8 @@ import { useContainer } from '@/presentation/context/ContainerProvider'
 import { useEventState } from '@/presentation/context/EventContext'
 import { useCurrentUser } from '@/presentation/context/UserContext'
 import type { AddExpenseHandler } from '@/application/handlers/AddExpenseHandler'
+import type { EditExpenseHandler } from '@/application/handlers/EditExpenseHandler'
+import type { ExpenseSnapshot } from '@/domain/entities/Expense'
 import type { LocalStorageCache } from '@/infrastructure/persistence/LocalStorageCache'
 import { Button } from '@/presentation/components/common/Button'
 import { Input } from '@/presentation/components/common/Input'
@@ -11,21 +13,23 @@ import { useOnlineStatus } from '@/presentation/context/SyncContext'
 import { useWriteGuard } from '@/presentation/context/WriteGuardContext'
 import { reportError } from '@/shared/utils/reportError'
 
-export function ExpenseForm({ onDone }: { onDone: () => void }) {
+export function ExpenseForm({ onDone, expense }: { onDone: () => void; expense?: ExpenseSnapshot }) {
   const { t } = useTranslation()
   const container = useContainer()
   const { event, setEvent } = useEventState()
   const me = useCurrentUser()
   const online = useOnlineStatus()
   const { guardedExecute } = useWriteGuard()
-  const [paidBy, setPaidBy] = useState(me?.id ?? '')
-  const [amount, setAmount] = useState('')
-  const [description, setDescription] = useState('')
+  const [paidBy, setPaidBy] = useState(expense?.paidBy ?? me?.id ?? '')
+  const [amount, setAmount] = useState(expense ? (expense.cents / 100).toString() : '')
+  const [description, setDescription] = useState(expense?.description ?? '')
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState<string | null>(null)
-  const [splitAmong, setSplitAmong] = useState<Set<string>>(
-    () => new Set(event?.users.map((u) => u.id) ?? []),
-  )
+  const [splitAmong, setSplitAmong] = useState<Set<string>>(() => {
+    const allIds = event?.users.map((u) => u.id) ?? []
+    if (expense && expense.splitAmong.length > 0) return new Set(expense.splitAmong)
+    return new Set(allIds)
+  })
 
   if (!event) return null
 
@@ -48,21 +52,35 @@ export function ExpenseForm({ onDone }: { onDone: () => void }) {
 
   function submit(e: FormEvent) {
     e.preventDefault()
-    if (!event) return
+    if (!event || !me) return
     guardedExecute(async () => {
       setBusy(true)
       setError(null)
       try {
-        const handler = container.resolve<AddExpenseHandler>('addExpense')
         const allUserIds = event.users.map((u) => u.id)
         const split = splitAmong.size === allUserIds.length ? [] : [...splitAmong]
-        const result = await handler.execute({
-          eventId: event.id,
-          paidBy,
-          amountEuros: parseFloat(amount),
-          description,
-          splitAmong: split,
-        })
+        let result
+        if (expense) {
+          const handler = container.resolve<EditExpenseHandler>('editExpense')
+          result = await handler.execute({
+            eventId: event.id,
+            expenseId: expense.id,
+            editedBy: me.id,
+            paidBy,
+            amountEuros: parseFloat(amount),
+            description,
+            splitAmong: split,
+          })
+        } else {
+          const handler = container.resolve<AddExpenseHandler>('addExpense')
+          result = await handler.execute({
+            eventId: event.id,
+            paidBy,
+            amountEuros: parseFloat(amount),
+            description,
+            splitAmong: split,
+          })
+        }
         container
           .resolve<LocalStorageCache>('cache')
           .set(event.id, { snapshot: result.event, version: result.version })
@@ -156,7 +174,7 @@ export function ExpenseForm({ onDone }: { onDone: () => void }) {
           {t('common.cancel')}
         </Button>
         <Button type="submit" disabled={busy || !online || !paidBy || !amount}>
-          {t('expenses.form.submit')}
+          {expense ? t('expenses.form.update') : t('expenses.form.submit')}
         </Button>
       </div>
     </form>

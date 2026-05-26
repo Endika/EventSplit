@@ -193,11 +193,17 @@
     "empty": "Aún no hay gastos.",
     "paidBy": "Pagado por {{name}}",
     "splitBetween": "Entre: {{list}}",
+    "edit": "Editar",
+    "delete": "Borrar",
+    "deleteTitle": "Borrar gasto",
+    "deleteConfirm": "¿Borrar \"{{desc}}\"?",
+    "deleteYes": "Borrar",
     "form": {
       "paidBy": "Quién pagó",
       "amount": "Importe (€)",
       "description": "Concepto",
       "submit": "Guardar gasto",
+      "update": "Guardar cambios",
       "splitBetween": "Repartir entre",
       "selectAll": "Todos",
       "selectNone": "Ninguno"

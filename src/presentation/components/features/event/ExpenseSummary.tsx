@@ -15,7 +15,7 @@ export function ExpenseSummary() {
 
   const result = ExpenseSplitter.compute({
     participantIds: event.users.map((u) => u.id),
-    expenses: event.expenses.map((e) => ({
+    expenses: event.expenses.filter((e) => !e.deleted).map((e) => ({
       paidBy: e.paidBy,
       amount: Money.fromCents(e.cents),
       splitAmong: e.splitAmong,
