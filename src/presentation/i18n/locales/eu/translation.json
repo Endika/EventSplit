@@ -35,6 +35,22 @@
     "back": "Atzera",
     "nameNeedsAlias": "Dagoeneko \"{{name}}\" izeneko bat dago. Erantsi goitizena bereizteko."
   },
+  "location": {
+    "title": "Non eta nola",
+    "edit": "Editatu",
+    "save": "Gorde",
+    "saving": "Gordetzen…",
+    "noLocation": "Oraindik kokapenik ez. Sakatu editatu gehitzeko.",
+    "name": "Lekuaren izena",
+    "address": "Helbidea",
+    "lat": "Latitudea (aukerakoa)",
+    "lng": "Longitudea (aukerakoa)",
+    "postalCode": "Posta-kodea",
+    "openInMaps": "Google Maps-en ireki",
+    "notes": "Ohar orokorrak",
+    "wifi": "WiFi pasahitza",
+    "emergency": "Larrialdiko kontaktua"
+  },
   "purchases": {
     "add": "Erosketa gehitu",
     "empty": "Oraindik ez dago erosketarik.",

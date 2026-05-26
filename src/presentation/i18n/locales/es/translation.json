@@ -35,6 +35,22 @@
     "back": "Atrás",
     "nameNeedsAlias": "Ya hay un \"{{name}}\". Añade un apodo para diferenciarte."
   },
+  "location": {
+    "title": "Dónde y cómo",
+    "edit": "Editar",
+    "save": "Guardar",
+    "saving": "Guardando…",
+    "noLocation": "Aún no hay ubicación. Pulsa editar para añadirla.",
+    "name": "Nombre del sitio",
+    "address": "Dirección",
+    "lat": "Latitud (opcional)",
+    "lng": "Longitud (opcional)",
+    "postalCode": "Código postal",
+    "openInMaps": "Abrir en Google Maps",
+    "notes": "Notas generales",
+    "wifi": "Contraseña WiFi",
+    "emergency": "Contacto de emergencia"
+  },
   "purchases": {
     "add": "Añadir compra",
     "empty": "Aún no hay compras.",

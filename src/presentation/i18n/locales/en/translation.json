@@ -35,6 +35,22 @@
     "back": "Back",
     "nameNeedsAlias": "There is already a \"{{name}}\". Add a nickname to differentiate."
   },
+  "location": {
+    "title": "Where and how",
+    "edit": "Edit",
+    "save": "Save",
+    "saving": "Saving…",
+    "noLocation": "No location set yet. Click edit to add one.",
+    "name": "Place name",
+    "address": "Address",
+    "lat": "Latitude (optional)",
+    "lng": "Longitude (optional)",
+    "postalCode": "Postal code",
+    "openInMaps": "Open in Google Maps",
+    "notes": "General notes",
+    "wifi": "WiFi password",
+    "emergency": "Emergency contact"
+  },
   "purchases": {
     "add": "Add purchase",
     "empty": "No purchases yet.",
