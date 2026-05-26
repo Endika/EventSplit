@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.49.0](https://github.com/Endika/EventSplit/compare/v1.48.0...v1.49.0) (2026-05-26)
+
+
+### Features
+
+* **purchases:** single shared unit with fixed quantity ([2e84736](https://github.com/Endika/EventSplit/commit/2e8473658068dc1f1ada44eaa85af95b7cb1ed69))
+
 ## [1.48.0](https://github.com/Endika/EventSplit/compare/v1.47.1...v1.48.0) (2026-05-26)
 
 
