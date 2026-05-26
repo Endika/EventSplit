@@ -60,6 +60,8 @@ export interface EventSnapshot {
   emergencyContact: string | null
   users: UserSnapshot[]
   availability: Record<string, boolean[]>
+  availabilityNote: string | null
+  chosenDay: string | null
   days: string[]
   purchases: PurchaseSnapshot[]
   expenses: ExpenseSnapshot[]
@@ -92,6 +94,8 @@ export class Event {
       emergencyContact: null,
       users: [input.creator.toSnapshot()],
       availability: {},
+      availabilityNote: null,
+      chosenDay: null,
       days: [],
       purchases: [],
       expenses: [],
@@ -129,6 +133,8 @@ export class Event {
       emergencyContact: s.emergencyContact ?? null,
       days: s.days ?? [],
       availability: s.availability ?? {},
+      availabilityNote: s.availabilityNote ?? null,
+      chosenDay: s.chosenDay ?? null,
       purchases: (s.purchases ?? []).map((p) => ({
         ...p,
         assignedTo: (p as { assignedTo?: string | null }).assignedTo ?? null,
@@ -293,6 +299,39 @@ export class Event {
       ],
     }
 
+    const { history: _omit, ...fullState } = nextSnapshot
+    nextSnapshot.history.at(-1)!.fullState = fullState
+    return new Event(this.id, nextSnapshot)
+  }
+
+  setAvailabilityMeta(input: { userId: string; note: string | null; chosenDay: string | null }): Event {
+    if (!this.s.users.some((u) => u.id === input.userId))
+      throw new Error('Event: user not in event')
+    if (input.chosenDay !== null && !this.s.days.includes(input.chosenDay))
+      throw new Error('Event: chosenDay must be one of the event days')
+    const note = input.note?.trim() ? input.note.trim().slice(0, 200) : null
+    const now = new Date().toISOString()
+    const nextVersion = (this.s.history.at(-1)?.version ?? 0) + 1
+    const userName = this.s.users.find((u) => u.id === input.userId)?.name ?? 'Someone'
+    const nextSnapshot: EventSnapshot = {
+      ...this.s,
+      availabilityNote: note,
+      chosenDay: input.chosenDay,
+      updatedAt: now,
+      history: [
+        ...this.s.history,
+        {
+          id: crypto.randomUUID(),
+          version: nextVersion,
+          timestamp: now,
+          type: 'availability_voted',
+          userId: input.userId,
+          description: `${userName} updated availability details`,
+          before: { availabilityNote: this.s.availabilityNote, chosenDay: this.s.chosenDay },
+          after: { availabilityNote: note, chosenDay: input.chosenDay },
+        },
+      ],
+    }
     const { history: _omit, ...fullState } = nextSnapshot
     nextSnapshot.history.at(-1)!.fullState = fullState
     return new Event(this.id, nextSnapshot)

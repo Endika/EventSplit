@@ -218,4 +218,38 @@ describe('Event', () => {
     expect(snap.users[0]!.allergies).toEqual([])
     expect(snap.users[0]!.email).toBeNull()
   })
+
+  it('setAvailabilityMeta stores note and chosen day', () => {
+    const creator = User.create({ name: 'John' })
+    let e = Event.create({ name: 'Trip', creator })
+    // need a day first
+    const snap = e.toSnapshot()
+    snap.days = ['2026-06-05', '2026-06-06']
+    e = Event.restore(snap)
+    const next = e.setAvailabilityMeta({ userId: creator.id.value, note: 'Weekends only', chosenDay: '2026-06-06' })
+    expect(next.toSnapshot().availabilityNote).toBe('Weekends only')
+    expect(next.toSnapshot().chosenDay).toBe('2026-06-06')
+  })
+
+  it('setAvailabilityMeta rejects a chosenDay not in days', () => {
+    const creator = User.create({ name: 'John' })
+    const e = Event.create({ name: 'Trip', creator })
+    expect(() =>
+      e.setAvailabilityMeta({ userId: creator.id.value, note: null, chosenDay: '2099-01-01' }),
+    ).toThrow(/chosenDay/)
+  })
+
+  it('setAvailabilityMeta accepts null chosenDay (unset)', () => {
+    const creator = User.create({ name: 'John' })
+    const e = Event.create({ name: 'Trip', creator })
+    const next = e.setAvailabilityMeta({ userId: creator.id.value, note: 'note', chosenDay: null })
+    expect(next.toSnapshot().chosenDay).toBeNull()
+    expect(next.toSnapshot().availabilityNote).toBe('note')
+  })
+
+  it('Event.create starts with null availability meta', () => {
+    const e = Event.create({ name: 'Trip', creator: User.create({ name: 'John' }) })
+    expect(e.toSnapshot().availabilityNote).toBeNull()
+    expect(e.toSnapshot().chosenDay).toBeNull()
+  })
 })

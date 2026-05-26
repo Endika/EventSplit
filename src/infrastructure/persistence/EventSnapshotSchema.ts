@@ -91,6 +91,8 @@ export const EventSnapshotSchema = z.object({
   emergencyContact: z.string().nullable().default(null),
   users: z.array(UserSchema).default([]),
   availability: z.record(z.string(), z.array(z.boolean())).default({}),
+  availabilityNote: z.string().nullable().default(null),
+  chosenDay: z.string().nullable().default(null),
   days: z.array(z.string()).default([]),
   purchases: z.array(PurchaseSchema).default([]),
   expenses: z.array(ExpenseSchema).default([]),
