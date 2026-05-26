@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.40.0](https://github.com/Endika/EventSplit/compare/v1.39.0...v1.40.0) (2026-05-26)
+
+
+### Features
+
+* **app:** mark linked purchases bought when adding expense ([2875653](https://github.com/Endika/EventSplit/commit/287565383feb6716faea0371f7bb39ffce888c69))
+* **ui:** pick list items to mark bought when adding expense ([2ef0d8e](https://github.com/Endika/EventSplit/commit/2ef0d8e0e00eafacbf81bf2ac00e90b44a1a7d24))
+
 ## [1.39.0](https://github.com/Endika/EventSplit/compare/v1.38.1...v1.39.0) (2026-05-26)
 
 
