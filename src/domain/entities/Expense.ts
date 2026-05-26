@@ -10,6 +10,7 @@ export interface ExpenseSnapshot {
   purchaseId: string | null
   date: string
   createdAt: string
+  splitAmong: string[]  // empty array means "all current participants"
 }
 
 export class Expense {
@@ -21,11 +22,15 @@ export class Expense {
     description: string
     purchaseId?: string | null
     date?: Date
+    splitAmong?: string[]
   }): Expense {
     const description = input.description.trim()
     if (description.length < 3 || description.length > 100)
       throw new Error('Expense: description must be 3..100 chars')
     if (input.amount.cents <= 0) throw new Error('Expense: amount must be > 0')
+    const splitAmong = input.splitAmong ?? []
+    if (new Set(splitAmong).size !== splitAmong.length)
+      throw new Error('Expense: splitAmong must contain unique userIds')
     return new Expense({
       id: uuidv7(),
       paidBy: input.paidBy,
@@ -35,16 +40,21 @@ export class Expense {
       purchaseId: input.purchaseId ?? null,
       date: (input.date ?? new Date()).toISOString(),
       createdAt: new Date().toISOString(),
+      splitAmong,
     })
   }
 
-  static restore(s: ExpenseSnapshot): Expense {
-    return new Expense(s)
+  static restore(s: ExpenseSnapshot | Omit<ExpenseSnapshot, 'splitAmong'>): Expense {
+    const full = s as ExpenseSnapshot
+    return new Expense({
+      ...full,
+      splitAmong: full.splitAmong ?? [],
+    })
   }
 
   get id(): string { return this.s.id }
   get paidBy(): string { return this.s.paidBy }
   get amount(): Money { return Money.fromCents(this.s.cents) }
 
-  toSnapshot(): ExpenseSnapshot { return { ...this.s } }
+  toSnapshot(): ExpenseSnapshot { return { ...this.s, splitAmong: [...this.s.splitAmong] } }
 }

@@ -121,7 +121,7 @@ export class Event {
       days: s.days ?? [],
       availability: s.availability ?? {},
       purchases: s.purchases ?? [],
-      expenses: s.expenses ?? [],
+      expenses: (s.expenses ?? []).map((e) => ({ ...e, splitAmong: e.splitAmong ?? [] })),
       history: s.history ?? [],
       editPin: s.editPin ?? null,
       users: (s.users ?? []).map((u) => ({
@@ -174,7 +174,7 @@ export class Event {
       ...this.s,
       users: this.s.users.map((u) => ({ ...u })),
       purchases: this.s.purchases.map((p) => ({ ...p, consumers: [...p.consumers] })),
-      expenses: this.s.expenses.map((e) => ({ ...e })),
+      expenses: this.s.expenses.map((e) => ({ ...e, splitAmong: [...e.splitAmong] })),
       history: this.s.history.map((h) => ({ ...h })),
       days: [...this.s.days],
       availability: Object.fromEntries(

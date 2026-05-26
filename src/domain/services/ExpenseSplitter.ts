@@ -2,7 +2,11 @@ import { Money } from '@/domain/value-objects/Money'
 
 export interface SplitterInput {
   participantIds: string[]
-  expenses: { paidBy: string; amount: Money }[]
+  expenses: {
+    paidBy: string
+    amount: Money
+    splitAmong?: string[] | null
+  }[]
 }
 
 export interface UserBalance {
@@ -30,20 +34,40 @@ export const ExpenseSplitter = {
     if (n === 0) return { totalCents: 0, perPersonCents: 0, balances: [], transfers: [] }
 
     const spent = new Map<string, number>(input.participantIds.map((id) => [id, 0]))
+    const owed = new Map<string, number>(input.participantIds.map((id) => [id, 0]))
+    let totalCents = 0
+
     for (const e of input.expenses) {
       spent.set(e.paidBy, (spent.get(e.paidBy) ?? 0) + e.amount.cents)
-    }
-    const totalCents = [...spent.values()].reduce((s, v) => s + v, 0)
-    const base = Math.floor(totalCents / n)
-    const remainder = totalCents - base * n
-    const shareByIndex = input.participantIds.map((_, i) => base + (i < remainder ? 1 : 0))
+      totalCents += e.amount.cents
 
-    const balances: UserBalance[] = input.participantIds.map((id, i) => ({
+      // Determine the actual split list for this expense
+      const requestedSplit = (e.splitAmong ?? []).filter((id) =>
+        input.participantIds.includes(id),
+      )
+      const splitList = requestedSplit.length > 0 ? requestedSplit : input.participantIds
+
+      const k = splitList.length
+      // Cent-perfect split: floor + distribute remainder
+      const base = Math.floor(e.amount.cents / k)
+      const remainder = e.amount.cents - base * k
+      for (let i = 0; i < splitList.length; i++) {
+        const userId = splitList[i]!
+        const share = base + (i < remainder ? 1 : 0)
+        owed.set(userId, (owed.get(userId) ?? 0) + share)
+      }
+    }
+
+    const balances: UserBalance[] = input.participantIds.map((id) => ({
       userId: id,
       spentCents: spent.get(id) ?? 0,
-      balanceCents: (spent.get(id) ?? 0) - shareByIndex[i]!,
+      balanceCents: (spent.get(id) ?? 0) - (owed.get(id) ?? 0),
     }))
 
+    // perPersonCents is now an approximation — keep it for backward compat with the UI summary
+    const perPersonCents = Math.floor(totalCents / n)
+
+    // Greedy settlement: largest debtor pays largest creditor
     const debtors = balances
       .filter((b) => b.balanceCents < 0)
       .map((b) => ({ id: b.userId, owe: -b.balanceCents }))
@@ -67,6 +91,6 @@ export const ExpenseSplitter = {
       if (c.get === 0) j++
     }
 
-    return { totalCents, perPersonCents: base, balances, transfers }
+    return { totalCents, perPersonCents, balances, transfers }
   },
 }
