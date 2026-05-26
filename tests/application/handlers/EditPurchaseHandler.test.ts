@@ -115,4 +115,22 @@ describe('EditPurchaseHandler', () => {
     expect(result.event.purchases[0]!.category).toBe('food')
     expect(result.event.purchases[0]!.unit).toBe('loaves')
   })
+
+  it('can set the group', async () => {
+    const ctx = await setup()
+    const result = await new EditPurchaseHandler(ctx.repo).execute({
+      eventId: ctx.eventId,
+      purchaseId: ctx.purchaseId,
+      editedBy: ctx.userId,
+      category: 'drinks',
+      item: 'Coke',
+      quantity: 3,
+      unit: 'bottles',
+      dailyConsumption: 2,
+      consumers: [{ userId: ctx.userId, multiplier: 1 }],
+      days: 2,
+      group: 'Comida',
+    })
+    expect(result.event.purchases[0]!.group).toBe('Comida')
+  })
 })

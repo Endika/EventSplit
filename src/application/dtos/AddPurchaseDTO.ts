@@ -18,6 +18,7 @@ export const AddPurchaseSchema = z.object({
     .min(1),
   days: z.number().int().positive(),
   assignedTo: z.string().uuid().nullable().optional(),
+  group: z.string().trim().max(50).nullable().optional(),
 })
 
 export type AddPurchaseInput = z.infer<typeof AddPurchaseSchema>

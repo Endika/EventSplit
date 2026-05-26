@@ -38,6 +38,7 @@ export class AddPurchaseHandler {
         consumers: parsed.consumers,
         days: parsed.days,
         assignedTo: parsed.assignedTo ?? null,
+        group: parsed.group ?? null,
       })
 
       const creatorDisplay =

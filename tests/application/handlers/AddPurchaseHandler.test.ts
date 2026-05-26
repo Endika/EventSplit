@@ -41,4 +41,25 @@ describe('AddPurchaseHandler', () => {
       }),
     ).rejects.toThrow(/consumer.*not in event/i)
   })
+
+  it('stores the group when provided', async () => {
+    const repo = new InMemoryEventRepository()
+    const create = await new CreateEventHandler(repo).execute({ name: 'Trip', creatorName: 'John' })
+    const creatorId = create.creator.id
+
+    const result = await new AddPurchaseHandler(repo).execute({
+      eventId: create.event.id,
+      createdBy: creatorId,
+      category: 'drinks',
+      item: 'Coke',
+      quantity: 3,
+      unit: 'bottles',
+      dailyConsumption: 2,
+      consumers: [{ userId: creatorId, multiplier: 1 }],
+      days: 3,
+      group: 'Cena',
+    })
+
+    expect(result.event.purchases[0]!.group).toBe('Cena')
+  })
 })

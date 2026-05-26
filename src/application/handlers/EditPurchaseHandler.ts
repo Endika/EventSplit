@@ -36,6 +36,7 @@ export class EditPurchaseHandler {
         consumers: parsed.consumers,
         days: parsed.days,
         assignedTo: parsed.assignedTo ?? existing.assignedTo ?? null,
+        group: parsed.group ?? existing.group ?? null,
       })
 
       const editorName =
