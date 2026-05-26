@@ -1,16 +1,20 @@
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { ParticipantsTab } from './ParticipantsTab'
+import { AvailabilityTab } from './AvailabilityTab'
+import { LocationTab } from './LocationTab'
 import { PurchasesTab } from './PurchasesTab'
 import { ExpensesTab } from './ExpensesTab'
 
-type Tab = 'participants' | 'purchases' | 'expenses'
+type Tab = 'participants' | 'availability' | 'location' | 'purchases' | 'expenses'
 
 export function EventTabs() {
   const { t } = useTranslation()
   const [active, setActive] = useState<Tab>('participants')
   const tabs: { key: Tab; label: string }[] = [
     { key: 'participants', label: t('tabs.participants') },
+    { key: 'availability', label: t('tabs.availability') },
+    { key: 'location', label: t('tabs.location') },
     { key: 'purchases', label: t('tabs.purchases') },
     { key: 'expenses', label: t('tabs.expenses') },
   ]
@@ -32,6 +36,8 @@ export function EventTabs() {
         ))}
       </nav>
       {active === 'participants' && <ParticipantsTab />}
+      {active === 'availability' && <AvailabilityTab />}
+      {active === 'location' && <LocationTab />}
       {active === 'purchases' && <PurchasesTab />}
       {active === 'expenses' && <ExpensesTab />}
     </div>
