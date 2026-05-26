@@ -196,7 +196,11 @@
     "kind": "Type",
     "adult": "Adult",
     "child": "Child",
-    "submit": "Add"
+    "submit": "Add",
+    "switchUser": "I'm not this person",
+    "switchConfirm": "Forget this identity on this device and pick again?",
+    "switchYes": "Yes, change participant",
+    "switchCancel": "Cancel"
   },
   "event": {
     "share": "Share",

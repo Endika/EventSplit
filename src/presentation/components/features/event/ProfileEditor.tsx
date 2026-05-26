@@ -35,6 +35,7 @@ export function ProfileEditor({ onClose }: { onClose: () => void }) {
   const { guardedExecute } = useWriteGuard()
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [confirmSwitch, setConfirmSwitch] = useState(false)
 
   if (!event || !me) return null
 
@@ -207,6 +208,38 @@ export function ProfileEditor({ onClose }: { onClose: () => void }) {
           <Button type="submit" disabled={busy}>
             {busy ? t('profile.saving') : t('profile.save')}
           </Button>
+        </div>
+
+        <div className="mt-4 border-t border-slate-800 pt-3">
+          {!confirmSwitch ? (
+            <button
+              type="button"
+              onClick={() => setConfirmSwitch(true)}
+              className="text-xs text-slate-400 hover:text-rose-400"
+              disabled={busy}
+            >
+              {t('participants.switchUser')}
+            </button>
+          ) : (
+            <div className="space-y-2">
+              <p className="text-xs text-slate-300">{t('participants.switchConfirm')}</p>
+              <div className="flex gap-2">
+                <Button type="button" variant="secondary" onClick={() => setConfirmSwitch(false)} disabled={busy}>
+                  {t('participants.switchCancel')}
+                </Button>
+                <Button
+                  type="button"
+                  onClick={() => {
+                    container.resolve<LocalStorageCache>('cache').removeIdentity(event!.id)
+                    setMe(null)
+                    onClose()
+                  }}
+                >
+                  {t('participants.switchYes')}
+                </Button>
+              </div>
+            </div>
+          )}
         </div>
       </form>
     </Modal>

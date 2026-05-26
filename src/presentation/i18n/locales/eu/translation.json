@@ -196,7 +196,11 @@
     "kind": "Mota",
     "adult": "Heldua",
     "child": "Haurra",
-    "submit": "Gehitu"
+    "submit": "Gehitu",
+    "switchUser": "Ez naiz pertsona hau",
+    "switchConfirm": "Identitate hau gailu honetan ahaztu eta berriro aukeratu?",
+    "switchYes": "Bai, parte-hartzaile aldatu",
+    "switchCancel": "Utzi"
   },
   "event": {
     "share": "Partekatu",

@@ -196,7 +196,11 @@
     "kind": "Tipo",
     "adult": "Adulto",
     "child": "Niño/a",
-    "submit": "Añadir"
+    "submit": "Añadir",
+    "switchUser": "No soy esta persona",
+    "switchConfirm": "¿Olvidar esta identidad en este dispositivo y volver a elegir?",
+    "switchYes": "Sí, cambiar de participante",
+    "switchCancel": "Cancelar"
   },
   "event": {
     "share": "Compartir",
