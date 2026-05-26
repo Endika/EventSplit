@@ -1,5 +1,14 @@
 # Changelog
 
+## [1.44.0](https://github.com/Endika/EventSplit/compare/v1.43.1...v1.44.0) (2026-05-26)
+
+
+### Features
+
+* **app:** pass group through purchase handlers ([e3c61d9](https://github.com/Endika/EventSplit/commit/e3c61d93243f6ae076120f72f5f88ad3225ac4f4))
+* **domain:** add optional group to purchases ([5258773](https://github.com/Endika/EventSplit/commit/5258773e07e75c76b0d1dde2a8b06cb87632d4ba))
+* **ui:** group shopping list by tags ([f78d451](https://github.com/Endika/EventSplit/commit/f78d45149c657f5a6c7da0a5393d3fa32e08639b))
+
 ## [1.43.1](https://github.com/Endika/EventSplit/compare/v1.43.0...v1.43.1) (2026-05-26)
 
 
