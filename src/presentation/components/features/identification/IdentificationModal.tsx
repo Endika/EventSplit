@@ -65,17 +65,19 @@ export function IdentificationModal({
       {mode === 'list' && (
         <div className="space-y-2">
           <p className="text-sm text-slate-400">{t('id.pick')}</p>
-          {users.map((u) => (
-            <Button
-              key={u.id}
-              variant="secondary"
-              className="block w-full text-left"
-              onClick={() => pick(u)}
-              disabled={busy}
-            >
-              {u.alias ? `${u.name} (${u.alias})` : u.name}
-            </Button>
-          ))}
+          <div className="max-h-[40vh] space-y-2 overflow-y-auto">
+            {users.map((u) => (
+              <Button
+                key={u.id}
+                variant="secondary"
+                className="block w-full text-left"
+                onClick={() => pick(u)}
+                disabled={busy}
+              >
+                {u.alias ? `${u.name} (${u.alias})` : u.name}
+              </Button>
+            ))}
+          </div>
           <hr className="my-3 border-slate-700" />
           <Button onClick={() => setMode('new')} disabled={busy}>
             {t('id.imNew')}
