@@ -1,5 +1,17 @@
 # Changelog
 
+## [1.14.0](https://github.com/Endika/EventSplit/compare/v1.13.0...v1.14.0) (2026-05-26)
+
+
+### Features
+
+* **ui:** add global on-screen error banner with copy ([1eb3b6d](https://github.com/Endika/EventSplit/commit/1eb3b6d7930ccd1db75299659fc14173227c878e))
+
+
+### Chores
+
+* **ui:** route write errors to global error banner ([c3d770d](https://github.com/Endika/EventSplit/commit/c3d770d253ea8eedea91e45d7d71bd77dd9c1285))
+
 ## [1.13.0](https://github.com/Endika/EventSplit/compare/v1.12.0...v1.13.0) (2026-05-26)
 
 
