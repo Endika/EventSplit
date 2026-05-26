@@ -76,7 +76,7 @@ describe('EditExpenseHandler', () => {
     ).rejects.toThrow(/not in event/i)
   })
 
-  it('marks and unmarks linked purchases when editing an expense', async () => {
+  it('updates the linked quantity without mutating the purchase', async () => {
     const repo = new InMemoryEventRepository()
     const create = await new CreateEventHandler(repo).execute({ name: 'Trip', creatorName: 'John' })
     const p1 = await new AddPurchaseHandler(repo).execute({
@@ -87,16 +87,40 @@ describe('EditExpenseHandler', () => {
     const purchaseId = p1.event.purchases[0]!.id
     const exp = await new AddExpenseHandler(repo).execute({
       eventId: create.event.id, paidBy: create.creator.id, amountEuros: 10, description: 'Shop',
-      markPurchasedIds: [purchaseId],
+      purchaseLinks: [{ purchaseId, quantity: 6 }],
     })
-    expect(exp.event.purchases[0]!.purchased).toBe(true)
+    expect(exp.event.expenses[0]!.purchaseLinks).toEqual([{ purchaseId, quantity: 6 }])
+    expect(exp.event.purchases[0]!.purchased).toBe(false)
     const expenseId = exp.event.expenses[0]!.id
-    // Edit the expense and UNMARK the purchase
+    // Edit the expense to cover fewer units.
     const edited = await new EditExpenseHandler(repo).execute({
       eventId: create.event.id, expenseId, editedBy: create.creator.id,
       paidBy: create.creator.id, amountEuros: 10, description: 'Shop',
-      unmarkPurchasedIds: [purchaseId],
+      purchaseLinks: [{ purchaseId, quantity: 3 }],
     })
+    expect(edited.event.expenses[0]!.purchaseLinks).toEqual([{ purchaseId, quantity: 3 }])
+    // The purchase's purchased flag is never touched by the expense.
     expect(edited.event.purchases[0]!.purchased).toBe(false)
+  })
+
+  it('keeps existing links when purchaseLinks is omitted on edit', async () => {
+    const repo = new InMemoryEventRepository()
+    const create = await new CreateEventHandler(repo).execute({ name: 'Trip', creatorName: 'John' })
+    const p1 = await new AddPurchaseHandler(repo).execute({
+      eventId: create.event.id, createdBy: create.creator.id,
+      item: 'Coke', quantity: 1, unit: 'units',
+      dailyConsumption: 1, consumers: [{ userId: create.creator.id, multiplier: 1 }], days: 1,
+    })
+    const purchaseId = p1.event.purchases[0]!.id
+    const exp = await new AddExpenseHandler(repo).execute({
+      eventId: create.event.id, paidBy: create.creator.id, amountEuros: 10, description: 'Shop',
+      purchaseLinks: [{ purchaseId, quantity: 6 }],
+    })
+    const expenseId = exp.event.expenses[0]!.id
+    const edited = await new EditExpenseHandler(repo).execute({
+      eventId: create.event.id, expenseId, editedBy: create.creator.id,
+      paidBy: create.creator.id, amountEuros: 15, description: 'Shop trip',
+    })
+    expect(edited.event.expenses[0]!.purchaseLinks).toEqual([{ purchaseId, quantity: 6 }])
   })
 })

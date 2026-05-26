@@ -8,7 +8,9 @@ export const AddExpenseSchema = z.object({
   purchaseId: z.string().uuid().optional().nullable(),
   date: z.string().datetime().optional(),
   splitAmong: z.array(z.string().uuid()).optional(),
-  markPurchasedIds: z.array(z.string().uuid()).optional(),
+  purchaseLinks: z
+    .array(z.object({ purchaseId: z.string().uuid(), quantity: z.number().positive().max(100_000) }))
+    .optional(),
 })
 
 export type AddExpenseInput = z.infer<typeof AddExpenseSchema>

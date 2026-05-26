@@ -59,7 +59,7 @@ describe('AddExpenseHandler', () => {
     ).rejects.toThrow(/splitAmong.*not in event/i)
   })
 
-  it('marks linked purchases as bought when adding an expense', async () => {
+  it('links a purchased quantity without mutating the purchase', async () => {
     const repo = new InMemoryEventRepository()
     const create = await new CreateEventHandler(repo).execute({ name: 'Trip', creatorName: 'John' })
     const added = await new AddPurchaseHandler(repo).execute({
@@ -73,9 +73,25 @@ describe('AddExpenseHandler', () => {
       paidBy: create.creator.id,
       amountEuros: 10,
       description: 'Supermarket',
-      markPurchasedIds: [purchaseId],
+      purchaseLinks: [{ purchaseId, quantity: 6 }],
     })
-    expect(result.event.purchases.find((p) => p.id === purchaseId)!.purchased).toBe(true)
     expect(result.event.expenses).toHaveLength(1)
+    expect(result.event.expenses[0]!.purchaseLinks).toEqual([{ purchaseId, quantity: 6 }])
+    // The expense must NOT flip the purchase's purchased flag.
+    expect(result.event.purchases.find((p) => p.id === purchaseId)!.purchased).toBe(false)
+  })
+
+  it('rejects a purchaseLink pointing at an unknown purchase', async () => {
+    const repo = new InMemoryEventRepository()
+    const create = await new CreateEventHandler(repo).execute({ name: 'Trip', creatorName: 'John' })
+    await expect(
+      new AddExpenseHandler(repo).execute({
+        eventId: create.event.id,
+        paidBy: create.creator.id,
+        amountEuros: 10,
+        description: 'Supermarket',
+        purchaseLinks: [{ purchaseId: '018f4a8e-0000-7000-8000-000000000000', quantity: 1 }],
+      }),
+    ).rejects.toThrow(/Link purchase .* not found/)
   })
 })

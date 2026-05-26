@@ -115,11 +115,14 @@ export function ExpenseForm({
       try {
         const allUserIds = event.users.map((u) => u.id)
         const split = splitAmong.size === allUserIds.length ? [] : [...splitAmong]
+        const purchaseLinks = [...markBought]
+          .map((purchaseId) => {
+            const p = event.purchases.find((x) => x.id === purchaseId)
+            return { purchaseId, quantity: p?.totalQuantity ?? 1 }
+          })
+          .filter((l) => Number.isFinite(l.quantity) && l.quantity > 0)
         let result
         if (expense) {
-          const shownIds = listItems.map((p) => p.id)
-          const markIds = shownIds.filter((id) => markBought.has(id))
-          const unmarkIds = shownIds.filter((id) => !markBought.has(id))
           const handler = container.resolve<EditExpenseHandler>('editExpense')
           result = await handler.execute({
             eventId: event.id,
@@ -129,8 +132,7 @@ export function ExpenseForm({
             amountEuros,
             description,
             splitAmong: split,
-            markPurchasedIds: markIds,
-            unmarkPurchasedIds: unmarkIds,
+            purchaseLinks,
           })
         } else {
           const handler = container.resolve<AddExpenseHandler>('addExpense')
@@ -140,7 +142,7 @@ export function ExpenseForm({
             amountEuros,
             description,
             splitAmong: split,
-            markPurchasedIds: [...markBought],
+            purchaseLinks,
           })
         }
         container

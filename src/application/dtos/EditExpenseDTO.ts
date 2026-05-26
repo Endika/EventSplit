@@ -8,8 +8,9 @@ export const EditExpenseSchema = z.object({
   amountEuros: z.number().positive().max(999_999.99),
   description: z.string().trim().min(3).max(100),
   splitAmong: z.array(z.string().uuid()).optional(),
-  markPurchasedIds: z.array(z.string().uuid()).optional(),
-  unmarkPurchasedIds: z.array(z.string().uuid()).optional(),
+  purchaseLinks: z
+    .array(z.object({ purchaseId: z.string().uuid(), quantity: z.number().positive().max(100_000) }))
+    .optional(),
 })
 
 export type EditExpenseInput = z.infer<typeof EditExpenseSchema>

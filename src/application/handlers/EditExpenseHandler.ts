@@ -1,7 +1,6 @@
 import { EditExpenseSchema, type EditExpenseInput } from '@/application/dtos/EditExpenseDTO'
 import type { EventSnapshot } from '@/domain/entities/Event'
 import { Expense } from '@/domain/entities/Expense'
-import { Purchase } from '@/domain/entities/Purchase'
 import { Money } from '@/domain/value-objects/Money'
 import { HistoryAppender } from '@/domain/services/HistoryAppender'
 import { type IEventRepository, VersionConflictError } from '@/domain/repositories/IEventRepository'
@@ -28,21 +27,22 @@ export class EditExpenseHandler {
       if (!existing) throw new Error(`Expense ${parsed.expenseId} not found`)
       if (existing.deleted) throw new Error('Cannot edit a deleted expense')
 
+      if (parsed.purchaseLinks && parsed.purchaseLinks.length > 0) {
+        const livePurchaseIds = new Set(
+          row.snapshot.purchases.filter((p) => !p.deleted).map((p) => p.id),
+        )
+        for (const l of parsed.purchaseLinks) {
+          if (!livePurchaseIds.has(l.purchaseId))
+            throw new Error(`Link purchase ${l.purchaseId} not found`)
+        }
+      }
+
       const updated = Expense.restore(existing).edit({
         paidBy: parsed.paidBy,
         amount: Money.fromEuros(parsed.amountEuros),
         description: parsed.description,
         splitAmong: parsed.splitAmong,
-      })
-      const mark = new Set(parsed.markPurchasedIds ?? [])
-      const unmark = new Set(parsed.unmarkPurchasedIds ?? [])
-      const nextPurchases = row.snapshot.purchases.map((p) => {
-        if (p.deleted) return p
-        if (mark.has(p.id) && !p.purchased)
-          return Purchase.restore(p).assign({ assignedTo: p.assignedTo ?? null, purchased: true }).toSnapshot()
-        if (unmark.has(p.id) && p.purchased)
-          return Purchase.restore(p).assign({ assignedTo: p.assignedTo ?? null, purchased: false }).toSnapshot()
-        return p
+        ...(parsed.purchaseLinks !== undefined ? { purchaseLinks: parsed.purchaseLinks } : {}),
       })
 
       const editorName = row.snapshot.users.find((u) => u.id === parsed.editedBy)?.name ?? 'Someone'
@@ -52,7 +52,6 @@ export class EditExpenseHandler {
           expenses: row.snapshot.expenses.map((e) =>
             e.id === parsed.expenseId ? updated.toSnapshot() : e,
           ),
-          purchases: nextPurchases,
         },
         {
           type: 'expense_edited',

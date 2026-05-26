@@ -1,7 +1,6 @@
 import { AddExpenseSchema, type AddExpenseInput } from '@/application/dtos/AddExpenseDTO'
 import { type EventSnapshot } from '@/domain/entities/Event'
 import { Expense } from '@/domain/entities/Expense'
-import { Purchase } from '@/domain/entities/Purchase'
 import { Money } from '@/domain/value-objects/Money'
 import { HistoryAppender } from '@/domain/services/HistoryAppender'
 import { type IEventRepository, VersionConflictError } from '@/domain/repositories/IEventRepository'
@@ -26,6 +25,17 @@ export class AddExpenseHandler {
         }
       }
 
+      const purchaseLinks = parsed.purchaseLinks ?? []
+      if (purchaseLinks.length > 0) {
+        const livePurchaseIds = new Set(
+          row.snapshot.purchases.filter((p) => !p.deleted).map((p) => p.id),
+        )
+        for (const l of purchaseLinks) {
+          if (!livePurchaseIds.has(l.purchaseId))
+            throw new Error(`Link purchase ${l.purchaseId} not found`)
+        }
+      }
+
       const expense = Expense.create({
         paidBy: parsed.paidBy,
         amount: Money.fromEuros(parsed.amountEuros),
@@ -33,21 +43,12 @@ export class AddExpenseHandler {
         purchaseId: parsed.purchaseId ?? null,
         date: parsed.date ? new Date(parsed.date) : undefined,
         splitAmong: parsed.splitAmong,
+        purchaseLinks,
       })
-
-      let purchases = row.snapshot.purchases
-      if (parsed.markPurchasedIds && parsed.markPurchasedIds.length > 0) {
-        const ids = new Set(parsed.markPurchasedIds)
-        purchases = purchases.map((p) =>
-          ids.has(p.id) && !p.deleted
-            ? Purchase.restore(p).assign({ assignedTo: p.assignedTo ?? null, purchased: true }).toSnapshot()
-            : p,
-        )
-      }
 
       const payerName = row.snapshot.users.find((u) => u.id === parsed.paidBy)?.name ?? 'Someone'
       const nextSnapshot: EventSnapshot = HistoryAppender.append(
-        { ...row.snapshot, expenses: [...row.snapshot.expenses, expense.toSnapshot()], purchases },
+        { ...row.snapshot, expenses: [...row.snapshot.expenses, expense.toSnapshot()] },
         {
           type: 'expense_added', userId: parsed.paidBy,
           description: `${payerName} added expense: ${expense.toSnapshot().description}`,
