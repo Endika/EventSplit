@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.46.0](https://github.com/Endika/EventSplit/compare/v1.45.0...v1.46.0) (2026-05-26)
+
+
+### Features
+
+* **ui:** collapsible groups with item count, refetch on focus ([1cae96e](https://github.com/Endika/EventSplit/commit/1cae96ef22b08ad18b1259dca7a0f48ca0bdfdfb))
+
 ## [1.45.0](https://github.com/Endika/EventSplit/compare/v1.44.1...v1.45.0) (2026-05-26)
 
 
