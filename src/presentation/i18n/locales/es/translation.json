@@ -204,7 +204,13 @@
     "switchUser": "No soy esta persona",
     "switchConfirm": "¿Olvidar esta identidad en este dispositivo y volver a elegir?",
     "switchYes": "Sí, cambiar de participante",
-    "switchCancel": "Cancelar"
+    "switchCancel": "Cancelar",
+    "editTitle": "Editar participante",
+    "remove": "Quitar del evento",
+    "removeConfirm": "¿Quitar a {{name}} de este evento?",
+    "removeWarning": "No se puede deshacer.",
+    "removeYes": "Sí, quitar",
+    "removeCancel": "Cancelar"
   },
   "event": {
     "share": "Compartir",

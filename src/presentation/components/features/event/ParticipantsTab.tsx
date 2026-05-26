@@ -11,7 +11,7 @@ export function ParticipantsTab() {
   const { t } = useTranslation()
   const { event } = useEventState()
   const me = useCurrentUser()
-  const [editing, setEditing] = useState(false)
+  const [editing, setEditing] = useState<string | null>(null)
   const [adding, setAdding] = useState(false)
   if (!event) return null
 
@@ -32,36 +32,25 @@ export function ParticipantsTab() {
                 {t('participants.child')}
               </span>
             ) : null
-          if (isMe) {
-            return (
-              <li key={u.id} className="flex items-center bg-violet-900/30">
-                <button
-                  type="button"
-                  className="flex w-full items-center justify-between p-3 text-left text-slate-200 hover:bg-violet-900/50"
-                  onClick={() => setEditing(true)}
-                >
-                  <span className="flex items-center">
-                    {label}
-                    <YouLabel userId={u.id} />
-                    {kindBadge}
-                  </span>
-                  <span className="text-xs text-slate-400">✎</span>
-                </button>
-              </li>
-            )
-          }
           return (
-            <li key={u.id} className="flex items-center p-3 text-slate-200">
-              <span className="flex items-center">
-                {label}
-                <YouLabel userId={u.id} />
-                {kindBadge}
-              </span>
+            <li key={u.id} className={`flex items-center ${isMe ? 'bg-violet-900/30' : ''}`}>
+              <button
+                type="button"
+                className="flex w-full items-center justify-between p-3 text-left text-slate-200 hover:bg-slate-800"
+                onClick={() => setEditing(u.id)}
+              >
+                <span className="flex items-center">
+                  {label}
+                  <YouLabel userId={u.id} />
+                  {kindBadge}
+                </span>
+                <span className="text-xs text-slate-400">✎</span>
+              </button>
             </li>
           )
         })}
       </ul>
-      {editing && <ProfileEditor onClose={() => setEditing(false)} />}
+      {editing && <ProfileEditor userId={editing} onClose={() => setEditing(null)} />}
       {adding && <AddParticipantModal onClose={() => setAdding(false)} />}
     </>
   )

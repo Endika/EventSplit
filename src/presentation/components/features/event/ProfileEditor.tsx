@@ -5,6 +5,7 @@ import { useEventState } from '@/presentation/context/EventContext'
 import { useCurrentUser, useSetCurrentUser } from '@/presentation/context/UserContext'
 import { COMMON_ALLERGENS, type AllergenName, type AllergenSeverity, type AllergenSnapshot } from '@/domain/value-objects/Allergen'
 import type { UpdateProfileHandler } from '@/application/handlers/UpdateProfileHandler'
+import type { RemoveParticipantHandler } from '@/application/handlers/RemoveParticipantHandler'
 import type { LocalStorageCache } from '@/infrastructure/persistence/LocalStorageCache'
 import type { UserKind } from '@/domain/entities/User'
 import { useWriteGuard } from '@/presentation/context/WriteGuardContext'
@@ -12,14 +13,21 @@ import { Modal } from '@/presentation/components/common/Modal'
 import { Button } from '@/presentation/components/common/Button'
 import { Input } from '@/presentation/components/common/Input'
 
-export function ProfileEditor({ onClose }: { onClose: () => void }) {
+export function ProfileEditor({
+  userId,
+  onClose,
+}: {
+  userId?: string
+  onClose: () => void
+}) {
   const { t } = useTranslation()
   const container = useContainer()
   const { event, setEvent } = useEventState()
   const me = useCurrentUser()
   const setMe = useSetCurrentUser()
 
-  const myRow = event && me ? event.users.find((u) => u.id === me.id) : undefined
+  const targetUserId = userId ?? me?.id
+  const myRow = event && targetUserId ? event.users.find((u) => u.id === targetUserId) : undefined
 
   const [alias, setAlias] = useState(myRow?.alias ?? '')
   const [email, setEmail] = useState(myRow?.email ?? '')
@@ -36,8 +44,12 @@ export function ProfileEditor({ onClose }: { onClose: () => void }) {
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [confirmSwitch, setConfirmSwitch] = useState(false)
+  const [confirmRemove, setConfirmRemove] = useState(false)
+  const [removeError, setRemoveError] = useState<string | null>(null)
 
-  if (!event || !me) return null
+  if (!event || !targetUserId) return null
+
+  const isSelf = targetUserId === me?.id
 
   function addAllergy() {
     if (allergies.some((a) => a.name === newAllergen)) return
@@ -50,7 +62,7 @@ export function ProfileEditor({ onClose }: { onClose: () => void }) {
 
   function save(e: FormEvent) {
     e.preventDefault()
-    if (!event || !me) return
+    if (!event || !targetUserId) return
     guardedExecute(async () => {
       setBusy(true)
       setError(null)
@@ -58,7 +70,7 @@ export function ProfileEditor({ onClose }: { onClose: () => void }) {
         const handler = container.resolve<UpdateProfileHandler>('updateProfile')
         const result = await handler.execute({
           eventId: event.id,
-          userId: me.id,
+          userId: targetUserId,
           alias: alias.trim() || null,
           email: email.trim() || null,
           phone: phone.trim() || null,
@@ -71,20 +83,22 @@ export function ProfileEditor({ onClose }: { onClose: () => void }) {
           .resolve<LocalStorageCache>('cache')
           .set(event.id, { snapshot: result.event, version: result.version })
         setEvent(result.event, result.version)
-        // Sync local identity (alias may have changed)
-        const updated = result.event.users.find((u) => u.id === me.id)
-        if (updated) {
-          setMe({
-            id: updated.id,
-            name: updated.name,
-            alias: updated.alias,
-            displayName: updated.alias ? `${updated.name} (${updated.alias})` : updated.name,
-          })
-          container.resolve<LocalStorageCache>('cache').setIdentity(event.id, {
-            id: updated.id,
-            name: updated.name,
-            alias: updated.alias,
-          })
+        // Sync local identity only when editing self
+        if (targetUserId === me?.id) {
+          const updated = result.event.users.find((u) => u.id === me.id)
+          if (updated) {
+            setMe({
+              id: updated.id,
+              name: updated.name,
+              alias: updated.alias,
+              displayName: updated.alias ? `${updated.name} (${updated.alias})` : updated.name,
+            })
+            container.resolve<LocalStorageCache>('cache').setIdentity(event.id, {
+              id: updated.id,
+              name: updated.name,
+              alias: updated.alias,
+            })
+          }
         }
         onClose()
       } catch (err) {
@@ -96,8 +110,38 @@ export function ProfileEditor({ onClose }: { onClose: () => void }) {
     })
   }
 
+  function doRemove() {
+    if (!event || !targetUserId) return
+    guardedExecute(async () => {
+      setBusy(true)
+      setRemoveError(null)
+      try {
+        const handler = container.resolve<RemoveParticipantHandler>('removeParticipant')
+        const result = await handler.execute({
+          eventId: event.id,
+          userId: targetUserId,
+        })
+        container
+          .resolve<LocalStorageCache>('cache')
+          .set(event.id, { snapshot: result.event, version: result.version })
+        setEvent(result.event, result.version)
+        // If removing self, also clear identity
+        if (targetUserId === me?.id) {
+          container.resolve<LocalStorageCache>('cache').removeIdentity(event.id)
+          setMe(null)
+        }
+        onClose()
+      } catch (err) {
+        console.error('[RemoveParticipant]', err)
+        setRemoveError(err instanceof Error ? err.message : 'Error')
+      } finally {
+        setBusy(false)
+      }
+    })
+  }
+
   return (
-    <Modal open title={t('profile.title')} dismissable={!busy} onClose={onClose}>
+    <Modal open title={isSelf ? t('profile.title') : t('participants.editTitle')} dismissable={!busy} onClose={onClose}>
       <form onSubmit={save} className="space-y-3">
         <Input
           placeholder={t('profile.alias')}
@@ -210,37 +254,70 @@ export function ProfileEditor({ onClose }: { onClose: () => void }) {
           </Button>
         </div>
 
-        <div className="mt-4 border-t border-slate-800 pt-3">
-          {!confirmSwitch ? (
-            <button
-              type="button"
-              onClick={() => setConfirmSwitch(true)}
-              className="text-xs text-slate-400 hover:text-rose-400"
-              disabled={busy}
-            >
-              {t('participants.switchUser')}
-            </button>
-          ) : (
-            <div className="space-y-2">
-              <p className="text-xs text-slate-300">{t('participants.switchConfirm')}</p>
-              <div className="flex gap-2">
-                <Button type="button" variant="secondary" onClick={() => setConfirmSwitch(false)} disabled={busy}>
-                  {t('participants.switchCancel')}
-                </Button>
-                <Button
-                  type="button"
-                  onClick={() => {
-                    container.resolve<LocalStorageCache>('cache').removeIdentity(event!.id)
-                    setMe(null)
-                    onClose()
-                  }}
-                >
-                  {t('participants.switchYes')}
-                </Button>
+        {event.createdBy !== targetUserId && (
+          <div className="mt-4 border-t border-slate-800 pt-3">
+            {!confirmRemove ? (
+              <button
+                type="button"
+                onClick={() => setConfirmRemove(true)}
+                className="text-xs text-rose-400 hover:text-rose-300"
+                disabled={busy}
+              >
+                {t('participants.remove')}
+              </button>
+            ) : (
+              <div className="space-y-2">
+                <p className="text-xs text-slate-300">
+                  {t('participants.removeConfirm', { name: myRow?.alias ? `${myRow.name} (${myRow.alias})` : myRow?.name ?? '' })}
+                </p>
+                <p className="text-xs text-rose-400">{t('participants.removeWarning')}</p>
+                {removeError && <p className="text-xs text-rose-400 break-all">{removeError}</p>}
+                <div className="flex gap-2">
+                  <Button type="button" variant="secondary" onClick={() => setConfirmRemove(false)} disabled={busy}>
+                    {t('participants.removeCancel')}
+                  </Button>
+                  <Button type="button" onClick={doRemove} disabled={busy}>
+                    {t('participants.removeYes')}
+                  </Button>
+                </div>
               </div>
-            </div>
-          )}
-        </div>
+            )}
+          </div>
+        )}
+
+        {isSelf && (
+          <div className="mt-4 border-t border-slate-800 pt-3">
+            {!confirmSwitch ? (
+              <button
+                type="button"
+                onClick={() => setConfirmSwitch(true)}
+                className="text-xs text-slate-400 hover:text-rose-400"
+                disabled={busy}
+              >
+                {t('participants.switchUser')}
+              </button>
+            ) : (
+              <div className="space-y-2">
+                <p className="text-xs text-slate-300">{t('participants.switchConfirm')}</p>
+                <div className="flex gap-2">
+                  <Button type="button" variant="secondary" onClick={() => setConfirmSwitch(false)} disabled={busy}>
+                    {t('participants.switchCancel')}
+                  </Button>
+                  <Button
+                    type="button"
+                    onClick={() => {
+                      container.resolve<LocalStorageCache>('cache').removeIdentity(event!.id)
+                      setMe(null)
+                      onClose()
+                    }}
+                  >
+                    {t('participants.switchYes')}
+                  </Button>
+                </div>
+              </div>
+            )}
+          </div>
+        )}
       </form>
     </Modal>
   )

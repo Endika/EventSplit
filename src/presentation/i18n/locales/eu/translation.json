@@ -204,7 +204,13 @@
     "switchUser": "Ez naiz pertsona hau",
     "switchConfirm": "Identitate hau gailu honetan ahaztu eta berriro aukeratu?",
     "switchYes": "Bai, parte-hartzaile aldatu",
-    "switchCancel": "Utzi"
+    "switchCancel": "Utzi",
+    "editTitle": "Parte-hartzailea editatu",
+    "remove": "Ekitalditik kendu",
+    "removeConfirm": "Kendu {{name}} ekitalditik?",
+    "removeWarning": "Ezin da desegin.",
+    "removeYes": "Bai, kendu",
+    "removeCancel": "Utzi"
   },
   "event": {
     "share": "Partekatu",
