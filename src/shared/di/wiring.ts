@@ -12,6 +12,7 @@ import { SyncEventHandler } from '@/application/handlers/SyncEventHandler'
 import { UpdateProfileHandler } from '@/application/handlers/UpdateProfileHandler'
 import { SetEventDaysHandler } from '@/application/handlers/SetEventDaysHandler'
 import { SetAvailabilityHandler } from '@/application/handlers/SetAvailabilityHandler'
+import { SetAvailabilityBatchHandler } from '@/application/handlers/SetAvailabilityBatchHandler'
 import { EditEventDetailsHandler } from '@/application/handlers/EditEventDetailsHandler'
 import { RevertHandler } from '@/application/handlers/RevertHandler'
 import { SetEditPinHandler } from '@/application/handlers/SetEditPinHandler'
@@ -39,6 +40,7 @@ export function buildContainer(): Container {
   c.register('updateProfile', () => new UpdateProfileHandler(c.resolve('eventRepo')))
   c.register('setEventDays', () => new SetEventDaysHandler(c.resolve('eventRepo')))
   c.register('setAvailability', () => new SetAvailabilityHandler(c.resolve('eventRepo')))
+  c.register('setAvailabilityBatch', () => new SetAvailabilityBatchHandler(c.resolve('eventRepo')))
   c.register('editEventDetails', () => new EditEventDetailsHandler(c.resolve('eventRepo')))
   c.register('revert', () => new RevertHandler(c.resolve('eventRepo')))
   c.register('setEditPin', () => new SetEditPinHandler(c.resolve('eventRepo')))
