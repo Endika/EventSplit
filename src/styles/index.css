@@ -5,6 +5,13 @@
   --safe-bottom: env(safe-area-inset-bottom, 0px);
 }
 
+html,
+body {
+  /* Prevent the browser's pull-to-refresh gesture from reloading the page
+     (and wiping in-progress form state) when the user over-scrolls. */
+  overscroll-behavior-y: contain;
+}
+
 body {
   background-color: #020617; /* slate-950 */
   color: #f1f5f9; /* slate-100 */
