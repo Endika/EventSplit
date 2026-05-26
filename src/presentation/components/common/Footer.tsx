@@ -1,6 +1,36 @@
 import { type ReactNode } from 'react'
 import { useTranslation } from 'react-i18next'
 
+// Flag emoji (🇬🇧/🇪🇸) don't render as flags on Windows, so we draw these inline too.
+function UnionJack() {
+  return (
+    <svg viewBox="0 0 24 16" width="18" height="12" className="rounded-[2px]" aria-hidden="true">
+      <rect width="24" height="16" fill="#012169" />
+      <g stroke="#ffffff" strokeWidth="3">
+        <line x1="0" y1="0" x2="24" y2="16" />
+        <line x1="24" y1="0" x2="0" y2="16" />
+      </g>
+      <g stroke="#C8102E" strokeWidth="1.5">
+        <line x1="0" y1="0" x2="24" y2="16" />
+        <line x1="24" y1="0" x2="0" y2="16" />
+      </g>
+      <rect x="9" width="6" height="16" fill="#ffffff" />
+      <rect y="5" width="24" height="6" fill="#ffffff" />
+      <rect x="10.5" width="3" height="16" fill="#C8102E" />
+      <rect y="6.5" width="24" height="3" fill="#C8102E" />
+    </svg>
+  )
+}
+
+function SpainFlag() {
+  return (
+    <svg viewBox="0 0 24 16" width="18" height="12" className="rounded-[2px]" aria-hidden="true">
+      <rect width="24" height="16" fill="#AA151B" />
+      <rect y="4" width="24" height="8" fill="#F1BF00" />
+    </svg>
+  )
+}
+
 // The Basque flag (ikurriña) has no Unicode emoji, so we draw it inline.
 function Ikurrina() {
   return (
@@ -61,8 +91,8 @@ function GaliciaFlag() {
 }
 
 const LANGUAGES: { code: string; label: string; short: string; flag: ReactNode }[] = [
-  { code: 'en', label: 'English', short: 'EN', flag: <span aria-hidden="true">🇬🇧</span> },
-  { code: 'es', label: 'Español', short: 'ES', flag: <span aria-hidden="true">🇪🇸</span> },
+  { code: 'en', label: 'English', short: 'EN', flag: <UnionJack /> },
+  { code: 'es', label: 'Español', short: 'ES', flag: <SpainFlag /> },
   { code: 'eu', label: 'Euskara', short: 'EU', flag: <Ikurrina /> },
   { code: 'gl', label: 'Galego', short: 'GL', flag: <GaliciaFlag /> },
   { code: 'ca', label: 'Català', short: 'CA', flag: <Senyera /> },
