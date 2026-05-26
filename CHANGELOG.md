@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.47.1](https://github.com/Endika/EventSplit/compare/v1.47.0...v1.47.1) (2026-05-26)
+
+
+### Bug Fixes
+
+* **forms:** accept comma or dot as decimal separator ([c11deee](https://github.com/Endika/EventSplit/commit/c11deeed09191df20aa4834214cf3c0f8ffc1467))
+
 ## [1.47.0](https://github.com/Endika/EventSplit/compare/v1.46.3...v1.47.0) (2026-05-26)
 
 
