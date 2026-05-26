@@ -19,7 +19,7 @@ export function AddParticipantModal({ onClose }: { onClose: () => void }) {
   const [alias, setAlias] = useState('')
   const [kind, setKind] = useState<UserKind>('adult')
   const [busy, setBusy] = useState(false)
-  const [error, setError] = useState<string | null>(null)
+  const [error, setError] = useState<{ name: string; message: string } | null>(null)
 
   if (!event) return null
 
@@ -45,14 +45,20 @@ export function AddParticipantModal({ onClose }: { onClose: () => void }) {
           onClose()
         } catch (err) {
           console.error('[AddParticipant]', err)
-          setError(err instanceof Error ? err.message : 'Error')
+          setError({
+            name: err instanceof Error ? err.constructor.name : 'Unknown',
+            message: err instanceof Error ? err.message : String(err),
+          })
         } finally {
           setBusy(false)
         }
       },
       (err) => {
         console.error('[AddParticipant]', err)
-        setError(err instanceof Error ? err.message : 'Error')
+        setError({
+          name: err instanceof Error ? err.constructor.name : 'Unknown',
+          message: err instanceof Error ? err.message : String(err),
+        })
         setBusy(false)
       },
     )
@@ -88,7 +94,12 @@ export function AddParticipantModal({ onClose }: { onClose: () => void }) {
             <option value="child">{t('participants.child')}</option>
           </select>
         </label>
-        {error && <p className="text-sm text-rose-400">{error}</p>}
+        {error && (
+          <div className="space-y-1 rounded border border-rose-900/60 bg-rose-950/40 p-2 text-xs">
+            <div className="font-semibold text-rose-300">{error.name}</div>
+            <div className="break-all text-rose-200">{error.message}</div>
+          </div>
+        )}
         <div className="flex gap-2">
           <Button type="button" variant="secondary" onClick={onClose} disabled={busy}>
             {t('common.cancel')}
