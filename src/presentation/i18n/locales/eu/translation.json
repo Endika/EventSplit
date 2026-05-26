@@ -17,7 +17,7 @@
     "participants_other": "{{count}} parte-hartzaile",
     "forget": "Gailu honetatik kendu"
   },
-  "tabs": { "participants": "Lagunak", "availability": "Noiz", "location": "Non", "purchases": "Erosketak", "expenses": "Gastuak", "history": "Historiala" },
+  "tabs": { "participants": "Lagunak", "availability": "Noiz", "location": "Non", "purchases": "Erosketak", "expenses": "Gastuak", "history": "Historiala", "openMenu": "Menua ireki", "closeMenu": "Menua itxi", "menu": "Menua", "home": "Hasiera" },
   "history": {
     "title": "Jardueraren erregistroa",
     "empty": "Oraindik ez dago jarduerarik.",

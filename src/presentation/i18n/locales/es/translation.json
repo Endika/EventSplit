@@ -17,7 +17,7 @@
     "participants_other": "{{count}} participantes",
     "forget": "Quitar de este dispositivo"
   },
-  "tabs": { "participants": "Personas", "availability": "Cuándo", "location": "Dónde", "purchases": "Compra", "expenses": "Gastos", "history": "Historial" },
+  "tabs": { "participants": "Personas", "availability": "Cuándo", "location": "Dónde", "purchases": "Compra", "expenses": "Gastos", "history": "Historial", "openMenu": "Abrir menú", "closeMenu": "Cerrar menú", "menu": "Menú", "home": "Inicio" },
   "history": {
     "title": "Registro de actividad",
     "empty": "Sin actividad aún.",

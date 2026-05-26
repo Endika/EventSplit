@@ -56,7 +56,7 @@ export function HomePage() {
   }
 
   return (
-    <main className="mx-auto max-w-md p-6">
+    <main className="mx-auto max-w-md p-4 md:p-6">
       <h1 className="mb-2 text-3xl font-bold text-slate-100">{t('app.title')}</h1>
       <p className="mb-6 text-slate-400">{t('home.tagline')}</p>
 

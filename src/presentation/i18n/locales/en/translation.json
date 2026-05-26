@@ -17,7 +17,7 @@
     "participants_other": "{{count}} participants",
     "forget": "Remove from this device"
   },
-  "tabs": { "participants": "People", "availability": "When", "location": "Where", "purchases": "Shopping", "expenses": "Expenses", "history": "History" },
+  "tabs": { "participants": "People", "availability": "When", "location": "Where", "purchases": "Shopping", "expenses": "Expenses", "history": "History", "openMenu": "Open menu", "closeMenu": "Close menu", "menu": "Menu", "home": "Home" },
   "history": {
     "title": "Activity log",
     "empty": "No activity yet.",

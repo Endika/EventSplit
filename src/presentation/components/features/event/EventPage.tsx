@@ -112,8 +112,8 @@ export function EventPage({ eventId }: { eventId: string }) {
   if (!event) return <main className="p-6 text-slate-300">…</main>
 
   return (
-    <main className="mx-auto max-w-3xl p-6">
-      <h1 className="mb-2 text-2xl font-bold text-slate-100">{event.name}</h1>
+    <main className="mx-auto max-w-3xl p-4 md:p-6">
+      <h1 className="mb-2 hidden text-2xl font-bold text-slate-100 md:block">{event.name}</h1>
       {!me && (
         <IdentificationModal
           eventName={event.name}

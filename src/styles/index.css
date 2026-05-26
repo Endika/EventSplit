@@ -2,9 +2,17 @@
 
 :root {
   color-scheme: dark;
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
 }
 
 body {
   background-color: #020617; /* slate-950 */
   color: #f1f5f9; /* slate-100 */
+}
+
+@supports (padding: env(safe-area-inset-top)) {
+  body {
+    padding-top: env(safe-area-inset-top);
+    padding-bottom: env(safe-area-inset-bottom);
+  }
 }
