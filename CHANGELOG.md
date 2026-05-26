@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.26.0](https://github.com/Endika/EventSplit/compare/v1.25.0...v1.26.0) (2026-05-26)
+
+
+### Features
+
+* **ui:** add flags to language switcher buttons ([e0af324](https://github.com/Endika/EventSplit/commit/e0af324de7ae01e91cc565932edf09022fc63d93))
+
 ## [1.25.0](https://github.com/Endika/EventSplit/compare/v1.24.0...v1.25.0) (2026-05-26)
 
 
