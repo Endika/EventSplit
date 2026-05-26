@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.23.0](https://github.com/Endika/EventSplit/compare/v1.22.0...v1.23.0) (2026-05-26)
+
+
+### Features
+
+* **ui:** only list adults as purchase buyers ([d6f797a](https://github.com/Endika/EventSplit/commit/d6f797ad0dc1ca57db55a045435163784affdb49))
+
 ## [1.22.0](https://github.com/Endika/EventSplit/compare/v1.21.0...v1.22.0) (2026-05-26)
 
 
