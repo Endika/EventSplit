@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.39.0](https://github.com/Endika/EventSplit/compare/v1.38.1...v1.39.0) (2026-05-26)
+
+
+### Features
+
+* **pwa:** add in-app install prompt for android and ios hint ([92b9d74](https://github.com/Endika/EventSplit/commit/92b9d745d294f646a46509cf500305499f672bee))
+
 ## [1.38.1](https://github.com/Endika/EventSplit/compare/v1.38.0...v1.38.1) (2026-05-26)
 
 
