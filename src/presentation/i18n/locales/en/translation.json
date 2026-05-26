@@ -291,7 +291,11 @@
     "removeYes": "Remove PIN",
     "manageHint": "The PIN protects edits if the event link is shared widely.",
     "lockDevice": "Lock this device (require PIN again)",
-    "ownerVerifiedHint": "Your device is already verified because you set the PIN — others will be asked for it."
+    "ownerVerifiedHint": "Your device is already verified because you set the PIN — others will be asked for it.",
+    "gateBody": "This event is protected. Enter the PIN to open it.",
+    "gateField": "PIN",
+    "gateUnlock": "Open event",
+    "gateWrong": "Wrong PIN, try again"
   },
   "errorBanner": {
     "title": "Error",

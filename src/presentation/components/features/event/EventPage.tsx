@@ -13,6 +13,7 @@ import {
   type IdentificationResult,
 } from '@/presentation/components/features/identification/IdentificationModal'
 import { EventTabs } from '@/presentation/components/features/event/EventTabs'
+import { EventPinGate } from '@/presentation/components/features/security/EventPinGate'
 
 export function EventPage({ eventId }: { eventId: string }) {
   const { t } = useTranslation()
@@ -22,6 +23,7 @@ export function EventPage({ eventId }: { eventId: string }) {
   const setMe = useSetCurrentUser()
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const [pinTick, setPinTick] = useState(0)
 
   useEffect(() => {
     const cache = container.resolve<LocalStorageCache>('cache')
@@ -110,6 +112,12 @@ export function EventPage({ eventId }: { eventId: string }) {
   if (loading) return <main className="p-6 text-slate-300">…</main>
   if (error) return <main className="p-6 text-rose-400">{error}</main>
   if (!event) return <main className="p-6 text-slate-300">…</main>
+
+  void pinTick
+  const needsPin = !!event.editPin && localStorage.getItem(`eventsplit.pin.${eventId}`) !== 'true'
+  if (needsPin) {
+    return <EventPinGate event={event} onUnlock={() => setPinTick((n) => n + 1)} />
+  }
 
   return (
     <main className="mx-auto max-w-3xl p-4 md:p-6">

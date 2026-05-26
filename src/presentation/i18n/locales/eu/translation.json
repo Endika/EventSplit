@@ -291,7 +291,11 @@
     "removeYes": "Kendu PINa",
     "manageHint": "PINak edizioak babesten ditu esteka jende askorekin partekatzen baduzu.",
     "lockDevice": "Blokeatu gailu hau (PINa berriz eskatu)",
-    "ownerVerifiedHint": "Zure gailua egiaztatuta dago zuk PINa ezarri duzulako — besteei eskatuko zaie."
+    "ownerVerifiedHint": "Zure gailua egiaztatuta dago zuk PINa ezarri duzulako — besteei eskatuko zaie.",
+    "gateBody": "Ekitaldi hau babestuta dago. Sartu PINa irekitzeko.",
+    "gateField": "PIN",
+    "gateUnlock": "Ireki ekitaldia",
+    "gateWrong": "PIN okerra, saiatu berriro"
   },
   "errorBanner": {
     "title": "Errorea",

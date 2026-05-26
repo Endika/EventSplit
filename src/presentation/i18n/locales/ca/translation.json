@@ -291,7 +291,11 @@
     "removeYes": "Treure PIN",
     "manageHint": "El PIN protegeix les edicions si comparteixes l'enllaç amb molta gent.",
     "lockDevice": "Bloquejar aquest dispositiu (tornar a demanar PIN)",
-    "ownerVerifiedHint": "El teu dispositiu ja està verificat perquè tu vas posar el PIN — als altres sí que se'ls demanarà."
+    "ownerVerifiedHint": "El teu dispositiu ja està verificat perquè tu vas posar el PIN — als altres sí que se'ls demanarà.",
+    "gateBody": "Aquest esdeveniment està protegit. Introdueix el PIN per obrir-lo.",
+    "gateField": "PIN",
+    "gateUnlock": "Obrir esdeveniment",
+    "gateWrong": "PIN incorrecte, torna-ho a provar"
   },
   "errorBanner": {
     "title": "Error",

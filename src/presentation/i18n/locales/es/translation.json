@@ -291,7 +291,11 @@
     "removeYes": "Quitar PIN",
     "manageHint": "El PIN protege las ediciones si compartes el enlace con mucha gente.",
     "lockDevice": "Bloquear este dispositivo (volver a pedir PIN)",
-    "ownerVerifiedHint": "Tu dispositivo ya está verificado porque tú pusiste el PIN — a los demás sí se les pedirá."
+    "ownerVerifiedHint": "Tu dispositivo ya está verificado porque tú pusiste el PIN — a los demás sí se les pedirá.",
+    "gateBody": "Este evento está protegido. Introduce el PIN para abrirlo.",
+    "gateField": "PIN",
+    "gateUnlock": "Abrir evento",
+    "gateWrong": "PIN incorrecto, inténtalo de nuevo"
   },
   "errorBanner": {
     "title": "Error",
