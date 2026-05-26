@@ -164,5 +164,15 @@
       "transfers": "Liquidación",
       "transferLine": "{{from}} paga €{{euros}} a {{to}}"
     }
+  },
+  "pin": {
+    "createField": "PIN de edición (opcional, 4-6 dígitos)",
+    "createHint": "Si lo activas, las ediciones requieren este PIN una vez por dispositivo. Protege ante URL filtradas.",
+    "promptTitle": "Se requiere PIN",
+    "promptHint": "Introduce el PIN para hacer cambios.",
+    "promptField": "PIN",
+    "promptSubmit": "Desbloquear",
+    "promptCancel": "Cancelar",
+    "wrongPin": "PIN incorrecto, inténtalo de nuevo"
   }
 }

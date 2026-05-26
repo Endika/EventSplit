@@ -2,6 +2,7 @@ import { type FormEvent, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useContainer } from '@/presentation/context/ContainerProvider'
 import type { CreateEventHandler } from '@/application/handlers/CreateEventHandler'
+import type { SetEditPinHandler } from '@/application/handlers/SetEditPinHandler'
 import type { LocalStorageCache } from '@/infrastructure/persistence/LocalStorageCache'
 import { Button } from '@/presentation/components/common/Button'
 import { Input } from '@/presentation/components/common/Input'
@@ -14,6 +15,7 @@ export function HomePage() {
   const [name, setName] = useState('')
   const [yourName, setYourName] = useState('')
   const [alias, setAlias] = useState('')
+  const [pin, setPin] = useState('')
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
@@ -35,6 +37,14 @@ export function HomePage() {
         name: yourName.trim(),
         alias: alias.trim() || null,
       })
+      if (pin.length >= 4 && pin.length <= 6) {
+        const pinHandler = container.resolve<SetEditPinHandler>('setEditPin')
+        await pinHandler.execute({
+          eventId: result.event.id,
+          userId: result.creator.id,
+          pin,
+        })
+      }
       window.history.pushState({}, '', `${import.meta.env.BASE_URL}?event=${result.event.id}`)
       window.dispatchEvent(new PopStateEvent('popstate'))
     } catch (err) {
@@ -71,6 +81,15 @@ export function HomePage() {
           onChange={(e) => setAlias(e.target.value)}
           maxLength={50}
         />
+        <Input
+          type="password"
+          inputMode="numeric"
+          maxLength={6}
+          placeholder={t('pin.createField')}
+          value={pin}
+          onChange={(e) => setPin(e.target.value.replace(/\D/g, ''))}
+        />
+        <p className="-mt-1 text-xs text-slate-500">{t('pin.createHint')}</p>
         {error && <p className="text-sm text-rose-400">{error}</p>}
         <Button type="submit" disabled={busy || !online}>
           {busy ? '…' : t('home.submit')}

@@ -164,5 +164,15 @@
       "transfers": "Likidazioa",
       "transferLine": "{{from}}-(e)k €{{euros}} ordaintzen dizkio {{to}}-(r)i"
     }
+  },
+  "pin": {
+    "createField": "Edizio PIN-a (aukerakoa, 4-6 zifra)",
+    "createHint": "Aktibatuz gero, edizioek PIN hau eskatzen dute behin gailuko. URL filtrazioen aurka.",
+    "promptTitle": "PIN beharrezkoa",
+    "promptHint": "Sartu PIN-a aldaketak egiteko.",
+    "promptField": "PIN",
+    "promptSubmit": "Desblokeatu",
+    "promptCancel": "Utzi",
+    "wrongPin": "PIN okerra, saiatu berriro"
   }
 }

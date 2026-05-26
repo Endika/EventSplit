@@ -3,8 +3,10 @@ import { ContainerProvider } from '@/presentation/context/ContainerProvider'
 import { EventProvider } from '@/presentation/context/EventContext'
 import { UserProvider } from '@/presentation/context/UserContext'
 import { SyncProvider } from '@/presentation/context/SyncContext'
+import { WriteGuardProvider } from '@/presentation/context/WriteGuardContext'
 import { HomePage } from '@/presentation/components/features/home/HomePage'
 import { EventPage } from '@/presentation/components/features/event/EventPage'
+import { PinPromptModal } from '@/presentation/components/features/security/PinPromptModal'
 import { OfflineBanner } from '@/presentation/components/features/pwa/OfflineBanner'
 import { UpdateBanner } from '@/presentation/components/features/pwa/UpdateBanner'
 import { Footer } from '@/presentation/components/common/Footer'
@@ -27,12 +29,15 @@ export default function App() {
     <ContainerProvider>
       <SyncProvider>
         <EventProvider>
-          <UserProvider>
+            <UserProvider>
+            <WriteGuardProvider>
               <OfflineBanner />
               <UpdateBanner />
               {eventId ? <EventPage eventId={eventId} /> : <HomePage />}
+              <PinPromptModal />
               <Footer />
-            </UserProvider>
+            </WriteGuardProvider>
+          </UserProvider>
         </EventProvider>
       </SyncProvider>
     </ContainerProvider>

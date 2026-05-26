@@ -164,5 +164,15 @@
       "transfers": "Settlement",
       "transferLine": "{{from}} pays €{{euros}} to {{to}}"
     }
+  },
+  "pin": {
+    "createField": "Edit PIN (optional, 4-6 digits)",
+    "createHint": "If set, edits require this PIN once per device. Protects against URL leaks.",
+    "promptTitle": "Edit PIN required",
+    "promptHint": "Enter the PIN to make changes.",
+    "promptField": "PIN",
+    "promptSubmit": "Unlock",
+    "promptCancel": "Cancel",
+    "wrongPin": "Wrong PIN, try again"
   }
 }
