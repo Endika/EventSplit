@@ -1,4 +1,4 @@
-import { createContext, type ReactNode, useContext, useState } from 'react'
+import { createContext, type ReactNode, useContext, useMemo, useState } from 'react'
 
 export interface CurrentUser {
   id: string
@@ -13,8 +13,11 @@ const Ctx = createContext<{
 } | null>(null)
 
 export function UserProvider({ children }: { children: ReactNode }) {
+  // setUser from useState is already stable; memoize the value object so the
+  // context reference only changes when `user` actually changes.
   const [user, setUser] = useState<CurrentUser | null>(null)
-  return <Ctx.Provider value={{ user, setUser }}>{children}</Ctx.Provider>
+  const value = useMemo(() => ({ user, setUser }), [user])
+  return <Ctx.Provider value={value}>{children}</Ctx.Provider>
 }
 
 // eslint-disable-next-line react-refresh/only-export-components

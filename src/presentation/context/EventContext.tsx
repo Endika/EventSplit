@@ -1,4 +1,11 @@
-import { createContext, type ReactNode, useContext, useState } from 'react'
+import {
+  createContext,
+  type ReactNode,
+  useCallback,
+  useContext,
+  useMemo,
+  useState,
+} from 'react'
 import type { EventSnapshot } from '@/domain/entities/Event'
 
 interface EventState {
@@ -12,20 +19,16 @@ const Ctx = createContext<EventState | null>(null)
 export function EventProvider({ children }: { children: ReactNode }) {
   const [event, setEventState] = useState<EventSnapshot | null>(null)
   const [version, setVersion] = useState(0)
-  return (
-    <Ctx.Provider
-      value={{
-        event,
-        version,
-        setEvent: (s, v) => {
-          setEventState(s)
-          setVersion(v)
-        },
-      }}
-    >
-      {children}
-    </Ctx.Provider>
+  // Stable setter so consumers can safely list it in effect deps without looping.
+  const setEvent = useCallback((s: EventSnapshot, v: number) => {
+    setEventState(s)
+    setVersion(v)
+  }, [])
+  const value = useMemo<EventState>(
+    () => ({ event, version, setEvent }),
+    [event, version, setEvent],
   )
+  return <Ctx.Provider value={value}>{children}</Ctx.Provider>
 }
 
 // eslint-disable-next-line react-refresh/only-export-components
