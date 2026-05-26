@@ -15,7 +15,11 @@ export function ExpenseSummary() {
 
   const result = ExpenseSplitter.compute({
     participantIds: event.users.map((u) => u.id),
-    expenses: event.expenses.map((e) => ({ paidBy: e.paidBy, amount: Money.fromCents(e.cents) })),
+    expenses: event.expenses.map((e) => ({
+      paidBy: e.paidBy,
+      amount: Money.fromCents(e.cents),
+      splitAmong: e.splitAmong,
+    })),
   })
   const nameOf = (id: string) => event.users.find((u) => u.id === id)?.name ?? '?'
 

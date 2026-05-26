@@ -168,11 +168,15 @@
     "add": "Añadir gasto",
     "empty": "Aún no hay gastos.",
     "paidBy": "Pagado por {{name}}",
+    "splitBetween": "Entre: {{list}}",
     "form": {
       "paidBy": "Quién pagó",
       "amount": "Importe (€)",
       "description": "Concepto",
-      "submit": "Guardar gasto"
+      "submit": "Guardar gasto",
+      "splitBetween": "Repartir entre",
+      "selectAll": "Todos",
+      "selectNone": "Ninguno"
     },
     "summary": {
       "total": "Total gastado",

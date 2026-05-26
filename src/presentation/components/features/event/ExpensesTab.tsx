@@ -34,6 +34,13 @@ export function ExpensesTab() {
               {t('expenses.paidBy', { name: nameOf(e.paidBy) })}
               <YouLabel userId={e.paidBy} />
             </div>
+            {e.splitAmong.length > 0 && e.splitAmong.length < event.users.length && (
+              <div className="mt-1 text-xs text-slate-500">
+                {t('expenses.splitBetween', {
+                  list: e.splitAmong.map(nameOf).join(', '),
+                })}
+              </div>
+            )}
           </li>
         ))}
       </ul>

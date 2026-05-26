@@ -168,11 +168,15 @@
     "add": "Gastua gehitu",
     "empty": "Oraindik ez dago gasturik.",
     "paidBy": "Ordaindu duena: {{name}}",
+    "splitBetween": "Hauen artean: {{list}}",
     "form": {
       "paidBy": "Nork ordaindu du",
       "amount": "Zenbatekoa (€)",
       "description": "Zer izan zen",
-      "submit": "Gorde gastua"
+      "submit": "Gorde gastua",
+      "splitBetween": "Banatu honen artean",
+      "selectAll": "Denak",
+      "selectNone": "Inor ez"
     },
     "summary": {
       "total": "Guztira",

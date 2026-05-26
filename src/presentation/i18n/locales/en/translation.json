@@ -168,11 +168,15 @@
     "add": "Add expense",
     "empty": "No expenses yet.",
     "paidBy": "Paid by {{name}}",
+    "splitBetween": "Split between: {{list}}",
     "form": {
       "paidBy": "Who paid",
       "amount": "Amount (€)",
       "description": "What was it for",
-      "submit": "Save expense"
+      "submit": "Save expense",
+      "splitBetween": "Split between",
+      "selectAll": "All",
+      "selectNone": "None"
     },
     "summary": {
       "total": "Total spent",

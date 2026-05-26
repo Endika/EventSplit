@@ -20,8 +20,28 @@ export function ExpenseForm({ onDone }: { onDone: () => void }) {
   const [description, setDescription] = useState('')
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [splitAmong, setSplitAmong] = useState<Set<string>>(
+    () => new Set(event?.users.map((u) => u.id) ?? []),
+  )
 
   if (!event) return null
+
+  function toggleSplit(id: string) {
+    setSplitAmong((prev) => {
+      const next = new Set(prev)
+      if (next.has(id)) next.delete(id)
+      else next.add(id)
+      return next
+    })
+  }
+
+  function selectAll() {
+    setSplitAmong(new Set(event?.users.map((u) => u.id) ?? []))
+  }
+
+  function selectNone() {
+    setSplitAmong(new Set())
+  }
 
   function submit(e: FormEvent) {
     e.preventDefault()
@@ -31,11 +51,14 @@ export function ExpenseForm({ onDone }: { onDone: () => void }) {
       setError(null)
       try {
         const handler = container.resolve<AddExpenseHandler>('addExpense')
+        const allUserIds = event.users.map((u) => u.id)
+        const split = splitAmong.size === allUserIds.length ? [] : [...splitAmong]
         const result = await handler.execute({
           eventId: event.id,
           paidBy,
           amountEuros: parseFloat(amount),
           description,
+          splitAmong: split,
         })
         container
           .resolve<LocalStorageCache>('cache')
@@ -87,6 +110,43 @@ export function ExpenseForm({ onDone }: { onDone: () => void }) {
         minLength={3}
         maxLength={100}
       />
+      <fieldset className="rounded-lg border border-slate-800 p-3">
+        <legend className="px-2 text-xs uppercase tracking-wide text-slate-500">
+          {t('expenses.form.splitBetween')}
+        </legend>
+        <div className="mb-2 flex gap-2 text-xs">
+          <button
+            type="button"
+            onClick={selectAll}
+            className="rounded px-2 py-1 text-slate-400 hover:bg-slate-800 hover:text-slate-200"
+          >
+            {t('expenses.form.selectAll')}
+          </button>
+          <button
+            type="button"
+            onClick={selectNone}
+            className="rounded px-2 py-1 text-slate-400 hover:bg-slate-800 hover:text-slate-200"
+          >
+            {t('expenses.form.selectNone')}
+          </button>
+        </div>
+        <ul className="space-y-1">
+          {event.users.map((u) => (
+            <li key={u.id} className="flex items-center gap-2 text-sm">
+              <input
+                type="checkbox"
+                checked={splitAmong.has(u.id)}
+                onChange={() => toggleSplit(u.id)}
+                disabled={busy}
+                className="size-4 rounded border-slate-600 bg-slate-800 accent-violet-500"
+              />
+              <span className="text-slate-200">
+                {u.alias ? `${u.name} (${u.alias})` : u.name}
+              </span>
+            </li>
+          ))}
+        </ul>
+      </fieldset>
       {error && <p className="text-sm text-rose-400">{error}</p>}
       <div className="flex gap-2">
         <Button type="button" variant="secondary" onClick={onDone} disabled={busy}>
