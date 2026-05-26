@@ -140,6 +140,13 @@
   "purchases": {
     "add": "Erosketa gehitu",
     "edit": "Editatu",
+    "delete": "Ezabatu",
+    "deleteTitle": "Erosketa ezabatu",
+    "deleteConfirm": "\"{{item}}\" ezabatu? Ezin da zerrendatik desegin.",
+    "deleteYes": "Ezabatu",
+    "bought": "Erosita",
+    "assignedShort": "Eroslea:",
+    "unassigned": "Esleitu gabe",
     "empty": "Oraindik ez dago erosketarik.",
     "createdBy": "Gehitu duena: {{name}}",
     "totalQuantity": "Erosi beharrekoa: {{n}} {{unit}}",

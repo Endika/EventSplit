@@ -140,6 +140,13 @@
   "purchases": {
     "add": "Añadir compra",
     "edit": "Editar",
+    "delete": "Borrar",
+    "deleteTitle": "Borrar compra",
+    "deleteConfirm": "¿Borrar \"{{item}}\"? No podrás deshacerlo desde la lista.",
+    "deleteYes": "Borrar",
+    "bought": "Comprado",
+    "assignedShort": "Compra:",
+    "unassigned": "Sin asignar",
     "empty": "Aún no hay compras.",
     "createdBy": "Añadida por {{name}}",
     "totalQuantity": "Total a comprar: {{n}} {{unit}}",

@@ -140,6 +140,13 @@
   "purchases": {
     "add": "Add purchase",
     "edit": "Edit",
+    "delete": "Delete",
+    "deleteTitle": "Delete purchase",
+    "deleteConfirm": "Delete \"{{item}}\"? You can't undo this from the list.",
+    "deleteYes": "Delete",
+    "bought": "Bought",
+    "assignedShort": "Buyer:",
+    "unassigned": "Unassigned",
     "empty": "No purchases yet.",
     "createdBy": "Created by {{name}}",
     "totalQuantity": "Total to buy: {{n}} {{unit}}",
