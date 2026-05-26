@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.42.0](https://github.com/Endika/EventSplit/compare/v1.41.0...v1.42.0) (2026-05-26)
+
+
+### Features
+
+* **ui:** allow any decimal for daily consumption ([7fa1cdc](https://github.com/Endika/EventSplit/commit/7fa1cdce681c9f6fcae423405c52c767756d02b4))
+
 ## [1.41.0](https://github.com/Endika/EventSplit/compare/v1.40.0...v1.41.0) (2026-05-26)
 
 
