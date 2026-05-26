@@ -9,6 +9,7 @@ export const UpdateProfileSchema = z.object({
   phone: z.string().trim().max(30).nullable().optional(),
   dietary: z.string().trim().max(200).nullable().optional(),
   notes: z.string().trim().max(500).nullable().optional(),
+  kind: z.enum(['adult', 'child']).optional(),
   allergies: z
     .array(
       z.object({

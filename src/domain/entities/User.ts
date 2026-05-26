@@ -2,6 +2,10 @@ import type { AllergenSnapshot } from '@/domain/value-objects/Allergen'
 import { Allergen } from '@/domain/value-objects/Allergen'
 import { UserId } from '@/domain/value-objects/UserId'
 
+export type UserKind = 'adult' | 'child'
+
+const VALID_KINDS: UserKind[] = ['adult', 'child']
+
 export interface UserSnapshot {
   id: string
   name: string
@@ -12,6 +16,7 @@ export interface UserSnapshot {
   allergies: AllergenSnapshot[]
   dietary: string | null
   notes: string | null
+  kind: UserKind
 }
 
 export interface ProfileUpdate {
@@ -21,6 +26,7 @@ export interface ProfileUpdate {
   allergies?: AllergenSnapshot[]
   dietary?: string | null
   notes?: string | null
+  kind?: UserKind
 }
 
 export class User {
@@ -34,21 +40,24 @@ export class User {
     readonly allergies: AllergenSnapshot[],
     readonly dietary: string | null,
     readonly notes: string | null,
+    readonly kind: UserKind,
   ) {}
 
-  static create(input: { name: string; alias?: string | null }): User {
+  static create(input: { name: string; alias?: string | null; kind?: UserKind }): User {
     const name = input.name.trim()
     if (name.length < 2 || name.length > 50) throw new Error('User: name must be 2..50 chars')
     const aliasRaw = input.alias?.trim() ?? ''
     if (aliasRaw.length > 50) throw new Error('User: alias must be ≤ 50 chars')
     const alias = aliasRaw === '' ? null : aliasRaw
+    const kind = input.kind ?? 'adult'
+    if (!VALID_KINDS.includes(kind)) throw new Error(`User: invalid kind "${kind}"`)
     return new User(
       UserId.generate(), name, alias, new Date().toISOString(),
-      null, null, [], null, null,
+      null, null, [], null, null, kind,
     )
   }
 
-  static restore(s: UserSnapshot | (Omit<UserSnapshot, 'email' | 'phone' | 'allergies' | 'dietary' | 'notes'>)): User {
+  static restore(s: UserSnapshot | (Omit<UserSnapshot, 'email' | 'phone' | 'allergies' | 'dietary' | 'notes' | 'kind'>)): User {
     const full = s as UserSnapshot
     return new User(
       UserId.of(s.id), s.name, s.alias, s.joinedAt,
@@ -57,6 +66,7 @@ export class User {
       full.allergies ?? [],
       full.dietary ?? null,
       full.notes ?? null,
+      full.kind ?? 'adult',
     )
   }
 
@@ -82,7 +92,10 @@ export class User {
     // Re-validate each allergen for safety
     allergies.forEach((a) => Allergen.of({ name: a.name, severity: a.severity, notes: a.notes ?? null }))
 
-    return new User(this.id, this.name, alias, this.joinedAt, email, phone, allergies, dietary, notes)
+    const kind = update.kind === undefined ? this.kind : update.kind
+    if (!VALID_KINDS.includes(kind)) throw new Error(`User: invalid kind "${kind}"`)
+
+    return new User(this.id, this.name, alias, this.joinedAt, email, phone, allergies, dietary, notes, kind)
   }
 
   get displayName(): string {
@@ -100,6 +113,7 @@ export class User {
       allergies: this.allergies.map((a) => ({ ...a })),
       dietary: this.dietary,
       notes: this.notes,
+      kind: this.kind,
     }
   }
 }

@@ -16,7 +16,7 @@ export class JoinAsNewUserHandler {
 
   async execute(input: JoinAsNewUserInput): Promise<JoinResult> {
     const parsed = JoinAsNewUserSchema.parse(input)
-    const newUser = User.create({ name: parsed.name, alias: parsed.alias ?? null })
+    const newUser = User.create({ name: parsed.name, alias: parsed.alias ?? null, kind: parsed.kind })
 
     for (let attempt = 0; attempt < MAX_RETRIES; attempt++) {
       const row = await this.repo.findById(parsed.eventId)

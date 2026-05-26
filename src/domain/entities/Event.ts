@@ -132,6 +132,7 @@ export class Event {
         allergies: u.allergies ?? [],
         dietary: u.dietary ?? null,
         notes: u.notes ?? null,
+        kind: u.kind ?? 'adult',
       })),
     }
     return new Event(EventId.of(s.id), backfilled)

@@ -80,4 +80,31 @@ describe('User', () => {
     expect(() => u.withProfile({ dietary: 'x'.repeat(201) })).toThrow(/dietary/)
     expect(() => u.withProfile({ notes: 'x'.repeat(501) })).toThrow(/notes/)
   })
+
+  it('defaults to adult kind', () => {
+    expect(User.create({ name: 'John' }).toSnapshot().kind).toBe('adult')
+  })
+
+  it('accepts child kind', () => {
+    expect(User.create({ name: 'Kid', kind: 'child' }).toSnapshot().kind).toBe('child')
+  })
+
+  it('rejects invalid kind', () => {
+    expect(() => User.create({ name: 'John', kind: 'baby' as never })).toThrow(/kind/)
+  })
+
+  it('withProfile updates kind', () => {
+    const u = User.create({ name: 'John' })
+    expect(u.withProfile({ kind: 'child' }).kind).toBe('child')
+  })
+
+  it('restore defaults missing kind to adult', () => {
+    const legacy = {
+      id: '018f4a8e-0000-7000-8000-000000000001',
+      name: 'Old',
+      alias: null,
+      joinedAt: '2026-01-01T00:00:00Z',
+    }
+    expect(User.restore(legacy as never).kind).toBe('adult')
+  })
 })
