@@ -149,6 +149,53 @@ describe('Event', () => {
     expect(() => e.removeUser(maria.id.value)).toThrow(/created purchases/i)
   })
 
+  it('Event.create starts in doodle stage', () => {
+    const e = Event.create({ name: 'Trip', creator: User.create({ name: 'John' }) })
+    expect(e.toSnapshot().stage).toBe('doodle')
+  })
+
+  it('Event.restore backfills missing stage to doodle', () => {
+    const e = Event.create({ name: 'Trip', creator: User.create({ name: 'John' }) })
+    const snap = e.toSnapshot()
+    // Simulate legacy snapshot
+    const legacy = { ...snap } as Record<string, unknown>
+    delete legacy.stage
+    const restored = Event.restore(legacy as never)
+    expect(restored.toSnapshot().stage).toBe('doodle')
+  })
+
+  it('setStage changes the stage and appends history', () => {
+    const creator = User.create({ name: 'John' })
+    const e = Event.create({ name: 'Trip', creator })
+    const next = e.setStage({ stage: 'shopping', userId: creator.id.value })
+    expect(next.toSnapshot().stage).toBe('shopping')
+    expect(next.toSnapshot().history.at(-1)?.type).toBe('stage_changed')
+  })
+
+  it('setStage rejects unknown user', () => {
+    const creator = User.create({ name: 'John' })
+    const e = Event.create({ name: 'Trip', creator })
+    expect(() =>
+      e.setStage({ stage: 'shopping', userId: '00000000-0000-7000-8000-000000000000' }),
+    ).toThrow(/not in event/i)
+  })
+
+  it('setStage rejects invalid stage', () => {
+    const creator = User.create({ name: 'John' })
+    const e = Event.create({ name: 'Trip', creator })
+    expect(() =>
+      e.setStage({ stage: 'invalid' as never, userId: creator.id.value }),
+    ).toThrow(/invalid stage/i)
+  })
+
+  it('setStage to same stage is a no-op (no version bump)', () => {
+    const creator = User.create({ name: 'John' })
+    const e = Event.create({ name: 'Trip', creator })
+    const initialHistoryLen = e.toSnapshot().history.length
+    const same = e.setStage({ stage: 'doodle', userId: creator.id.value })
+    expect(same.toSnapshot().history.length).toBe(initialHistoryLen)
+  })
+
   it('restore backfills missing fields from legacy snapshots', () => {
     // Simulate an event JSON from before Slice 2 (no days/availability/location/editPin)
     const legacy = {

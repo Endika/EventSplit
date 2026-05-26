@@ -4,6 +4,8 @@ import type { UserSnapshot } from '@/domain/entities/User'
 import type { PurchaseSnapshot } from '@/domain/entities/Purchase'
 import type { ExpenseSnapshot } from '@/domain/entities/Expense'
 
+export type EventStage = 'doodle' | 'shopping' | 'expenses'
+
 export type HistoryType =
   | 'event_created'
   | 'user_joined'
@@ -21,6 +23,7 @@ export type HistoryType =
   | 'user_profile_updated'
   | 'edit_pin_set'
   | 'edit_pin_cleared'
+  | 'stage_changed'
 
 export interface HistoryEntry {
   id: string
@@ -58,6 +61,7 @@ export interface EventSnapshot {
   purchases: PurchaseSnapshot[]
   expenses: ExpenseSnapshot[]
   editPin: string | null
+  stage: EventStage
   history: HistoryEntry[]
   createdAt: string
   updatedAt: string
@@ -89,6 +93,7 @@ export class Event {
       purchases: [],
       expenses: [],
       editPin: null,
+      stage: 'doodle',
       history: [
         {
           id: crypto.randomUUID(),
@@ -125,6 +130,7 @@ export class Event {
       expenses: (s.expenses ?? []).map((e) => ({ ...e, splitAmong: e.splitAmong ?? [] })),
       history: s.history ?? [],
       editPin: s.editPin ?? null,
+      stage: s.stage ?? 'doodle',
       users: (s.users ?? []).map((u) => ({
         ...u,
         alias: u.alias ?? null,
@@ -230,6 +236,46 @@ export class Event {
           description: `${removedDisplayName} was removed from the event`,
           before: { user: removedUser },
           after: null,
+        },
+      ],
+    }
+
+    const { history: _omit, ...fullState } = nextSnapshot
+    nextSnapshot.history.at(-1)!.fullState = fullState
+    return new Event(this.id, nextSnapshot)
+  }
+
+  setStage(input: { stage: EventStage; userId: string }): Event {
+    const VALID: EventStage[] = ['doodle', 'shopping', 'expenses']
+    if (!VALID.includes(input.stage))
+      throw new Error(`Event: invalid stage "${input.stage}"`)
+    if (!this.s.users.some((u) => u.id === input.userId))
+      throw new Error('Event: user not in event')
+    if (this.s.stage === input.stage) {
+      // No-op — return same event without bumping version/history
+      return this
+    }
+
+    const now = new Date().toISOString()
+    const nextVersion = (this.s.history.at(-1)?.version ?? 0) + 1
+    const userName =
+      this.s.users.find((u) => u.id === input.userId)?.name ?? 'Someone'
+
+    const nextSnapshot: EventSnapshot = {
+      ...this.s,
+      stage: input.stage,
+      updatedAt: now,
+      history: [
+        ...this.s.history,
+        {
+          id: crypto.randomUUID(),
+          version: nextVersion,
+          timestamp: now,
+          type: 'stage_changed',
+          userId: input.userId,
+          description: `${userName} moved to ${input.stage} stage`,
+          before: { stage: this.s.stage },
+          after: { stage: input.stage },
         },
       ],
     }

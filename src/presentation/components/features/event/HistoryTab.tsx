@@ -24,6 +24,7 @@ const ICONS: Record<HistoryType, string> = {
   revert: '↩️',
   edit_pin_set: '🔒',
   edit_pin_cleared: '🔓',
+  stage_changed: '🔄',
 }
 
 function formatRelative(iso: string, locale: string): string {
