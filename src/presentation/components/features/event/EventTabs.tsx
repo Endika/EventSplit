@@ -1,13 +1,26 @@
-import { useRef, useState } from 'react'
+import { lazy, Suspense, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useEventState } from '@/presentation/context/EventContext'
-import { ParticipantsTab } from './ParticipantsTab'
-import { AvailabilityTab } from './AvailabilityTab'
-import { LocationTab } from './LocationTab'
-import { PurchasesTab } from './PurchasesTab'
-import { ExpensesTab } from './ExpensesTab'
-import { HistoryTab } from './HistoryTab'
 import { StageSelector } from './StageSelector'
+
+const ParticipantsTab = lazy(() =>
+  import('./ParticipantsTab').then((m) => ({ default: m.ParticipantsTab })),
+)
+const AvailabilityTab = lazy(() =>
+  import('./AvailabilityTab').then((m) => ({ default: m.AvailabilityTab })),
+)
+const LocationTab = lazy(() =>
+  import('./LocationTab').then((m) => ({ default: m.LocationTab })),
+)
+const PurchasesTab = lazy(() =>
+  import('./PurchasesTab').then((m) => ({ default: m.PurchasesTab })),
+)
+const ExpensesTab = lazy(() =>
+  import('./ExpensesTab').then((m) => ({ default: m.ExpensesTab })),
+)
+const HistoryTab = lazy(() =>
+  import('./HistoryTab').then((m) => ({ default: m.HistoryTab })),
+)
 
 type Tab = 'participants' | 'availability' | 'location' | 'purchases' | 'expenses' | 'history'
 
@@ -264,12 +277,14 @@ export function EventTabs() {
 
       {/* Tab content (swipe left/right to change tab on touch devices) */}
       <div onTouchStart={onTouchStart} onTouchEnd={onTouchEnd}>
-        {active === 'participants' && <ParticipantsTab />}
-        {active === 'availability' && <AvailabilityTab />}
-        {active === 'location' && <LocationTab />}
-        {active === 'purchases' && <PurchasesTab />}
-        {active === 'expenses' && <ExpensesTab />}
-        {active === 'history' && <HistoryTab />}
+        <Suspense fallback={<div className="p-6 text-center text-slate-400">…</div>}>
+          {active === 'participants' && <ParticipantsTab />}
+          {active === 'availability' && <AvailabilityTab />}
+          {active === 'location' && <LocationTab />}
+          {active === 'purchases' && <PurchasesTab />}
+          {active === 'expenses' && <ExpensesTab />}
+          {active === 'history' && <HistoryTab />}
+        </Suspense>
       </div>
     </>
   )
