@@ -27,6 +27,8 @@ import { RecoverExpenseHandler } from '@/application/handlers/RecoverExpenseHand
 import { RemoveParticipantHandler } from '@/application/handlers/RemoveParticipantHandler'
 import { SetEventStageHandler } from '@/application/handlers/SetEventStageHandler'
 import { ToggleSettlementHandler } from '@/application/handlers/ToggleSettlementHandler'
+import { RenameGroupHandler } from '@/application/handlers/RenameGroupHandler'
+import { SetGroupOrderHandler } from '@/application/handlers/SetGroupOrderHandler'
 import type { IEventRepository } from '@/domain/repositories/IEventRepository'
 
 export function buildContainer(): Container {
@@ -63,5 +65,7 @@ export function buildContainer(): Container {
   c.register('removeParticipant', () => new RemoveParticipantHandler(c.resolve('eventRepo')))
   c.register('setEventStage', () => new SetEventStageHandler(c.resolve('eventRepo')))
   c.register('toggleSettlement', () => new ToggleSettlementHandler(c.resolve('eventRepo')))
+  c.register('renameGroup', () => new RenameGroupHandler(c.resolve('eventRepo')))
+  c.register('setGroupOrder', () => new SetGroupOrderHandler(c.resolve('eventRepo')))
   return c
 }
