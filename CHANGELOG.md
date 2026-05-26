@@ -1,5 +1,20 @@
 # Changelog
 
+## [1.4.0](https://github.com/Endika/EventSplit/compare/v1.3.0...v1.4.0) (2026-05-26)
+
+
+### Features
+
+* **app:** add set-edit-pin handler with hashed pin storage ([fc6cbc1](https://github.com/Endika/EventSplit/commit/fc6cbc1e5f08595bff47250bf6f7dc050f2e4412))
+* **domain:** add edit-pin value object with sha-256 hashing ([87734e9](https://github.com/Endika/EventSplit/commit/87734e989a997573fbe2a7eeeb06fc60d9bcc17e))
+* **domain:** add revert handler with full-state snapshots ([3d9cb9c](https://github.com/Endika/EventSplit/commit/3d9cb9cb7bdd48279bddbc7f3e4a62c2b0feee77))
+* **ui:** add diff viewer with redacted sensitive fields ([fe4c4b8](https://github.com/Endika/EventSplit/commit/fe4c4b8367d916209f4d86a95744f8ad2b3381c9))
+* **ui:** add edit-pin field on create and write-guard scaffold ([2bf8b3e](https://github.com/Endika/EventSplit/commit/2bf8b3e20e7aabe2bafc3f139ef170f42d63ab61))
+* **ui:** add history tab with chronological entries ([dca19a5](https://github.com/Endika/EventSplit/commit/dca19a5cbb30bbd2308b58a6bd8872d2dc86dcc5))
+* **ui:** add revert confirmation flow from diff viewer ([00c7b7e](https://github.com/Endika/EventSplit/commit/00c7b7e21f698624abe4aba863a2404a9541729b))
+* **ui:** gate all write forms with edit-pin verification ([e9bcd9a](https://github.com/Endika/EventSplit/commit/e9bcd9ac221df907bdd8d437d9251bb4acf1ad99))
+* **ui:** wire history tab in event navigation ([61f6850](https://github.com/Endika/EventSplit/commit/61f68500af4b64d9d665204e1485221e24a9e9b2))
+
 ## [1.3.0](https://github.com/Endika/EventSplit/compare/v1.2.0...v1.3.0) (2026-05-26)
 
 
