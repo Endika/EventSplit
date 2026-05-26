@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.22.0](https://github.com/Endika/EventSplit/compare/v1.21.0...v1.22.0) (2026-05-26)
+
+
+### Features
+
+* **ui:** tap purchase or expense card to edit it ([4583a5a](https://github.com/Endika/EventSplit/commit/4583a5ad83fef03fd9d63b1cac6fcbabb15c7451))
+
 ## [1.21.0](https://github.com/Endika/EventSplit/compare/v1.20.1...v1.21.0) (2026-05-26)
 
 
