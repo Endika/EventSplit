@@ -131,6 +131,12 @@ export function PurchaseForm({
     setConsumers((prev) => ({ ...prev, [id]: m }))
   }
 
+  function switchMode(next: 'buy' | 'bring') {
+    // A brought item has no consumers; seed everyone when flipping it to buy.
+    if (next === 'buy' && Object.keys(consumers).length === 0) selectAllConsumers()
+    setMode(next)
+  }
+
   function doSave() {
     if (!event || !me) return
     guardedExecute(async () => {
@@ -281,28 +287,26 @@ export function PurchaseForm({
         />
       )}
       <form ref={rootRef} onSubmit={submit} className="space-y-3 rounded-lg border border-slate-800 bg-slate-900 p-4">
-        {!purchase && (
-          <div className="flex gap-1 rounded-lg bg-slate-800 p-1">
-            <button
-              type="button"
-              onClick={() => setMode('buy')}
-              className={`flex-1 rounded-md px-3 py-2 text-sm font-medium transition ${
-                mode === 'buy' ? 'bg-violet-600 text-white' : 'bg-slate-800 text-slate-300 hover:text-slate-100'
-              }`}
-            >
-              {t('purchases.form.modeBuy')}
-            </button>
-            <button
-              type="button"
-              onClick={() => setMode('bring')}
-              className={`flex-1 rounded-md px-3 py-2 text-sm font-medium transition ${
-                mode === 'bring' ? 'bg-violet-600 text-white' : 'bg-slate-800 text-slate-300 hover:text-slate-100'
-              }`}
-            >
-              {t('purchases.form.modeBring')}
-            </button>
-          </div>
-        )}
+        <div className="flex gap-1 rounded-lg bg-slate-800 p-1">
+          <button
+            type="button"
+            onClick={() => switchMode('buy')}
+            className={`flex-1 rounded-md px-3 py-2 text-sm font-medium transition ${
+              mode === 'buy' ? 'bg-violet-600 text-white' : 'bg-slate-800 text-slate-300 hover:text-slate-100'
+            }`}
+          >
+            {t('purchases.form.modeBuy')}
+          </button>
+          <button
+            type="button"
+            onClick={() => switchMode('bring')}
+            className={`flex-1 rounded-md px-3 py-2 text-sm font-medium transition ${
+              mode === 'bring' ? 'bg-violet-600 text-white' : 'bg-slate-800 text-slate-300 hover:text-slate-100'
+            }`}
+          >
+            {t('purchases.form.modeBring')}
+          </button>
+        </div>
         {purchase && (
           <p className="text-sm font-medium text-slate-300">{t('purchases.form.editTitle')}: <span className="text-slate-100">{purchase.item}</span></p>
         )}

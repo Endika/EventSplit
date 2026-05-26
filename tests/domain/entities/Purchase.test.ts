@@ -50,6 +50,25 @@ describe('Purchase', () => {
     expect(p.totalQuantity).toBe(1) // fixed, ignores 5 * 2 * 4
   })
 
+  it('editBring converts a buy item into a brought item', () => {
+    const p = Purchase.create({
+      createdBy: u1, item: 'Coffee', quantity: 1, unit: 'single',
+      dailyConsumption: 1, consumers: [{ userId: u1, multiplier: 1 }], days: 2,
+    })
+    const brought = p.editBring({ item: 'Coffee', quantity: 1, unit: 'single', group: null, broughtBy: u2 })
+    expect(brought.kind).toBe('bring')
+    expect(brought.assignedTo).toBe(u2)
+  })
+
+  it('edit converts a brought item back into a buy item', () => {
+    const b = Purchase.createBring({ createdBy: u1, item: 'Coffee', quantity: 1, unit: 'single', broughtBy: u1 })
+    const buy = b.edit({
+      item: 'Coffee', quantity: 1, unit: 'single', dailyConsumption: 1,
+      consumers: [{ userId: u1, multiplier: 1 }], days: 1, assignedTo: null, group: null,
+    })
+    expect(buy.kind).toBe('buy')
+  })
+
   it('validates each multiplier via the VO', () => {
     expect(() =>
       Purchase.create({

@@ -208,6 +208,7 @@ export class Purchase {
 
     return new Purchase({
       ...this.s,
+      kind: 'buy', // editing via the buy form converts a brought item back to buy
       item,
       quantity: input.quantity,
       unit,
