@@ -172,7 +172,10 @@
         "cans": "latas",
         "kg": "kg",
         "liters": "litros"
-      }
+      },
+      "unitPlaceholder": "ej. botellas, garrafa 8L",
+      "assignedTo": "Quién lo compra",
+      "assignedNobody": "Nadie aún"
     }
   },
   "expenses": {

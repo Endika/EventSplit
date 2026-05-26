@@ -47,9 +47,7 @@ export function PurchaseForm({
   )
   const [item, setItem] = useState(purchase?.item ?? '')
   const [quantity, _setQuantity] = useState(purchase?.quantity ?? 1)
-  const [unit, setUnit] = useState<(typeof UNITS)[number]>(
-    (purchase?.unit as (typeof UNITS)[number]) ?? 'units',
-  )
+  const [unit, setUnit] = useState<string>(purchase?.unit ?? 'units')
   const [dailyConsumption, setDailyConsumption] = useState(purchase?.dailyConsumption ?? 1)
   const [days, setDays] = useState(inferredDays)
   const [consumers, setConsumers] = useState<Record<string, number>>(() => {
@@ -65,6 +63,7 @@ export function PurchaseForm({
     }
     return map
   })
+  const [assignedTo, setAssignedTo] = useState<string | null>(purchase?.assignedTo ?? null)
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [pendingMatches, setPendingMatches] = useState<AllergyMatch[] | null>(null)
@@ -120,6 +119,7 @@ export function PurchaseForm({
             dailyConsumption,
             consumers: list,
             days,
+            assignedTo: purchase.assignedTo ?? null,
           })
           container
             .resolve<LocalStorageCache>('cache')
@@ -137,6 +137,7 @@ export function PurchaseForm({
             dailyConsumption,
             consumers: list,
             days,
+            assignedTo,
           })
           container
             .resolve<LocalStorageCache>('cache')
@@ -199,7 +200,6 @@ export function PurchaseForm({
             className="mt-1 block w-full rounded-lg border border-slate-700 bg-slate-900 p-2 text-sm text-slate-100 disabled:opacity-50"
             value={category}
             onChange={(e) => setCategory(e.target.value as (typeof CATEGORIES)[number])}
-            disabled={!!purchase}
           >
             {CATEGORIES.map((c) => (
               <option key={c} value={c}>{t(`purchases.form.categories.${c}`)}</option>
@@ -216,7 +216,6 @@ export function PurchaseForm({
             required
             minLength={2}
             maxLength={50}
-            disabled={!!purchase}
           />
         </label>
         <div className="grid grid-cols-2 gap-3">
@@ -234,15 +233,19 @@ export function PurchaseForm({
           </label>
           <label className="block text-sm text-slate-300">
             {t('purchases.form.unit')}
-            <select
-              className="mt-1 block w-full rounded-lg border border-slate-700 bg-slate-900 p-2 text-sm text-slate-100"
+            <input
+              className="mt-1 block w-full rounded-lg border border-slate-700 bg-slate-900 px-3 py-2 text-sm text-slate-100 placeholder-slate-500 focus:border-violet-500 focus:outline-none focus:ring-1 focus:ring-violet-500"
+              list="unit-suggestions"
               value={unit}
-              onChange={(e) => setUnit(e.target.value as (typeof UNITS)[number])}
-            >
+              onChange={(e) => setUnit(e.target.value)}
+              maxLength={30}
+              placeholder={t('purchases.form.unitPlaceholder')}
+            />
+            <datalist id="unit-suggestions">
               {UNITS.map((u) => (
-                <option key={u} value={u}>{t(`purchases.form.units.${u}`)}</option>
+                <option key={u} value={t(`purchases.form.units.${u}`)} />
               ))}
-            </select>
+            </datalist>
           </label>
         </div>
         <p className="-mt-1 text-xs text-slate-500">{t('purchases.form.dailyConsumptionHelp')}</p>
@@ -299,6 +302,19 @@ export function PurchaseForm({
             })}
           </ul>
         </div>
+        <label className="block text-sm text-slate-300">
+          {t('purchases.form.assignedTo')}
+          <select
+            className="mt-1 block w-full rounded-lg border border-slate-700 bg-slate-900 p-2 text-sm text-slate-100"
+            value={assignedTo ?? ''}
+            onChange={(e) => setAssignedTo(e.target.value || null)}
+          >
+            <option value="">{t('purchases.form.assignedNobody')}</option>
+            {event.users.map((u) => (
+              <option key={u.id} value={u.id}>{u.alias ? `${u.name} (${u.alias})` : u.name}</option>
+            ))}
+          </select>
+        </label>
         {(() => {
           const totalDaily = Object.values(consumers).reduce(
             (sum, mul) => sum + dailyConsumption * mul,
@@ -310,7 +326,7 @@ export function PurchaseForm({
             <div className="rounded-lg bg-violet-900/30 px-3 py-2 text-sm text-violet-100">
               {t('purchases.form.totalPreview', {
                 n: Math.round(total * 100) / 100,
-                unit: t(`purchases.form.units.${unit}`),
+                unit,
               })}
             </div>
           )

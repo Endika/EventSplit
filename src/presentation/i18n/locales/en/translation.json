@@ -172,7 +172,10 @@
         "cans": "cans",
         "kg": "kg",
         "liters": "liters"
-      }
+      },
+      "unitPlaceholder": "e.g. bottles, garrafa 8L",
+      "assignedTo": "Who will buy it",
+      "assignedNobody": "Nobody yet"
     }
   },
   "expenses": {

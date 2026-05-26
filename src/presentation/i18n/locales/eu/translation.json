@@ -172,7 +172,10 @@
         "cans": "latak",
         "kg": "kg",
         "liters": "litroak"
-      }
+      },
+      "unitPlaceholder": "adib. botilak, garrafa 8L",
+      "assignedTo": "Nork erosiko du",
+      "assignedNobody": "Inork ez oraindik"
     }
   },
   "expenses": {
