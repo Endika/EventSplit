@@ -12,7 +12,30 @@
     "yourAlias": "Apodo (opcional)",
     "submit": "Crear"
   },
-  "tabs": { "participants": "Personas", "availability": "Cuándo", "location": "Dónde", "purchases": "Compra", "expenses": "Gastos" },
+  "tabs": { "participants": "Personas", "availability": "Cuándo", "location": "Dónde", "purchases": "Compra", "expenses": "Gastos", "history": "Historial" },
+  "history": {
+    "title": "Registro de actividad",
+    "empty": "Sin actividad aún.",
+    "view": "Ver",
+    "by": "por {{name}}",
+    "types": {
+      "event_created": "Evento creado",
+      "user_joined": "Se unió un usuario",
+      "purchase_added": "Compra añadida",
+      "purchase_edited": "Compra editada",
+      "purchase_deleted": "Compra borrada",
+      "purchase_recovered": "Compra recuperada",
+      "expense_added": "Gasto añadido",
+      "availability_voted": "Disponibilidad votada",
+      "location_set": "Ubicación añadida",
+      "notes_added": "Notas actualizadas",
+      "days_set": "Días configurados",
+      "user_profile_updated": "Perfil actualizado",
+      "revert": "Versión revertida",
+      "edit_pin_set": "PIN configurado",
+      "edit_pin_cleared": "PIN eliminado"
+    }
+  },
   "allergens": {
     "gluten": "Gluten",
     "lactose": "Lactosa",

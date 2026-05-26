@@ -12,7 +12,30 @@
     "yourAlias": "Nickname (optional)",
     "submit": "Create"
   },
-  "tabs": { "participants": "People", "availability": "When", "location": "Where", "purchases": "Shopping", "expenses": "Expenses" },
+  "tabs": { "participants": "People", "availability": "When", "location": "Where", "purchases": "Shopping", "expenses": "Expenses", "history": "History" },
+  "history": {
+    "title": "Activity log",
+    "empty": "No activity yet.",
+    "view": "View",
+    "by": "by {{name}}",
+    "types": {
+      "event_created": "Event created",
+      "user_joined": "User joined",
+      "purchase_added": "Purchase added",
+      "purchase_edited": "Purchase edited",
+      "purchase_deleted": "Purchase deleted",
+      "purchase_recovered": "Purchase recovered",
+      "expense_added": "Expense added",
+      "availability_voted": "Availability voted",
+      "location_set": "Location set",
+      "notes_added": "Notes updated",
+      "days_set": "Days set",
+      "user_profile_updated": "Profile updated",
+      "revert": "Reverted",
+      "edit_pin_set": "PIN set",
+      "edit_pin_cleared": "PIN cleared"
+    }
+  },
   "allergens": {
     "gluten": "Gluten",
     "lactose": "Lactose",

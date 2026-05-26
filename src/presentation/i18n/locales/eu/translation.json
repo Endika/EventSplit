@@ -12,7 +12,30 @@
     "yourAlias": "Goitizena (aukerakoa)",
     "submit": "Sortu"
   },
-  "tabs": { "participants": "Lagunak", "availability": "Noiz", "location": "Non", "purchases": "Erosketak", "expenses": "Gastuak" },
+  "tabs": { "participants": "Lagunak", "availability": "Noiz", "location": "Non", "purchases": "Erosketak", "expenses": "Gastuak", "history": "Historiala" },
+  "history": {
+    "title": "Jardueraren erregistroa",
+    "empty": "Oraindik ez dago jarduerarik.",
+    "view": "Ikusi",
+    "by": "{{name}}-(e)k",
+    "types": {
+      "event_created": "Ekitaldia sortu",
+      "user_joined": "Erabiltzailea sartu",
+      "purchase_added": "Erosketa gehitu",
+      "purchase_edited": "Erosketa editatu",
+      "purchase_deleted": "Erosketa ezabatu",
+      "purchase_recovered": "Erosketa berreskuratu",
+      "expense_added": "Gastua gehitu",
+      "availability_voted": "Eskuragarritasuna bozkatu",
+      "location_set": "Kokapena ezarri",
+      "notes_added": "Oharrak eguneratu",
+      "days_set": "Egunak ezarri",
+      "user_profile_updated": "Profila eguneratu",
+      "revert": "Bertsioa itzuli",
+      "edit_pin_set": "PIN ezarri",
+      "edit_pin_cleared": "PIN kendu"
+    }
+  },
   "allergens": {
     "gluten": "Glutena",
     "lactose": "Laktosa",
