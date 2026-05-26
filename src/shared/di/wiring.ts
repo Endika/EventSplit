@@ -9,6 +9,10 @@ import { JoinAsNewUserHandler } from '@/application/handlers/JoinAsNewUserHandle
 import { AddPurchaseHandler } from '@/application/handlers/AddPurchaseHandler'
 import { AddExpenseHandler } from '@/application/handlers/AddExpenseHandler'
 import { SyncEventHandler } from '@/application/handlers/SyncEventHandler'
+import { UpdateProfileHandler } from '@/application/handlers/UpdateProfileHandler'
+import { SetEventDaysHandler } from '@/application/handlers/SetEventDaysHandler'
+import { SetAvailabilityHandler } from '@/application/handlers/SetAvailabilityHandler'
+import { EditEventDetailsHandler } from '@/application/handlers/EditEventDetailsHandler'
 import type { IEventRepository } from '@/domain/repositories/IEventRepository'
 
 export function buildContainer(): Container {
@@ -27,5 +31,9 @@ export function buildContainer(): Container {
   c.register('addPurchase', () => new AddPurchaseHandler(c.resolve('eventRepo')))
   c.register('addExpense', () => new AddExpenseHandler(c.resolve('eventRepo')))
   c.register('syncEvent', () => new SyncEventHandler())
+  c.register('updateProfile', () => new UpdateProfileHandler(c.resolve('eventRepo')))
+  c.register('setEventDays', () => new SetEventDaysHandler(c.resolve('eventRepo')))
+  c.register('setAvailability', () => new SetAvailabilityHandler(c.resolve('eventRepo')))
+  c.register('editEventDetails', () => new EditEventDetailsHandler(c.resolve('eventRepo')))
   return c
 }
