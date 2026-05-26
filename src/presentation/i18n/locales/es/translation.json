@@ -236,5 +236,11 @@
     "promptSubmit": "Desbloquear",
     "promptCancel": "Cancelar",
     "wrongPin": "PIN incorrecto, inténtalo de nuevo"
+  },
+  "errorBanner": {
+    "title": "Error",
+    "dismiss": "Cerrar",
+    "copy": "Copiar error",
+    "copied": "Copiado"
   }
 }

@@ -236,5 +236,11 @@
     "promptSubmit": "Desblokeatu",
     "promptCancel": "Utzi",
     "wrongPin": "PIN okerra, saiatu berriro"
+  },
+  "errorBanner": {
+    "title": "Errorea",
+    "dismiss": "Itxi",
+    "copy": "Kopiatu errorea",
+    "copied": "Kopiatuta"
   }
 }

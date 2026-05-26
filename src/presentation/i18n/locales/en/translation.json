@@ -236,5 +236,11 @@
     "promptSubmit": "Unlock",
     "promptCancel": "Cancel",
     "wrongPin": "Wrong PIN, try again"
+  },
+  "errorBanner": {
+    "title": "Error",
+    "dismiss": "Dismiss",
+    "copy": "Copy error",
+    "copied": "Copied"
   }
 }

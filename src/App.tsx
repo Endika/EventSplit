@@ -9,6 +9,7 @@ import { EventPage } from '@/presentation/components/features/event/EventPage'
 import { PinPromptModal } from '@/presentation/components/features/security/PinPromptModal'
 import { OfflineBanner } from '@/presentation/components/features/pwa/OfflineBanner'
 import { UpdateBanner } from '@/presentation/components/features/pwa/UpdateBanner'
+import { ErrorBanner } from '@/presentation/components/common/ErrorBanner'
 import { Footer } from '@/presentation/components/common/Footer'
 
 function useEventIdFromUrl(): string | null {
@@ -33,6 +34,7 @@ export default function App() {
             <WriteGuardProvider>
               <OfflineBanner />
               <UpdateBanner />
+              <ErrorBanner />
               {eventId ? <EventPage eventId={eventId} /> : <HomePage />}
               <PinPromptModal />
               <Footer />
