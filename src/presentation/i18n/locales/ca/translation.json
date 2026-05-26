@@ -200,6 +200,7 @@
     "empty": "Encara no hi ha compres.",
     "createdBy": "Afegida per {{name}}",
     "totalQuantity": "Total a comprar: {{n}} {{unit}}",
+    "noGroup": "Sense grup",
     "form": {
       "category": "Categoria",
       "item": "Producte",
@@ -232,7 +233,9 @@
       },
       "unitPlaceholder": "ex. ampolles, garrafa 8L",
       "assignedTo": "Qui ho compra",
-      "assignedNobody": "Ningú encara"
+      "assignedNobody": "Ningú encara",
+      "group": "Grup (opcional)",
+      "groupPlaceholder": "ex. Sopar de dissabte"
     }
   },
   "expenses": {

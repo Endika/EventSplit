@@ -67,6 +67,7 @@ export function PurchaseForm({
     return map
   })
   const [assignedTo, setAssignedTo] = useState<string | null>(purchase?.assignedTo ?? null)
+  const [group, setGroup] = useState(purchase?.group ?? '')
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [pendingMatches, setPendingMatches] = useState<AllergyMatch[] | null>(null)
@@ -78,7 +79,7 @@ export function PurchaseForm({
   }, [])
 
   const currentSnapshot = JSON.stringify({
-    category, item, quantity, unit, dailyConsumption, days, consumers, assignedTo,
+    category, item, quantity, unit, dailyConsumption, days, consumers, assignedTo, group,
   })
   const [initialSnapshot] = useState(currentSnapshot)
   const isDirty = initialSnapshot !== currentSnapshot
@@ -88,6 +89,12 @@ export function PurchaseForm({
   }, [isDirty, onDirtyChange])
 
   if (!event || !me) return null
+
+  const existingGroups = [
+    ...new Set(
+      event.purchases.filter((p) => !p.deleted && p.group).map((p) => p.group as string),
+    ),
+  ].sort()
 
   function selectAllConsumers() {
     const map: Record<string, number> = {}
@@ -139,6 +146,7 @@ export function PurchaseForm({
             consumers: list,
             days,
             assignedTo: purchase.assignedTo ?? null,
+            group: group.trim() || null,
           })
           container
             .resolve<LocalStorageCache>('cache')
@@ -157,6 +165,7 @@ export function PurchaseForm({
             consumers: list,
             days,
             assignedTo,
+            group: group.trim() || null,
           })
           container
             .resolve<LocalStorageCache>('cache')
@@ -334,6 +343,22 @@ export function PurchaseForm({
                 <option key={u.id} value={u.id}>{u.alias ? `${u.name} (${u.alias})` : u.name}</option>
               ))}
           </select>
+        </label>
+        <label className="block text-sm text-slate-300">
+          {t('purchases.form.group')}
+          <input
+            className="mt-1 block w-full rounded-lg border border-slate-700 bg-slate-900 px-3 py-2 text-sm text-slate-100 placeholder-slate-500 focus:border-violet-500 focus:outline-none focus:ring-1 focus:ring-violet-500"
+            list="group-suggestions"
+            value={group}
+            onChange={(e) => setGroup(e.target.value)}
+            maxLength={50}
+            placeholder={t('purchases.form.groupPlaceholder')}
+          />
+          <datalist id="group-suggestions">
+            {existingGroups.map((g) => (
+              <option key={g} value={g} />
+            ))}
+          </datalist>
         </label>
         {(() => {
           const totalDaily = Object.values(consumers).reduce(

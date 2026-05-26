@@ -48,6 +48,22 @@ export function PurchasesTab() {
   const deleted = event.purchases.filter((p) => p.deleted)
   const userName = (id: string) => event.users.find((u) => u.id === id)?.name ?? '?'
 
+  const grouped = (() => {
+    const map = new Map<string, PurchaseSnapshot[]>()
+    for (const p of visible) {
+      const key = p.group ?? ''
+      if (!map.has(key)) map.set(key, [])
+      map.get(key)!.push(p)
+    }
+    // sorted group names first, ungrouped ('') last
+    const keys = [...map.keys()].sort((a, b) => {
+      if (a === '') return 1
+      if (b === '') return -1
+      return a.localeCompare(b)
+    })
+    return keys.map((k) => ({ group: k, items: map.get(k)! }))
+  })()
+
   function assignBuyer(p: PurchaseSnapshot, assignedTo: string | null) {
     if (!event || !me) return
     guardedExecute(async () => {
@@ -131,15 +147,22 @@ export function PurchasesTab() {
         />
       )}
       {visible.length === 0 && <p className="text-sm text-slate-400">{t('purchases.empty')}</p>}
-      <ul className="space-y-2">
-        {visible.map((p) => (
-          <li
-            key={p.id}
-            className={`rounded-lg border bg-slate-900 p-3 ${
-              editing?.id === p.id ? 'border-violet-500 ring-1 ring-violet-500' : 'border-slate-800'
-            }`}
-          >
-            <div className="flex items-start justify-between gap-2">
+      {grouped.map(({ group, items }) => (
+        <div key={group || '__none__'} className="space-y-2">
+          {(grouped.length > 1 || group !== '') && (
+            <h3 className="px-1 text-xs font-semibold uppercase tracking-wide text-violet-300">
+              {group === '' ? t('purchases.noGroup') : group}
+            </h3>
+          )}
+          <ul className="space-y-2">
+            {items.map((p) => (
+              <li
+                key={p.id}
+                className={`rounded-lg border bg-slate-900 p-3 ${
+                  editing?.id === p.id ? 'border-violet-500 ring-1 ring-violet-500' : 'border-slate-800'
+                }`}
+              >
+                <div className="flex items-start justify-between gap-2">
               <button
                 type="button"
                 onClick={() => requestEdit(p)}
@@ -189,11 +212,13 @@ export function PurchasesTab() {
                       <option key={u.id} value={u.id}>{u.alias ? `${u.name} (${u.alias})` : u.name}</option>
                     ))}
                 </select>
-              </label>
-            </div>
-          </li>
-        ))}
-      </ul>
+                  </label>
+                </div>
+              </li>
+            ))}
+          </ul>
+        </div>
+      ))}
       {deleted.length > 0 && (
         <div className="pt-2">
           <button

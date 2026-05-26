@@ -200,6 +200,7 @@
     "empty": "Aínda non hai compras.",
     "createdBy": "Engadida por {{name}}",
     "totalQuantity": "Total a comprar: {{n}} {{unit}}",
+    "noGroup": "Sen grupo",
     "form": {
       "category": "Categoría",
       "item": "Produto",
@@ -232,7 +233,9 @@
       },
       "unitPlaceholder": "ex. botellas, garrafa 8L",
       "assignedTo": "Quen o compra",
-      "assignedNobody": "Ninguén aínda"
+      "assignedNobody": "Ninguén aínda",
+      "group": "Grupo (opcional)",
+      "groupPlaceholder": "ex. Cea do sábado"
     }
   },
   "expenses": {

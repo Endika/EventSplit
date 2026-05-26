@@ -200,6 +200,7 @@
     "empty": "Oraindik ez dago erosketarik.",
     "createdBy": "Gehitu duena: {{name}}",
     "totalQuantity": "Erosi beharrekoa: {{n}} {{unit}}",
+    "noGroup": "Talderik gabe",
     "form": {
       "category": "Kategoria",
       "item": "Produktua",
@@ -232,7 +233,9 @@
       },
       "unitPlaceholder": "adib. botilak, garrafa 8L",
       "assignedTo": "Nork erosiko du",
-      "assignedNobody": "Inork ez oraindik"
+      "assignedNobody": "Inork ez oraindik",
+      "group": "Taldea (aukerakoa)",
+      "groupPlaceholder": "adib. Larunbateko afaria"
     }
   },
   "expenses": {
