@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.15.0](https://github.com/Endika/EventSplit/compare/v1.14.2...v1.15.0) (2026-05-26)
+
+
+### Features
+
+* **ui:** swipe between tabs on mobile with position dots ([dffbe0a](https://github.com/Endika/EventSplit/commit/dffbe0a27dfd1fa006c0de984e671c02c16dba28))
+
 ## [1.14.2](https://github.com/Endika/EventSplit/compare/v1.14.1...v1.14.2) (2026-05-26)
 
 
