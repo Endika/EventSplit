@@ -255,7 +255,8 @@
       "update": "Save changes",
       "splitBetween": "Split between",
       "selectAll": "All",
-      "selectNone": "None"
+      "selectNone": "None",
+      "markBought": "What from the list did you buy?"
     },
     "summary": {
       "total": "Total spent",

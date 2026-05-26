@@ -44,6 +44,7 @@ export function ExpenseForm({
     return new Set((event?.users ?? []).filter((u) => u.kind === 'adult').map((u) => u.id))
   })
   const [confirmCancel, setConfirmCancel] = useState(false)
+  const [markBought, setMarkBought] = useState<Set<string>>(new Set())
 
   const rootRef = useRef<HTMLFormElement>(null)
   useEffect(() => {
@@ -55,6 +56,7 @@ export function ExpenseForm({
     amount,
     description,
     splitAmong: [...splitAmong].sort(),
+    markBought: [...markBought].sort(),
   })
   const [initialSnapshot] = useState(currentSnapshot)
   const isDirty = initialSnapshot !== currentSnapshot
@@ -64,6 +66,8 @@ export function ExpenseForm({
   }, [isDirty, onDirtyChange])
 
   if (!event) return null
+
+  const unbought = event.purchases.filter((p) => !p.deleted && !p.purchased)
 
   function toggleSplit(id: string) {
     setSplitAmong((prev) => {
@@ -111,6 +115,7 @@ export function ExpenseForm({
             amountEuros: parseFloat(amount),
             description,
             splitAmong: split,
+            markPurchasedIds: [...markBought],
           })
         }
         container
@@ -216,6 +221,33 @@ export function ExpenseForm({
           ))}
         </ul>
       </fieldset>
+      {!expense && unbought.length > 0 && (
+        <fieldset className="rounded-lg border border-slate-800 p-3">
+          <legend className="px-2 text-xs uppercase tracking-wide text-slate-500">
+            {t('expenses.form.markBought')}
+          </legend>
+          <ul className="space-y-1">
+            {unbought.map((p) => (
+              <li key={p.id} className="flex items-center gap-2 text-sm">
+                <input
+                  type="checkbox"
+                  checked={markBought.has(p.id)}
+                  onChange={() =>
+                    setMarkBought((prev) => {
+                      const next = new Set(prev)
+                      if (next.has(p.id)) next.delete(p.id)
+                      else next.add(p.id)
+                      return next
+                    })
+                  }
+                  className="size-4 rounded border-slate-600 bg-slate-800 accent-violet-500"
+                />
+                <span className="text-slate-200">{p.item}</span>
+              </li>
+            ))}
+          </ul>
+        </fieldset>
+      )}
       {error && <p className="text-sm text-rose-400">{error}</p>}
       <div className="flex gap-2">
         <Button

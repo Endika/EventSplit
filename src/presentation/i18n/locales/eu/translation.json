@@ -255,7 +255,8 @@
       "update": "Aldaketak gorde",
       "splitBetween": "Banatu honen artean",
       "selectAll": "Denak",
-      "selectNone": "Inor ez"
+      "selectNone": "Inor ez",
+      "markBought": "Zer erosi duzu zerrendatik?"
     },
     "summary": {
       "total": "Guztira",

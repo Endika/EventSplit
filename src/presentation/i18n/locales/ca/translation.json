@@ -255,7 +255,8 @@
       "update": "Desa els canvis",
       "splitBetween": "Reparteix entre",
       "selectAll": "Tots",
-      "selectNone": "Cap"
+      "selectNone": "Cap",
+      "markBought": "Què has comprat de la llista?"
     },
     "summary": {
       "total": "Total gastat",

@@ -255,7 +255,8 @@
       "update": "Gardar cambios",
       "splitBetween": "Repartir entre",
       "selectAll": "Todos",
-      "selectNone": "Ningún"
+      "selectNone": "Ningún",
+      "markBought": "Que compraches da lista?"
     },
     "summary": {
       "total": "Total gastado",
