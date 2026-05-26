@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.31.0](https://github.com/Endika/EventSplit/compare/v1.30.0...v1.31.0) (2026-05-26)
+
+
+### Features
+
+* **ui:** scroll to purchase form, remount on switch, unsaved guard ([73fe3f3](https://github.com/Endika/EventSplit/commit/73fe3f32ccd71543c5d5adff42528571afddac27))
+
 ## [1.30.0](https://github.com/Endika/EventSplit/compare/v1.29.1...v1.30.0) (2026-05-26)
 
 
