@@ -4,7 +4,9 @@ import { useContainer } from '@/presentation/context/ContainerProvider'
 import { useEventState } from '@/presentation/context/EventContext'
 import { useCurrentUser } from '@/presentation/context/UserContext'
 import type { AddPurchaseHandler } from '@/application/handlers/AddPurchaseHandler'
+import type { EditPurchaseHandler } from '@/application/handlers/EditPurchaseHandler'
 import type { LocalStorageCache } from '@/infrastructure/persistence/LocalStorageCache'
+import type { PurchaseSnapshot } from '@/domain/entities/Purchase'
 import { Button } from '@/presentation/components/common/Button'
 import { Input } from '@/presentation/components/common/Input'
 import { YouLabel } from '@/presentation/components/common/YouLabel'
@@ -16,20 +18,45 @@ import { AllergyAlertModal } from './AllergyAlertModal'
 const CATEGORIES = ['food', 'drinks', 'snacks', 'other'] as const
 const UNITS = ['units', 'bottles', 'cans', 'kg', 'liters'] as const
 
-export function PurchaseForm({ onDone }: { onDone: () => void }) {
+export function PurchaseForm({
+  onDone,
+  purchase,
+}: {
+  onDone: () => void
+  purchase?: PurchaseSnapshot
+}) {
   const { t } = useTranslation()
   const container = useContainer()
   const { event, setEvent } = useEventState()
   const me = useCurrentUser()
   const online = useOnlineStatus()
   const { guardedExecute } = useWriteGuard()
-  const [category, setCategory] = useState<(typeof CATEGORIES)[number]>('drinks')
-  const [item, setItem] = useState('')
-  const [quantity, setQuantity] = useState(1)
-  const [unit, setUnit] = useState<(typeof UNITS)[number]>('units')
-  const [dailyConsumption, setDailyConsumption] = useState(1)
-  const [days, setDays] = useState(2)
-  const [consumers, setConsumers] = useState<Record<string, number>>({})
+
+  const inferredDays = (() => {
+    if (!purchase) return 2
+    const sumMul = purchase.consumers.reduce((s, c) => s + c.multiplier, 0)
+    const totalDaily = purchase.dailyConsumption * sumMul
+    if (totalDaily <= 0) return 2
+    const d = Math.round(purchase.totalQuantity / totalDaily)
+    return d > 0 ? d : 2
+  })()
+
+  const [category, setCategory] = useState<(typeof CATEGORIES)[number]>(
+    (purchase?.category as (typeof CATEGORIES)[number]) ?? 'drinks',
+  )
+  const [item, setItem] = useState(purchase?.item ?? '')
+  const [quantity, setQuantity] = useState(purchase?.quantity ?? 1)
+  const [unit, setUnit] = useState<(typeof UNITS)[number]>(
+    (purchase?.unit as (typeof UNITS)[number]) ?? 'units',
+  )
+  const [dailyConsumption, setDailyConsumption] = useState(purchase?.dailyConsumption ?? 1)
+  const [days, setDays] = useState(inferredDays)
+  const [consumers, setConsumers] = useState<Record<string, number>>(() => {
+    if (!purchase) return {}
+    const map: Record<string, number> = {}
+    for (const c of purchase.consumers) map[c.userId] = c.multiplier
+    return map
+  })
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [pendingMatches, setPendingMatches] = useState<AllergyMatch[] | null>(null)
@@ -60,22 +87,40 @@ export function PurchaseForm({ onDone }: { onDone: () => void }) {
       setError(null)
       try {
         const list = Object.entries(consumers).map(([userId, multiplier]) => ({ userId, multiplier }))
-        const handler = container.resolve<AddPurchaseHandler>('addPurchase')
-        const result = await handler.execute({
-          eventId: event.id,
-          createdBy: me.id,
-          category,
-          item,
-          quantity,
-          unit,
-          dailyConsumption,
-          consumers: list,
-          days,
-        })
-        container
-          .resolve<LocalStorageCache>('cache')
-          .set(event.id, { snapshot: result.event, version: result.version })
-        setEvent(result.event, result.version)
+        if (purchase) {
+          const handler = container.resolve<EditPurchaseHandler>('editPurchase')
+          const result = await handler.execute({
+            eventId: event.id,
+            purchaseId: purchase.id,
+            editedBy: me.id,
+            quantity,
+            unit,
+            dailyConsumption,
+            consumers: list,
+            days,
+          })
+          container
+            .resolve<LocalStorageCache>('cache')
+            .set(event.id, { snapshot: result.event, version: result.version })
+          setEvent(result.event, result.version)
+        } else {
+          const handler = container.resolve<AddPurchaseHandler>('addPurchase')
+          const result = await handler.execute({
+            eventId: event.id,
+            createdBy: me.id,
+            category,
+            item,
+            quantity,
+            unit,
+            dailyConsumption,
+            consumers: list,
+            days,
+          })
+          container
+            .resolve<LocalStorageCache>('cache')
+            .set(event.id, { snapshot: result.event, version: result.version })
+          setEvent(result.event, result.version)
+        }
         setPendingMatches(null)
         onDone()
       } catch (err) {
@@ -94,17 +139,20 @@ export function PurchaseForm({ onDone }: { onDone: () => void }) {
   function submit(e: FormEvent) {
     e.preventDefault()
     if (!event || !me) return
-    const matches = AllergyChecker.findMatches({
-      item,
-      users: event.users.map((u) => ({
-        userId: u.id,
-        displayName: u.alias ? `${u.name} (${u.alias})` : u.name,
-        allergies: u.allergies ?? [],
-      })),
-    })
-    if (matches.length > 0) {
-      setPendingMatches(matches)
-      return
+    // In edit mode, skip allergy check (item name is unchanged)
+    if (!purchase) {
+      const matches = AllergyChecker.findMatches({
+        item,
+        users: event.users.map((u) => ({
+          userId: u.id,
+          displayName: u.alias ? `${u.name} (${u.alias})` : u.name,
+          allergies: u.allergies ?? [],
+        })),
+      })
+      if (matches.length > 0) {
+        setPendingMatches(matches)
+        return
+      }
     }
     doSave()
   }
@@ -120,12 +168,16 @@ export function PurchaseForm({ onDone }: { onDone: () => void }) {
         />
       )}
       <form onSubmit={submit} className="space-y-3 rounded-lg border border-slate-800 bg-slate-900 p-4">
+        {purchase && (
+          <p className="text-sm font-medium text-slate-300">{t('purchases.form.editTitle')}: <span className="text-slate-100">{purchase.item}</span></p>
+        )}
         <label className="block text-sm text-slate-300">
           {t('purchases.form.category')}
           <select
-            className="mt-1 block w-full rounded-lg border border-slate-700 bg-slate-900 p-2 text-sm text-slate-100"
+            className="mt-1 block w-full rounded-lg border border-slate-700 bg-slate-900 p-2 text-sm text-slate-100 disabled:opacity-50"
             value={category}
             onChange={(e) => setCategory(e.target.value as (typeof CATEGORIES)[number])}
+            disabled={!!purchase}
           >
             {CATEGORIES.map((c) => (
               <option key={c} value={c}>{t(`purchases.form.categories.${c}`)}</option>
@@ -139,6 +191,7 @@ export function PurchaseForm({ onDone }: { onDone: () => void }) {
           required
           minLength={2}
           maxLength={50}
+          disabled={!!purchase}
         />
         <div className="grid grid-cols-2 gap-3">
           <Input
@@ -213,8 +266,8 @@ export function PurchaseForm({ onDone }: { onDone: () => void }) {
           <Button type="button" variant="secondary" onClick={onDone} disabled={busy}>
             {t('common.cancel')}
           </Button>
-          <Button type="submit" disabled={busy || !online || !item || Object.keys(consumers).length === 0}>
-            {t('purchases.form.submit')}
+          <Button type="submit" disabled={busy || !online || (!purchase && !item) || Object.keys(consumers).length === 0}>
+            {purchase ? t('purchases.form.update') : t('purchases.form.submit')}
           </Button>
         </div>
       </form>

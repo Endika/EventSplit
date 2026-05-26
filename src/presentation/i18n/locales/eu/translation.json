@@ -137,6 +137,7 @@
   },
   "purchases": {
     "add": "Erosketa gehitu",
+    "edit": "Editatu",
     "empty": "Oraindik ez dago erosketarik.",
     "createdBy": "Gehitu duena: {{name}}",
     "totalQuantity": "Erosi beharrekoa: {{n}} {{unit}}",
@@ -149,6 +150,8 @@
       "days": "Iraupena (egunak)",
       "consumers": "Nork kontsumitzen du",
       "submit": "Gorde erosketa",
+      "editTitle": "Erosketa editatu",
+      "update": "Aldaketak gorde",
       "categories": {
         "food": "Janaria",
         "drinks": "Edariak",

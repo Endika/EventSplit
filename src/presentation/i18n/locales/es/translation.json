@@ -137,6 +137,7 @@
   },
   "purchases": {
     "add": "Añadir compra",
+    "edit": "Editar",
     "empty": "Aún no hay compras.",
     "createdBy": "Añadida por {{name}}",
     "totalQuantity": "Total a comprar: {{n}} {{unit}}",
@@ -149,6 +150,8 @@
       "days": "Duración del evento (días)",
       "consumers": "Quién consume",
       "submit": "Guardar compra",
+      "editTitle": "Editar compra",
+      "update": "Guardar cambios",
       "categories": {
         "food": "Comida",
         "drinks": "Bebidas",
