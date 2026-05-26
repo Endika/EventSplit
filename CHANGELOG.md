@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.43.1](https://github.com/Endika/EventSplit/compare/v1.43.0...v1.43.1) (2026-05-26)
+
+
+### Bug Fixes
+
+* round total quantity consistently in domain and lists ([7699c42](https://github.com/Endika/EventSplit/commit/7699c4214742cb8207d1dee5b0930f9d449c3a2d))
+
 ## [1.43.0](https://github.com/Endika/EventSplit/compare/v1.42.0...v1.43.0) (2026-05-26)
 
 
