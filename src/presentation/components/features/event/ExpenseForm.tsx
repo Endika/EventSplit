@@ -49,7 +49,14 @@ export function ExpenseForm({
     return new Set((event?.users ?? []).filter((u) => u.kind === 'adult').map((u) => u.id))
   })
   const [confirmCancel, setConfirmCancel] = useState(false)
-  const [markBought, setMarkBought] = useState<Set<string>>(new Set())
+  const [markBought, setMarkBought] = useState<Set<string>>(() => {
+    if (expense) {
+      return new Set(
+        event?.purchases.filter((p) => !p.deleted && p.purchased).map((p) => p.id) ?? [],
+      )
+    }
+    return new Set()
+  })
 
   const rootRef = useRef<HTMLFormElement>(null)
   useEffect(() => {
@@ -72,7 +79,9 @@ export function ExpenseForm({
 
   if (!event) return null
 
-  const unbought = event.purchases.filter((p) => !p.deleted && !p.purchased)
+  const listItems = expense
+    ? event.purchases.filter((p) => !p.deleted)
+    : event.purchases.filter((p) => !p.deleted && !p.purchased)
 
   function toggleSplit(id: string) {
     setSplitAmong((prev) => {
@@ -102,6 +111,9 @@ export function ExpenseForm({
         const split = splitAmong.size === allUserIds.length ? [] : [...splitAmong]
         let result
         if (expense) {
+          const shownIds = listItems.map((p) => p.id)
+          const markIds = shownIds.filter((id) => markBought.has(id))
+          const unmarkIds = shownIds.filter((id) => !markBought.has(id))
           const handler = container.resolve<EditExpenseHandler>('editExpense')
           result = await handler.execute({
             eventId: event.id,
@@ -111,6 +123,8 @@ export function ExpenseForm({
             amountEuros: parseFloat(amount),
             description,
             splitAmong: split,
+            markPurchasedIds: markIds,
+            unmarkPurchasedIds: unmarkIds,
           })
         } else {
           const handler = container.resolve<AddExpenseHandler>('addExpense')
@@ -226,13 +240,13 @@ export function ExpenseForm({
           ))}
         </ul>
       </fieldset>
-      {!expense && unbought.length > 0 && (
+      {listItems.length > 0 && (
         <fieldset className="rounded-lg border border-slate-800 p-3">
           <legend className="px-2 text-xs uppercase tracking-wide text-slate-500">
             {t('expenses.form.markBought')}
           </legend>
           <ul className="space-y-1">
-            {unbought.map((p) => (
+            {listItems.map((p) => (
               <li key={p.id} className="flex items-center gap-2 text-sm">
                 <input
                   type="checkbox"
