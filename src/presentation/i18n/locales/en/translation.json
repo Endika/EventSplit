@@ -118,7 +118,10 @@
     "votes": "Available",
     "notePlaceholder": "Add a note (e.g. weekends only)",
     "pickDay": "Mark as chosen day",
-    "chosenDay": "Chosen day"
+    "chosenDay": "Chosen day",
+    "removeDay": "Remove day",
+    "cannotRemoveLast": "Can't remove the only day — add another first.",
+    "showChildren": "Show children ({{count}})"
   },
   "id": {
     "who": "Who are you in \"{{eventName}}\"?",

@@ -118,7 +118,10 @@
     "votes": "Eskuragarri",
     "notePlaceholder": "Gehitu ohar bat (adib. asteburuak soilik)",
     "pickDay": "Aukeratutako eguna markatu",
-    "chosenDay": "Aukeratutako eguna"
+    "chosenDay": "Aukeratutako eguna",
+    "removeDay": "Kendu eguna",
+    "cannotRemoveLast": "Ezin duzu egun bakarra kendu — gehitu beste bat lehenik.",
+    "showChildren": "Erakutsi haurrak ({{count}})"
   },
   "id": {
     "who": "Nor zara \"{{eventName}}\" ekitaldian?",

@@ -49,6 +49,7 @@ export function AvailabilityTab() {
 
   const [newDay, setNewDay] = useState('')
   const [note, setNote] = useState(event?.availabilityNote ?? '')
+  const [showChildren, setShowChildren] = useState(false)
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [drafts, setDrafts] = useState<Drafts>(() =>
@@ -65,6 +66,9 @@ export function AvailabilityTab() {
   if (draftUserIds !== eventUserIds || draftDayCount !== event.days.length) {
     setDrafts(buildDrafts(event.users, event.days, event.availability))
   }
+
+  const matrixUsers = showChildren ? event.users : event.users.filter((u) => u.kind === 'adult')
+  const childCount = event.users.filter((u) => u.kind === 'child').length
 
   function toggleVote(userId: string, day: string, checked: boolean) {
     setDrafts((prev) => ({
@@ -175,20 +179,59 @@ export function AvailabilityTab() {
     })
   }
 
+  function removeDay(day: string) {
+    if (!event || !me) return
+    const next = event.days.filter((d) => d !== day)
+    if (next.length === 0) {
+      setError(t('availability.cannotRemoveLast'))
+      return
+    }
+    guardedExecute(async () => {
+      setBusy(true)
+      setError(null)
+      try {
+        const handler = container.resolve<SetEventDaysHandler>('setEventDays')
+        const result = await handler.execute({ eventId: event.id, days: next })
+        container
+          .resolve<LocalStorageCache>('cache')
+          .set(event.id, { snapshot: result.event, version: result.version })
+        setEvent(result.event, result.version)
+      } catch (err) {
+        reportError('AvailabilityTab', err)
+        setError(err instanceof Error ? err.message : 'Error')
+      } finally {
+        setBusy(false)
+      }
+    })
+  }
+
   return (
     <div className="space-y-4">
       <h2 className="text-sm font-semibold uppercase tracking-wide text-slate-400">
         {t('availability.title')}
       </h2>
 
-      <input
+      <textarea
         className="w-full rounded-lg border border-slate-700 bg-slate-900 px-3 py-2 text-sm text-slate-100 placeholder-slate-500 focus:border-violet-500 focus:outline-none focus:ring-1 focus:ring-violet-500"
         value={note}
         onChange={(e) => setNote(e.target.value)}
         onBlur={saveNote}
         maxLength={200}
+        rows={2}
         placeholder={t('availability.notePlaceholder')}
       />
+
+      {childCount > 0 && (
+        <label className="flex items-center gap-2 text-xs text-slate-400">
+          <input
+            type="checkbox"
+            checked={showChildren}
+            onChange={(e) => setShowChildren(e.target.checked)}
+            className="size-4 rounded border-slate-600 bg-slate-800 accent-violet-500"
+          />
+          {t('availability.showChildren', { count: childCount })}
+        </label>
+      )}
 
       <form onSubmit={addDay} className="flex gap-2">
         <Input
@@ -226,22 +269,34 @@ export function AvailabilityTab() {
                         key={d}
                         className={`p-3 text-center font-medium ${isChosen ? 'bg-violet-900/40 text-violet-200' : 'text-slate-300'}`}
                       >
-                        <button
-                          type="button"
-                          onClick={() => pickDay(d)}
-                          className="flex flex-col items-center gap-0.5"
-                          title={t('availability.pickDay')}
-                        >
-                          <span>{formatDate(d, i18n.language)}</span>
-                          <span className={isChosen ? 'text-violet-300' : 'text-slate-600'}>📌</span>
-                        </button>
+                        <div className="flex flex-col items-center gap-0.5">
+                          <button
+                            type="button"
+                            onClick={() => pickDay(d)}
+                            className="flex flex-col items-center gap-0.5"
+                            title={t('availability.pickDay')}
+                          >
+                            <span>{formatDate(d, i18n.language)}</span>
+                            <span className={isChosen ? 'text-violet-300' : 'text-slate-600'}>📌</span>
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => removeDay(d)}
+                            disabled={busy}
+                            className="text-[10px] text-slate-600 hover:text-rose-400"
+                            title={t('availability.removeDay')}
+                            aria-label={t('availability.removeDay')}
+                          >
+                            ✕
+                          </button>
+                        </div>
                       </th>
                     )
                   })}
                 </tr>
               </thead>
               <tbody>
-                {event.users.map((u) => {
+                {matrixUsers.map((u) => {
                   const isMe = me?.id === u.id
                   return (
                     <tr key={u.id} className={isMe ? 'bg-violet-900/30' : ''}>
@@ -272,14 +327,14 @@ export function AvailabilityTab() {
                 <tr className="border-t border-slate-700 text-xs text-slate-400">
                   <td className="p-3 font-medium">{t('availability.votes')}</td>
                   {event.days.map((d) => {
-                    const count = event.users.reduce(
+                    const count = matrixUsers.reduce(
                       (n, u) => n + (drafts[u.id]?.[d] ? 1 : 0),
                       0,
                     )
                     return (
                       <td key={d} className={`p-3 text-center ${event.chosenDay === d ? 'bg-violet-900/20' : ''}`}>
                         <span className="font-semibold text-teal-300">{count}</span>
-                        <span className="text-slate-500">/{event.users.length}</span>
+                        <span className="text-slate-500">/{matrixUsers.length}</span>
                       </td>
                     )
                   })}
