@@ -277,7 +277,18 @@
     "promptField": "PIN",
     "promptSubmit": "Desblokeatu",
     "promptCancel": "Utzi",
-    "wrongPin": "PIN okerra, saiatu berriro"
+    "wrongPin": "PIN okerra, saiatu berriro",
+    "manageTitle": "Edizio PINa",
+    "noPinYet": "PINik ez. Esteka duen edonork edita dezake.",
+    "hasPin": "PIN aktiboa — edizioek behar dute gailu bakoitzean.",
+    "field": "PIN berria (4-6 zifra)",
+    "changeField": "PIN berria",
+    "setPin": "Aktibatu PINa",
+    "changePin": "Aldatu",
+    "removePin": "Kendu PINa",
+    "removeConfirm": "Edizio PINa kendu? Esteka duen edonork editatu ahal izango du.",
+    "removeYes": "Kendu PINa",
+    "manageHint": "PINak edizioak babesten ditu esteka jende askorekin partekatzen baduzu."
   },
   "errorBanner": {
     "title": "Errorea",

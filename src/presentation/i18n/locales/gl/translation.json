@@ -277,7 +277,18 @@
     "promptField": "PIN",
     "promptSubmit": "Desbloquear",
     "promptCancel": "Cancelar",
-    "wrongPin": "PIN incorrecto, téntao de novo"
+    "wrongPin": "PIN incorrecto, téntao de novo",
+    "manageTitle": "PIN de edición",
+    "noPinYet": "Sen PIN. Calquera coa ligazón pode editar.",
+    "hasPin": "PIN activo — as edicións requíreno en cada dispositivo.",
+    "field": "Novo PIN (4-6 díxitos)",
+    "changeField": "Novo PIN",
+    "setPin": "Activar PIN",
+    "changePin": "Cambiar",
+    "removePin": "Quitar PIN",
+    "removeConfirm": "Quitar o PIN de edición? Calquera coa ligazón poderá editar.",
+    "removeYes": "Quitar PIN",
+    "manageHint": "O PIN protexe as edicións se compartes a ligazón con moita xente."
   },
   "errorBanner": {
     "title": "Erro",

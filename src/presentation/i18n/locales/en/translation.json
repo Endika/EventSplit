@@ -277,7 +277,18 @@
     "promptField": "PIN",
     "promptSubmit": "Unlock",
     "promptCancel": "Cancel",
-    "wrongPin": "Wrong PIN, try again"
+    "wrongPin": "Wrong PIN, try again",
+    "manageTitle": "Edit PIN",
+    "noPinYet": "No PIN. Anyone with the link can edit.",
+    "hasPin": "PIN active — edits require it on each device.",
+    "field": "New PIN (4-6 digits)",
+    "changeField": "New PIN",
+    "setPin": "Set PIN",
+    "changePin": "Change",
+    "removePin": "Remove PIN",
+    "removeConfirm": "Remove the edit PIN? Anyone with the link will be able to edit.",
+    "removeYes": "Remove PIN",
+    "manageHint": "The PIN protects edits if the event link is shared widely."
   },
   "errorBanner": {
     "title": "Error",

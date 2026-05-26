@@ -3,7 +3,9 @@ import { useTranslation } from 'react-i18next'
 import { useContainer } from '@/presentation/context/ContainerProvider'
 import { useEventState } from '@/presentation/context/EventContext'
 import type { EditEventDetailsHandler } from '@/application/handlers/EditEventDetailsHandler'
+import type { SetEditPinHandler } from '@/application/handlers/SetEditPinHandler'
 import type { LocalStorageCache } from '@/infrastructure/persistence/LocalStorageCache'
+import { useCurrentUser } from '@/presentation/context/UserContext'
 import { useWriteGuard } from '@/presentation/context/WriteGuardContext'
 import { Button } from '@/presentation/components/common/Button'
 import { reportError } from '@/shared/utils/reportError'
@@ -15,10 +17,17 @@ export function LocationTab() {
   const { event, setEvent } = useEventState()
   const loc = event?.location ?? null
 
+  const me = useCurrentUser()
   const { guardedExecute } = useWriteGuard()
   const [editing, setEditing] = useState(false)
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState<string | null>(null)
+
+  const [pinInput, setPinInput] = useState('')
+  const [pinBusy, setPinBusy] = useState(false)
+  const [pinError, setPinError] = useState<string | null>(null)
+  const [confirmRemovePin, setConfirmRemovePin] = useState(false)
+  const hasPin = !!event?.editPin
 
   const [name, setName] = useState(loc?.name ?? '')
   const [address, setAddress] = useState(loc?.address ?? '')
@@ -78,6 +87,35 @@ export function LocationTab() {
         setError(err instanceof Error ? err.message : 'Error')
       } finally {
         setBusy(false)
+      }
+    })
+  }
+
+  function savePin(pin: string | null) {
+    if (!event || !me) return
+    guardedExecute(async () => {
+      setPinBusy(true)
+      setPinError(null)
+      try {
+        const handler = container.resolve<SetEditPinHandler>('setEditPin')
+        const result = await handler.execute({ eventId: event.id, userId: me.id, pin })
+        const cache = container.resolve<LocalStorageCache>('cache')
+        cache.set(event.id, { snapshot: result.event, version: result.version })
+        setEvent(result.event, result.version)
+        // Setting a PIN from this device: mark this device verified so the user
+        // who just set it isn't immediately locked out. Clearing: remove the flag.
+        if (pin) {
+          localStorage.setItem(`eventsplit.pin.${event.id}`, 'true')
+        } else {
+          localStorage.removeItem(`eventsplit.pin.${event.id}`)
+        }
+        setPinInput('')
+        setConfirmRemovePin(false)
+      } catch (err) {
+        reportError('LocationTab', err)
+        setPinError(err instanceof Error ? err.message : 'Error')
+      } finally {
+        setPinBusy(false)
       }
     })
   }
@@ -224,6 +262,87 @@ export function LocationTab() {
           </div>
         </form>
       )}
+
+      <div className="space-y-3 rounded-lg border border-slate-800 bg-slate-900 p-4">
+        <h2 className="text-sm font-semibold uppercase tracking-wide text-slate-400">
+          🔒 {t('pin.manageTitle')}
+        </h2>
+        {!hasPin ? (
+          <>
+            <p className="text-xs text-slate-500">{t('pin.noPinYet')}</p>
+            <div className="flex gap-2">
+              <Input
+                type="password"
+                inputMode="numeric"
+                maxLength={6}
+                placeholder={t('pin.field')}
+                value={pinInput}
+                onChange={(e) => setPinInput(e.target.value.replace(/\D/g, ''))}
+                className="max-w-[10rem]"
+              />
+              <Button
+                type="button"
+                onClick={() => savePin(pinInput)}
+                disabled={pinBusy || pinInput.length < 4 || pinInput.length > 6}
+              >
+                {t('pin.setPin')}
+              </Button>
+            </div>
+          </>
+        ) : (
+          <>
+            <p className="text-xs text-emerald-400">{t('pin.hasPin')}</p>
+            <div className="flex gap-2">
+              <Input
+                type="password"
+                inputMode="numeric"
+                maxLength={6}
+                placeholder={t('pin.changeField')}
+                value={pinInput}
+                onChange={(e) => setPinInput(e.target.value.replace(/\D/g, ''))}
+                className="max-w-[10rem]"
+              />
+              <Button
+                type="button"
+                variant="secondary"
+                onClick={() => savePin(pinInput)}
+                disabled={pinBusy || pinInput.length < 4 || pinInput.length > 6}
+              >
+                {t('pin.changePin')}
+              </Button>
+            </div>
+            {!confirmRemovePin ? (
+              <button
+                type="button"
+                onClick={() => setConfirmRemovePin(true)}
+                className="text-xs text-rose-400 hover:text-rose-300"
+                disabled={pinBusy}
+              >
+                {t('pin.removePin')}
+              </button>
+            ) : (
+              <div className="space-y-2 rounded border border-rose-900/50 bg-rose-950/30 p-2">
+                <p className="text-xs text-slate-300">{t('pin.removeConfirm')}</p>
+                <div className="flex gap-2">
+                  <Button
+                    type="button"
+                    variant="secondary"
+                    onClick={() => setConfirmRemovePin(false)}
+                    disabled={pinBusy}
+                  >
+                    {t('common.cancel')}
+                  </Button>
+                  <Button type="button" onClick={() => savePin(null)} disabled={pinBusy}>
+                    {t('pin.removeYes')}
+                  </Button>
+                </div>
+              </div>
+            )}
+          </>
+        )}
+        {pinError && <p className="text-xs text-rose-400">{pinError}</p>}
+        <p className="text-xs text-slate-600">{t('pin.manageHint')}</p>
+      </div>
     </div>
   )
 }

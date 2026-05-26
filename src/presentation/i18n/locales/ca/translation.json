@@ -277,7 +277,18 @@
     "promptField": "PIN",
     "promptSubmit": "Desbloqueja",
     "promptCancel": "Cancel·la",
-    "wrongPin": "PIN incorrecte, torna-ho a provar"
+    "wrongPin": "PIN incorrecte, torna-ho a provar",
+    "manageTitle": "PIN d'edició",
+    "noPinYet": "Sense PIN. Qualsevol amb l'enllaç pot editar.",
+    "hasPin": "PIN actiu — les edicions el requereixen a cada dispositiu.",
+    "field": "Nou PIN (4-6 dígits)",
+    "changeField": "Nou PIN",
+    "setPin": "Activar PIN",
+    "changePin": "Canviar",
+    "removePin": "Treure PIN",
+    "removeConfirm": "Treure el PIN d'edició? Qualsevol amb l'enllaç podrà editar.",
+    "removeYes": "Treure PIN",
+    "manageHint": "El PIN protegeix les edicions si comparteixes l'enllaç amb molta gent."
   },
   "errorBanner": {
     "title": "Error",
