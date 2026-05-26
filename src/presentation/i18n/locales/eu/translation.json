@@ -92,7 +92,9 @@
     "selectSeverity": "Larritasuna",
     "remove": "Kendu",
     "save": "Gorde profila",
-    "saving": "Gordetzen…"
+    "saving": "Gordetzen…",
+    "allergyNotePlaceholder": "Oharra (aukerakoa)",
+    "allergyOtherPlaceholder": "Zehaztu zein"
   },
   "allergyAlert": {
     "title": "Alergeno-alerta",

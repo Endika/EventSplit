@@ -92,7 +92,9 @@
     "selectSeverity": "Severidad",
     "remove": "Quitar",
     "save": "Guardar perfil",
-    "saving": "Guardando…"
+    "saving": "Guardando…",
+    "allergyNotePlaceholder": "Nota (opcional)",
+    "allergyOtherPlaceholder": "Especifica cuál"
   },
   "allergyAlert": {
     "title": "Alerta de alérgenos",
