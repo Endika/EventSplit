@@ -37,6 +37,7 @@ export class AddPurchaseHandler {
         dailyConsumption: parsed.dailyConsumption,
         consumers: parsed.consumers,
         days: parsed.days,
+        assignedTo: parsed.assignedTo ?? null,
       })
 
       const creatorDisplay =

@@ -6,7 +6,7 @@ export const AddPurchaseSchema = z.object({
   category: z.enum(['food', 'drinks', 'snacks', 'other']),
   item: z.string().trim().min(2).max(50),
   quantity: z.number().positive().max(10_000),
-  unit: z.enum(['units', 'bottles', 'cans', 'kg', 'liters']),
+  unit: z.string().trim().min(1).max(30),
   dailyConsumption: z.number().positive().max(100),
   consumers: z
     .array(
@@ -17,6 +17,7 @@ export const AddPurchaseSchema = z.object({
     )
     .min(1),
   days: z.number().int().positive(),
+  assignedTo: z.string().uuid().nullable().optional(),
 })
 
 export type AddPurchaseInput = z.infer<typeof AddPurchaseSchema>

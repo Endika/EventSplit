@@ -28,6 +28,8 @@ describe('EditPurchaseHandler', () => {
       eventId: ctx.eventId,
       purchaseId: ctx.purchaseId,
       editedBy: ctx.userId,
+      category: 'drinks',
+      item: 'Coke',
       quantity: 5,
       unit: 'cans',
       dailyConsumption: 2,
@@ -48,6 +50,8 @@ describe('EditPurchaseHandler', () => {
       eventId: ctx.eventId,
       purchaseId: ctx.purchaseId,
       editedBy: ctx.userId,
+      category: 'drinks',
+      item: 'Coke',
       quantity: 3,
       unit: 'bottles',
       dailyConsumption: 3,
@@ -64,6 +68,8 @@ describe('EditPurchaseHandler', () => {
         eventId: ctx.eventId,
         purchaseId: '00000000-0000-7000-8000-000000000000',
         editedBy: ctx.userId,
+        category: 'drinks',
+        item: 'Coke',
         quantity: 1,
         unit: 'bottles',
         dailyConsumption: 1,
@@ -80,6 +86,8 @@ describe('EditPurchaseHandler', () => {
         eventId: ctx.eventId,
         purchaseId: ctx.purchaseId,
         editedBy: '00000000-0000-7000-8000-000000000000',
+        category: 'drinks',
+        item: 'Coke',
         quantity: 1,
         unit: 'bottles',
         dailyConsumption: 1,
@@ -87,5 +95,24 @@ describe('EditPurchaseHandler', () => {
         days: 1,
       }),
     ).rejects.toThrow(/not in event/i)
+  })
+
+  it('can change the item name and category', async () => {
+    const ctx = await setup()
+    const result = await new EditPurchaseHandler(ctx.repo).execute({
+      eventId: ctx.eventId,
+      purchaseId: ctx.purchaseId,
+      editedBy: ctx.userId,
+      category: 'food',
+      item: 'Bread',
+      quantity: 2,
+      unit: 'loaves',
+      dailyConsumption: 1,
+      consumers: [{ userId: ctx.userId, multiplier: 1 }],
+      days: 2,
+    })
+    expect(result.event.purchases[0]!.item).toBe('Bread')
+    expect(result.event.purchases[0]!.category).toBe('food')
+    expect(result.event.purchases[0]!.unit).toBe('loaves')
   })
 })

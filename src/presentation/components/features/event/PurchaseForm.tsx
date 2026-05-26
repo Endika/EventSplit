@@ -113,6 +113,8 @@ export function PurchaseForm({
             eventId: event.id,
             purchaseId: purchase.id,
             editedBy: me.id,
+            category,
+            item,
             quantity,
             unit,
             dailyConsumption,

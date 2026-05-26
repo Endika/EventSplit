@@ -4,18 +4,17 @@ export const EditPurchaseSchema = z.object({
   eventId: z.string().regex(/^[a-z0-9]{7}$/),
   purchaseId: z.string().uuid(),
   editedBy: z.string().uuid(),
+  category: z.enum(['food', 'drinks', 'snacks', 'other']),
+  item: z.string().trim().min(2).max(50),
   quantity: z.number().positive().max(10_000),
-  unit: z.enum(['units', 'bottles', 'cans', 'kg', 'liters']),
+  unit: z.string().trim().min(1).max(30),
   dailyConsumption: z.number().positive().max(100),
-  consumers: z
-    .array(
-      z.object({
-        userId: z.string().uuid(),
-        multiplier: z.number().min(0).max(10),
-      }),
-    )
-    .min(1),
+  consumers: z.array(z.object({
+    userId: z.string().uuid(),
+    multiplier: z.number().min(0).max(10),
+  })).min(1),
   days: z.number().int().positive(),
+  assignedTo: z.string().uuid().nullable().optional(),
 })
 
 export type EditPurchaseInput = z.infer<typeof EditPurchaseSchema>
