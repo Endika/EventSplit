@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.5.0](https://github.com/Endika/EventSplit/compare/v1.4.0...v1.5.0) (2026-05-26)
+
+
+### Features
+
+* **ui:** show recent events on home screen ([bb28697](https://github.com/Endika/EventSplit/commit/bb28697c9bd5141e5af33b808f7382cd722a6d6a))
+
 ## [1.4.0](https://github.com/Endika/EventSplit/compare/v1.3.0...v1.4.0) (2026-05-26)
 
 
