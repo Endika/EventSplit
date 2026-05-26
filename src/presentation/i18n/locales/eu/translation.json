@@ -18,7 +18,7 @@
     "forget": "Gailu honetatik kendu",
     "newEvent": "Ekitaldi berria"
   },
-  "tabs": { "participants": "Lagunak", "availability": "Noiz", "location": "Non", "purchases": "Erosketak", "expenses": "Gastuak", "history": "Historiala", "openMenu": "Menua ireki", "closeMenu": "Menua itxi", "menu": "Menua", "home": "Hasiera" },
+  "tabs": { "participants": "Lagunak", "availability": "Noiz", "location": "Non", "purchases": "Erosketa zerrenda", "expenses": "Gastuak", "history": "Historiala", "openMenu": "Menua ireki", "closeMenu": "Menua itxi", "menu": "Menua", "home": "Hasiera" },
   "history": {
     "title": "Jardueraren erregistroa",
     "empty": "Oraindik ez dago jarduerarik.",
@@ -109,7 +109,8 @@
     "dayHeader": "{{date}}",
     "myVotes": "Zure botoak",
     "othersVotes": "Besteak",
-    "editAnyoneHint": "Markatu edozein lauki eskuragarritasuna ezartzeko — zurekin bizi direnen ordez bete dezakezu."
+    "editAnyoneHint": "Markatu edozein lauki eskuragarritasuna ezartzeko — zurekin bizi direnen ordez bete dezakezu.",
+    "votes": "Eskuragarri"
   },
   "id": {
     "who": "Nor zara \"{{eventName}}\" ekitaldian?",

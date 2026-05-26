@@ -18,7 +18,7 @@
     "forget": "Quitar de este dispositivo",
     "newEvent": "Nuevo evento"
   },
-  "tabs": { "participants": "Personas", "availability": "Cuándo", "location": "Dónde", "purchases": "Compra", "expenses": "Gastos", "history": "Historial", "openMenu": "Abrir menú", "closeMenu": "Cerrar menú", "menu": "Menú", "home": "Inicio" },
+  "tabs": { "participants": "Personas", "availability": "Cuándo", "location": "Dónde", "purchases": "Lista de la compra", "expenses": "Gastos", "history": "Historial", "openMenu": "Abrir menú", "closeMenu": "Cerrar menú", "menu": "Menú", "home": "Inicio" },
   "history": {
     "title": "Registro de actividad",
     "empty": "Sin actividad aún.",
@@ -109,7 +109,8 @@
     "dayHeader": "{{date}}",
     "myVotes": "Tus votos",
     "othersVotes": "Otros",
-    "editAnyoneHint": "Marca cualquier casilla para indicar disponibilidad — puedes rellenar por quien viva contigo."
+    "editAnyoneHint": "Marca cualquier casilla para indicar disponibilidad — puedes rellenar por quien viva contigo.",
+    "votes": "Disponibles"
   },
   "id": {
     "who": "¿Quién eres en \"{{eventName}}\"?",

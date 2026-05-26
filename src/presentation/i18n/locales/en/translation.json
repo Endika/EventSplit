@@ -18,7 +18,7 @@
     "forget": "Remove from this device",
     "newEvent": "New event"
   },
-  "tabs": { "participants": "People", "availability": "When", "location": "Where", "purchases": "Shopping", "expenses": "Expenses", "history": "History", "openMenu": "Open menu", "closeMenu": "Close menu", "menu": "Menu", "home": "Home" },
+  "tabs": { "participants": "People", "availability": "When", "location": "Where", "purchases": "Shopping list", "expenses": "Expenses", "history": "History", "openMenu": "Open menu", "closeMenu": "Close menu", "menu": "Menu", "home": "Home" },
   "history": {
     "title": "Activity log",
     "empty": "No activity yet.",
@@ -109,7 +109,8 @@
     "dayHeader": "{{date}}",
     "myVotes": "Your votes",
     "othersVotes": "Others",
-    "editAnyoneHint": "Tap any checkbox to set availability — you can fill in for people who live with you."
+    "editAnyoneHint": "Tap any checkbox to set availability — you can fill in for people who live with you.",
+    "votes": "Available"
   },
   "id": {
     "who": "Who are you in \"{{eventName}}\"?",

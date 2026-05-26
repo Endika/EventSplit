@@ -199,6 +199,23 @@ export function AvailabilityTab() {
                   )
                 })}
               </tbody>
+              <tfoot>
+                <tr className="border-t border-slate-700 text-xs text-slate-400">
+                  <td className="p-3 font-medium">{t('availability.votes')}</td>
+                  {event.days.map((d) => {
+                    const count = event.users.reduce(
+                      (n, u) => n + (drafts[u.id]?.[d] ? 1 : 0),
+                      0,
+                    )
+                    return (
+                      <td key={d} className="p-3 text-center">
+                        <span className="font-semibold text-teal-300">{count}</span>
+                        <span className="text-slate-500">/{event.users.length}</span>
+                      </td>
+                    )
+                  })}
+                </tr>
+              </tfoot>
             </table>
           </div>
 
