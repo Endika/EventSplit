@@ -343,5 +343,9 @@
     "dismiss": "Itxi",
     "copy": "Kopiatu errorea",
     "copied": "Kopiatuta"
+  },
+  "sync": {
+    "remoteUpdate": "Beste norbaitek aldaketa bat egin du — zure ikuspegia eguneratu da.",
+    "rateLimited": "Aldaketa gehiegi azkarregi — itxaron une bat eta saiatu berriro."
   }
 }

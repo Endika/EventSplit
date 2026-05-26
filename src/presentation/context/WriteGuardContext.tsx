@@ -1,5 +1,7 @@
 import { createContext, type ReactNode, useContext, useState } from 'react'
 import { useEventState } from '@/presentation/context/EventContext'
+import { allowWrite } from '@/shared/utils/rateLimit'
+import { notify } from '@/shared/utils/notify'
 
 interface PendingExecution {
   fn: () => Promise<unknown> | unknown
@@ -45,6 +47,10 @@ export function WriteGuardProvider({ children }: { children: ReactNode }) {
     fn: () => Promise<unknown> | unknown,
     onError: (err: unknown) => void = () => {},
   ): void {
+    if (!allowWrite()) {
+      notify('sync.rateLimited')
+      return
+    }
     if (!isLocked || verified) {
       const result = fn()
       if (result instanceof Promise) {

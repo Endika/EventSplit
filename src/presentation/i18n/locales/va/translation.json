@@ -343,5 +343,9 @@
     "dismiss": "Tanca",
     "copy": "Copia l'error",
     "copied": "Copiat"
+  },
+  "sync": {
+    "remoteUpdate": "Una altra persona acaba de fer un canvi — la teua vista s'ha actualitzat.",
+    "rateLimited": "Massa canvis massa de pressa — espera un moment i torna-ho a provar."
   }
 }

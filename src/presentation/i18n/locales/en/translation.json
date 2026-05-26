@@ -343,5 +343,9 @@
     "dismiss": "Dismiss",
     "copy": "Copy error",
     "copied": "Copied"
+  },
+  "sync": {
+    "remoteUpdate": "Someone else just made a change — your view was updated.",
+    "rateLimited": "Too many changes too fast — wait a moment and try again."
   }
 }

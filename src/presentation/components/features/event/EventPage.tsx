@@ -14,6 +14,7 @@ import {
 } from '@/presentation/components/features/identification/IdentificationModal'
 import { EventTabs } from '@/presentation/components/features/event/EventTabs'
 import { EventPinGate } from '@/presentation/components/features/security/EventPinGate'
+import { notify } from '@/shared/utils/notify'
 
 export function EventPage({ eventId }: { eventId: string }) {
   const { t } = useTranslation()
@@ -72,10 +73,13 @@ export function EventPage({ eventId }: { eventId: string }) {
       if (result.applied) {
         cache.set(eventId, { snapshot: result.snapshot, version: result.version })
         setEvent(result.snapshot, result.version)
+        // Toast only when the change came from someone else, not our own echo.
+        const lastBy = result.snapshot.history.at(-1)?.userId
+        if (lastBy && lastBy !== me?.id) notify('sync.remoteUpdate')
       }
     })
     return unsub
-  }, [eventId, container, setEvent])
+  }, [eventId, container, setEvent, me?.id])
 
   // Realtime can miss updates if the WebSocket drops (device sleep, network
   // blips). Re-fetch and merge whenever the tab regains focus or reconnects.

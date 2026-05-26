@@ -343,5 +343,9 @@
     "dismiss": "Pechar",
     "copy": "Copiar erro",
     "copied": "Copiado"
+  },
+  "sync": {
+    "remoteUpdate": "Outra persoa acaba de facer un cambio — a túa vista actualizouse.",
+    "rateLimited": "Demasiados cambios moi rápido — agarda un momento e téntao de novo."
   }
 }

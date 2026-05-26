@@ -10,6 +10,7 @@ import { OfflineBanner } from '@/presentation/components/features/pwa/OfflineBan
 import { UpdateBanner } from '@/presentation/components/features/pwa/UpdateBanner'
 import { InstallPrompt } from '@/presentation/components/features/pwa/InstallPrompt'
 import { ErrorBanner } from '@/presentation/components/common/ErrorBanner'
+import { NoticeBanner } from '@/presentation/components/common/NoticeBanner'
 import { Footer } from '@/presentation/components/common/Footer'
 
 const EventPage = lazy(() =>
@@ -42,6 +43,7 @@ export default function App() {
               <UpdateBanner />
               <InstallPrompt />
               <ErrorBanner />
+              <NoticeBanner />
               <Suspense fallback={<div className="p-6 text-slate-400">…</div>}>
                 {eventId ? <EventPage eventId={eventId} /> : <HomePage />}
               </Suspense>
