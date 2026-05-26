@@ -194,6 +194,12 @@
     "child": "Niño/a",
     "submit": "Añadir"
   },
+  "event": {
+    "share": "Compartir",
+    "shareTitle": "Compartir evento",
+    "shareCopied": "Enlace copiado",
+    "shareNotSupported": "Tu navegador no permite compartir"
+  },
   "pin": {
     "createField": "PIN de edición (opcional, 4-6 dígitos)",
     "createHint": "Si lo activas, las ediciones requieren este PIN una vez por dispositivo. Protege ante URL filtradas.",

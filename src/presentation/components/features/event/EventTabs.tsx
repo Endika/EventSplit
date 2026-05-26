@@ -44,6 +44,24 @@ export function EventTabs() {
     window.dispatchEvent(new PopStateEvent('popstate'))
   }
 
+  async function shareEvent() {
+    const url = window.location.href
+    const title = event?.name ?? t('event.shareTitle')
+    try {
+      if (navigator.share) {
+        await navigator.share({ title, url })
+        return
+      }
+      await navigator.clipboard.writeText(url)
+      // Tiny toast fallback — use window.alert for MVP
+      window.alert(t('event.shareCopied'))
+    } catch (err) {
+      if ((err as Error)?.name === 'AbortError') return // user cancelled
+      console.error('[Share]', err)
+      window.alert(t('event.shareNotSupported'))
+    }
+  }
+
   return (
     <>
       {/* MOBILE — sticky top bar with hamburger */}
@@ -63,6 +81,21 @@ export function EventTabs() {
         <h1 className="flex-1 truncate text-base font-semibold text-slate-100">
           {event?.name ?? ''}
         </h1>
+        <button
+          type="button"
+          onClick={shareEvent}
+          aria-label={t('event.share')}
+          title={t('event.share')}
+          className="rounded-lg p-2 text-slate-200 hover:bg-slate-800"
+        >
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+            <circle cx="18" cy="5" r="3"/>
+            <circle cx="6" cy="12" r="3"/>
+            <circle cx="18" cy="19" r="3"/>
+            <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/>
+            <line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/>
+          </svg>
+        </button>
         <button
           type="button"
           onClick={goHome}

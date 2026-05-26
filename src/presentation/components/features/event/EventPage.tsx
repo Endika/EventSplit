@@ -113,7 +113,36 @@ export function EventPage({ eventId }: { eventId: string }) {
 
   return (
     <main className="mx-auto max-w-3xl p-4 md:p-6">
-      <h1 className="mb-2 hidden text-2xl font-bold text-slate-100 md:block">{event.name}</h1>
+      <div className="mb-2 hidden items-center justify-between md:flex">
+        <h1 className="text-2xl font-bold text-slate-100">{event.name}</h1>
+        <button
+          type="button"
+          onClick={async () => {
+            const url = window.location.href
+            try {
+              if (navigator.share) {
+                await navigator.share({ title: event.name, url })
+                return
+              }
+              await navigator.clipboard.writeText(url)
+              window.alert(t('event.shareCopied'))
+            } catch (err) {
+              if ((err as Error)?.name === 'AbortError') return
+              console.error('[Share]', err)
+            }
+          }}
+          className="flex items-center gap-1 rounded-lg border border-slate-700 bg-slate-800 px-3 py-1.5 text-sm text-slate-200 hover:bg-slate-700"
+        >
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+            <circle cx="18" cy="5" r="3"/>
+            <circle cx="6" cy="12" r="3"/>
+            <circle cx="18" cy="19" r="3"/>
+            <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/>
+            <line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/>
+          </svg>
+          {t('event.share')}
+        </button>
+      </div>
       {!me && (
         <IdentificationModal
           eventName={event.name}

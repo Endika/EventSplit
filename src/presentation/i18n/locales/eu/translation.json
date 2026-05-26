@@ -194,6 +194,12 @@
     "child": "Haurra",
     "submit": "Gehitu"
   },
+  "event": {
+    "share": "Partekatu",
+    "shareTitle": "Ekitaldia partekatu",
+    "shareCopied": "Esteka kopiatuta",
+    "shareNotSupported": "Zure nabigatzaileak ez du partekatzea onartzen"
+  },
   "pin": {
     "createField": "Edizio PIN-a (aukerakoa, 4-6 zifra)",
     "createHint": "Aktibatuz gero, edizioek PIN hau eskatzen dute behin gailuko. URL filtrazioen aurka.",

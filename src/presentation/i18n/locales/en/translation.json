@@ -194,6 +194,12 @@
     "child": "Child",
     "submit": "Add"
   },
+  "event": {
+    "share": "Share",
+    "shareTitle": "Share event",
+    "shareCopied": "Link copied",
+    "shareNotSupported": "Your browser doesn't support sharing"
+  },
   "pin": {
     "createField": "Edit PIN (optional, 4-6 digits)",
     "createHint": "If set, edits require this PIN once per device. Protects against URL leaks.",
