@@ -56,6 +56,9 @@ const ExpenseSchema = z.object({
   date: z.string(),
   createdAt: z.string(),
   splitAmong: z.array(z.string()).default([]),
+  purchaseLinks: z
+    .array(z.object({ purchaseId: z.string(), quantity: z.number() }))
+    .default([]),
   deleted: z.boolean().default(false),
   deletedBy: z.string().nullable().default(null),
   deletedAt: z.string().nullable().default(null),

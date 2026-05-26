@@ -41,4 +41,67 @@ describe('Expense', () => {
     expect(recovered.toSnapshot().deleted).toBe(false)
     expect(recovered.toSnapshot().deletedBy).toBeNull()
   })
+
+  it('create stores purchaseLinks and toSnapshot returns a copy', () => {
+    const e = Expense.create({
+      paidBy: u1,
+      amount: Money.fromEuros(10),
+      description: 'Shop',
+      purchaseLinks: [{ purchaseId: 'p1', quantity: 6 }],
+    })
+    expect(e.toSnapshot().purchaseLinks).toEqual([{ purchaseId: 'p1', quantity: 6 }])
+    const snap = e.toSnapshot()
+    snap.purchaseLinks[0]!.quantity = 99
+    expect(e.toSnapshot().purchaseLinks[0]!.quantity).toBe(6)
+  })
+
+  it('create rejects a link quantity <= 0', () => {
+    expect(() =>
+      Expense.create({
+        paidBy: u1,
+        amount: Money.fromEuros(10),
+        description: 'Shop',
+        purchaseLinks: [{ purchaseId: 'p1', quantity: 0 }],
+      }),
+    ).toThrow(/link quantity must be > 0/)
+  })
+
+  it('edit rejects a link quantity <= 0', () => {
+    const e = Expense.create({ paidBy: u1, amount: Money.fromEuros(10), description: 'Shop' })
+    expect(() =>
+      e.edit({
+        paidBy: u1,
+        amount: Money.fromEuros(10),
+        description: 'Shop',
+        purchaseLinks: [{ purchaseId: 'p1', quantity: -2 }],
+      }),
+    ).toThrow(/link quantity must be > 0/)
+  })
+
+  it('edit with purchaseLinks replaces the previous set', () => {
+    const e = Expense.create({
+      paidBy: u1,
+      amount: Money.fromEuros(10),
+      description: 'Shop',
+      purchaseLinks: [{ purchaseId: 'p1', quantity: 6 }],
+    })
+    const next = e.edit({
+      paidBy: u1,
+      amount: Money.fromEuros(10),
+      description: 'Shop',
+      purchaseLinks: [{ purchaseId: 'p2', quantity: 3 }],
+    })
+    expect(next.toSnapshot().purchaseLinks).toEqual([{ purchaseId: 'p2', quantity: 3 }])
+  })
+
+  it('edit without purchaseLinks keeps the existing links', () => {
+    const e = Expense.create({
+      paidBy: u1,
+      amount: Money.fromEuros(10),
+      description: 'Shop',
+      purchaseLinks: [{ purchaseId: 'p1', quantity: 6 }],
+    })
+    const next = e.edit({ paidBy: u1, amount: Money.fromEuros(12), description: 'Shop' })
+    expect(next.toSnapshot().purchaseLinks).toEqual([{ purchaseId: 'p1', quantity: 6 }])
+  })
 })
