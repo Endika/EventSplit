@@ -12,7 +12,50 @@
     "yourAlias": "Goitizena (aukerakoa)",
     "submit": "Sortu"
   },
-  "tabs": { "participants": "Lagunak", "purchases": "Erosketak", "expenses": "Gastuak" },
+  "tabs": { "participants": "Lagunak", "availability": "Noiz", "location": "Non", "purchases": "Erosketak", "expenses": "Gastuak" },
+  "allergens": {
+    "gluten": "Glutena",
+    "lactose": "Laktosa",
+    "egg": "Arrautza",
+    "peanut": "Kakahuetea",
+    "nuts": "Fruitu lehorrak",
+    "shellfish": "Itsaskia",
+    "fish": "Arraina",
+    "soy": "Soja",
+    "mustard": "Ziapea",
+    "celery": "Apioa",
+    "sesame": "Sesamoa",
+    "sulfites": "Sulfitoak",
+    "mollusks": "Moluskuak",
+    "other": "Bestelakoa",
+    "severity": {
+      "mild": "Arina",
+      "moderate": "Ertaina",
+      "severe": "Larria"
+    }
+  },
+  "profile": {
+    "title": "Zure profila",
+    "alias": "Goitizena",
+    "email": "Posta",
+    "phone": "Telefonoa",
+    "dietary": "Dieta-lehentasunak",
+    "notes": "Bestelako oharrak",
+    "allergies": "Alergiak",
+    "addAllergy": "Alergia gehitu",
+    "selectAllergen": "Alergenoa",
+    "selectSeverity": "Larritasuna",
+    "remove": "Kendu",
+    "save": "Gorde profila",
+    "saving": "Gordetzen…"
+  },
+  "allergyAlert": {
+    "title": "Alergeno-alerta",
+    "item": "Produktua: {{item}}",
+    "warning": "{{user}}-(e)k {{allergen}}-arekiko alergia du",
+    "changeItem": "Aldatu produktua",
+    "continue": "Hala ere jarraitu"
+  },
   "availability": {
     "title": "Noiz etor daiteke nor?",
     "addDay": "Eguna gehitu",

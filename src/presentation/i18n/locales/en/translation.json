@@ -12,7 +12,50 @@
     "yourAlias": "Nickname (optional)",
     "submit": "Create"
   },
-  "tabs": { "participants": "People", "purchases": "Shopping", "expenses": "Expenses" },
+  "tabs": { "participants": "People", "availability": "When", "location": "Where", "purchases": "Shopping", "expenses": "Expenses" },
+  "allergens": {
+    "gluten": "Gluten",
+    "lactose": "Lactose",
+    "egg": "Egg",
+    "peanut": "Peanut",
+    "nuts": "Nuts",
+    "shellfish": "Shellfish",
+    "fish": "Fish",
+    "soy": "Soy",
+    "mustard": "Mustard",
+    "celery": "Celery",
+    "sesame": "Sesame",
+    "sulfites": "Sulfites",
+    "mollusks": "Mollusks",
+    "other": "Other",
+    "severity": {
+      "mild": "Mild",
+      "moderate": "Moderate",
+      "severe": "Severe"
+    }
+  },
+  "profile": {
+    "title": "Your profile",
+    "alias": "Nickname",
+    "email": "Email",
+    "phone": "Phone",
+    "dietary": "Dietary preferences",
+    "notes": "Other notes",
+    "allergies": "Allergies",
+    "addAllergy": "Add allergy",
+    "selectAllergen": "Allergen",
+    "selectSeverity": "Severity",
+    "remove": "Remove",
+    "save": "Save profile",
+    "saving": "Saving…"
+  },
+  "allergyAlert": {
+    "title": "Allergen warning",
+    "item": "Item: {{item}}",
+    "warning": "{{user}} is allergic to {{allergen}}",
+    "changeItem": "Change item",
+    "continue": "Continue anyway"
+  },
   "availability": {
     "title": "When can people come?",
     "addDay": "Add a day",

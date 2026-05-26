@@ -12,7 +12,50 @@
     "yourAlias": "Apodo (opcional)",
     "submit": "Crear"
   },
-  "tabs": { "participants": "Personas", "purchases": "Compra", "expenses": "Gastos" },
+  "tabs": { "participants": "Personas", "availability": "Cuándo", "location": "Dónde", "purchases": "Compra", "expenses": "Gastos" },
+  "allergens": {
+    "gluten": "Gluten",
+    "lactose": "Lactosa",
+    "egg": "Huevo",
+    "peanut": "Cacahuete",
+    "nuts": "Frutos secos",
+    "shellfish": "Marisco",
+    "fish": "Pescado",
+    "soy": "Soja",
+    "mustard": "Mostaza",
+    "celery": "Apio",
+    "sesame": "Sésamo",
+    "sulfites": "Sulfitos",
+    "mollusks": "Moluscos",
+    "other": "Otro",
+    "severity": {
+      "mild": "Leve",
+      "moderate": "Moderada",
+      "severe": "Grave"
+    }
+  },
+  "profile": {
+    "title": "Tu perfil",
+    "alias": "Apodo",
+    "email": "Email",
+    "phone": "Teléfono",
+    "dietary": "Preferencias dietéticas",
+    "notes": "Otras notas",
+    "allergies": "Alergias",
+    "addAllergy": "Añadir alergia",
+    "selectAllergen": "Alérgeno",
+    "selectSeverity": "Severidad",
+    "remove": "Quitar",
+    "save": "Guardar perfil",
+    "saving": "Guardando…"
+  },
+  "allergyAlert": {
+    "title": "Alerta de alérgenos",
+    "item": "Producto: {{item}}",
+    "warning": "{{user}} es alérgico a {{allergen}}",
+    "changeItem": "Cambiar producto",
+    "continue": "Continuar igualmente"
+  },
   "availability": {
     "title": "¿Cuándo puede venir cada uno?",
     "addDay": "Añadir un día",
