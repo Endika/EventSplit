@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.54.1](https://github.com/Endika/EventSplit/compare/v1.54.0...v1.54.1) (2026-05-26)
+
+
+### Refactor
+
+* derive enums from domain constants, dedupe units ([88ed02c](https://github.com/Endika/EventSplit/commit/88ed02c6112e426b615c3d832cc2dafe8c624097))
+
 ## [1.54.0](https://github.com/Endika/EventSplit/compare/v1.53.0...v1.54.0) (2026-05-26)
 
 
