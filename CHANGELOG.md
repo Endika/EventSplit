@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.29.0](https://github.com/Endika/EventSplit/compare/v1.28.0...v1.29.0) (2026-05-26)
+
+
+### Features
+
+* **i18n:** add galician, catalan and valencian locales ([8df5520](https://github.com/Endika/EventSplit/commit/8df552010bb11290a71b4d9b322cbdbed5c39f34))
+* **ui:** add galician, catalan, valencian to language switcher ([58f11f3](https://github.com/Endika/EventSplit/commit/58f11f34caf4ec9443124cb3f8f1b7b129dd7286))
+
 ## [1.28.0](https://github.com/Endika/EventSplit/compare/v1.27.0...v1.28.0) (2026-05-26)
 
 
