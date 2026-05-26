@@ -2,8 +2,21 @@
   "offline": "Offline — read only",
   "updateAvailable": "New version available",
   "updateNow": "Update now",
-  "app": { "title": "EventSplit", "notFound": "Event not found" },
-  "common": { "you": "You", "cancel": "Cancel", "save": "Save", "next": "Next", "back": "Back", "unsavedTitle": "Unsaved changes", "unsavedBody": "You have unsaved changes. Discard them?", "keepEditing": "Keep editing", "discard": "Discard" },
+  "app": {
+    "title": "EventSplit",
+    "notFound": "Event not found"
+  },
+  "common": {
+    "you": "You",
+    "cancel": "Cancel",
+    "save": "Save",
+    "next": "Next",
+    "back": "Back",
+    "unsavedTitle": "Unsaved changes",
+    "unsavedBody": "You have unsaved changes. Discard them?",
+    "keepEditing": "Keep editing",
+    "discard": "Discard"
+  },
   "home": {
     "tagline": "Split event expenses fairly with friends — no login needed.",
     "createEvent": "Create event",
@@ -18,7 +31,18 @@
     "forget": "Remove from this device",
     "newEvent": "New event"
   },
-  "tabs": { "participants": "People", "availability": "When", "location": "Where", "purchases": "Shopping list", "expenses": "Expenses", "history": "History", "openMenu": "Open menu", "closeMenu": "Close menu", "menu": "Menu", "home": "Home" },
+  "tabs": {
+    "participants": "People",
+    "availability": "When",
+    "location": "Where",
+    "purchases": "Shopping list",
+    "expenses": "Expenses",
+    "history": "History",
+    "openMenu": "Open menu",
+    "closeMenu": "Close menu",
+    "menu": "Menu",
+    "home": "Home"
+  },
   "history": {
     "title": "Activity log",
     "empty": "No activity yet.",
@@ -261,7 +285,7 @@
   },
   "stage": {
     "title": "Stage",
-    "doodle": "Dates",
+    "doodle": "Planning",
     "shopping": "Organise",
     "expenses": "Accounts",
     "doodleHint": "Pick the days",

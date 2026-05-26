@@ -2,8 +2,21 @@
   "offline": "Konexiorik gabe — irakurri soilik",
   "updateAvailable": "Bertsio berria eskuragarri",
   "updateNow": "Eguneratu orain",
-  "app": { "title": "EventSplit", "notFound": "Ekitaldia ez da aurkitu" },
-  "common": { "you": "Zu", "cancel": "Utzi", "save": "Gorde", "next": "Hurrengoa", "back": "Atzera", "unsavedTitle": "Gorde gabeko aldaketak", "unsavedBody": "Gorde gabeko aldaketak dituzu. Baztertu?", "keepEditing": "Editatzen jarraitu", "discard": "Baztertu" },
+  "app": {
+    "title": "EventSplit",
+    "notFound": "Ekitaldia ez da aurkitu"
+  },
+  "common": {
+    "you": "Zu",
+    "cancel": "Utzi",
+    "save": "Gorde",
+    "next": "Hurrengoa",
+    "back": "Atzera",
+    "unsavedTitle": "Gorde gabeko aldaketak",
+    "unsavedBody": "Gorde gabeko aldaketak dituzu. Baztertu?",
+    "keepEditing": "Editatzen jarraitu",
+    "discard": "Baztertu"
+  },
   "home": {
     "tagline": "Banatu ekitaldiko gastuak lagunekin — login gabe.",
     "createEvent": "Sortu ekitaldia",
@@ -18,7 +31,18 @@
     "forget": "Gailu honetatik kendu",
     "newEvent": "Ekitaldi berria"
   },
-  "tabs": { "participants": "Lagunak", "availability": "Noiz", "location": "Non", "purchases": "Erosketa zerrenda", "expenses": "Gastuak", "history": "Historiala", "openMenu": "Menua ireki", "closeMenu": "Menua itxi", "menu": "Menua", "home": "Hasiera" },
+  "tabs": {
+    "participants": "Lagunak",
+    "availability": "Noiz",
+    "location": "Non",
+    "purchases": "Erosketa zerrenda",
+    "expenses": "Gastuak",
+    "history": "Historiala",
+    "openMenu": "Menua ireki",
+    "closeMenu": "Menua itxi",
+    "menu": "Menua",
+    "home": "Hasiera"
+  },
   "history": {
     "title": "Jardueraren erregistroa",
     "empty": "Oraindik ez dago jarduerarik.",
@@ -261,7 +285,7 @@
   },
   "stage": {
     "title": "Fasea",
-    "doodle": "Datak",
+    "doodle": "Plangintza",
     "shopping": "Antolatu",
     "expenses": "Kontuak",
     "doodleHint": "Egunak aukeratu",

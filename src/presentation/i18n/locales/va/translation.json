@@ -2,8 +2,21 @@
   "offline": "Sense connexió — només lectura",
   "updateAvailable": "Nova versió disponible",
   "updateNow": "Actualitza ara",
-  "app": { "title": "EventSplit", "notFound": "Esdeveniment no trobat" },
-  "common": { "you": "Tu", "cancel": "Cancel·la", "save": "Guarda", "next": "Següent", "back": "Arrere", "unsavedTitle": "Canvis sense guardar", "unsavedBody": "Tens canvis sense guardar. Descartar-los?", "keepEditing": "Continuar editant", "discard": "Descartar" },
+  "app": {
+    "title": "EventSplit",
+    "notFound": "Esdeveniment no trobat"
+  },
+  "common": {
+    "you": "Tu",
+    "cancel": "Cancel·la",
+    "save": "Guarda",
+    "next": "Següent",
+    "back": "Arrere",
+    "unsavedTitle": "Canvis sense guardar",
+    "unsavedBody": "Tens canvis sense guardar. Descartar-los?",
+    "keepEditing": "Continuar editant",
+    "discard": "Descartar"
+  },
   "home": {
     "tagline": "Repartix les despeses de l'esdeveniment entre amics — sense login.",
     "createEvent": "Crea un esdeveniment",
@@ -18,7 +31,18 @@
     "forget": "Lleva d'este dispositiu",
     "newEvent": "Nou esdeveniment"
   },
-  "tabs": { "participants": "Persones", "availability": "Quan", "location": "On", "purchases": "Llista de la compra", "expenses": "Despeses", "history": "Historial", "openMenu": "Obri el menú", "closeMenu": "Tanca el menú", "menu": "Menú", "home": "Inici" },
+  "tabs": {
+    "participants": "Persones",
+    "availability": "Quan",
+    "location": "On",
+    "purchases": "Llista de la compra",
+    "expenses": "Despeses",
+    "history": "Historial",
+    "openMenu": "Obri el menú",
+    "closeMenu": "Tanca el menú",
+    "menu": "Menú",
+    "home": "Inici"
+  },
   "history": {
     "title": "Registre d'activitat",
     "empty": "Encara no hi ha activitat.",
@@ -261,7 +285,7 @@
   },
   "stage": {
     "title": "Fase",
-    "doodle": "Dates",
+    "doodle": "Planificació",
     "shopping": "Organitzar",
     "expenses": "Comptes",
     "doodleHint": "Triar els dies",

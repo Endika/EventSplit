@@ -2,8 +2,21 @@
   "offline": "Sin conexión — solo lectura",
   "updateAvailable": "Nueva versión disponible",
   "updateNow": "Actualizar ahora",
-  "app": { "title": "EventSplit", "notFound": "Evento no encontrado" },
-  "common": { "you": "Tú", "cancel": "Cancelar", "save": "Guardar", "next": "Siguiente", "back": "Atrás", "unsavedTitle": "Cambios sin guardar", "unsavedBody": "Tienes cambios sin guardar. ¿Descartarlos?", "keepEditing": "Seguir editando", "discard": "Descartar" },
+  "app": {
+    "title": "EventSplit",
+    "notFound": "Evento no encontrado"
+  },
+  "common": {
+    "you": "Tú",
+    "cancel": "Cancelar",
+    "save": "Guardar",
+    "next": "Siguiente",
+    "back": "Atrás",
+    "unsavedTitle": "Cambios sin guardar",
+    "unsavedBody": "Tienes cambios sin guardar. ¿Descartarlos?",
+    "keepEditing": "Seguir editando",
+    "discard": "Descartar"
+  },
   "home": {
     "tagline": "Divide los gastos del evento entre amigos — sin login.",
     "createEvent": "Crear evento",
@@ -18,7 +31,18 @@
     "forget": "Quitar de este dispositivo",
     "newEvent": "Nuevo evento"
   },
-  "tabs": { "participants": "Personas", "availability": "Cuándo", "location": "Dónde", "purchases": "Lista de la compra", "expenses": "Gastos", "history": "Historial", "openMenu": "Abrir menú", "closeMenu": "Cerrar menú", "menu": "Menú", "home": "Inicio" },
+  "tabs": {
+    "participants": "Personas",
+    "availability": "Cuándo",
+    "location": "Dónde",
+    "purchases": "Lista de la compra",
+    "expenses": "Gastos",
+    "history": "Historial",
+    "openMenu": "Abrir menú",
+    "closeMenu": "Cerrar menú",
+    "menu": "Menú",
+    "home": "Inicio"
+  },
   "history": {
     "title": "Registro de actividad",
     "empty": "Sin actividad aún.",
@@ -261,7 +285,7 @@
   },
   "stage": {
     "title": "Fase",
-    "doodle": "Fechas",
+    "doodle": "Planificación",
     "shopping": "Organizar",
     "expenses": "Cuentas",
     "doodleHint": "Elegir los días",
