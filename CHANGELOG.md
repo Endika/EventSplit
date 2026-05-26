@@ -1,5 +1,25 @@
 # Changelog
 
+## [1.13.0](https://github.com/Endika/EventSplit/compare/v1.12.0...v1.13.0) (2026-05-26)
+
+
+### Features
+
+* **app:** add edit-purchase handler with optimistic lock ([ffa5169](https://github.com/Endika/EventSplit/commit/ffa5169394693172677fa686f84cef7c9f9caf18))
+* **app:** add remove-participant handler with retry ([1332f85](https://github.com/Endika/EventSplit/commit/1332f85efd043721c0fadd6b80ba79f25d673972))
+* **app:** add set-event-stage handler with no-op detection ([5dc9ef0](https://github.com/Endika/EventSplit/commit/5dc9ef005d95a656cd81cb25bbf240efb1624836))
+* **domain:** add edit method to purchase entity ([0a5ab5e](https://github.com/Endika/EventSplit/commit/0a5ab5eed9028f551ce7ad2c269639031a871069))
+* **domain:** add event lifecycle stage field and transition ([33b227b](https://github.com/Endika/EventSplit/commit/33b227b4062a304fb690728fc27a4fa9ae98699f))
+* **domain:** add remove-user with reference cleanup ([94409a3](https://github.com/Endika/EventSplit/commit/94409a3dad09dafb2ef4850042245932a9350ae1))
+* **ui:** edit any participant and remove from event ([a1dc8aa](https://github.com/Endika/EventSplit/commit/a1dc8aa4f0ec985415f615d0a89801fbaba2b10b))
+* **ui:** edit existing purchases inline from list ([a62d603](https://github.com/Endika/EventSplit/commit/a62d60339aba63a1799808257e5935671ebdb589))
+* **ui:** event stages with default tab per stage ([d87058e](https://github.com/Endika/EventSplit/commit/d87058e4896961174023601c89e14f82a3a18324))
+
+
+### Chores
+
+* trigger ci ([cced461](https://github.com/Endika/EventSplit/commit/cced46198ed37ccd847fe50a6250e822dde43362))
+
 ## [1.12.0](https://github.com/Endika/EventSplit/compare/v1.11.0...v1.12.0) (2026-05-26)
 
 
