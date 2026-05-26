@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.14.1](https://github.com/Endika/EventSplit/compare/v1.14.0...v1.14.1) (2026-05-26)
+
+
+### Bug Fixes
+
+* **ui:** stabilize context setters to stop event-load render loop ([d723dc9](https://github.com/Endika/EventSplit/commit/d723dc9274786c5a5e248d928061ae2f07c03970))
+
 ## [1.14.0](https://github.com/Endika/EventSplit/compare/v1.13.0...v1.14.0) (2026-05-26)
 
 
