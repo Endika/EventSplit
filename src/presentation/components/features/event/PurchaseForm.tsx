@@ -310,9 +310,11 @@ export function PurchaseForm({
             onChange={(e) => setAssignedTo(e.target.value || null)}
           >
             <option value="">{t('purchases.form.assignedNobody')}</option>
-            {event.users.map((u) => (
-              <option key={u.id} value={u.id}>{u.alias ? `${u.name} (${u.alias})` : u.name}</option>
-            ))}
+            {event.users
+              .filter((u) => u.kind === 'adult')
+              .map((u) => (
+                <option key={u.id} value={u.id}>{u.alias ? `${u.name} (${u.alias})` : u.name}</option>
+              ))}
           </select>
         </label>
         {(() => {

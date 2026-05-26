@@ -147,9 +147,11 @@ export function PurchasesTab() {
                   className="rounded border border-slate-700 bg-slate-900 p-1 text-slate-200"
                 >
                   <option value="">{t('purchases.unassigned')}</option>
-                  {event.users.map((u) => (
-                    <option key={u.id} value={u.id}>{u.alias ? `${u.name} (${u.alias})` : u.name}</option>
-                  ))}
+                  {event.users
+                    .filter((u) => u.kind === 'adult')
+                    .map((u) => (
+                      <option key={u.id} value={u.id}>{u.alias ? `${u.name} (${u.alias})` : u.name}</option>
+                    ))}
                 </select>
               </label>
             </div>
