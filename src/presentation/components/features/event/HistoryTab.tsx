@@ -28,6 +28,7 @@ const ICONS: Record<HistoryType, string> = {
   edit_pin_set: '🔒',
   edit_pin_cleared: '🔓',
   stage_changed: '🔄',
+  settlement_toggled: '💸',
 }
 
 function formatRelative(iso: string, locale: string): string {

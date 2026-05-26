@@ -27,6 +27,7 @@ export type HistoryType =
   | 'edit_pin_set'
   | 'edit_pin_cleared'
   | 'stage_changed'
+  | 'settlement_toggled'
 
 export interface HistoryEntry {
   id: string
@@ -67,6 +68,7 @@ export interface EventSnapshot {
   expenses: ExpenseSnapshot[]
   editPin: string | null
   stage: EventStage
+  settledTransfers: { from: string; to: string }[]
   history: HistoryEntry[]
   createdAt: string
   updatedAt: string
@@ -101,6 +103,7 @@ export class Event {
       expenses: [],
       editPin: null,
       stage: 'doodle',
+      settledTransfers: [],
       history: [
         {
           id: crypto.randomUUID(),
@@ -150,6 +153,7 @@ export class Event {
       history: s.history ?? [],
       editPin: s.editPin ?? null,
       stage: s.stage ?? 'doodle',
+      settledTransfers: s.settledTransfers ?? [],
       users: (s.users ?? []).map((u) => ({
         ...u,
         alias: u.alias ?? null,
@@ -337,6 +341,45 @@ export class Event {
     return new Event(this.id, nextSnapshot)
   }
 
+  toggleSettlement(input: { userId: string; from: string; to: string }): Event {
+    if (!this.s.users.some((u) => u.id === input.userId))
+      throw new Error('Event: user not in event')
+    const exists = this.s.settledTransfers.some(
+      (s) => s.from === input.from && s.to === input.to,
+    )
+    const nextSettled = exists
+      ? this.s.settledTransfers.filter((s) => !(s.from === input.from && s.to === input.to))
+      : [...this.s.settledTransfers, { from: input.from, to: input.to }]
+    const now = new Date().toISOString()
+    const nextVersion = (this.s.history.at(-1)?.version ?? 0) + 1
+    const userName = this.s.users.find((u) => u.id === input.userId)?.name ?? 'Someone'
+    const fromName = this.s.users.find((u) => u.id === input.from)?.name ?? '?'
+    const toName = this.s.users.find((u) => u.id === input.to)?.name ?? '?'
+    const nextSnapshot: EventSnapshot = {
+      ...this.s,
+      settledTransfers: nextSettled,
+      updatedAt: now,
+      history: [
+        ...this.s.history,
+        {
+          id: crypto.randomUUID(),
+          version: nextVersion,
+          timestamp: now,
+          type: 'settlement_toggled',
+          userId: input.userId,
+          description: exists
+            ? `${userName} marked ${fromName}→${toName} as unpaid`
+            : `${userName} marked ${fromName}→${toName} as paid`,
+          before: { settled: exists },
+          after: { settled: !exists },
+        },
+      ],
+    }
+    const { history: _omit, ...fullState } = nextSnapshot
+    nextSnapshot.history.at(-1)!.fullState = fullState
+    return new Event(this.id, nextSnapshot)
+  }
+
   get name(): string { return this.s.name }
   get users(): UserSnapshot[] { return this.s.users }
 
@@ -346,6 +389,7 @@ export class Event {
       users: this.s.users.map((u) => ({ ...u })),
       purchases: this.s.purchases.map((p) => ({ ...p, consumers: [...p.consumers] })),
       expenses: this.s.expenses.map((e) => ({ ...e, splitAmong: [...e.splitAmong] })),
+      settledTransfers: this.s.settledTransfers.map((s) => ({ ...s })),
       history: this.s.history.map((h) => ({ ...h })),
       days: [...this.s.days],
       availability: Object.fromEntries(

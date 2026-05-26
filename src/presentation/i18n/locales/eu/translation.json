@@ -43,7 +43,8 @@
       "user_profile_updated": "Profila eguneratu",
       "revert": "Bertsioa itzuli",
       "edit_pin_set": "PIN ezarri",
-      "edit_pin_cleared": "PIN kendu"
+      "edit_pin_cleared": "PIN kendu",
+      "settlement_toggled": "Ordainketa kitatu"
     },
     "diff": {
       "before": "Lehen",

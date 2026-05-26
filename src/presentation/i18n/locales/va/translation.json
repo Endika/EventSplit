@@ -43,7 +43,8 @@
       "user_profile_updated": "Perfil actualitzat",
       "revert": "Versió revertida",
       "edit_pin_set": "PIN configurat",
-      "edit_pin_cleared": "PIN eliminat"
+      "edit_pin_cleared": "PIN eliminat",
+      "settlement_toggled": "Pagament liquidat"
     },
     "diff": {
       "before": "Abans",

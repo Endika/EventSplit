@@ -98,6 +98,7 @@ export const EventSnapshotSchema = z.object({
   expenses: z.array(ExpenseSchema).default([]),
   editPin: z.string().nullable().default(null),
   stage: z.enum(['doodle', 'shopping', 'expenses']).default('doodle'),
+  settledTransfers: z.array(z.object({ from: z.string(), to: z.string() })).default([]),
   history: z.array(HistoryEntrySchema).default([]),
   createdAt: z.string(),
   updatedAt: z.string(),

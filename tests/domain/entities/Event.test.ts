@@ -252,4 +252,25 @@ describe('Event', () => {
     expect(e.toSnapshot().availabilityNote).toBeNull()
     expect(e.toSnapshot().chosenDay).toBeNull()
   })
+
+  it('toggleSettlement adds and removes a settled transfer', () => {
+    const creator = User.create({ name: 'John' })
+    const e = Event.create({ name: 'Trip', creator })
+    const u = creator.id.value
+    const on = e.toggleSettlement({ userId: u, from: 'a', to: 'b' })
+    expect(on.toSnapshot().settledTransfers).toEqual([{ from: 'a', to: 'b' }])
+    expect(on.toSnapshot().history.at(-1)?.type).toBe('settlement_toggled')
+    const off = on.toggleSettlement({ userId: u, from: 'a', to: 'b' })
+    expect(off.toSnapshot().settledTransfers).toEqual([])
+  })
+
+  it('toggleSettlement rejects unknown user', () => {
+    const e = Event.create({ name: 'Trip', creator: User.create({ name: 'John' }) })
+    expect(() => e.toggleSettlement({ userId: '00000000-0000-7000-8000-000000000000', from: 'a', to: 'b' })).toThrow(/not in event/i)
+  })
+
+  it('Event.create starts with empty settledTransfers', () => {
+    const e = Event.create({ name: 'Trip', creator: User.create({ name: 'John' }) })
+    expect(e.toSnapshot().settledTransfers).toEqual([])
+  })
 })

@@ -43,7 +43,8 @@
       "user_profile_updated": "Profile updated",
       "revert": "Reverted",
       "edit_pin_set": "PIN set",
-      "edit_pin_cleared": "PIN cleared"
+      "edit_pin_cleared": "PIN cleared",
+      "settlement_toggled": "Payment settled"
     },
     "diff": {
       "before": "Before",

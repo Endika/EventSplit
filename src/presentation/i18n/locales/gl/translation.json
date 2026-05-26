@@ -43,7 +43,8 @@
       "user_profile_updated": "Perfil actualizado",
       "revert": "Versión revertida",
       "edit_pin_set": "PIN configurado",
-      "edit_pin_cleared": "PIN eliminado"
+      "edit_pin_cleared": "PIN eliminado",
+      "settlement_toggled": "Pago liquidado"
     },
     "diff": {
       "before": "Antes",
