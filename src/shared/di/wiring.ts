@@ -16,6 +16,7 @@ import { EditEventDetailsHandler } from '@/application/handlers/EditEventDetails
 import { RevertHandler } from '@/application/handlers/RevertHandler'
 import { SetEditPinHandler } from '@/application/handlers/SetEditPinHandler'
 import { EditPurchaseHandler } from '@/application/handlers/EditPurchaseHandler'
+import { RemoveParticipantHandler } from '@/application/handlers/RemoveParticipantHandler'
 import type { IEventRepository } from '@/domain/repositories/IEventRepository'
 
 export function buildContainer(): Container {
@@ -41,5 +42,6 @@ export function buildContainer(): Container {
   c.register('revert', () => new RevertHandler(c.resolve('eventRepo')))
   c.register('setEditPin', () => new SetEditPinHandler(c.resolve('eventRepo')))
   c.register('editPurchase', () => new EditPurchaseHandler(c.resolve('eventRepo')))
+  c.register('removeParticipant', () => new RemoveParticipantHandler(c.resolve('eventRepo')))
   return c
 }
