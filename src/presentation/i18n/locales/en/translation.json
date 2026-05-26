@@ -40,6 +40,12 @@
       "after": "After",
       "noChanges": "No diff data",
       "revert": "Revert to this version"
+    },
+    "revert": {
+      "title": "Revert to this version?",
+      "summary": "This will undo {{count}} change(s) after version {{version}}.",
+      "confirm": "Yes, revert",
+      "cancel": "Cancel"
     }
   },
   "allergens": {

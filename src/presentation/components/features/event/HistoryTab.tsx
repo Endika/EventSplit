@@ -5,6 +5,7 @@ import type { HistoryEntry, HistoryType } from '@/domain/entities/Event'
 import { YouLabel } from '@/presentation/components/common/YouLabel'
 import { Button } from '@/presentation/components/common/Button'
 import { DiffViewer } from './DiffViewer'
+import { RevertConfirmModal } from './RevertConfirmModal'
 
 const ICONS: Record<HistoryType, string> = {
   event_created: '🎉',
@@ -42,6 +43,7 @@ export function HistoryTab() {
   const { t, i18n } = useTranslation()
   const { event } = useEventState()
   const [selected, setSelected] = useState<HistoryEntry | null>(null)
+  const [reverting, setReverting] = useState<HistoryEntry | null>(null)
   if (!event) return null
 
   const entries = [...event.history].reverse() // latest first
@@ -81,7 +83,22 @@ export function HistoryTab() {
           </li>
         ))}
       </ul>
-      {selected && <DiffViewer entry={selected} onClose={() => setSelected(null)} />}
+      {selected && (
+        <DiffViewer
+          entry={selected}
+          onClose={() => setSelected(null)}
+          onRevert={(e) => {
+            setSelected(null)
+            setReverting(e)
+          }}
+        />
+      )}
+      {reverting && (
+        <RevertConfirmModal
+          entry={reverting}
+          onClose={() => setReverting(null)}
+        />
+      )}
     </div>
   )
 }

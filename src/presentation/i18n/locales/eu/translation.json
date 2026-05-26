@@ -40,6 +40,12 @@
       "after": "Ondoren",
       "noChanges": "Diff daturik ez",
       "revert": "Bertsio honetara itzuli"
+    },
+    "revert": {
+      "title": "Bertsio honetara itzuli?",
+      "summary": "{{version}} bertsioaren ondorengo {{count}} aldaketa desegingo dira.",
+      "confirm": "Bai, itzuli",
+      "cancel": "Utzi"
     }
   },
   "allergens": {

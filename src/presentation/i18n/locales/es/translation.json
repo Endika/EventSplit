@@ -40,6 +40,12 @@
       "after": "Después",
       "noChanges": "Sin datos de diff",
       "revert": "Revertir a esta versión"
+    },
+    "revert": {
+      "title": "¿Revertir a esta versión?",
+      "summary": "Esto deshará {{count}} cambio(s) después de la versión {{version}}.",
+      "confirm": "Sí, revertir",
+      "cancel": "Cancelar"
     }
   },
   "allergens": {
