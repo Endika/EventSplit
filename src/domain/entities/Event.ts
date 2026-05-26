@@ -22,7 +22,6 @@ export type HistoryType =
   | 'availability_voted'
   | 'location_set'
   | 'notes_added'
-  | 'revert'
   | 'days_set'
   | 'user_profile_updated'
   | 'edit_pin_set'
@@ -37,9 +36,6 @@ export interface HistoryEntry {
   type: HistoryType
   userId: string
   description: string
-  before: unknown
-  after: unknown
-  fullState?: Omit<EventSnapshot, 'history'>
 }
 
 export interface EventLocation {
@@ -115,15 +111,11 @@ export class Event {
           type: 'event_created',
           userId: input.creator.id.value,
           description: `Event created: ${name}`,
-          before: null,
-          after: { name },
         },
       ],
       createdAt: now,
       updatedAt: now,
     }
-    const { history: _omit, ...fullState } = snapshot
-    snapshot.history[0]!.fullState = fullState
     return new Event(id, snapshot)
   }
 
@@ -196,13 +188,9 @@ export class Event {
           type: 'user_joined',
           userId: user.id.value,
           description: `${user.displayName} joined`,
-          before: null,
-          after: { userId: user.id.value, displayName: user.displayName },
         },
       ],
     }
-    const { history: _omit, ...fullState } = nextSnapshot
-    nextSnapshot.history.at(-1)!.fullState = fullState
     return new Event(this.id, nextSnapshot)
   }
 
@@ -267,14 +255,10 @@ export class Event {
           type: 'user_removed',
           userId,
           description: `${removedDisplayName} was removed from the event`,
-          before: { user: removedUser },
-          after: null,
         },
       ],
     }
 
-    const { history: _omit, ...fullState } = nextSnapshot
-    nextSnapshot.history.at(-1)!.fullState = fullState
     return new Event(this.id, nextSnapshot)
   }
 
@@ -306,14 +290,10 @@ export class Event {
           type: 'stage_changed',
           userId: input.userId,
           description: `${userName} moved to ${input.stage} stage`,
-          before: { stage: this.s.stage },
-          after: { stage: input.stage },
         },
       ],
     }
 
-    const { history: _omit, ...fullState } = nextSnapshot
-    nextSnapshot.history.at(-1)!.fullState = fullState
     return new Event(this.id, nextSnapshot)
   }
 
@@ -340,13 +320,9 @@ export class Event {
           type: 'availability_voted',
           userId: input.userId,
           description: `${userName} updated availability details`,
-          before: { availabilityNote: this.s.availabilityNote, chosenDay: this.s.chosenDay },
-          after: { availabilityNote: note, chosenDay: input.chosenDay },
         },
       ],
     }
-    const { history: _omit, ...fullState } = nextSnapshot
-    nextSnapshot.history.at(-1)!.fullState = fullState
     return new Event(this.id, nextSnapshot)
   }
 
@@ -379,13 +355,9 @@ export class Event {
           description: exists
             ? `${userName} marked ${fromName}→${toName} as unpaid`
             : `${userName} marked ${fromName}→${toName} as paid`,
-          before: { settled: exists },
-          after: { settled: !exists },
         },
       ],
     }
-    const { history: _omit, ...fullState } = nextSnapshot
-    nextSnapshot.history.at(-1)!.fullState = fullState
     return new Event(this.id, nextSnapshot)
   }
 
@@ -419,13 +391,9 @@ export class Event {
           type: 'purchase_edited',
           userId: input.userId,
           description: `${userName} renamed group "${input.from}" to "${toValue ?? '—'}"`,
-          before: { group: input.from },
-          after: { group: toValue },
         },
       ],
     }
-    const { history: _omit, ...fullState } = nextSnapshot
-    nextSnapshot.history.at(-1)!.fullState = fullState
     return new Event(this.id, nextSnapshot)
   }
 
@@ -449,13 +417,9 @@ export class Event {
           type: 'purchase_edited',
           userId: input.userId,
           description: `${userName} reordered the shopping groups`,
-          before: { groupOrder: this.s.groupOrder },
-          after: { groupOrder: order },
         },
       ],
     }
-    const { history: _omit, ...fullState } = nextSnapshot
-    nextSnapshot.history.at(-1)!.fullState = fullState
     return new Event(this.id, nextSnapshot)
   }
 

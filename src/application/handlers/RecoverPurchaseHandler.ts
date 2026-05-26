@@ -32,8 +32,6 @@ export class RecoverPurchaseHandler {
           type: 'purchase_recovered',
           userId: parsed.recoveredBy,
           description: `${editorName} recovered ${existing.item}`,
-          before: null,
-          after: { purchaseId: existing.id, item: existing.item },
         },
       )
       try {

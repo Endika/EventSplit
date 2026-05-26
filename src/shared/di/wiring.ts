@@ -19,7 +19,6 @@ import { SetAvailabilityHandler } from '@/application/handlers/SetAvailabilityHa
 import { SetAvailabilityBatchHandler } from '@/application/handlers/SetAvailabilityBatchHandler'
 import { SetAvailabilityMetaHandler } from '@/application/handlers/SetAvailabilityMetaHandler'
 import { EditEventDetailsHandler } from '@/application/handlers/EditEventDetailsHandler'
-import { RevertHandler } from '@/application/handlers/RevertHandler'
 import { SetEditPinHandler } from '@/application/handlers/SetEditPinHandler'
 import { EditPurchaseHandler } from '@/application/handlers/EditPurchaseHandler'
 import { AssignPurchaseHandler } from '@/application/handlers/AssignPurchaseHandler'
@@ -59,7 +58,6 @@ export function buildContainer(): Container {
   c.register('setAvailabilityBatch', () => new SetAvailabilityBatchHandler(c.resolve('eventRepo')))
   c.register('setAvailabilityMeta', () => new SetAvailabilityMetaHandler(c.resolve('eventRepo')))
   c.register('editEventDetails', () => new EditEventDetailsHandler(c.resolve('eventRepo')))
-  c.register('revert', () => new RevertHandler(c.resolve('eventRepo')))
   c.register('setEditPin', () => new SetEditPinHandler(c.resolve('eventRepo')))
   c.register('editPurchase', () => new EditPurchaseHandler(c.resolve('eventRepo')))
   c.register('assignPurchase', () => new AssignPurchaseHandler(c.resolve('eventRepo')))

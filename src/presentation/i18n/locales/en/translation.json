@@ -52,7 +52,6 @@
   "history": {
     "title": "Activity log",
     "empty": "No activity yet.",
-    "view": "View",
     "by": "by {{name}}",
     "types": {
       "event_created": "Event created",
@@ -75,18 +74,6 @@
       "edit_pin_set": "PIN set",
       "edit_pin_cleared": "PIN cleared",
       "settlement_toggled": "Payment settled"
-    },
-    "diff": {
-      "before": "Before",
-      "after": "After",
-      "noChanges": "No diff data",
-      "revert": "Revert to this version"
-    },
-    "revert": {
-      "title": "Revert to this version?",
-      "summary": "This will undo {{count}} change(s) after version {{version}}.",
-      "confirm": "Yes, revert",
-      "cancel": "Cancel"
     }
   },
   "allergens": {

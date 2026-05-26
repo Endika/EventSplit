@@ -51,15 +51,14 @@ describe('EditEventDetailsHandler', () => {
     expect(result.event.name).toBe('Mountain weekend')
   })
 
-  it('does not leak wifi password into history before/after diff', async () => {
+  it('does not leak the wifi password into the history log', async () => {
     const repo = new InMemoryEventRepository()
     const create = await new CreateEventHandler(repo).execute({ name: 'Trip', creatorName: 'John' })
     const result = await new EditEventDetailsHandler(repo).execute({
       eventId: create.event.id,
       wifiPassword: 'secret123',
     })
-    const lastHistory = result.event.history.at(-1)
-    // before/after diffs must not contain the raw password (fullState stores it for revert purposes)
-    expect(JSON.stringify({ before: lastHistory?.before, after: lastHistory?.after })).not.toContain('secret123')
+    // The history log records only who/what/when — never sensitive content.
+    expect(JSON.stringify(result.event.history)).not.toContain('secret123')
   })
 })

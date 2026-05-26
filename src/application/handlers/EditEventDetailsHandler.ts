@@ -55,18 +55,6 @@ export class EditEventDetailsHandler {
           description: nextLocation
             ? `Location set: ${nextLocation.name}`
             : 'Event details updated',
-          before: {
-            location: row.snapshot.location,
-            generalNotes: row.snapshot.generalNotes,
-            wifiPassword: row.snapshot.wifiPassword ? '***' : null,
-            emergencyContact: row.snapshot.emergencyContact,
-          },
-          after: {
-            location: nextLocation,
-            generalNotes: parsed.generalNotes ?? row.snapshot.generalNotes,
-            wifiPassword: parsed.wifiPassword ? '***' : null,
-            emergencyContact: parsed.emergencyContact ?? row.snapshot.emergencyContact,
-          },
         },
       )
 

@@ -54,8 +54,6 @@ export class EditPurchaseHandler {
           type: 'purchase_edited',
           userId: parsed.editedBy,
           description: `${editorName} edited ${existing.item}`,
-          before: existing,
-          after: updated.toSnapshot(),
         },
       )
 

@@ -52,7 +52,6 @@
   "history": {
     "title": "Registre d'activitat",
     "empty": "Encara no hi ha activitat.",
-    "view": "Mostra",
     "by": "per {{name}}",
     "types": {
       "event_created": "Esdeveniment creat",
@@ -75,18 +74,6 @@
       "edit_pin_set": "PIN configurat",
       "edit_pin_cleared": "PIN eliminat",
       "settlement_toggled": "Pagament liquidat"
-    },
-    "diff": {
-      "before": "Abans",
-      "after": "Després",
-      "noChanges": "Sense dades de diff",
-      "revert": "Reverteix a aquesta versió"
-    },
-    "revert": {
-      "title": "Reverteix a aquesta versió?",
-      "summary": "Això desfarà {{count}} canvi(s) després de la versió {{version}}.",
-      "confirm": "Sí, reverteix",
-      "cancel": "Cancel·la"
     }
   },
   "allergens": {

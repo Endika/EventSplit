@@ -40,8 +40,6 @@ export class UpdateProfileHandler {
           type: 'user_profile_updated',
           userId: parsed.userId,
           description: `${updated.displayName} updated their profile`,
-          before: existing,
-          after: updated.toSnapshot(),
         },
       )
 

@@ -57,8 +57,6 @@ export class EditExpenseHandler {
           type: 'expense_edited',
           userId: parsed.editedBy,
           description: `${editorName} edited expense: ${updated.toSnapshot().description}`,
-          before: existing,
-          after: updated.toSnapshot(),
         },
       )
       try {

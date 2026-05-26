@@ -39,8 +39,6 @@ export class AssignPurchaseHandler {
           type: 'purchase_edited',
           userId: parsed.editedBy,
           description: `${editorName} updated ${existing.item} assignment`,
-          before: { assignedTo: existing.assignedTo ?? null, purchased: existing.purchased ?? false },
-          after: { assignedTo: parsed.assignedTo, purchased: parsed.purchased },
         },
       )
 

@@ -10,7 +10,7 @@ describe('HistoryAppender', () => {
     const snap = e.toSnapshot()
     const next = HistoryAppender.append(snap, {
       type: 'expense_added', userId: creator.id.value,
-      description: 'John added EUR 10', before: null, after: { cents: 1000 },
+      description: 'John added EUR 10',
     })
     expect(next.history).toHaveLength(2)
     expect(next.history[1]!.version).toBe(2)

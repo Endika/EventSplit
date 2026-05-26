@@ -29,8 +29,6 @@ export class SetEditPinHandler {
             parsed.pin === null
               ? `${userName} removed the edit PIN`
               : `${userName} set an edit PIN`,
-          before: { hadPin: !!row.snapshot.editPin },
-          after: { hasPin: parsed.pin !== null },
         },
       )
 

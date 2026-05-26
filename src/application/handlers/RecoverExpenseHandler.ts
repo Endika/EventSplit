@@ -32,8 +32,6 @@ export class RecoverExpenseHandler {
           type: 'expense_recovered',
           userId: parsed.recoveredBy,
           description: `${editorName} recovered expense: ${existing.description}`,
-          before: null,
-          after: { expenseId: existing.id, description: existing.description },
         },
       )
       try {

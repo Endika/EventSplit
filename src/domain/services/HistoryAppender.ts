@@ -3,12 +3,10 @@ import type { EventSnapshot, HistoryType } from '@/domain/entities/Event'
 export const HistoryAppender = {
   append(
     snapshot: EventSnapshot,
-    input: { type: HistoryType; userId: string; description: string; before: unknown; after: unknown },
+    input: { type: HistoryType; userId: string; description: string },
   ): EventSnapshot {
     const nextVersion = (snapshot.history.at(-1)?.version ?? 0) + 1
     const now = new Date().toISOString()
-    const { history: _ignored, ...rest } = snapshot
-    const fullState = rest
     return {
       ...snapshot,
       updatedAt: now,
@@ -21,9 +19,6 @@ export const HistoryAppender = {
           type: input.type,
           userId: input.userId,
           description: input.description,
-          before: input.before,
-          after: input.after,
-          fullState,
         },
       ],
     }
