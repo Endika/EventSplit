@@ -82,6 +82,7 @@
   },
   "profile": {
     "title": "Your profile",
+    "name": "Name",
     "alias": "Nickname",
     "email": "Email",
     "phone": "Phone",

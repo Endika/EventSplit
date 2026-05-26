@@ -98,6 +98,20 @@ describe('User', () => {
     expect(u.withProfile({ kind: 'child' }).kind).toBe('child')
   })
 
+  it('withProfile updates the name', () => {
+    const u = User.create({ name: 'John' })
+    const next = u.withProfile({ name: 'Jonathan' })
+    expect(next.name).toBe('Jonathan')
+  })
+  it('withProfile rejects an invalid name', () => {
+    const u = User.create({ name: 'John' })
+    expect(() => u.withProfile({ name: 'A' })).toThrow(/name/)
+  })
+  it('withProfile keeps the name when not provided', () => {
+    const u = User.create({ name: 'John', alias: 'cousin' })
+    expect(u.withProfile({ email: 'x@y.com' }).name).toBe('John')
+  })
+
   it('restore defaults missing kind to adult', () => {
     const legacy = {
       id: '018f4a8e-0000-7000-8000-000000000001',

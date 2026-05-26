@@ -20,6 +20,7 @@ export interface UserSnapshot {
 }
 
 export interface ProfileUpdate {
+  name?: string
   alias?: string | null
   email?: string | null
   phone?: string | null
@@ -71,6 +72,9 @@ export class User {
   }
 
   withProfile(update: ProfileUpdate): User {
+    const name = update.name === undefined ? this.name : update.name.trim()
+    if (name.length < 2 || name.length > 50) throw new Error('User: name must be 2..50 chars')
+
     const aliasRaw = update.alias === undefined ? this.alias : update.alias?.trim() ?? null
     if (aliasRaw && aliasRaw.length > 50) throw new Error('User: alias must be ≤ 50 chars')
     const alias = aliasRaw === '' ? null : aliasRaw
@@ -95,7 +99,7 @@ export class User {
     const kind = update.kind === undefined ? this.kind : update.kind
     if (!VALID_KINDS.includes(kind)) throw new Error(`User: invalid kind "${kind}"`)
 
-    return new User(this.id, this.name, alias, this.joinedAt, email, phone, allergies, dietary, notes, kind)
+    return new User(this.id, name, alias, this.joinedAt, email, phone, allergies, dietary, notes, kind)
   }
 
   get displayName(): string {

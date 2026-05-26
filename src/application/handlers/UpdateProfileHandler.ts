@@ -19,6 +19,7 @@ export class UpdateProfileHandler {
       if (!existing) throw new Error(`User ${parsed.userId} not in event`)
 
       const updated = User.restore(existing).withProfile({
+        name: parsed.name,
         alias: parsed.alias,
         email: parsed.email,
         phone: parsed.phone,

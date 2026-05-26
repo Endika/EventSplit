@@ -4,6 +4,7 @@ import { COMMON_ALLERGENS } from '@/domain/value-objects/Allergen'
 export const UpdateProfileSchema = z.object({
   eventId: z.string().regex(/^[a-z0-9]{7}$/),
   userId: z.string().uuid(),
+  name: z.string().trim().min(2).max(50).optional(),
   alias: z.string().trim().max(50).nullable().optional(),
   email: z.string().trim().max(100).nullable().optional(),
   phone: z.string().trim().max(30).nullable().optional(),

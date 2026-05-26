@@ -30,6 +30,7 @@ export function ProfileEditor({
   const targetUserId = userId ?? me?.id
   const myRow = event && targetUserId ? event.users.find((u) => u.id === targetUserId) : undefined
 
+  const [name, setName] = useState(myRow?.name ?? '')
   const [alias, setAlias] = useState(myRow?.alias ?? '')
   const [email, setEmail] = useState(myRow?.email ?? '')
   const [phone, setPhone] = useState(myRow?.phone ?? '')
@@ -74,6 +75,7 @@ export function ProfileEditor({
         const result = await handler.execute({
           eventId: event.id,
           userId: targetUserId,
+          name: name.trim(),
           alias: alias.trim() || null,
           email: email.trim() || null,
           phone: phone.trim() || null,
@@ -146,6 +148,13 @@ export function ProfileEditor({
   return (
     <Modal open title={isSelf ? t('profile.title') : t('participants.editTitle')} dismissable={!busy} onClose={onClose}>
       <form onSubmit={save} className="space-y-3">
+        <Input
+          placeholder={t('profile.name')}
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+          minLength={2}
+          maxLength={50}
+        />
         <Input
           placeholder={t('profile.alias')}
           value={alias}

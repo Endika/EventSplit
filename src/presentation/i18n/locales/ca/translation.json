@@ -82,6 +82,7 @@
   },
   "profile": {
     "title": "El teu perfil",
+    "name": "Nom",
     "alias": "Sobrenom",
     "email": "Correu",
     "phone": "Telèfon",

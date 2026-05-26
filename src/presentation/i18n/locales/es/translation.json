@@ -82,6 +82,7 @@
   },
   "profile": {
     "title": "Tu perfil",
+    "name": "Nombre",
     "alias": "Apodo",
     "email": "Email",
     "phone": "Teléfono",
