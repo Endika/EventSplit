@@ -45,4 +45,27 @@ describe('Event', () => {
     const e = Event.create({ name: 'Trip', creator })
     expect(() => e.addUser(creator)).toThrow(/already/)
   })
+
+  it('restore backfills missing fields from legacy snapshots', () => {
+    // Simulate an event JSON from before Slice 2 (no days/availability/location/editPin)
+    const legacy = {
+      id: 'abc123x',
+      name: 'Old trip',
+      createdBy: 'user-old',
+      createdAt: '2026-01-01T00:00:00Z',
+      updatedAt: '2026-01-01T00:00:00Z',
+      users: [{ id: 'user-old', name: 'John', alias: null, joinedAt: '2026-01-01T00:00:00Z' }],
+      purchases: [],
+      expenses: [],
+      history: [],
+    } as never
+    const e = Event.restore(legacy)
+    const snap = e.toSnapshot()
+    expect(snap.days).toEqual([])
+    expect(snap.availability).toEqual({})
+    expect(snap.location).toBeNull()
+    expect(snap.editPin).toBeNull()
+    expect(snap.users[0]!.allergies).toEqual([])
+    expect(snap.users[0]!.email).toBeNull()
+  })
 })

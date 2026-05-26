@@ -1,4 +1,5 @@
 import type { SupabaseClient } from '@supabase/supabase-js'
+import { Event } from '@/domain/entities/Event'
 import type { EventSnapshot } from '@/domain/entities/Event'
 import {
   type IEventRepository,
@@ -17,7 +18,9 @@ export class SupabaseEventRepository implements IEventRepository {
       .maybeSingle<{ data: EventSnapshot; version: number; active: boolean }>()
     if (error) throw error
     if (!data || !data.active) return null
-    return { snapshot: data.data, version: data.version }
+    // Backfill missing fields from legacy snapshots
+    const restored = Event.restore(data.data).toSnapshot()
+    return { snapshot: restored, version: data.version }
   }
 
   async create(snapshot: EventSnapshot): Promise<SaveResult> {

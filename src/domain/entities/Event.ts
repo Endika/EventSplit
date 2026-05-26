@@ -109,7 +109,32 @@ export class Event {
   }
 
   static restore(s: EventSnapshot): Event {
-    return new Event(EventId.of(s.id), s)
+    // Backfill optional fields that may be missing from older snapshots
+    // (events created before Slice 2 / Slice 3 added these fields).
+    const backfilled: EventSnapshot = {
+      ...s,
+      description: s.description ?? null,
+      location: s.location ?? null,
+      generalNotes: s.generalNotes ?? null,
+      wifiPassword: s.wifiPassword ?? null,
+      emergencyContact: s.emergencyContact ?? null,
+      days: s.days ?? [],
+      availability: s.availability ?? {},
+      purchases: s.purchases ?? [],
+      expenses: s.expenses ?? [],
+      history: s.history ?? [],
+      editPin: s.editPin ?? null,
+      users: (s.users ?? []).map((u) => ({
+        ...u,
+        alias: u.alias ?? null,
+        email: u.email ?? null,
+        phone: u.phone ?? null,
+        allergies: u.allergies ?? [],
+        dietary: u.dietary ?? null,
+        notes: u.notes ?? null,
+      })),
+    }
+    return new Event(EventId.of(s.id), backfilled)
   }
 
   addUser(user: User): Event {
