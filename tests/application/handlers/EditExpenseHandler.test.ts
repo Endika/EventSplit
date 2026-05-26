@@ -1,6 +1,7 @@
 import { describe, it, expect } from 'vitest'
 import { CreateEventHandler } from '@/application/handlers/CreateEventHandler'
 import { AddExpenseHandler } from '@/application/handlers/AddExpenseHandler'
+import { AddPurchaseHandler } from '@/application/handlers/AddPurchaseHandler'
 import { EditExpenseHandler } from '@/application/handlers/EditExpenseHandler'
 import { InMemoryEventRepository } from '@/infrastructure/persistence/InMemoryEventRepository'
 
@@ -73,5 +74,29 @@ describe('EditExpenseHandler', () => {
         description: 'Bread',
       }),
     ).rejects.toThrow(/not in event/i)
+  })
+
+  it('marks and unmarks linked purchases when editing an expense', async () => {
+    const repo = new InMemoryEventRepository()
+    const create = await new CreateEventHandler(repo).execute({ name: 'Trip', creatorName: 'John' })
+    const p1 = await new AddPurchaseHandler(repo).execute({
+      eventId: create.event.id, createdBy: create.creator.id,
+      category: 'drinks', item: 'Coke', quantity: 1, unit: 'units',
+      dailyConsumption: 1, consumers: [{ userId: create.creator.id, multiplier: 1 }], days: 1,
+    })
+    const purchaseId = p1.event.purchases[0]!.id
+    const exp = await new AddExpenseHandler(repo).execute({
+      eventId: create.event.id, paidBy: create.creator.id, amountEuros: 10, description: 'Shop',
+      markPurchasedIds: [purchaseId],
+    })
+    expect(exp.event.purchases[0]!.purchased).toBe(true)
+    const expenseId = exp.event.expenses[0]!.id
+    // Edit the expense and UNMARK the purchase
+    const edited = await new EditExpenseHandler(repo).execute({
+      eventId: create.event.id, expenseId, editedBy: create.creator.id,
+      paidBy: create.creator.id, amountEuros: 10, description: 'Shop',
+      unmarkPurchasedIds: [purchaseId],
+    })
+    expect(edited.event.purchases[0]!.purchased).toBe(false)
   })
 })
