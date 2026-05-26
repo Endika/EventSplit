@@ -141,7 +141,7 @@
     "emergency": "Emergency contact"
   },
   "purchases": {
-    "add": "Add purchase",
+    "add": "Add to list",
     "edit": "Edit",
     "delete": "Delete",
     "deleteTitle": "Delete purchase",
