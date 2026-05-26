@@ -54,6 +54,9 @@ const ExpenseSchema = z.object({
   date: z.string(),
   createdAt: z.string(),
   splitAmong: z.array(z.string()).default([]),
+  deleted: z.boolean().default(false),
+  deletedBy: z.string().nullable().default(null),
+  deletedAt: z.string().nullable().default(null),
 })
 
 const HistoryEntrySchema = z.object({
