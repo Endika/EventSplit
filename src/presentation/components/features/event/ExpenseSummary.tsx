@@ -1,17 +1,44 @@
 import { useTranslation } from 'react-i18next'
+import { useContainer } from '@/presentation/context/ContainerProvider'
 import { useEventState } from '@/presentation/context/EventContext'
 import { useCurrentUser } from '@/presentation/context/UserContext'
+import { useWriteGuard } from '@/presentation/context/WriteGuardContext'
 import { ExpenseSplitter } from '@/domain/services/ExpenseSplitter'
 import { Money } from '@/domain/value-objects/Money'
 import { YouLabel } from '@/presentation/components/common/YouLabel'
+import type { ToggleSettlementHandler } from '@/application/handlers/ToggleSettlementHandler'
+import type { LocalStorageCache } from '@/infrastructure/persistence/LocalStorageCache'
+import { reportError } from '@/shared/utils/reportError'
 
 const fmt = (cents: number): string => (cents / 100).toFixed(2)
 
 export function ExpenseSummary() {
   const { t } = useTranslation()
-  const { event } = useEventState()
+  const { event, setEvent } = useEventState()
+  const container = useContainer()
   const me = useCurrentUser()
+  const { guardedExecute } = useWriteGuard()
   if (!event) return null
+
+  function isSettled(from: string, to: string): boolean {
+    return event!.settledTransfers.some((s) => s.from === from && s.to === to)
+  }
+
+  function toggleSettled(from: string, to: string) {
+    if (!event || !me) return
+    guardedExecute(async () => {
+      try {
+        const handler = container.resolve<ToggleSettlementHandler>('toggleSettlement')
+        const result = await handler.execute({ eventId: event.id, userId: me.id, from, to })
+        container
+          .resolve<LocalStorageCache>('cache')
+          .set(event.id, { snapshot: result.event, version: result.version })
+        setEvent(result.event, result.version)
+      } catch (err) {
+        reportError('ExpenseSummary', err)
+      }
+    })
+  }
 
   const result = ExpenseSplitter.compute({
     participantIds: event.users.map((u) => u.id),
@@ -69,15 +96,32 @@ export function ExpenseSummary() {
             {t('expenses.summary.transfers')}
           </p>
           <ul className="space-y-1 text-sm">
-            {result.transfers.map((tr, i) => (
-              <li key={i} className="text-slate-200">
-                {t('expenses.summary.transferLine', {
-                  from: nameOf(tr.from),
-                  euros: fmt(tr.cents),
-                  to: nameOf(tr.to),
-                })}
-              </li>
-            ))}
+            {result.transfers.map((tr, i) => {
+              const settled = isSettled(tr.from, tr.to)
+              return (
+                <li key={i} className="flex items-center gap-2 text-sm">
+                  <input
+                    type="checkbox"
+                    checked={settled}
+                    onChange={() => toggleSettled(tr.from, tr.to)}
+                    className="size-4 rounded border-slate-600 bg-slate-800 accent-teal-500"
+                    aria-label={t('expenses.summary.markPaid')}
+                  />
+                  <span className={settled ? 'text-slate-500 line-through' : 'text-slate-200'}>
+                    {t('expenses.summary.transferLine', {
+                      from: nameOf(tr.from),
+                      euros: fmt(tr.cents),
+                      to: nameOf(tr.to),
+                    })}
+                  </span>
+                  {settled && (
+                    <span className="rounded-full bg-teal-900/50 px-2 py-0.5 text-xs text-teal-300">
+                      {t('expenses.summary.paid')}
+                    </span>
+                  )}
+                </li>
+              )
+            })}
           </ul>
         </div>
       )}

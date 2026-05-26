@@ -233,7 +233,9 @@
       "spent": "Gastatua",
       "balance": "Balantzea",
       "transfers": "Likidazioa",
-      "transferLine": "{{from}}-(e)k €{{euros}} ordaintzen dizkio {{to}}-(r)i"
+      "transferLine": "{{from}}-(e)k €{{euros}} ordaintzen dizkio {{to}}-(r)i",
+      "markPaid": "Markatu ordainduta",
+      "paid": "Ordainduta"
     }
   },
   "participants": {

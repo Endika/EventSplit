@@ -233,7 +233,9 @@
       "spent": "Gastat",
       "balance": "Balanç",
       "transfers": "Liquidació",
-      "transferLine": "{{from}} paga €{{euros}} a {{to}}"
+      "transferLine": "{{from}} paga €{{euros}} a {{to}}",
+      "markPaid": "Marcar com a pagat",
+      "paid": "Pagat"
     }
   },
   "participants": {

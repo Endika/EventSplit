@@ -233,7 +233,9 @@
       "spent": "Spent",
       "balance": "Balance",
       "transfers": "Settlement",
-      "transferLine": "{{from}} pays €{{euros}} to {{to}}"
+      "transferLine": "{{from}} pays €{{euros}} to {{to}}",
+      "markPaid": "Mark as paid",
+      "paid": "Paid"
     }
   },
   "participants": {
