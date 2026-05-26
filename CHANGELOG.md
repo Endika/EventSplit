@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.32.0](https://github.com/Endika/EventSplit/compare/v1.31.0...v1.32.0) (2026-05-26)
+
+
+### Features
+
+* **ui:** add lock-device button and pin explanation ([fa95bdc](https://github.com/Endika/EventSplit/commit/fa95bdc381d4af93980f3cbd0607d7deac4cc798))
+* **ui:** edit event name from details tab ([07c5d25](https://github.com/Endika/EventSplit/commit/07c5d25cd4377845d4eda88f99343a01dc600d34))
+
 ## [1.31.0](https://github.com/Endika/EventSplit/compare/v1.30.0...v1.31.0) (2026-05-26)
 
 
