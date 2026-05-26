@@ -1,7 +1,5 @@
-import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { useContainer } from '@/presentation/context/ContainerProvider'
-import type { LocalStorageCache, CachedEventSummary } from '@/infrastructure/persistence/LocalStorageCache'
+import type { CachedEventSummary } from '@/infrastructure/persistence/LocalStorageCache'
 
 function formatRelative(iso: string, locale: string): string {
   const then = new Date(iso).getTime()
@@ -18,12 +16,14 @@ function formatRelative(iso: string, locale: string): string {
   }
 }
 
-export function RecentEventsList() {
+export function RecentEventsList({
+  items,
+  onForget,
+}: {
+  items: CachedEventSummary[]
+  onForget: (id: string) => void
+}) {
   const { t, i18n } = useTranslation()
-  const container = useContainer()
-  const cache = container.resolve<LocalStorageCache>('cache')
-  const [items, setItems] = useState<CachedEventSummary[]>(() => cache.listAll())
-
   if (items.length === 0) return null
 
   function openEvent(id: string) {
@@ -31,13 +31,8 @@ export function RecentEventsList() {
     window.dispatchEvent(new PopStateEvent('popstate'))
   }
 
-  function forget(id: string) {
-    cache.remove(id)
-    setItems(cache.listAll())
-  }
-
   return (
-    <section className="mb-6 space-y-2">
+    <section className="space-y-2">
       <h2 className="text-xs font-semibold uppercase tracking-wide text-slate-500">
         {t('home.yourEvents')}
       </h2>
@@ -61,7 +56,7 @@ export function RecentEventsList() {
             </button>
             <button
               type="button"
-              onClick={() => forget(e.id)}
+              onClick={() => onForget(e.id)}
               className="px-3 py-3 text-sm text-slate-500 hover:text-rose-400"
               aria-label={t('home.forget')}
               title={t('home.forget')}

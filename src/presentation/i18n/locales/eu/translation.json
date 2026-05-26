@@ -15,7 +15,8 @@
     "lastActivity": "Azken jarduera: {{when}}",
     "participants": "{{count}} parte-hartzaile",
     "participants_other": "{{count}} parte-hartzaile",
-    "forget": "Gailu honetatik kendu"
+    "forget": "Gailu honetatik kendu",
+    "newEvent": "Ekitaldi berria"
   },
   "tabs": { "participants": "Lagunak", "availability": "Noiz", "location": "Non", "purchases": "Erosketak", "expenses": "Gastuak", "history": "Historiala", "openMenu": "Menua ireki", "closeMenu": "Menua itxi", "menu": "Menua", "home": "Hasiera" },
   "history": {

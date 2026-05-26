@@ -15,7 +15,8 @@
     "lastActivity": "Last activity {{when}}",
     "participants": "{{count}} participant",
     "participants_other": "{{count}} participants",
-    "forget": "Remove from this device"
+    "forget": "Remove from this device",
+    "newEvent": "New event"
   },
   "tabs": { "participants": "People", "availability": "When", "location": "Where", "purchases": "Shopping", "expenses": "Expenses", "history": "History", "openMenu": "Open menu", "closeMenu": "Close menu", "menu": "Menu", "home": "Home" },
   "history": {
