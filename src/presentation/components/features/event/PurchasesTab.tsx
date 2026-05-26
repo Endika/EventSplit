@@ -213,25 +213,25 @@ export function PurchasesTab() {
               <button
                 type="button"
                 onClick={() => toggleCollapse(group)}
-                className="flex flex-1 items-center gap-1 text-left text-xs font-semibold uppercase tracking-wide text-violet-300"
+                className="flex flex-1 items-center gap-1.5 rounded-lg py-2 text-left text-xs font-semibold uppercase tracking-wide text-violet-300 hover:bg-slate-800/50"
                 aria-label={t('purchases.toggleGroup')}
               >
-                <span className="text-slate-500">{collapsed.has(group) ? '▸' : '▾'}</span>
+                <span className="text-sm text-slate-500">{collapsed.has(group) ? '▸' : '▾'}</span>
                 {group} <span className="text-slate-500">({items.length})</span>
               </button>
-              <button type="button" onClick={() => moveGroup(group, -1)} className="text-xs text-slate-500 hover:text-slate-300" aria-label={t('purchases.moveUp')}>↑</button>
-              <button type="button" onClick={() => moveGroup(group, 1)} className="text-xs text-slate-500 hover:text-slate-300" aria-label={t('purchases.moveDown')}>↓</button>
-              <button type="button" onClick={() => { setRenamingGroup(group); setGroupNewName(group) }} className="text-xs text-slate-500 hover:text-slate-200" aria-label={t('purchases.renameGroup')}>✎</button>
+              <button type="button" onClick={() => moveGroup(group, -1)} className="flex size-9 items-center justify-center rounded-lg text-base text-slate-400 hover:bg-slate-800 hover:text-slate-200" aria-label={t('purchases.moveUp')}>↑</button>
+              <button type="button" onClick={() => moveGroup(group, 1)} className="flex size-9 items-center justify-center rounded-lg text-base text-slate-400 hover:bg-slate-800 hover:text-slate-200" aria-label={t('purchases.moveDown')}>↓</button>
+              <button type="button" onClick={() => { setRenamingGroup(group); setGroupNewName(group) }} className="flex size-9 items-center justify-center rounded-lg text-base text-slate-400 hover:bg-slate-800 hover:text-slate-200" aria-label={t('purchases.renameGroup')}>✎</button>
             </div>
           )}
           {group === '' && grouped.length > 1 && (
             <button
               type="button"
               onClick={() => toggleCollapse(group)}
-              className="flex w-full items-center gap-1 px-1 text-left text-xs font-semibold uppercase tracking-wide text-violet-300"
+              className="flex w-full items-center gap-1.5 rounded-lg px-1 py-2 text-left text-xs font-semibold uppercase tracking-wide text-violet-300 hover:bg-slate-800/50"
               aria-label={t('purchases.toggleGroup')}
             >
-              <span className="text-slate-500">{collapsed.has(group) ? '▸' : '▾'}</span>
+              <span className="text-sm text-slate-500">{collapsed.has(group) ? '▸' : '▾'}</span>
               {t('purchases.noGroup')} <span className="text-slate-500">({items.length})</span>
             </button>
           )}
