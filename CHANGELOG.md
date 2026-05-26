@@ -1,5 +1,14 @@
 # Changelog
 
+## [1.35.0](https://github.com/Endika/EventSplit/compare/v1.34.0...v1.35.0) (2026-05-26)
+
+
+### Features
+
+* **app:** add toggle-settlement handler ([6b9c129](https://github.com/Endika/EventSplit/commit/6b9c12908031fc757a6b10be94ac159edb76840f))
+* **domain:** track settled transfers on the event ([af74200](https://github.com/Endika/EventSplit/commit/af74200f3789746bc76c83a9f2b495726959c125))
+* **ui:** mark settlement transfers as paid ([2416c2e](https://github.com/Endika/EventSplit/commit/2416c2e4234cb7e64ca7f17005bc46c38b85e5a4))
+
 ## [1.34.0](https://github.com/Endika/EventSplit/compare/v1.33.0...v1.34.0) (2026-05-26)
 
 
