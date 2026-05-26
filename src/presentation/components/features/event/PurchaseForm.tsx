@@ -233,19 +233,18 @@ export function PurchaseForm({
           </label>
           <label className="block text-sm text-slate-300">
             {t('purchases.form.unit')}
-            <input
-              className="mt-1 block w-full rounded-lg border border-slate-700 bg-slate-900 px-3 py-2 text-sm text-slate-100 placeholder-slate-500 focus:border-violet-500 focus:outline-none focus:ring-1 focus:ring-violet-500"
-              list="unit-suggestions"
+            <select
+              className="mt-1 block w-full rounded-lg border border-slate-700 bg-slate-900 p-2 text-sm text-slate-100"
               value={unit}
               onChange={(e) => setUnit(e.target.value)}
-              maxLength={30}
-              placeholder={t('purchases.form.unitPlaceholder')}
-            />
-            <datalist id="unit-suggestions">
+            >
+              {!UNITS.includes(unit as (typeof UNITS)[number]) && unit && (
+                <option value={unit}>{unit}</option>
+              )}
               {UNITS.map((u) => (
-                <option key={u} value={t(`purchases.form.units.${u}`)} />
+                <option key={u} value={u}>{t(`purchases.form.units.${u}`)}</option>
               ))}
-            </datalist>
+            </select>
           </label>
         </div>
         <p className="-mt-1 text-xs text-slate-500">{t('purchases.form.dailyConsumptionHelp')}</p>
@@ -328,7 +327,9 @@ export function PurchaseForm({
             <div className="rounded-lg bg-violet-900/30 px-3 py-2 text-sm text-violet-100">
               {t('purchases.form.totalPreview', {
                 n: Math.round(total * 100) / 100,
-                unit,
+                unit: UNITS.includes(unit as (typeof UNITS)[number])
+                  ? t(`purchases.form.units.${unit}`)
+                  : unit,
               })}
             </div>
           )
