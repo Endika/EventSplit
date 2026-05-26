@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.17.0](https://github.com/Endika/EventSplit/compare/v1.16.0...v1.17.0) (2026-05-26)
+
+
+### Features
+
+* **ui:** clearer purchase form with labels and live total ([09bb5b1](https://github.com/Endika/EventSplit/commit/09bb5b167c16b28c743af5d33da9eb2f72a95c0a))
+* **ui:** default expense payer to current user ([b2ddf9a](https://github.com/Endika/EventSplit/commit/b2ddf9a18a70d9a42e2fb48f8b213c63db94473a))
+
 ## [1.16.0](https://github.com/Endika/EventSplit/compare/v1.15.0...v1.16.0) (2026-05-26)
 
 
