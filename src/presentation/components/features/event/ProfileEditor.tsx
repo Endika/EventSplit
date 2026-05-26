@@ -6,6 +6,7 @@ import { useCurrentUser, useSetCurrentUser } from '@/presentation/context/UserCo
 import { COMMON_ALLERGENS, type AllergenName, type AllergenSeverity, type AllergenSnapshot } from '@/domain/value-objects/Allergen'
 import type { UpdateProfileHandler } from '@/application/handlers/UpdateProfileHandler'
 import type { LocalStorageCache } from '@/infrastructure/persistence/LocalStorageCache'
+import type { UserKind } from '@/domain/entities/User'
 import { useWriteGuard } from '@/presentation/context/WriteGuardContext'
 import { Modal } from '@/presentation/components/common/Modal'
 import { Button } from '@/presentation/components/common/Button'
@@ -26,6 +27,7 @@ export function ProfileEditor({ onClose }: { onClose: () => void }) {
   const [dietary, setDietary] = useState(myRow?.dietary ?? '')
   const [notes, setNotes] = useState(myRow?.notes ?? '')
   const [allergies, setAllergies] = useState<AllergenSnapshot[]>(myRow?.allergies ?? [])
+  const [kind, setKind] = useState<UserKind>(myRow?.kind ?? 'adult')
 
   const [newAllergen, setNewAllergen] = useState<AllergenName>('gluten')
   const [newSeverity, setNewSeverity] = useState<AllergenSeverity>('mild')
@@ -61,6 +63,7 @@ export function ProfileEditor({ onClose }: { onClose: () => void }) {
           phone: phone.trim() || null,
           dietary: dietary.trim() || null,
           notes: notes.trim() || null,
+          kind,
           allergies,
         })
         container
@@ -100,6 +103,18 @@ export function ProfileEditor({ onClose }: { onClose: () => void }) {
           onChange={(e) => setAlias(e.target.value)}
           maxLength={50}
         />
+        <label className="block text-sm text-slate-300">
+          {t('participants.kind')}
+          <select
+            className="mt-1 block w-full rounded-lg border border-slate-700 bg-slate-900 p-2 text-sm text-slate-100"
+            value={kind}
+            onChange={(e) => setKind(e.target.value as UserKind)}
+            disabled={busy}
+          >
+            <option value="adult">{t('participants.adult')}</option>
+            <option value="child">{t('participants.child')}</option>
+          </select>
+        </label>
         <Input
           type="email"
           placeholder={t('profile.email')}

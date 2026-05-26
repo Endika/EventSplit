@@ -171,6 +171,16 @@
       "transferLine": "{{from}} pays €{{euros}} to {{to}}"
     }
   },
+  "participants": {
+    "add": "Add participant",
+    "addTitle": "Add someone to this event",
+    "name": "Name",
+    "alias": "Nickname (optional)",
+    "kind": "Type",
+    "adult": "Adult",
+    "child": "Child",
+    "submit": "Add"
+  },
   "pin": {
     "createField": "Edit PIN (optional, 4-6 digits)",
     "createHint": "If set, edits require this PIN once per device. Protects against URL leaks.",
