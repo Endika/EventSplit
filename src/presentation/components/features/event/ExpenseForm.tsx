@@ -8,6 +8,7 @@ import { Button } from '@/presentation/components/common/Button'
 import { Input } from '@/presentation/components/common/Input'
 import { useOnlineStatus } from '@/presentation/context/SyncContext'
 import { useWriteGuard } from '@/presentation/context/WriteGuardContext'
+import { reportError } from '@/shared/utils/reportError'
 
 export function ExpenseForm({ onDone }: { onDone: () => void }) {
   const { t } = useTranslation()
@@ -66,7 +67,7 @@ export function ExpenseForm({ onDone }: { onDone: () => void }) {
         setEvent(result.event, result.version)
         onDone()
       } catch (err) {
-        console.error('[ExpenseForm]', err)
+        reportError('ExpenseForm', err)
         setError(err instanceof Error ? err.message : 'Error')
       } finally {
         setBusy(false)

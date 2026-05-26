@@ -14,6 +14,7 @@ import { useOnlineStatus } from '@/presentation/context/SyncContext'
 import { useWriteGuard } from '@/presentation/context/WriteGuardContext'
 import { AllergyChecker, type AllergyMatch } from '@/domain/services/AllergyChecker'
 import { AllergyAlertModal } from './AllergyAlertModal'
+import { reportError } from '@/shared/utils/reportError'
 
 const CATEGORIES = ['food', 'drinks', 'snacks', 'other'] as const
 const UNITS = ['units', 'bottles', 'cans', 'kg', 'liters'] as const
@@ -124,13 +125,13 @@ export function PurchaseForm({
         setPendingMatches(null)
         onDone()
       } catch (err) {
-        console.error('[PurchaseForm]', err)
+        reportError('PurchaseForm', err)
         setError(err instanceof Error ? err.message : 'Error')
       } finally {
         setBusy(false)
       }
     }, (err) => {
-      console.error('[PurchaseForm]', err)
+      reportError('PurchaseForm', err)
       setError(err instanceof Error ? err.message : 'Error')
       setBusy(false)
     })

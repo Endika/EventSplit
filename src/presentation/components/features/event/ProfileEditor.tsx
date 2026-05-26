@@ -9,6 +9,7 @@ import type { RemoveParticipantHandler } from '@/application/handlers/RemovePart
 import type { LocalStorageCache } from '@/infrastructure/persistence/LocalStorageCache'
 import type { UserKind } from '@/domain/entities/User'
 import { useWriteGuard } from '@/presentation/context/WriteGuardContext'
+import { reportError } from '@/shared/utils/reportError'
 import { Modal } from '@/presentation/components/common/Modal'
 import { Button } from '@/presentation/components/common/Button'
 import { Input } from '@/presentation/components/common/Input'
@@ -102,7 +103,7 @@ export function ProfileEditor({
         }
         onClose()
       } catch (err) {
-        console.error('[ProfileEditor]', err)
+        reportError('ProfileEditor', err)
         setError(err instanceof Error ? err.message : 'Error')
       } finally {
         setBusy(false)
@@ -132,7 +133,7 @@ export function ProfileEditor({
         }
         onClose()
       } catch (err) {
-        console.error('[RemoveParticipant]', err)
+        reportError('RemoveParticipant', err)
         setRemoveError(err instanceof Error ? err.message : 'Error')
       } finally {
         setBusy(false)

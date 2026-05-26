@@ -6,6 +6,7 @@ import type { EditEventDetailsHandler } from '@/application/handlers/EditEventDe
 import type { LocalStorageCache } from '@/infrastructure/persistence/LocalStorageCache'
 import { useWriteGuard } from '@/presentation/context/WriteGuardContext'
 import { Button } from '@/presentation/components/common/Button'
+import { reportError } from '@/shared/utils/reportError'
 import { Input } from '@/presentation/components/common/Input'
 
 export function LocationTab() {
@@ -73,7 +74,7 @@ export function LocationTab() {
         setEvent(result.event, result.version)
         setEditing(false)
       } catch (err) {
-        console.error('[LocationTab]', err)
+        reportError('LocationTab', err)
         setError(err instanceof Error ? err.message : 'Error')
       } finally {
         setBusy(false)

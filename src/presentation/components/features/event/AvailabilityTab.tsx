@@ -8,6 +8,7 @@ import type { SetAvailabilityHandler } from '@/application/handlers/SetAvailabil
 import type { LocalStorageCache } from '@/infrastructure/persistence/LocalStorageCache'
 import { useWriteGuard } from '@/presentation/context/WriteGuardContext'
 import { Button } from '@/presentation/components/common/Button'
+import { reportError } from '@/shared/utils/reportError'
 import { Input } from '@/presentation/components/common/Input'
 import { YouLabel } from '@/presentation/components/common/YouLabel'
 
@@ -73,7 +74,7 @@ export function AvailabilityTab() {
         setEvent(result.event, result.version)
         setNewDay('')
       } catch (err) {
-        console.error('[AvailabilityTab]', err)
+        reportError('AvailabilityTab', err)
         setError(err instanceof Error ? err.message : 'Error')
       } finally {
         setBusy(false)
@@ -98,7 +99,7 @@ export function AvailabilityTab() {
           .set(event.id, { snapshot: result.event, version: result.version })
         setEvent(result.event, result.version)
       } catch (err) {
-        console.error('[AvailabilityTab]', err)
+        reportError('AvailabilityTab', err)
         setError(err instanceof Error ? err.message : 'Error')
       } finally {
         setBusy(false)

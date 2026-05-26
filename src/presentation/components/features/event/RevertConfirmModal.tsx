@@ -8,6 +8,7 @@ import type { RevertHandler } from '@/application/handlers/RevertHandler'
 import type { LocalStorageCache } from '@/infrastructure/persistence/LocalStorageCache'
 import { Modal } from '@/presentation/components/common/Modal'
 import { Button } from '@/presentation/components/common/Button'
+import { reportError } from '@/shared/utils/reportError'
 
 export function RevertConfirmModal({
   entry,
@@ -45,6 +46,7 @@ export function RevertConfirmModal({
       setEvent(result.event, result.version)
       onClose()
     } catch (err) {
+      reportError('Revert', err)
       setError(err instanceof Error ? err.message : 'Error')
     } finally {
       setBusy(false)

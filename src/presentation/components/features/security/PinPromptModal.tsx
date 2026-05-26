@@ -6,6 +6,7 @@ import { EditPin } from '@/domain/value-objects/EditPin'
 import { Modal } from '@/presentation/components/common/Modal'
 import { Button } from '@/presentation/components/common/Button'
 import { Input } from '@/presentation/components/common/Input'
+import { reportError } from '@/shared/utils/reportError'
 
 export function PinPromptModal() {
   const { t } = useTranslation()
@@ -40,7 +41,7 @@ export function PinPromptModal() {
           await result
         }
       } catch (err) {
-        console.error('[PinPrompt]', err)
+        reportError('PinPrompt', err)
         onError(err)
       }
     } finally {

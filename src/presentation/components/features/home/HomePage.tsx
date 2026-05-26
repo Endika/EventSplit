@@ -8,6 +8,7 @@ import type { LocalStorageCache, CachedEventSummary } from '@/infrastructure/per
 import { Button } from '@/presentation/components/common/Button'
 import { Input } from '@/presentation/components/common/Input'
 import { RecentEventsList } from './RecentEventsList'
+import { reportError } from '@/shared/utils/reportError'
 
 export function HomePage() {
   const { t } = useTranslation()
@@ -60,7 +61,7 @@ export function HomePage() {
       window.history.pushState({}, '', `${import.meta.env.BASE_URL}?event=${result.event.id}`)
       window.dispatchEvent(new PopStateEvent('popstate'))
     } catch (err) {
-      console.error('[HomePage]', err)
+      reportError('HomePage', err)
       setError(err instanceof Error ? err.message : 'Unknown error')
     } finally {
       setBusy(false)

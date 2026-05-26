@@ -9,6 +9,7 @@ import type { UserKind } from '@/domain/entities/User'
 import { Modal } from '@/presentation/components/common/Modal'
 import { Button } from '@/presentation/components/common/Button'
 import { Input } from '@/presentation/components/common/Input'
+import { reportError } from '@/shared/utils/reportError'
 
 export function AddParticipantModal({ onClose }: { onClose: () => void }) {
   const { t } = useTranslation()
@@ -44,7 +45,7 @@ export function AddParticipantModal({ onClose }: { onClose: () => void }) {
           setEvent(result.event, result.version)
           onClose()
         } catch (err) {
-          console.error('[AddParticipant]', err)
+          reportError('AddParticipant', err)
           setError({
             name: err instanceof Error ? err.constructor.name : 'Unknown',
             message: err instanceof Error ? err.message : String(err),
@@ -54,7 +55,7 @@ export function AddParticipantModal({ onClose }: { onClose: () => void }) {
         }
       },
       (err) => {
-        console.error('[AddParticipant]', err)
+        reportError('AddParticipant', err)
         setError({
           name: err instanceof Error ? err.constructor.name : 'Unknown',
           message: err instanceof Error ? err.message : String(err),
