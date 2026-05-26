@@ -42,6 +42,7 @@ export function ProfileEditor({
   const [newAllergen, setNewAllergen] = useState<AllergenName>('gluten')
   const [newSeverity, setNewSeverity] = useState<AllergenSeverity>('mild')
   const [newAllergyNote, setNewAllergyNote] = useState('')
+  const [showAllergyPicker, setShowAllergyPicker] = useState(false)
 
   const { guardedExecute } = useWriteGuard()
   const [busy, setBusy] = useState(false)
@@ -228,49 +229,77 @@ export function ProfileEditor({
               </li>
             ))}
           </ul>
-          <div className="mt-2 flex flex-wrap items-center gap-2">
-            <select
-              className="rounded border border-slate-700 bg-slate-900 px-2 py-1 text-sm text-slate-100"
-              value={newAllergen}
-              onChange={(e) => setNewAllergen(e.target.value as AllergenName)}
+          {!showAllergyPicker ? (
+            <Button
+              type="button"
+              variant="secondary"
+              className="mt-2"
+              onClick={() => setShowAllergyPicker(true)}
               disabled={busy}
             >
-              {(() => {
-                const opts: AllergenName[] = [
-                  ...COMMON_ALLERGENS.filter((n) => n !== 'other').sort((a, b) =>
-                    t(`allergens.${a}`).localeCompare(t(`allergens.${b}`)),
-                  ),
-                  'other',
-                ]
-                return opts.map((name) => (
-                  <option key={name} value={name}>
-                    {t(`allergens.${name}`)}
-                  </option>
-                ))
-              })()}
-            </select>
-            <select
-              className="rounded border border-slate-700 bg-slate-900 px-2 py-1 text-sm text-slate-100"
-              value={newSeverity}
-              onChange={(e) => setNewSeverity(e.target.value as AllergenSeverity)}
-              disabled={busy}
-            >
-              <option value="mild">{t('allergens.severity.mild')}</option>
-              <option value="moderate">{t('allergens.severity.moderate')}</option>
-              <option value="severe">{t('allergens.severity.severe')}</option>
-            </select>
-            <input
-              className="rounded border border-slate-700 bg-slate-900 px-2 py-1 text-sm text-slate-100 placeholder-slate-500"
-              value={newAllergyNote}
-              onChange={(e) => setNewAllergyNote(e.target.value)}
-              maxLength={200}
-              placeholder={newAllergen === 'other' ? t('profile.allergyOtherPlaceholder') : t('profile.allergyNotePlaceholder')}
-              disabled={busy}
-            />
-            <Button type="button" variant="secondary" onClick={addAllergy} disabled={busy}>
               + {t('profile.addAllergy')}
             </Button>
-          </div>
+          ) : (
+            <div className="mt-2 space-y-2 rounded-lg border border-slate-700 bg-slate-800/50 p-2">
+              <div className="flex flex-wrap items-center gap-2">
+                <select
+                  className="rounded border border-slate-700 bg-slate-900 px-2 py-1 text-sm text-slate-100"
+                  value={newAllergen}
+                  onChange={(e) => setNewAllergen(e.target.value as AllergenName)}
+                  disabled={busy}
+                >
+                  {(() => {
+                    const opts: AllergenName[] = [
+                      ...COMMON_ALLERGENS.filter((n) => n !== 'other').sort((a, b) =>
+                        t(`allergens.${a}`).localeCompare(t(`allergens.${b}`)),
+                      ),
+                      'other',
+                    ]
+                    return opts.map((name) => (
+                      <option key={name} value={name}>
+                        {t(`allergens.${name}`)}
+                      </option>
+                    ))
+                  })()}
+                </select>
+                <select
+                  className="rounded border border-slate-700 bg-slate-900 px-2 py-1 text-sm text-slate-100"
+                  value={newSeverity}
+                  onChange={(e) => setNewSeverity(e.target.value as AllergenSeverity)}
+                  disabled={busy}
+                >
+                  <option value="mild">{t('allergens.severity.mild')}</option>
+                  <option value="moderate">{t('allergens.severity.moderate')}</option>
+                  <option value="severe">{t('allergens.severity.severe')}</option>
+                </select>
+                <input
+                  className="rounded border border-slate-700 bg-slate-900 px-2 py-1 text-sm text-slate-100 placeholder-slate-500"
+                  value={newAllergyNote}
+                  onChange={(e) => setNewAllergyNote(e.target.value)}
+                  maxLength={200}
+                  placeholder={newAllergen === 'other' ? t('profile.allergyOtherPlaceholder') : t('profile.allergyNotePlaceholder')}
+                  disabled={busy}
+                />
+              </div>
+              <div className="flex gap-2">
+                <Button
+                  type="button"
+                  variant="secondary"
+                  onClick={() => { setShowAllergyPicker(false); setNewAllergyNote('') }}
+                  disabled={busy}
+                >
+                  {t('common.cancel')}
+                </Button>
+                <Button
+                  type="button"
+                  onClick={() => { addAllergy(); setShowAllergyPicker(false) }}
+                  disabled={busy}
+                >
+                  {t('profile.addAllergy')}
+                </Button>
+              </div>
+            </div>
+          )}
         </div>
 
         {error && <p className="text-sm text-rose-400">{error}</p>}
