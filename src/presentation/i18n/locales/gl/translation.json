@@ -196,6 +196,7 @@
     "restore": "Restaurar",
     "bought": "Comprado",
     "assignedShort": "Compra:",
+    "broughtByShort": "Leva",
     "unassigned": "Sen asignar",
     "empty": "Aínda non hai compras.",
     "createdBy": "Engadida por {{name}}",
@@ -234,7 +235,12 @@
       "assignedTo": "Quen o compra",
       "assignedNobody": "Ninguén aínda",
       "group": "Grupo (opcional)",
-      "groupPlaceholder": "ex. Cea do sábado"
+      "groupPlaceholder": "ex. Cea do sábado",
+      "modeBuy": "Para mercar",
+      "modeBring": "Lévoo da casa",
+      "broughtBy": "Lévao",
+      "broughtByNobody": "Ninguén aínda",
+      "invalidQuantity": "Introduce unha cantidade válida."
     }
   },
   "expenses": {

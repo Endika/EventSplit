@@ -102,6 +102,23 @@ export function PurchasesTab() {
     })
   }
 
+  function assignBringer(p: PurchaseSnapshot, assignedTo: string | null) {
+    if (!event || !me) return
+    guardedExecute(async () => {
+      try {
+        const handler = container.resolve<AssignPurchaseHandler>('assignPurchase')
+        const result = await handler.execute({
+          eventId: event.id, purchaseId: p.id, editedBy: me.id,
+          assignedTo, purchased: false,
+        })
+        container.resolve<LocalStorageCache>('cache').set(event.id, { snapshot: result.event, version: result.version })
+        setEvent(result.event, result.version)
+      } catch (err) {
+        reportError('PurchasesTab', err)
+      }
+    })
+  }
+
   function toggleBought(p: PurchaseSnapshot, purchased: boolean) {
     if (!event || !me) return
     guardedExecute(async () => {
@@ -252,7 +269,7 @@ export function PurchasesTab() {
                 aria-label={t('purchases.edit')}
               >
                 <div className={`font-medium ${p.purchased ? 'text-slate-500 line-through' : 'text-slate-100'}`}>
-                  {p.item} <span className="text-xs text-slate-500">✎</span>
+                  {p.kind === 'bring' && <span title={t('purchases.form.modeBring')}>🏠 </span>}{p.item} <span className="text-xs text-slate-500">✎</span>
                 </div>
                 <div className="text-sm text-slate-400">
                   {t('purchases.totalQuantity', { n: Math.round(p.totalQuantity * 100) / 100, unit: displayUnit(p.unit, t) })}
@@ -271,30 +288,48 @@ export function PurchasesTab() {
               >🗑️</button>
             </div>
             <div className="mt-2 flex flex-wrap items-center gap-2 border-t border-slate-800 pt-2 text-xs">
-              <label className="flex items-center gap-1 text-slate-400">
-                <input
-                  type="checkbox"
-                  checked={p.purchased}
-                  onChange={(e) => toggleBought(p, e.target.checked)}
-                  className="size-4 rounded border-slate-600 bg-slate-800 accent-violet-500"
-                />
-                {t('purchases.bought')}
-              </label>
-              <label className="ml-auto flex items-center gap-1 text-slate-400">
-                {t('purchases.assignedShort')}
-                <select
-                  value={p.assignedTo ?? ''}
-                  onChange={(e) => assignBuyer(p, e.target.value || null)}
-                  className="rounded border border-slate-700 bg-slate-900 p-1 text-slate-200"
-                >
-                  <option value="">{t('purchases.unassigned')}</option>
-                  {event.users
-                    .filter((u) => u.kind === 'adult')
-                    .map((u) => (
+              {p.kind === 'bring' ? (
+                <label className="ml-auto flex items-center gap-1 text-slate-400">
+                  {t('purchases.broughtByShort')}
+                  <select
+                    value={p.assignedTo ?? ''}
+                    onChange={(e) => assignBringer(p, e.target.value || null)}
+                    className="rounded border border-slate-700 bg-slate-900 p-1 text-slate-200"
+                  >
+                    <option value="">{t('purchases.unassigned')}</option>
+                    {event.users.map((u) => (
                       <option key={u.id} value={u.id}>{u.alias ? `${u.name} (${u.alias})` : u.name}</option>
                     ))}
-                </select>
+                  </select>
+                </label>
+              ) : (
+                <>
+                  <label className="flex items-center gap-1 text-slate-400">
+                    <input
+                      type="checkbox"
+                      checked={p.purchased}
+                      onChange={(e) => toggleBought(p, e.target.checked)}
+                      className="size-4 rounded border-slate-600 bg-slate-800 accent-violet-500"
+                    />
+                    {t('purchases.bought')}
                   </label>
+                  <label className="ml-auto flex items-center gap-1 text-slate-400">
+                    {t('purchases.assignedShort')}
+                    <select
+                      value={p.assignedTo ?? ''}
+                      onChange={(e) => assignBuyer(p, e.target.value || null)}
+                      className="rounded border border-slate-700 bg-slate-900 p-1 text-slate-200"
+                    >
+                      <option value="">{t('purchases.unassigned')}</option>
+                      {event.users
+                        .filter((u) => u.kind === 'adult')
+                        .map((u) => (
+                          <option key={u.id} value={u.id}>{u.alias ? `${u.name} (${u.alias})` : u.name}</option>
+                        ))}
+                    </select>
+                  </label>
+                </>
+              )}
                 </div>
               </li>
             ))}

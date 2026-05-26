@@ -81,8 +81,8 @@ export function ExpenseForm({
   if (!event) return null
 
   const listItems = expense
-    ? event.purchases.filter((p) => !p.deleted)
-    : event.purchases.filter((p) => !p.deleted && !p.purchased)
+    ? event.purchases.filter((p) => !p.deleted && p.kind !== 'bring')
+    : event.purchases.filter((p) => !p.deleted && !p.purchased && p.kind !== 'bring')
 
   function toggleSplit(id: string) {
     setSplitAmong((prev) => {

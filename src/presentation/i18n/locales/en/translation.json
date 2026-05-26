@@ -196,6 +196,7 @@
     "restore": "Restore",
     "bought": "Bought",
     "assignedShort": "Buyer:",
+    "broughtByShort": "Brings",
     "unassigned": "Unassigned",
     "empty": "No purchases yet.",
     "createdBy": "Created by {{name}}",
@@ -234,7 +235,12 @@
       "assignedTo": "Who will buy it",
       "assignedNobody": "Nobody yet",
       "group": "Group (optional)",
-      "groupPlaceholder": "e.g. Saturday dinner"
+      "groupPlaceholder": "e.g. Saturday dinner",
+      "modeBuy": "To buy",
+      "modeBring": "I bring it",
+      "broughtBy": "Brought by",
+      "broughtByNobody": "Nobody yet",
+      "invalidQuantity": "Enter a valid quantity."
     }
   },
   "expenses": {

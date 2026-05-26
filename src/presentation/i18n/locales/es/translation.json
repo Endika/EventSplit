@@ -196,6 +196,7 @@
     "restore": "Restaurar",
     "bought": "Comprado",
     "assignedShort": "Compra:",
+    "broughtByShort": "Lo lleva",
     "unassigned": "Sin asignar",
     "empty": "Aún no hay compras.",
     "createdBy": "Añadida por {{name}}",
@@ -234,7 +235,12 @@
       "assignedTo": "Quién lo compra",
       "assignedNobody": "Nadie aún",
       "group": "Grupo (opcional)",
-      "groupPlaceholder": "ej. Cena del sábado"
+      "groupPlaceholder": "ej. Cena del sábado",
+      "modeBuy": "Para comprar",
+      "modeBring": "Lo llevo de casa",
+      "broughtBy": "Lo lleva",
+      "broughtByNobody": "Nadie aún",
+      "invalidQuantity": "Introduce una cantidad válida."
     }
   },
   "expenses": {

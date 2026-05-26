@@ -5,6 +5,8 @@ import { useEventState } from '@/presentation/context/EventContext'
 import { useCurrentUser } from '@/presentation/context/UserContext'
 import type { AddPurchaseHandler } from '@/application/handlers/AddPurchaseHandler'
 import type { EditPurchaseHandler } from '@/application/handlers/EditPurchaseHandler'
+import type { AddBroughtItemHandler } from '@/application/handlers/AddBroughtItemHandler'
+import type { EditBroughtItemHandler } from '@/application/handlers/EditBroughtItemHandler'
 import type { LocalStorageCache } from '@/infrastructure/persistence/LocalStorageCache'
 import type { PurchaseSnapshot } from '@/domain/entities/Purchase'
 import { Button } from '@/presentation/components/common/Button'
@@ -45,8 +47,11 @@ export function PurchaseForm({
     return d > 0 ? d : 2
   })()
 
+  const [mode, setMode] = useState<'buy' | 'bring'>(purchase ? (purchase.kind ?? 'buy') : 'buy')
   const [item, setItem] = useState(purchase?.item ?? '')
   const [quantity, _setQuantity] = useState(purchase?.quantity ?? 1)
+  const [bringQtyStr, setBringQtyStr] = useState(String(purchase?.quantity ?? 1))
+  const [broughtBy, setBroughtBy] = useState<string | null>(purchase?.assignedTo ?? me?.id ?? null)
   const [unit, setUnit] = useState<string>(purchase?.unit ?? 'units')
   const [dailyStr, setDailyStr] = useState(String(purchase?.dailyConsumption ?? 1))
   const dailyConsumption = parseDecimal(dailyStr)
@@ -77,7 +82,7 @@ export function PurchaseForm({
   }, [])
 
   const currentSnapshot = JSON.stringify({
-    item, quantity, unit, dailyStr, days, consumers, assignedTo, group,
+    mode, item, quantity, unit, dailyStr, days, consumers, assignedTo, group, bringQtyStr, broughtBy,
   })
   const [initialSnapshot] = useState(currentSnapshot)
   const isDirty = initialSnapshot !== currentSnapshot
@@ -129,6 +134,49 @@ export function PurchaseForm({
       setBusy(true)
       setError(null)
       try {
+        if (mode === 'bring') {
+          const qty = parseDecimal(bringQtyStr)
+          if (!Number.isFinite(qty) || qty <= 0) {
+            setError(t('purchases.form.invalidQuantity'))
+            setBusy(false)
+            return
+          }
+          if (purchase) {
+            const handler = container.resolve<EditBroughtItemHandler>('editBroughtItem')
+            const result = await handler.execute({
+              eventId: event.id,
+              purchaseId: purchase.id,
+              editedBy: me.id,
+              item,
+              quantity: qty,
+              unit,
+              group: group.trim() || null,
+              broughtBy,
+            })
+            container
+              .resolve<LocalStorageCache>('cache')
+              .set(event.id, { snapshot: result.event, version: result.version })
+            setEvent(result.event, result.version)
+          } else {
+            const handler = container.resolve<AddBroughtItemHandler>('addBroughtItem')
+            const result = await handler.execute({
+              eventId: event.id,
+              createdBy: me.id,
+              item,
+              quantity: qty,
+              unit,
+              group: group.trim() || null,
+              broughtBy,
+            })
+            container
+              .resolve<LocalStorageCache>('cache')
+              .set(event.id, { snapshot: result.event, version: result.version })
+            setEvent(result.event, result.version)
+          }
+          setPendingMatches(null)
+          onDone()
+          return
+        }
         const list = Object.entries(consumers).map(([userId, multiplier]) => ({ userId, multiplier }))
         if (purchase) {
           const handler = container.resolve<EditPurchaseHandler>('editPurchase')
@@ -215,6 +263,28 @@ export function PurchaseForm({
         />
       )}
       <form ref={rootRef} onSubmit={submit} className="space-y-3 rounded-lg border border-slate-800 bg-slate-900 p-4">
+        {!purchase && (
+          <div className="flex gap-1 rounded-lg bg-slate-800 p-1">
+            <button
+              type="button"
+              onClick={() => setMode('buy')}
+              className={`flex-1 rounded-md px-3 py-2 text-sm font-medium transition ${
+                mode === 'buy' ? 'bg-violet-600 text-white' : 'bg-slate-800 text-slate-300 hover:text-slate-100'
+              }`}
+            >
+              {t('purchases.form.modeBuy')}
+            </button>
+            <button
+              type="button"
+              onClick={() => setMode('bring')}
+              className={`flex-1 rounded-md px-3 py-2 text-sm font-medium transition ${
+                mode === 'bring' ? 'bg-violet-600 text-white' : 'bg-slate-800 text-slate-300 hover:text-slate-100'
+              }`}
+            >
+              {t('purchases.form.modeBring')}
+            </button>
+          </div>
+        )}
         {purchase && (
           <p className="text-sm font-medium text-slate-300">{t('purchases.form.editTitle')}: <span className="text-slate-100">{purchase.item}</span></p>
         )}
@@ -246,6 +316,52 @@ export function PurchaseForm({
             maxLength={50}
           />
         </label>
+        {mode === 'bring' && (
+          <>
+            <div className="grid grid-cols-2 gap-3">
+              <label className="block text-sm text-slate-300">
+                {t('purchases.form.quantity')}
+                <Input
+                  className="mt-1"
+                  type="text"
+                  inputMode="decimal"
+                  value={bringQtyStr}
+                  onChange={(e) => setBringQtyStr(e.target.value)}
+                />
+              </label>
+              <label className="block text-sm text-slate-300">
+                {t('purchases.form.unit')}
+                <select
+                  className="mt-1 block w-full rounded-lg border border-slate-700 bg-slate-900 p-2 text-sm text-slate-100"
+                  value={unit}
+                  onChange={(e) => setUnit(e.target.value)}
+                >
+                  {!UNITS.includes(unit as (typeof UNITS)[number]) && unit && (
+                    <option value={unit}>{unit}</option>
+                  )}
+                  {UNITS.map((u) => (
+                    <option key={u} value={u}>{t(`purchases.form.units.${u}`)}</option>
+                  ))}
+                </select>
+              </label>
+            </div>
+            <label className="block text-sm text-slate-300">
+              {t('purchases.form.broughtBy')}
+              <select
+                className="mt-1 block w-full rounded-lg border border-slate-700 bg-slate-900 p-2 text-sm text-slate-100"
+                value={broughtBy ?? ''}
+                onChange={(e) => setBroughtBy(e.target.value || null)}
+              >
+                <option value="">{t('purchases.form.broughtByNobody')}</option>
+                {event.users.map((u) => (
+                  <option key={u.id} value={u.id}>{u.alias ? `${u.name} (${u.alias})` : u.name}</option>
+                ))}
+              </select>
+            </label>
+          </>
+        )}
+        {mode === 'buy' && (
+        <>
         <div className="grid grid-cols-2 gap-3">
           <label className="block text-sm text-slate-300">
             {t('purchases.form.dailyConsumption')}
@@ -360,6 +476,8 @@ export function PurchaseForm({
             </div>
           )
         })()}
+        </>
+        )}
         {error && <p className="text-sm text-rose-400">{error}</p>}
         {confirmCancel && (
           <Modal open title={t('common.unsavedTitle')} dismissable onClose={() => setConfirmCancel(false)}>
@@ -385,7 +503,7 @@ export function PurchaseForm({
           >
             {t('common.cancel')}
           </Button>
-          <Button type="submit" disabled={busy || !online || (!purchase && !item) || Object.keys(consumers).length === 0}>
+          <Button type="submit" disabled={busy || !online || (!purchase && !item) || (mode === 'buy' && Object.keys(consumers).length === 0)}>
             {purchase ? t('purchases.form.update') : t('purchases.form.submit')}
           </Button>
         </div>

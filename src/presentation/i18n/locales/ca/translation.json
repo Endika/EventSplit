@@ -196,6 +196,7 @@
     "restore": "Restaura",
     "bought": "Comprat",
     "assignedShort": "Compra:",
+    "broughtByShort": "Porta",
     "unassigned": "Sense assignar",
     "empty": "Encara no hi ha compres.",
     "createdBy": "Afegida per {{name}}",
@@ -234,7 +235,12 @@
       "assignedTo": "Qui ho compra",
       "assignedNobody": "Ningú encara",
       "group": "Grup (opcional)",
-      "groupPlaceholder": "ex. Sopar de dissabte"
+      "groupPlaceholder": "ex. Sopar de dissabte",
+      "modeBuy": "Per comprar",
+      "modeBring": "El porto de casa",
+      "broughtBy": "El porta",
+      "broughtByNobody": "Ningú encara",
+      "invalidQuantity": "Introdueix una quantitat vàlida."
     }
   },
   "expenses": {

@@ -196,6 +196,7 @@
     "restore": "Berreskuratu",
     "bought": "Erosita",
     "assignedShort": "Eroslea:",
+    "broughtByShort": "Darama",
     "unassigned": "Esleitu gabe",
     "empty": "Oraindik ez dago erosketarik.",
     "createdBy": "Gehitu duena: {{name}}",
@@ -234,7 +235,12 @@
       "assignedTo": "Nork erosiko du",
       "assignedNobody": "Inork ez oraindik",
       "group": "Taldea (aukerakoa)",
-      "groupPlaceholder": "adib. Larunbateko afaria"
+      "groupPlaceholder": "adib. Larunbateko afaria",
+      "modeBuy": "Erosteko",
+      "modeBring": "Etxetik daramat",
+      "broughtBy": "Nork darama",
+      "broughtByNobody": "Inork ez oraindik",
+      "invalidQuantity": "Sartu kopuru baliogarri bat."
     }
   },
   "expenses": {
