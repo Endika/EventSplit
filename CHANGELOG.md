@@ -1,5 +1,14 @@
 # Changelog
 
+## [1.20.0](https://github.com/Endika/EventSplit/compare/v1.19.0...v1.20.0) (2026-05-26)
+
+
+### Features
+
+* **app:** add edit and delete expense handlers ([90a66e2](https://github.com/Endika/EventSplit/commit/90a66e2549fae71ca5aa65d4df36ea2f36a32322))
+* **domain:** add edit and soft-delete to expense entity ([323b568](https://github.com/Endika/EventSplit/commit/323b56828f42f118da91bba9c01ce0394eb692be))
+* **ui:** edit and delete expenses in list ([a94a009](https://github.com/Endika/EventSplit/commit/a94a0095c5b873d75da2b8ed48ddac32b3d17aae))
+
 ## [1.19.0](https://github.com/Endika/EventSplit/compare/v1.18.0...v1.19.0) (2026-05-26)
 
 
