@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.44.1](https://github.com/Endika/EventSplit/compare/v1.44.0...v1.44.1) (2026-05-26)
+
+
+### Bug Fixes
+
+* **ui:** prevent pull-to-refresh from reloading and losing form ([de809ac](https://github.com/Endika/EventSplit/commit/de809ac221d95cf4452544a6682726b40e05a44d))
+
 ## [1.44.0](https://github.com/Endika/EventSplit/compare/v1.43.1...v1.44.0) (2026-05-26)
 
 
