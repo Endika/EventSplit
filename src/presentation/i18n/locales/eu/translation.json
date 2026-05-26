@@ -243,7 +243,9 @@
       "broughtBy": "Nork darama",
       "broughtByNobody": "Inork ez oraindik",
       "invalidQuantity": "Sartu kopuru baliogarri bat."
-    }
+    },
+    "boughtProgress": "Erosita {{n}}/{{total}} {{unit}}",
+    "boughtByMany": "{{names}}(e)k erosita"
   },
   "expenses": {
     "add": "Gastua gehitu",
@@ -267,7 +269,8 @@
       "splitBetween": "Banatu honen artean",
       "selectAll": "Denak",
       "selectNone": "Inor ez",
-      "markBought": "Zer erosi duzu zerrendatik?"
+      "markBought": "Zer erosi duzu zerrendatik?",
+      "remainingHint": "{{n}}/{{total}} {{unit}} falta"
     },
     "summary": {
       "total": "Guztira",

@@ -50,13 +50,13 @@ export function ExpenseForm({
     return new Set((event?.users ?? []).filter((u) => u.kind === 'adult').map((u) => u.id))
   })
   const [confirmCancel, setConfirmCancel] = useState(false)
-  const [markBought, setMarkBought] = useState<Set<string>>(() => {
+  const [links, setLinks] = useState<Record<string, string>>(() => {
     if (expense) {
-      return new Set(
-        event?.purchases.filter((p) => !p.deleted && p.purchased).map((p) => p.id) ?? [],
-      )
+      const out: Record<string, string> = {}
+      for (const l of expense.purchaseLinks ?? []) out[l.purchaseId] = String(l.quantity)
+      return out
     }
-    return new Set()
+    return {}
   })
 
   const rootRef = useRef<HTMLFormElement>(null)
@@ -69,7 +69,7 @@ export function ExpenseForm({
     amount,
     description,
     splitAmong: [...splitAmong].sort(),
-    markBought: [...markBought].sort(),
+    links: Object.entries(links).sort(),
   })
   const [initialSnapshot] = useState(currentSnapshot)
   const isDirty = initialSnapshot !== currentSnapshot
@@ -80,9 +80,20 @@ export function ExpenseForm({
 
   if (!event) return null
 
+  function boughtByOthers(purchaseId: string): number {
+    return event!.expenses
+      .filter((e) => !e.deleted && e.id !== expense?.id)
+      .reduce(
+        (s, e) => s + ((e.purchaseLinks ?? []).find((l) => l.purchaseId === purchaseId)?.quantity ?? 0),
+        0,
+      )
+  }
+
   const listItems = expense
     ? event.purchases.filter((p) => !p.deleted && p.kind !== 'bring')
-    : event.purchases.filter((p) => !p.deleted && !p.purchased && p.kind !== 'bring')
+    : event.purchases.filter(
+        (p) => !p.deleted && p.kind !== 'bring' && boughtByOthers(p.id) < p.totalQuantity,
+      )
 
   function toggleSplit(id: string) {
     setSplitAmong((prev) => {
@@ -115,11 +126,8 @@ export function ExpenseForm({
       try {
         const allUserIds = event.users.map((u) => u.id)
         const split = splitAmong.size === allUserIds.length ? [] : [...splitAmong]
-        const purchaseLinks = [...markBought]
-          .map((purchaseId) => {
-            const p = event.purchases.find((x) => x.id === purchaseId)
-            return { purchaseId, quantity: p?.totalQuantity ?? 1 }
-          })
+        const purchaseLinks = Object.entries(links)
+          .map(([purchaseId, q]) => ({ purchaseId, quantity: parseDecimal(q) }))
           .filter((l) => Number.isFinite(l.quantity) && l.quantity > 0)
         let result
         if (expense) {
@@ -251,30 +259,57 @@ export function ExpenseForm({
           <legend className="px-2 text-xs uppercase tracking-wide text-slate-500">
             {t('expenses.form.markBought')}
           </legend>
-          <ul className="space-y-1">
-            {listItems.map((p) => (
-              <li key={p.id} className="flex items-center gap-2 text-sm">
-                <input
-                  type="checkbox"
-                  checked={markBought.has(p.id)}
-                  onChange={() =>
-                    setMarkBought((prev) => {
-                      const next = new Set(prev)
-                      if (next.has(p.id)) next.delete(p.id)
-                      else next.add(p.id)
-                      return next
-                    })
-                  }
-                  className="size-4 rounded border-slate-600 bg-slate-800 accent-violet-500"
-                />
-                <span className="text-slate-200">
-                  {p.item}{' '}
-                  <span className="text-slate-500">
-                    — {Math.round(p.totalQuantity * 100) / 100} {displayUnit(p.unit, t)}
-                  </span>
-                </span>
-              </li>
-            ))}
+          <ul className="space-y-2">
+            {listItems.map((p) => {
+              const checked = p.id in links
+              const remaining = Math.max(1, p.totalQuantity - boughtByOthers(p.id))
+              const unit = displayUnit(p.unit, t)
+              return (
+                <li key={p.id} className="flex flex-wrap items-center gap-2 text-sm">
+                  <label className="flex flex-1 items-center gap-2">
+                    <input
+                      type="checkbox"
+                      checked={checked}
+                      onChange={() =>
+                        setLinks((prev) => {
+                          const next = { ...prev }
+                          if (p.id in next) delete next[p.id]
+                          else next[p.id] = String(remaining)
+                          return next
+                        })
+                      }
+                      className="size-4 rounded border-slate-600 bg-slate-800 accent-violet-500"
+                    />
+                    <span className="text-slate-200">
+                      {p.item}{' '}
+                      <span className="text-slate-500">
+                        — {Math.round(p.totalQuantity * 100) / 100} {unit}
+                      </span>
+                    </span>
+                  </label>
+                  {checked && (
+                    <div className="flex items-center gap-2">
+                      <input
+                        type="text"
+                        inputMode="decimal"
+                        value={links[p.id] ?? ''}
+                        onChange={(e) =>
+                          setLinks((prev) => ({ ...prev, [p.id]: e.target.value }))
+                        }
+                        className="w-20 rounded-lg border border-slate-700 bg-slate-900 px-2 py-1 text-sm text-slate-100 focus:border-violet-500 focus:outline-none focus:ring-1 focus:ring-violet-500"
+                      />
+                      <span className="text-xs text-slate-500">
+                        {t('expenses.form.remainingHint', {
+                          n: Math.round(remaining * 100) / 100,
+                          total: Math.round(p.totalQuantity * 100) / 100,
+                          unit,
+                        })}
+                      </span>
+                    </div>
+                  )}
+                </li>
+              )
+            })}
           </ul>
         </fieldset>
       )}

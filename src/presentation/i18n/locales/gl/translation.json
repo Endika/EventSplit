@@ -243,7 +243,9 @@
       "broughtBy": "Lévao",
       "broughtByNobody": "Ninguén aínda",
       "invalidQuantity": "Introduce unha cantidade válida."
-    }
+    },
+    "boughtProgress": "Mercado {{n}}/{{total}} {{unit}}",
+    "boughtByMany": "Mercado por {{names}}"
   },
   "expenses": {
     "add": "Engadir gasto",
@@ -267,7 +269,8 @@
       "splitBetween": "Repartir entre",
       "selectAll": "Todos",
       "selectNone": "Ningún",
-      "markBought": "Que compraches da lista?"
+      "markBought": "Que compraches da lista?",
+      "remainingHint": "faltan {{n}} de {{total}} {{unit}}"
     },
     "summary": {
       "total": "Total gastado",

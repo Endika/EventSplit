@@ -243,7 +243,9 @@
       "broughtBy": "El porta",
       "broughtByNobody": "Ningú encara",
       "invalidQuantity": "Introdueix una quantitat vàlida."
-    }
+    },
+    "boughtProgress": "Comprat {{n}}/{{total}} {{unit}}",
+    "boughtByMany": "Comprat per {{names}}"
   },
   "expenses": {
     "add": "Afegeix una despesa",
@@ -267,7 +269,8 @@
       "splitBetween": "Reparteix entre",
       "selectAll": "Tots",
       "selectNone": "Cap",
-      "markBought": "Què has comprat de la llista?"
+      "markBought": "Què has comprat de la llista?",
+      "remainingHint": "falten {{n}} de {{total}} {{unit}}"
     },
     "summary": {
       "total": "Total gastat",

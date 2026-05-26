@@ -243,7 +243,9 @@
       "broughtBy": "Brought by",
       "broughtByNobody": "Nobody yet",
       "invalidQuantity": "Enter a valid quantity."
-    }
+    },
+    "boughtProgress": "Bought {{n}}/{{total}} {{unit}}",
+    "boughtByMany": "Bought by {{names}}"
   },
   "expenses": {
     "add": "Add expense",
@@ -267,7 +269,8 @@
       "splitBetween": "Split between",
       "selectAll": "All",
       "selectNone": "None",
-      "markBought": "What from the list did you buy?"
+      "markBought": "What from the list did you buy?",
+      "remainingHint": "{{n}} of {{total}} {{unit}} left"
     },
     "summary": {
       "total": "Total spent",

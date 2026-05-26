@@ -62,6 +62,18 @@ export function PurchasesTab() {
   const visible = event.purchases.filter((p) => !p.deleted)
   const deleted = event.purchases.filter((p) => p.deleted)
   const userName = (id: string) => event.users.find((u) => u.id === id)?.name ?? '?'
+  const round2 = (n: number) => Math.round(n * 100) / 100
+  const linkedExpenses = (pid: string) =>
+    event.expenses.filter(
+      (e) => !e.deleted && (e.purchaseLinks ?? []).some((l) => l.purchaseId === pid),
+    )
+  const boughtQty = (pid: string) =>
+    event.expenses
+      .filter((e) => !e.deleted)
+      .reduce(
+        (s, e) => s + ((e.purchaseLinks ?? []).find((l) => l.purchaseId === pid)?.quantity ?? 0),
+        0,
+      )
 
   const grouped = (() => {
     const map = new Map<string, PurchaseSnapshot[]>()
@@ -254,7 +266,18 @@ export function PurchasesTab() {
           )}
           {!collapsed.has(group) && (
           <ul className="space-y-2">
-            {items.map((p) => (
+            {items.map((p) => {
+              const hasLinks = p.kind !== 'bring' && linkedExpenses(p.id).length > 0
+              const bought = hasLinks ? boughtQty(p.id) : 0
+              const total = p.totalQuantity
+              const done = hasLinks && bought >= total
+              const struck = done || p.purchased
+              const buyerNames = hasLinks
+                ? [...new Set(linkedExpenses(p.id).map((e) => e.paidBy))]
+                    .map((id) => userName(id))
+                    .join(', ')
+                : ''
+              return (
               <li
                 key={p.id}
                 className={`rounded-lg border bg-slate-900 p-3 ${
@@ -268,7 +291,7 @@ export function PurchasesTab() {
                 className="flex-1 rounded text-left hover:opacity-80"
                 aria-label={t('purchases.edit')}
               >
-                <div className={`font-medium ${p.purchased ? 'text-slate-500 line-through' : 'text-slate-100'}`}>
+                <div className={`font-medium ${struck ? 'text-slate-500 line-through' : 'text-slate-100'}`}>
                   {p.kind === 'bring' && <span title={t('purchases.form.modeBring')}>🏠 </span>}{p.item} <span className="text-xs text-slate-500">✎</span>
                 </div>
                 <div className="text-sm text-slate-400">
@@ -302,6 +325,25 @@ export function PurchasesTab() {
                     ))}
                   </select>
                 </label>
+              ) : hasLinks ? (
+                <div className="flex w-full flex-col gap-1.5">
+                  <div className="flex items-center justify-between gap-2">
+                    <span className="text-slate-300">
+                      {t('purchases.boughtProgress', {
+                        n: round2(bought),
+                        total: round2(total),
+                        unit: displayUnit(p.unit, t),
+                      })}
+                    </span>
+                  </div>
+                  <div className="h-1.5 w-full overflow-hidden rounded-full bg-slate-800">
+                    <div
+                      className="h-full rounded-full bg-violet-500"
+                      style={{ width: `${total > 0 ? Math.min(100, (bought / total) * 100) : 100}%` }}
+                    />
+                  </div>
+                  <span className="text-slate-400">{t('purchases.boughtByMany', { names: buyerNames })}</span>
+                </div>
               ) : (
                 <>
                   <label className="flex items-center gap-1 text-slate-400">
@@ -332,7 +374,8 @@ export function PurchasesTab() {
               )}
                 </div>
               </li>
-            ))}
+              )
+            })}
           </ul>
           )}
         </div>
