@@ -4,14 +4,24 @@ import LanguageDetector from 'i18next-browser-languagedetector'
 import en from './locales/en/translation.json'
 import es from './locales/es/translation.json'
 import eu from './locales/eu/translation.json'
+import gl from './locales/gl/translation.json'
+import ca from './locales/ca/translation.json'
+import va from './locales/va/translation.json'
 
 void i18n
   .use(LanguageDetector)
   .use(initReactI18next)
   .init({
-    resources: { en: { translation: en }, es: { translation: es }, eu: { translation: eu } },
+    resources: {
+      en: { translation: en },
+      es: { translation: es },
+      eu: { translation: eu },
+      gl: { translation: gl },
+      ca: { translation: ca },
+      va: { translation: va },
+    },
     fallbackLng: 'en',
-    supportedLngs: ['en', 'es', 'eu'],
+    supportedLngs: ['en', 'es', 'eu', 'gl', 'ca', 'va'],
     interpolation: { escapeValue: false },
     detection: { order: ['localStorage', 'navigator'], caches: ['localStorage'] },
   })
