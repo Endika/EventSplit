@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useEventState } from '@/presentation/context/EventContext'
 import { ParticipantsTab } from './ParticipantsTab'
@@ -42,9 +42,45 @@ export function EventTabs() {
     { key: 'history', label: t('tabs.history') },
   ]
 
+  const activeIndex = tabs.findIndex((tab) => tab.key === active)
+
   function selectTab(key: Tab) {
     setActive(key)
     setDrawerOpen(false)
+  }
+
+  function goToIndex(i: number) {
+    if (i < 0 || i >= tabs.length) return
+    setActive(tabs[i]!.key)
+  }
+
+  // Horizontal swipe to move between tabs (mobile). Vertical swipes and
+  // horizontally-scrollable regions (marked data-no-swipe) are ignored.
+  const touchStart = useRef<{ x: number; y: number } | null>(null)
+
+  function onTouchStart(e: React.TouchEvent) {
+    const target = e.target as HTMLElement
+    if (target.closest('[data-no-swipe]')) {
+      touchStart.current = null
+      return
+    }
+    const point = e.touches[0]
+    if (!point) return
+    touchStart.current = { x: point.clientX, y: point.clientY }
+  }
+
+  function onTouchEnd(e: React.TouchEvent) {
+    const start = touchStart.current
+    touchStart.current = null
+    if (!start) return
+    const point = e.changedTouches[0]
+    if (!point) return
+    const dx = point.clientX - start.x
+    const dy = point.clientY - start.y
+    if (Math.abs(dx) < 70) return // not far enough
+    if (Math.abs(dx) < Math.abs(dy) * 1.8) return // mostly vertical → ignore
+    if (dx < 0) goToIndex(activeIndex + 1) // swipe left → next tab
+    else goToIndex(activeIndex - 1) // swipe right → previous tab
   }
 
   function goHome() {
@@ -213,13 +249,28 @@ export function EventTabs() {
         ))}
       </nav>
 
-      {/* Tab content */}
-      {active === 'participants' && <ParticipantsTab />}
-      {active === 'availability' && <AvailabilityTab />}
-      {active === 'location' && <LocationTab />}
-      {active === 'purchases' && <PurchasesTab />}
-      {active === 'expenses' && <ExpensesTab />}
-      {active === 'history' && <HistoryTab />}
+      {/* MOBILE — swipe position dots */}
+      <div className="mb-3 flex justify-center gap-1.5 md:hidden">
+        {tabs.map((tab, i) => (
+          <span
+            key={tab.key}
+            aria-hidden="true"
+            className={`h-1.5 rounded-full transition-all ${
+              i === activeIndex ? 'w-4 bg-violet-400' : 'w-1.5 bg-slate-700'
+            }`}
+          />
+        ))}
+      </div>
+
+      {/* Tab content (swipe left/right to change tab on touch devices) */}
+      <div onTouchStart={onTouchStart} onTouchEnd={onTouchEnd}>
+        {active === 'participants' && <ParticipantsTab />}
+        {active === 'availability' && <AvailabilityTab />}
+        {active === 'location' && <LocationTab />}
+        {active === 'purchases' && <PurchasesTab />}
+        {active === 'expenses' && <ExpensesTab />}
+        {active === 'history' && <HistoryTab />}
+      </div>
     </>
   )
 }

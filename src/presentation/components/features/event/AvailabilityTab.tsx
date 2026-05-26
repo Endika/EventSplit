@@ -132,7 +132,10 @@ export function AvailabilityTab() {
       )}
 
       {event.days.length > 0 && (
-        <div className="overflow-x-auto rounded-lg border border-slate-800 bg-slate-900">
+        <div
+          data-no-swipe
+          className="overflow-x-auto rounded-lg border border-slate-800 bg-slate-900"
+        >
           <table className="w-full text-sm">
             <thead className="text-xs uppercase text-slate-500">
               <tr>
