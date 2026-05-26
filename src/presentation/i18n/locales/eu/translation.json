@@ -102,13 +102,14 @@
     "title": "Noiz etor daiteke nor?",
     "addDay": "Eguna gehitu",
     "noDays": "Oraindik egunik ez. Gehitu hautagaiak goian.",
-    "save": "Gorde nire eskuragarritasuna",
+    "save": "Gorde eskuragarritasuna",
     "saving": "Gordetzen…",
     "yes": "Bai",
     "no": "Ez",
     "dayHeader": "{{date}}",
     "myVotes": "Zure botoak",
-    "othersVotes": "Besteak"
+    "othersVotes": "Besteak",
+    "editAnyoneHint": "Markatu edozein lauki eskuragarritasuna ezartzeko — zurekin bizi direnen ordez bete dezakezu."
   },
   "id": {
     "who": "Nor zara \"{{eventName}}\" ekitaldian?",

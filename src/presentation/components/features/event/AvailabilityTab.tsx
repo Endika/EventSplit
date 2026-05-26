@@ -4,11 +4,11 @@ import { useContainer } from '@/presentation/context/ContainerProvider'
 import { useEventState } from '@/presentation/context/EventContext'
 import { useCurrentUser } from '@/presentation/context/UserContext'
 import type { SetEventDaysHandler } from '@/application/handlers/SetEventDaysHandler'
-import type { SetAvailabilityHandler } from '@/application/handlers/SetAvailabilityHandler'
+import type { SetAvailabilityBatchHandler } from '@/application/handlers/SetAvailabilityBatchHandler'
 import type { LocalStorageCache } from '@/infrastructure/persistence/LocalStorageCache'
 import { useWriteGuard } from '@/presentation/context/WriteGuardContext'
-import { Button } from '@/presentation/components/common/Button'
 import { reportError } from '@/shared/utils/reportError'
+import { Button } from '@/presentation/components/common/Button'
 import { Input } from '@/presentation/components/common/Input'
 import { YouLabel } from '@/presentation/components/common/YouLabel'
 
@@ -24,39 +24,56 @@ function formatDate(iso: string, locale: string): string {
   }
 }
 
+type Drafts = Record<string, Record<string, boolean>>
+
+function buildDrafts(
+  users: { id: string }[],
+  days: string[],
+  availability: Record<string, boolean[]>,
+): Drafts {
+  const drafts: Drafts = {}
+  for (const u of users) {
+    const saved = availability[u.id] ?? []
+    drafts[u.id] = Object.fromEntries(days.map((d, i) => [d, saved[i] ?? false]))
+  }
+  return drafts
+}
+
 export function AvailabilityTab() {
   const { t, i18n } = useTranslation()
   const container = useContainer()
   const { event, setEvent } = useEventState()
   const me = useCurrentUser()
-
   const { guardedExecute } = useWriteGuard()
+
   const [newDay, setNewDay] = useState('')
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState<string | null>(null)
-
-  // Local draft of my votes — keyed by day ISO string so adding/removing days stays aligned.
-  const [draftVotes, setDraftVotes] = useState<Record<string, boolean>>(() => {
-    if (!me || !event) return {}
-    const saved = event.availability[me.id] ?? []
-    return Object.fromEntries(event.days.map((d, i) => [d, saved[i] ?? false]))
-  })
+  const [drafts, setDrafts] = useState<Drafts>(() =>
+    event ? buildDrafts(event.users, event.days, event.availability) : {},
+  )
 
   if (!event) return null
 
-  // Build the votes array for the current event days from the draft, falling back to false.
-  function currentVotes(): boolean[] {
-    return event!.days.map((d) => draftVotes[d] ?? false)
+  // Reconcile drafts when the set of users or days changes (e.g. realtime update).
+  const draftUserIds = Object.keys(drafts).sort().join(',')
+  const eventUserIds = event.users.map((u) => u.id).sort().join(',')
+  const firstUserDraft = Object.values(drafts)[0]
+  const draftDayCount = firstUserDraft ? Object.keys(firstUserDraft).length : 0
+  if (draftUserIds !== eventUserIds || draftDayCount !== event.days.length) {
+    setDrafts(buildDrafts(event.users, event.days, event.availability))
   }
 
-  function toggleVote(day: string, checked: boolean) {
-    setDraftVotes((prev) => ({ ...prev, [day]: checked }))
+  function toggleVote(userId: string, day: string, checked: boolean) {
+    setDrafts((prev) => ({
+      ...prev,
+      [userId]: { ...prev[userId], [day]: checked },
+    }))
   }
 
   function addDay(e: FormEvent) {
     e.preventDefault()
-    if (!event) return
-    if (!newDay) return
+    if (!event || !newDay) return
     if (event.days.includes(newDay)) {
       setError(`${newDay} is already in the list`)
       return
@@ -82,17 +99,22 @@ export function AvailabilityTab() {
     })
   }
 
-  function saveVotes() {
+  function saveAll() {
     if (!event || !me) return
     guardedExecute(async () => {
       setBusy(true)
       setError(null)
       try {
-        const handler = container.resolve<SetAvailabilityHandler>('setAvailability')
+        const votes: Record<string, boolean[]> = {}
+        for (const u of event.users) {
+          const draft = drafts[u.id] ?? {}
+          votes[u.id] = event.days.map((d) => draft[d] ?? false)
+        }
+        const handler = container.resolve<SetAvailabilityBatchHandler>('setAvailabilityBatch')
         const result = await handler.execute({
           eventId: event.id,
-          userId: me.id,
-          votes: currentVotes(),
+          editedBy: me.id,
+          votes,
         })
         container
           .resolve<LocalStorageCache>('cache')
@@ -132,63 +154,60 @@ export function AvailabilityTab() {
       )}
 
       {event.days.length > 0 && (
-        <div
-          data-no-swipe
-          className="overflow-x-auto rounded-lg border border-slate-800 bg-slate-900"
-        >
-          <table className="w-full text-sm">
-            <thead className="text-xs uppercase text-slate-500">
-              <tr>
-                <th className="p-3 text-left">&nbsp;</th>
-                {event.days.map((d) => (
-                  <th key={d} className="p-3 text-center font-medium text-slate-300">
-                    {formatDate(d, i18n.language)}
-                  </th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              {event.users.map((u) => {
-                const isMe = me?.id === u.id
-                const savedVotes = event.availability[u.id] ?? event.days.map(() => false)
-                return (
-                  <tr key={u.id} className={isMe ? 'bg-violet-900/30' : ''}>
-                    <td className="p-3 text-slate-200">
-                      {u.alias ? `${u.name} (${u.alias})` : u.name}
-                      <YouLabel userId={u.id} />
-                    </td>
-                    {event.days.map((d, i) => {
-                      const checked = isMe ? (draftVotes[d] ?? false) : (savedVotes[i] ?? false)
-                      return (
-                        <td key={d} className="p-3 text-center">
-                          {isMe ? (
+        <>
+          <p className="text-xs text-slate-500">{t('availability.editAnyoneHint')}</p>
+          <div
+            data-no-swipe
+            className="overflow-x-auto rounded-lg border border-slate-800 bg-slate-900"
+          >
+            <table className="w-full text-sm">
+              <thead className="text-xs uppercase text-slate-500">
+                <tr>
+                  <th className="p-3 text-left">&nbsp;</th>
+                  {event.days.map((d) => (
+                    <th key={d} className="p-3 text-center font-medium text-slate-300">
+                      {formatDate(d, i18n.language)}
+                    </th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {event.users.map((u) => {
+                  const isMe = me?.id === u.id
+                  return (
+                    <tr key={u.id} className={isMe ? 'bg-violet-900/30' : ''}>
+                      <td className="p-3 text-slate-200">
+                        {u.alias ? `${u.name} (${u.alias})` : u.name}
+                        <YouLabel userId={u.id} />
+                      </td>
+                      {event.days.map((d) => {
+                        const checked = drafts[u.id]?.[d] ?? false
+                        return (
+                          <td key={d} className="p-3 text-center">
                             <input
                               type="checkbox"
                               checked={checked}
-                              onChange={(e) => toggleVote(d, e.target.checked)}
+                              onChange={(e) => toggleVote(u.id, d, e.target.checked)}
                               disabled={busy}
                               className="size-4 rounded border-slate-600 bg-slate-800 accent-violet-500"
+                              aria-label={`${u.name} ${formatDate(d, i18n.language)}`}
                             />
-                          ) : (
-                            <span className={checked ? 'text-teal-400' : 'text-slate-500'}>
-                              {checked ? '✓' : '·'}
-                            </span>
-                          )}
-                        </td>
-                      )
-                    })}
-                  </tr>
-                )
-              })}
-            </tbody>
-          </table>
-        </div>
-      )}
+                          </td>
+                        )
+                      })}
+                    </tr>
+                  )
+                })}
+              </tbody>
+            </table>
+          </div>
 
-      {event.days.length > 0 && me && (
-        <Button onClick={saveVotes} disabled={busy}>
-          {busy ? t('availability.saving') : t('availability.save')}
-        </Button>
+          {me && (
+            <Button onClick={saveAll} disabled={busy}>
+              {busy ? t('availability.saving') : t('availability.save')}
+            </Button>
+          )}
+        </>
       )}
     </div>
   )

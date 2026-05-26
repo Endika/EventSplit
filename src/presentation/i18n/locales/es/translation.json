@@ -102,13 +102,14 @@
     "title": "¿Cuándo puede venir cada uno?",
     "addDay": "Añadir un día",
     "noDays": "Sin días aún. Añade las fechas candidatas arriba.",
-    "save": "Guardar mi disponibilidad",
+    "save": "Guardar disponibilidad",
     "saving": "Guardando…",
     "yes": "Sí",
     "no": "No",
     "dayHeader": "{{date}}",
     "myVotes": "Tus votos",
-    "othersVotes": "Otros"
+    "othersVotes": "Otros",
+    "editAnyoneHint": "Marca cualquier casilla para indicar disponibilidad — puedes rellenar por quien viva contigo."
   },
   "id": {
     "who": "¿Quién eres en \"{{eventName}}\"?",

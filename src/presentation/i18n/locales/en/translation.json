@@ -102,13 +102,14 @@
     "title": "When can people come?",
     "addDay": "Add a day",
     "noDays": "No days yet. Add the candidate dates above.",
-    "save": "Save my availability",
+    "save": "Save availability",
     "saving": "Saving…",
     "yes": "Yes",
     "no": "No",
     "dayHeader": "{{date}}",
     "myVotes": "Your votes",
-    "othersVotes": "Others"
+    "othersVotes": "Others",
+    "editAnyoneHint": "Tap any checkbox to set availability — you can fill in for people who live with you."
   },
   "id": {
     "who": "Who are you in \"{{eventName}}\"?",
