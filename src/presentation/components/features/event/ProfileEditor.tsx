@@ -6,6 +6,7 @@ import { useCurrentUser, useSetCurrentUser } from '@/presentation/context/UserCo
 import { COMMON_ALLERGENS, type AllergenName, type AllergenSeverity, type AllergenSnapshot } from '@/domain/value-objects/Allergen'
 import type { UpdateProfileHandler } from '@/application/handlers/UpdateProfileHandler'
 import type { LocalStorageCache } from '@/infrastructure/persistence/LocalStorageCache'
+import { useWriteGuard } from '@/presentation/context/WriteGuardContext'
 import { Modal } from '@/presentation/components/common/Modal'
 import { Button } from '@/presentation/components/common/Button'
 import { Input } from '@/presentation/components/common/Input'
@@ -29,6 +30,7 @@ export function ProfileEditor({ onClose }: { onClose: () => void }) {
   const [newAllergen, setNewAllergen] = useState<AllergenName>('gluten')
   const [newSeverity, setNewSeverity] = useState<AllergenSeverity>('mild')
 
+  const { guardedExecute } = useWriteGuard()
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
@@ -43,48 +45,50 @@ export function ProfileEditor({ onClose }: { onClose: () => void }) {
     setAllergies(allergies.filter((a) => a.name !== name))
   }
 
-  async function save(e: FormEvent) {
+  function save(e: FormEvent) {
     e.preventDefault()
     if (!event || !me) return
-    setBusy(true)
-    setError(null)
-    try {
-      const handler = container.resolve<UpdateProfileHandler>('updateProfile')
-      const result = await handler.execute({
-        eventId: event.id,
-        userId: me.id,
-        alias: alias.trim() || null,
-        email: email.trim() || null,
-        phone: phone.trim() || null,
-        dietary: dietary.trim() || null,
-        notes: notes.trim() || null,
-        allergies,
-      })
-      container
-        .resolve<LocalStorageCache>('cache')
-        .set(event.id, { snapshot: result.event, version: result.version })
-      setEvent(result.event, result.version)
-      // Sync local identity (alias may have changed)
-      const updated = result.event.users.find((u) => u.id === me.id)
-      if (updated) {
-        setMe({
-          id: updated.id,
-          name: updated.name,
-          alias: updated.alias,
-          displayName: updated.alias ? `${updated.name} (${updated.alias})` : updated.name,
+    guardedExecute(async () => {
+      setBusy(true)
+      setError(null)
+      try {
+        const handler = container.resolve<UpdateProfileHandler>('updateProfile')
+        const result = await handler.execute({
+          eventId: event.id,
+          userId: me.id,
+          alias: alias.trim() || null,
+          email: email.trim() || null,
+          phone: phone.trim() || null,
+          dietary: dietary.trim() || null,
+          notes: notes.trim() || null,
+          allergies,
         })
-        container.resolve<LocalStorageCache>('cache').setIdentity(event.id, {
-          id: updated.id,
-          name: updated.name,
-          alias: updated.alias,
-        })
+        container
+          .resolve<LocalStorageCache>('cache')
+          .set(event.id, { snapshot: result.event, version: result.version })
+        setEvent(result.event, result.version)
+        // Sync local identity (alias may have changed)
+        const updated = result.event.users.find((u) => u.id === me.id)
+        if (updated) {
+          setMe({
+            id: updated.id,
+            name: updated.name,
+            alias: updated.alias,
+            displayName: updated.alias ? `${updated.name} (${updated.alias})` : updated.name,
+          })
+          container.resolve<LocalStorageCache>('cache').setIdentity(event.id, {
+            id: updated.id,
+            name: updated.name,
+            alias: updated.alias,
+          })
+        }
+        onClose()
+      } catch (err) {
+        setError(err instanceof Error ? err.message : 'Error')
+      } finally {
+        setBusy(false)
       }
-      onClose()
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Error')
-    } finally {
-      setBusy(false)
-    }
+    })
   }
 
   return (

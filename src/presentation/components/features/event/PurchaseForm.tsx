@@ -9,6 +9,7 @@ import { Button } from '@/presentation/components/common/Button'
 import { Input } from '@/presentation/components/common/Input'
 import { YouLabel } from '@/presentation/components/common/YouLabel'
 import { useOnlineStatus } from '@/presentation/context/SyncContext'
+import { useWriteGuard } from '@/presentation/context/WriteGuardContext'
 import { AllergyChecker, type AllergyMatch } from '@/domain/services/AllergyChecker'
 import { AllergyAlertModal } from './AllergyAlertModal'
 
@@ -21,6 +22,7 @@ export function PurchaseForm({ onDone }: { onDone: () => void }) {
   const { event, setEvent } = useEventState()
   const me = useCurrentUser()
   const online = useOnlineStatus()
+  const { guardedExecute } = useWriteGuard()
   const [category, setCategory] = useState<(typeof CATEGORIES)[number]>('drinks')
   const [item, setItem] = useState('')
   const [quantity, setQuantity] = useState(1)
@@ -47,38 +49,43 @@ export function PurchaseForm({ onDone }: { onDone: () => void }) {
     setConsumers((prev) => ({ ...prev, [id]: m }))
   }
 
-  async function doSave() {
+  function doSave() {
     if (!event || !me) return
-    setBusy(true)
-    setError(null)
-    try {
-      const list = Object.entries(consumers).map(([userId, multiplier]) => ({ userId, multiplier }))
-      const handler = container.resolve<AddPurchaseHandler>('addPurchase')
-      const result = await handler.execute({
-        eventId: event.id,
-        createdBy: me.id,
-        category,
-        item,
-        quantity,
-        unit,
-        dailyConsumption,
-        consumers: list,
-        days,
-      })
-      container
-        .resolve<LocalStorageCache>('cache')
-        .set(event.id, { snapshot: result.event, version: result.version })
-      setEvent(result.event, result.version)
-      setPendingMatches(null)
-      onDone()
-    } catch (err) {
+    guardedExecute(async () => {
+      setBusy(true)
+      setError(null)
+      try {
+        const list = Object.entries(consumers).map(([userId, multiplier]) => ({ userId, multiplier }))
+        const handler = container.resolve<AddPurchaseHandler>('addPurchase')
+        const result = await handler.execute({
+          eventId: event.id,
+          createdBy: me.id,
+          category,
+          item,
+          quantity,
+          unit,
+          dailyConsumption,
+          consumers: list,
+          days,
+        })
+        container
+          .resolve<LocalStorageCache>('cache')
+          .set(event.id, { snapshot: result.event, version: result.version })
+        setEvent(result.event, result.version)
+        setPendingMatches(null)
+        onDone()
+      } catch (err) {
+        setError(err instanceof Error ? err.message : 'Error')
+      } finally {
+        setBusy(false)
+      }
+    }, (err) => {
       setError(err instanceof Error ? err.message : 'Error')
-    } finally {
       setBusy(false)
-    }
+    })
   }
 
-  async function submit(e: FormEvent) {
+  function submit(e: FormEvent) {
     e.preventDefault()
     if (!event || !me) return
     const matches = AllergyChecker.findMatches({
@@ -93,7 +100,7 @@ export function PurchaseForm({ onDone }: { onDone: () => void }) {
       setPendingMatches(matches)
       return
     }
-    await doSave()
+    doSave()
   }
 
   return (
@@ -102,7 +109,7 @@ export function PurchaseForm({ onDone }: { onDone: () => void }) {
         <AllergyAlertModal
           item={item}
           matches={pendingMatches}
-          onContinue={() => { void doSave() }}
+          onContinue={() => { doSave() }}
           onCancel={() => { setPendingMatches(null); setItem('') }}
         />
       )}

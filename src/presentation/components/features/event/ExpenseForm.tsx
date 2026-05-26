@@ -7,12 +7,14 @@ import type { LocalStorageCache } from '@/infrastructure/persistence/LocalStorag
 import { Button } from '@/presentation/components/common/Button'
 import { Input } from '@/presentation/components/common/Input'
 import { useOnlineStatus } from '@/presentation/context/SyncContext'
+import { useWriteGuard } from '@/presentation/context/WriteGuardContext'
 
 export function ExpenseForm({ onDone }: { onDone: () => void }) {
   const { t } = useTranslation()
   const container = useContainer()
   const { event, setEvent } = useEventState()
   const online = useOnlineStatus()
+  const { guardedExecute } = useWriteGuard()
   const [paidBy, setPaidBy] = useState('')
   const [amount, setAmount] = useState('')
   const [description, setDescription] = useState('')
@@ -21,29 +23,31 @@ export function ExpenseForm({ onDone }: { onDone: () => void }) {
 
   if (!event) return null
 
-  async function submit(e: FormEvent) {
+  function submit(e: FormEvent) {
     e.preventDefault()
     if (!event) return
-    setBusy(true)
-    setError(null)
-    try {
-      const handler = container.resolve<AddExpenseHandler>('addExpense')
-      const result = await handler.execute({
-        eventId: event.id,
-        paidBy,
-        amountEuros: parseFloat(amount),
-        description,
-      })
-      container
-        .resolve<LocalStorageCache>('cache')
-        .set(event.id, { snapshot: result.event, version: result.version })
-      setEvent(result.event, result.version)
-      onDone()
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Error')
-    } finally {
-      setBusy(false)
-    }
+    guardedExecute(async () => {
+      setBusy(true)
+      setError(null)
+      try {
+        const handler = container.resolve<AddExpenseHandler>('addExpense')
+        const result = await handler.execute({
+          eventId: event.id,
+          paidBy,
+          amountEuros: parseFloat(amount),
+          description,
+        })
+        container
+          .resolve<LocalStorageCache>('cache')
+          .set(event.id, { snapshot: result.event, version: result.version })
+        setEvent(result.event, result.version)
+        onDone()
+      } catch (err) {
+        setError(err instanceof Error ? err.message : 'Error')
+      } finally {
+        setBusy(false)
+      }
+    })
   }
 
   return (

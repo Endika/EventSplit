@@ -4,6 +4,7 @@ import { useContainer } from '@/presentation/context/ContainerProvider'
 import { useEventState } from '@/presentation/context/EventContext'
 import type { EditEventDetailsHandler } from '@/application/handlers/EditEventDetailsHandler'
 import type { LocalStorageCache } from '@/infrastructure/persistence/LocalStorageCache'
+import { useWriteGuard } from '@/presentation/context/WriteGuardContext'
 import { Button } from '@/presentation/components/common/Button'
 import { Input } from '@/presentation/components/common/Input'
 
@@ -13,6 +14,7 @@ export function LocationTab() {
   const { event, setEvent } = useEventState()
   const loc = event?.location ?? null
 
+  const { guardedExecute } = useWriteGuard()
   const [editing, setEditing] = useState(false)
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -40,40 +42,42 @@ export function LocationTab() {
     setEditing(true)
   }
 
-  async function save(e: FormEvent) {
+  function save(e: FormEvent) {
     e.preventDefault()
     if (!event) return
-    setBusy(true)
-    setError(null)
-    try {
-      const handler = container.resolve<EditEventDetailsHandler>('editEventDetails')
-      const parsedLat = lat.trim() === '' ? null : parseFloat(lat)
-      const parsedLng = lng.trim() === '' ? null : parseFloat(lng)
-      const result = await handler.execute({
-        eventId: event.id,
-        location: name.trim()
-          ? {
-              name: name.trim(),
-              address: address.trim() || null,
-              lat: parsedLat !== null && Number.isFinite(parsedLat) ? parsedLat : null,
-              lng: parsedLng !== null && Number.isFinite(parsedLng) ? parsedLng : null,
-              postalCode: postalCode.trim() || null,
-            }
-          : null,
-        generalNotes: notes.trim() || null,
-        wifiPassword: wifi.trim() || null,
-        emergencyContact: emergency.trim() || null,
-      })
-      container
-        .resolve<LocalStorageCache>('cache')
-        .set(event.id, { snapshot: result.event, version: result.version })
-      setEvent(result.event, result.version)
-      setEditing(false)
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Error')
-    } finally {
-      setBusy(false)
-    }
+    guardedExecute(async () => {
+      setBusy(true)
+      setError(null)
+      try {
+        const handler = container.resolve<EditEventDetailsHandler>('editEventDetails')
+        const parsedLat = lat.trim() === '' ? null : parseFloat(lat)
+        const parsedLng = lng.trim() === '' ? null : parseFloat(lng)
+        const result = await handler.execute({
+          eventId: event.id,
+          location: name.trim()
+            ? {
+                name: name.trim(),
+                address: address.trim() || null,
+                lat: parsedLat !== null && Number.isFinite(parsedLat) ? parsedLat : null,
+                lng: parsedLng !== null && Number.isFinite(parsedLng) ? parsedLng : null,
+                postalCode: postalCode.trim() || null,
+              }
+            : null,
+          generalNotes: notes.trim() || null,
+          wifiPassword: wifi.trim() || null,
+          emergencyContact: emergency.trim() || null,
+        })
+        container
+          .resolve<LocalStorageCache>('cache')
+          .set(event.id, { snapshot: result.event, version: result.version })
+        setEvent(result.event, result.version)
+        setEditing(false)
+      } catch (err) {
+        setError(err instanceof Error ? err.message : 'Error')
+      } finally {
+        setBusy(false)
+      }
+    })
   }
 
   return (

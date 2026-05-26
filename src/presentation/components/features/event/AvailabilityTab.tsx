@@ -6,6 +6,7 @@ import { useCurrentUser } from '@/presentation/context/UserContext'
 import type { SetEventDaysHandler } from '@/application/handlers/SetEventDaysHandler'
 import type { SetAvailabilityHandler } from '@/application/handlers/SetAvailabilityHandler'
 import type { LocalStorageCache } from '@/infrastructure/persistence/LocalStorageCache'
+import { useWriteGuard } from '@/presentation/context/WriteGuardContext'
 import { Button } from '@/presentation/components/common/Button'
 import { Input } from '@/presentation/components/common/Input'
 import { YouLabel } from '@/presentation/components/common/YouLabel'
@@ -28,6 +29,7 @@ export function AvailabilityTab() {
   const { event, setEvent } = useEventState()
   const me = useCurrentUser()
 
+  const { guardedExecute } = useWriteGuard()
   const [newDay, setNewDay] = useState('')
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -50,7 +52,7 @@ export function AvailabilityTab() {
     setDraftVotes((prev) => ({ ...prev, [day]: checked }))
   }
 
-  async function addDay(e: FormEvent) {
+  function addDay(e: FormEvent) {
     e.preventDefault()
     if (!event) return
     if (!newDay) return
@@ -58,44 +60,48 @@ export function AvailabilityTab() {
       setError(`${newDay} is already in the list`)
       return
     }
-    setBusy(true)
-    setError(null)
-    try {
-      const handler = container.resolve<SetEventDaysHandler>('setEventDays')
-      const next = [...event.days, newDay].sort()
-      const result = await handler.execute({ eventId: event.id, days: next })
-      container
-        .resolve<LocalStorageCache>('cache')
-        .set(event.id, { snapshot: result.event, version: result.version })
-      setEvent(result.event, result.version)
-      setNewDay('')
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Error')
-    } finally {
-      setBusy(false)
-    }
+    guardedExecute(async () => {
+      setBusy(true)
+      setError(null)
+      try {
+        const handler = container.resolve<SetEventDaysHandler>('setEventDays')
+        const next = [...event.days, newDay].sort()
+        const result = await handler.execute({ eventId: event.id, days: next })
+        container
+          .resolve<LocalStorageCache>('cache')
+          .set(event.id, { snapshot: result.event, version: result.version })
+        setEvent(result.event, result.version)
+        setNewDay('')
+      } catch (err) {
+        setError(err instanceof Error ? err.message : 'Error')
+      } finally {
+        setBusy(false)
+      }
+    })
   }
 
-  async function saveVotes() {
+  function saveVotes() {
     if (!event || !me) return
-    setBusy(true)
-    setError(null)
-    try {
-      const handler = container.resolve<SetAvailabilityHandler>('setAvailability')
-      const result = await handler.execute({
-        eventId: event.id,
-        userId: me.id,
-        votes: currentVotes(),
-      })
-      container
-        .resolve<LocalStorageCache>('cache')
-        .set(event.id, { snapshot: result.event, version: result.version })
-      setEvent(result.event, result.version)
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Error')
-    } finally {
-      setBusy(false)
-    }
+    guardedExecute(async () => {
+      setBusy(true)
+      setError(null)
+      try {
+        const handler = container.resolve<SetAvailabilityHandler>('setAvailability')
+        const result = await handler.execute({
+          eventId: event.id,
+          userId: me.id,
+          votes: currentVotes(),
+        })
+        container
+          .resolve<LocalStorageCache>('cache')
+          .set(event.id, { snapshot: result.event, version: result.version })
+        setEvent(result.event, result.version)
+      } catch (err) {
+        setError(err instanceof Error ? err.message : 'Error')
+      } finally {
+        setBusy(false)
+      }
+    })
   }
 
   return (
