@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.47.0](https://github.com/Endika/EventSplit/compare/v1.46.3...v1.47.0) (2026-05-26)
+
+
+### Features
+
+* **sync:** conflict notice toast and client write rate limit ([79ca82a](https://github.com/Endika/EventSplit/commit/79ca82a8706ffa73011be942c1749411f4e1e03d))
+
 ## [1.46.3](https://github.com/Endika/EventSplit/compare/v1.46.2...v1.46.3) (2026-05-26)
 
 
