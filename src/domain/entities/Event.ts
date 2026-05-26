@@ -16,6 +16,8 @@ export type HistoryType =
   | 'location_set'
   | 'notes_added'
   | 'revert'
+  | 'user_profile_updated'
+  | 'days_set'
 
 export interface HistoryEntry {
   id: string
