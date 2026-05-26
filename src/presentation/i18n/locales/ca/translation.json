@@ -231,7 +231,7 @@
         "cans": "llaunes",
         "kg": "kg",
         "liters": "litres",
-        "single": "Unitat única (compartida)"
+        "single": "Unitat única"
       },
       "unitPlaceholder": "ex. ampolles, garrafa 8L",
       "assignedTo": "Qui ho compra",

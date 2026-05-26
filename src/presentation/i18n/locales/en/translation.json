@@ -231,7 +231,7 @@
         "cans": "cans",
         "kg": "kg",
         "liters": "liters",
-        "single": "Single unit (shared)"
+        "single": "Single unit"
       },
       "unitPlaceholder": "e.g. bottles, garrafa 8L",
       "assignedTo": "Who will buy it",

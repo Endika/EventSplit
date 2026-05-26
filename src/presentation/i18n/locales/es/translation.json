@@ -231,7 +231,7 @@
         "cans": "latas",
         "kg": "kg",
         "liters": "litros",
-        "single": "Unidad única (compartida)"
+        "single": "Unidad única"
       },
       "unitPlaceholder": "ej. botellas, garrafa 8L",
       "assignedTo": "Quién lo compra",
