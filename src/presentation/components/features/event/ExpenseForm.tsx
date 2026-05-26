@@ -14,6 +14,11 @@ import { useOnlineStatus } from '@/presentation/context/SyncContext'
 import { useWriteGuard } from '@/presentation/context/WriteGuardContext'
 import { reportError } from '@/shared/utils/reportError'
 
+const KNOWN_UNITS = ['units', 'bottles', 'cans', 'kg', 'liters']
+function displayUnit(unit: string, t: (k: string) => string): string {
+  return KNOWN_UNITS.includes(unit) ? t(`purchases.form.units.${unit}`) : unit
+}
+
 export function ExpenseForm({
   onDone,
   expense,
@@ -242,7 +247,12 @@ export function ExpenseForm({
                   }
                   className="size-4 rounded border-slate-600 bg-slate-800 accent-violet-500"
                 />
-                <span className="text-slate-200">{p.item}</span>
+                <span className="text-slate-200">
+                  {p.item}{' '}
+                  <span className="text-slate-500">
+                    — {p.totalQuantity} {displayUnit(p.unit, t)}
+                  </span>
+                </span>
               </li>
             ))}
           </ul>
