@@ -1,5 +1,18 @@
 # Changelog
 
+## [1.12.0](https://github.com/Endika/EventSplit/compare/v1.11.0...v1.12.0) (2026-05-26)
+
+
+### Features
+
+* **infra:** validate jsonb event snapshots via zod schema ([f2141ee](https://github.com/Endika/EventSplit/commit/f2141eeaaf13c1668459812d85cc03c4ca5799fb))
+* **ui:** allow switching participant identity per device ([9ce0c1f](https://github.com/Endika/EventSplit/commit/9ce0c1fa5f17929c8023ba1c8ad5b333f9684a66))
+
+
+### Bug Fixes
+
+* **ui:** show detailed error info in add-participant modal ([3436304](https://github.com/Endika/EventSplit/commit/34363041d1d78626bb6026fa8ece404f330763ec))
+
 ## [1.11.0](https://github.com/Endika/EventSplit/compare/v1.10.0...v1.11.0) (2026-05-26)
 
 
