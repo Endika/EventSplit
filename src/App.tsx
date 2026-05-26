@@ -7,6 +7,7 @@ import { HomePage } from '@/presentation/components/features/home/HomePage'
 import { EventPage } from '@/presentation/components/features/event/EventPage'
 import { OfflineBanner } from '@/presentation/components/features/pwa/OfflineBanner'
 import { UpdateBanner } from '@/presentation/components/features/pwa/UpdateBanner'
+import { Footer } from '@/presentation/components/common/Footer'
 
 function useEventIdFromUrl(): string | null {
   const [id, setId] = useState<string | null>(() =>
@@ -30,6 +31,7 @@ export default function App() {
               <OfflineBanner />
               <UpdateBanner />
               {eventId ? <EventPage eventId={eventId} /> : <HomePage />}
+              <Footer />
             </UserProvider>
         </EventProvider>
       </SyncProvider>
