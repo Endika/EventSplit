@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.29.1](https://github.com/Endika/EventSplit/compare/v1.29.0...v1.29.1) (2026-05-26)
+
+
+### Bug Fixes
+
+* **ui:** confirm day removal and hide it when day has votes ([6f11d0d](https://github.com/Endika/EventSplit/commit/6f11d0d4f168f88e375890c03447a6da8b27a86f))
+
 ## [1.29.0](https://github.com/Endika/EventSplit/compare/v1.28.0...v1.29.0) (2026-05-26)
 
 
