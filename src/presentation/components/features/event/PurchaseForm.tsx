@@ -39,8 +39,12 @@ export function PurchaseForm({ onDone }: { onDone: () => void }) {
   function toggleConsumer(id: string) {
     setConsumers((prev) => {
       const copy = { ...prev }
-      if (copy[id] !== undefined) delete copy[id]
-      else copy[id] = 1
+      if (copy[id] !== undefined) {
+        delete copy[id]
+      } else {
+        const user = event?.users.find((u) => u.id === id)
+        copy[id] = user?.kind === 'child' ? 0.5 : 1
+      }
       return copy
     })
   }
