@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.24.0](https://github.com/Endika/EventSplit/compare/v1.23.0...v1.24.0) (2026-05-26)
+
+
+### Features
+
+* **ui:** exclude children from expense split by default ([699eb15](https://github.com/Endika/EventSplit/commit/699eb159df908578e718204da9a79951fc602334))
+
 ## [1.23.0](https://github.com/Endika/EventSplit/compare/v1.22.0...v1.23.0) (2026-05-26)
 
 
