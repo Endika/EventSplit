@@ -1,5 +1,14 @@
 # Changelog
 
+## [1.51.0](https://github.com/Endika/EventSplit/compare/v1.50.1...v1.51.0) (2026-05-26)
+
+
+### Features
+
+* **app:** link expenses to purchased quantities ([3116070](https://github.com/Endika/EventSplit/commit/31160700237194e6a82c5a53b9f7b0a0fdd4f583))
+* **domain:** expenses record purchased quantities ([af4e3ff](https://github.com/Endika/EventSplit/commit/af4e3ff1b89d7d01778a83b9fab046500e0f0291))
+* **ui:** show purchased quantity progress in shopping list ([8110347](https://github.com/Endika/EventSplit/commit/81103478c45d830e64c80c20efc65e6379db4fbf))
+
 ## [1.50.1](https://github.com/Endika/EventSplit/compare/v1.50.0...v1.50.1) (2026-05-26)
 
 
