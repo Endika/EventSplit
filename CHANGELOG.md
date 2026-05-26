@@ -1,5 +1,14 @@
 # Changelog
 
+## [1.45.0](https://github.com/Endika/EventSplit/compare/v1.44.1...v1.45.0) (2026-05-26)
+
+
+### Features
+
+* **app:** add rename-group and set-group-order handlers ([35b0e6b](https://github.com/Endika/EventSplit/commit/35b0e6be0e5eb7a1fc0ac527302bb0c7b07c6b18))
+* **domain:** rename and order shopping groups ([349e5f5](https://github.com/Endika/EventSplit/commit/349e5f547c1c28846f7faf9957f85765629b5ef7))
+* **ui:** rename and reorder shopping groups ([b242973](https://github.com/Endika/EventSplit/commit/b242973b767ae7fb1fe5322352cda1f5d52648d7))
+
 ## [1.44.1](https://github.com/Endika/EventSplit/compare/v1.44.0...v1.44.1) (2026-05-26)
 
 
