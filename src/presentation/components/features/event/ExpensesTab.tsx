@@ -29,6 +29,7 @@ export function ExpensesTab() {
   const [showDeleted, setShowDeleted] = useState(false)
   const [formDirty, setFormDirty] = useState(false)
   const [pendingEdit, setPendingEdit] = useState<ExpenseSnapshot | null>(null)
+  const [deleteBusy, setDeleteBusy] = useState(false)
   if (!event) return null
 
   function requestEdit(e: ExpenseSnapshot) {
@@ -65,6 +66,7 @@ export function ExpensesTab() {
     if (!event || !me || !deleting) return
     const target = deleting
     guardedExecute(async () => {
+      setDeleteBusy(true)
       try {
         const handler = container.resolve<DeleteExpenseHandler>('deleteExpense')
         const result = await handler.execute({
@@ -79,6 +81,8 @@ export function ExpensesTab() {
         setDeleting(null)
       } catch (err) {
         reportError('ExpensesTab', err)
+      } finally {
+        setDeleteBusy(false)
       }
     })
   }
@@ -207,7 +211,7 @@ export function ExpensesTab() {
               <Button type="button" variant="secondary" onClick={() => setDeleting(null)}>
                 {t('common.cancel')}
               </Button>
-              <Button type="button" onClick={confirmDelete}>
+              <Button type="button" onClick={confirmDelete} loading={deleteBusy}>
                 {t('expenses.deleteYes')}
               </Button>
             </div>

@@ -562,7 +562,7 @@ export function PurchaseForm({
           >
             {t('common.cancel')}
           </Button>
-          <Button type="submit" disabled={busy || !online || (!purchase && !item) || (mode === 'buy' && !isSingle && Object.keys(consumers).length === 0)}>
+          <Button type="submit" loading={busy} disabled={busy || !online || (!purchase && !item) || (mode === 'buy' && !isSingle && Object.keys(consumers).length === 0)}>
             {purchase ? t('purchases.form.update') : t('purchases.form.submit')}
           </Button>
         </div>

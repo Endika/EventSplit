@@ -323,7 +323,7 @@ export function ExpenseForm({
         >
           {t('common.cancel')}
         </Button>
-        <Button type="submit" disabled={busy || !online || !paidBy || !amount}>
+        <Button type="submit" loading={busy} disabled={busy || !online || !paidBy || !amount}>
           {expense ? t('expenses.form.update') : t('expenses.form.submit')}
         </Button>
       </div>

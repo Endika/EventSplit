@@ -279,7 +279,7 @@ export function ProfileEditor({
           <Button type="button" variant="secondary" onClick={onClose} disabled={busy}>
             {t('common.cancel')}
           </Button>
-          <Button type="submit" disabled={busy}>
+          <Button type="submit" loading={busy} disabled={busy}>
             {busy ? t('profile.saving') : t('profile.save')}
           </Button>
         </div>
@@ -306,7 +306,7 @@ export function ProfileEditor({
                   <Button type="button" variant="secondary" onClick={() => setConfirmRemove(false)} disabled={busy}>
                     {t('participants.removeCancel')}
                   </Button>
-                  <Button type="button" onClick={doRemove} disabled={busy}>
+                  <Button type="button" onClick={doRemove} loading={busy} disabled={busy}>
                     {t('participants.removeYes')}
                   </Button>
                 </div>

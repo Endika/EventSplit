@@ -38,6 +38,7 @@ export function PurchasesTab() {
   const [renamingGroup, setRenamingGroup] = useState<string | null>(null)
   const [groupNewName, setGroupNewName] = useState('')
   const [collapsed, setCollapsed] = useState<Set<string>>(new Set())
+  const [deleteBusy, setDeleteBusy] = useState(false)
   if (!event) return null
 
   function toggleCollapse(group: string) {
@@ -170,6 +171,7 @@ export function PurchasesTab() {
     if (!event || !me || !deleting) return
     const target = deleting
     guardedExecute(async () => {
+      setDeleteBusy(true)
       try {
         const handler = container.resolve<DeletePurchaseHandler>('deletePurchase')
         const result = await handler.execute({
@@ -180,6 +182,8 @@ export function PurchasesTab() {
         setDeleting(null)
       } catch (err) {
         reportError('PurchasesTab', err)
+      } finally {
+        setDeleteBusy(false)
       }
     })
   }
@@ -453,7 +457,7 @@ export function PurchasesTab() {
               <Button type="button" variant="secondary" onClick={() => setDeleting(null)}>
                 {t('common.cancel')}
               </Button>
-              <Button type="button" onClick={confirmDelete}>
+              <Button type="button" onClick={confirmDelete} loading={deleteBusy}>
                 {t('purchases.deleteYes')}
               </Button>
             </div>
