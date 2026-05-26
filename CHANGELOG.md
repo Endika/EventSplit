@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.54.2](https://github.com/Endika/EventSplit/compare/v1.54.1...v1.54.2) (2026-05-26)
+
+
+### Chores
+
+* **deps-dev:** bump @types/node from 24.12.4 to 25.9.1 ([fe05830](https://github.com/Endika/EventSplit/commit/fe05830814f6c9eaaca569fb1d3c304fcf8a758c))
+
 ## [1.54.1](https://github.com/Endika/EventSplit/compare/v1.54.0...v1.54.1) (2026-05-26)
 
 
