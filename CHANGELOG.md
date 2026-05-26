@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.37.0](https://github.com/Endika/EventSplit/compare/v1.36.0...v1.37.0) (2026-05-26)
+
+
+### Features
+
+* **ui:** clearer stage names with explainer popup ([db8d6f6](https://github.com/Endika/EventSplit/commit/db8d6f6e22a6fb7877d1f834b61ec16368245736))
+
 ## [1.36.0](https://github.com/Endika/EventSplit/compare/v1.35.0...v1.36.0) (2026-05-26)
 
 
