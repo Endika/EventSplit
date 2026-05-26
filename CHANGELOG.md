@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.1.0](https://github.com/Endika/EventSplit/compare/v1.0.1...v1.1.0) (2026-05-26)
+
+
+### Features
+
+* **pwa:** add es monogram icon and update theme colors ([759ef00](https://github.com/Endika/EventSplit/commit/759ef00d526c29f13835310ba1ea9aa2f74cceb3))
+* **ui:** apply dark mode with violet teal gradient accent ([110745b](https://github.com/Endika/EventSplit/commit/110745b29670e31dfe9f2c876d64b73c2e6ef1cd))
+
 ## [1.0.1](https://github.com/Endika/EventSplit/compare/v1.0.0...v1.0.1) (2026-05-25)
 
 
