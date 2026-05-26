@@ -10,6 +10,7 @@ import { RevertConfirmModal } from './RevertConfirmModal'
 const ICONS: Record<HistoryType, string> = {
   event_created: '🎉',
   user_joined: '👤',
+  user_removed: '🚪',
   purchase_added: '🛒',
   purchase_edited: '✏️',
   purchase_deleted: '🗑️',

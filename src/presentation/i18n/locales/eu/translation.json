@@ -27,6 +27,7 @@
     "types": {
       "event_created": "Ekitaldia sortu",
       "user_joined": "Erabiltzailea sartu",
+      "user_removed": "Erabiltzailea kendu",
       "purchase_added": "Erosketa gehitu",
       "purchase_edited": "Erosketa editatu",
       "purchase_deleted": "Erosketa ezabatu",

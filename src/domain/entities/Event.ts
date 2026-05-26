@@ -7,6 +7,7 @@ import type { ExpenseSnapshot } from '@/domain/entities/Expense'
 export type HistoryType =
   | 'event_created'
   | 'user_joined'
+  | 'user_removed'
   | 'purchase_added'
   | 'purchase_edited'
   | 'purchase_deleted'
@@ -161,6 +162,78 @@ export class Event {
         },
       ],
     }
+    const { history: _omit, ...fullState } = nextSnapshot
+    nextSnapshot.history.at(-1)!.fullState = fullState
+    return new Event(this.id, nextSnapshot)
+  }
+
+  removeUser(userId: string): Event {
+    if (this.s.createdBy === userId)
+      throw new Error('Event: cannot remove the event creator')
+    if (!this.s.users.some((u) => u.id === userId))
+      throw new Error('Event: user not in event')
+
+    // Hard rules: refuse if user has expenses paid or non-deleted purchases created
+    const hasExpenses = this.s.expenses.some((e) => e.paidBy === userId)
+    if (hasExpenses)
+      throw new Error(
+        'Event: cannot remove user who paid for expenses (delete those expenses first)',
+      )
+
+    const hasOwnedPurchases = this.s.purchases.some(
+      (p) => p.createdBy === userId && !p.deleted,
+    )
+    if (hasOwnedPurchases)
+      throw new Error(
+        'Event: cannot remove user who created purchases (delete those purchases first)',
+      )
+
+    const now = new Date().toISOString()
+    const nextVersion = (this.s.history.at(-1)?.version ?? 0) + 1
+
+    // Clean up: remove from availability map
+    const newAvailability = { ...this.s.availability }
+    delete newAvailability[userId]
+
+    // Clean up: remove from each purchase's consumers list
+    const newPurchases = this.s.purchases.map((p) => ({
+      ...p,
+      consumers: p.consumers.filter((c) => c.userId !== userId),
+    }))
+
+    // Clean up: remove from each expense's splitAmong list
+    const newExpenses = this.s.expenses.map((e) => ({
+      ...e,
+      splitAmong: e.splitAmong.filter((id) => id !== userId),
+    }))
+
+    const removedUser = this.s.users.find((u) => u.id === userId)!
+    const removedDisplayName = removedUser.alias
+      ? `${removedUser.name} (${removedUser.alias})`
+      : removedUser.name
+
+    const nextSnapshot: EventSnapshot = {
+      ...this.s,
+      users: this.s.users.filter((u) => u.id !== userId),
+      availability: newAvailability,
+      purchases: newPurchases,
+      expenses: newExpenses,
+      updatedAt: now,
+      history: [
+        ...this.s.history,
+        {
+          id: crypto.randomUUID(),
+          version: nextVersion,
+          timestamp: now,
+          type: 'user_removed',
+          userId,
+          description: `${removedDisplayName} was removed from the event`,
+          before: { user: removedUser },
+          after: null,
+        },
+      ],
+    }
+
     const { history: _omit, ...fullState } = nextSnapshot
     nextSnapshot.history.at(-1)!.fullState = fullState
     return new Event(this.id, nextSnapshot)

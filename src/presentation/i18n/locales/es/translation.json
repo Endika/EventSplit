@@ -27,6 +27,7 @@
     "types": {
       "event_created": "Evento creado",
       "user_joined": "Se unió un usuario",
+      "user_removed": "Usuario eliminado",
       "purchase_added": "Compra añadida",
       "purchase_edited": "Compra editada",
       "purchase_deleted": "Compra borrada",
