@@ -264,7 +264,7 @@ export function ExpenseForm({
                 <span className="text-slate-200">
                   {p.item}{' '}
                   <span className="text-slate-500">
-                    — {p.totalQuantity} {displayUnit(p.unit, t)}
+                    — {Math.round(p.totalQuantity * 100) / 100} {displayUnit(p.unit, t)}
                   </span>
                 </span>
               </li>

@@ -71,7 +71,7 @@ export class Purchase {
       (sum, c) => sum + input.dailyConsumption * c.multiplier,
       0,
     )
-    const totalQuantity = totalDaily * input.days
+    const totalQuantity = Math.round(totalDaily * input.days * 100) / 100
 
     return new Purchase({
       id: uuidv7(),
@@ -156,7 +156,7 @@ export class Purchase {
       (sum, c) => sum + input.dailyConsumption * c.multiplier,
       0,
     )
-    const totalQuantity = totalDaily * input.days
+    const totalQuantity = Math.round(totalDaily * input.days * 100) / 100
 
     return new Purchase({
       ...this.s,
