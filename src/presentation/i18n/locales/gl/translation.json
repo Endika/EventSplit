@@ -3,7 +3,7 @@
   "updateAvailable": "Nova versión dispoñible",
   "updateNow": "Actualizar agora",
   "app": { "title": "EventSplit", "notFound": "Evento non atopado" },
-  "common": { "you": "Ti", "cancel": "Cancelar", "save": "Gardar", "next": "Seguinte", "back": "Atrás" },
+  "common": { "you": "Ti", "cancel": "Cancelar", "save": "Gardar", "next": "Seguinte", "back": "Atrás", "unsavedTitle": "Cambios sen gardar", "unsavedBody": "Tes cambios sen gardar. Descartalos?", "keepEditing": "Seguir editando", "discard": "Descartar" },
   "home": {
     "tagline": "Reparte os gastos do evento entre amigos — sen login.",
     "createEvent": "Crear evento",

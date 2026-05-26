@@ -1,4 +1,4 @@
-import { type FormEvent, useState } from 'react'
+import { type FormEvent, useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useContainer } from '@/presentation/context/ContainerProvider'
 import { useEventState } from '@/presentation/context/EventContext'
@@ -9,6 +9,7 @@ import type { LocalStorageCache } from '@/infrastructure/persistence/LocalStorag
 import type { PurchaseSnapshot } from '@/domain/entities/Purchase'
 import { Button } from '@/presentation/components/common/Button'
 import { Input } from '@/presentation/components/common/Input'
+import { Modal } from '@/presentation/components/common/Modal'
 import { YouLabel } from '@/presentation/components/common/YouLabel'
 import { useOnlineStatus } from '@/presentation/context/SyncContext'
 import { useWriteGuard } from '@/presentation/context/WriteGuardContext'
@@ -22,9 +23,11 @@ const UNITS = ['units', 'bottles', 'cans', 'kg', 'liters'] as const
 export function PurchaseForm({
   onDone,
   purchase,
+  onDirtyChange,
 }: {
   onDone: () => void
   purchase?: PurchaseSnapshot
+  onDirtyChange?: (dirty: boolean) => void
 }) {
   const { t } = useTranslation()
   const container = useContainer()
@@ -67,6 +70,22 @@ export function PurchaseForm({
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [pendingMatches, setPendingMatches] = useState<AllergyMatch[] | null>(null)
+  const [confirmCancel, setConfirmCancel] = useState(false)
+
+  const rootRef = useRef<HTMLFormElement>(null)
+  useEffect(() => {
+    rootRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+  }, [])
+
+  const currentSnapshot = JSON.stringify({
+    category, item, quantity, unit, dailyConsumption, days, consumers, assignedTo,
+  })
+  const [initialSnapshot] = useState(currentSnapshot)
+  const isDirty = initialSnapshot !== currentSnapshot
+
+  useEffect(() => {
+    onDirtyChange?.(isDirty)
+  }, [isDirty, onDirtyChange])
 
   if (!event || !me) return null
 
@@ -190,7 +209,7 @@ export function PurchaseForm({
           onCancel={() => { setPendingMatches(null); setItem('') }}
         />
       )}
-      <form onSubmit={submit} className="space-y-3 rounded-lg border border-slate-800 bg-slate-900 p-4">
+      <form ref={rootRef} onSubmit={submit} className="space-y-3 rounded-lg border border-slate-800 bg-slate-900 p-4">
         {purchase && (
           <p className="text-sm font-medium text-slate-300">{t('purchases.form.editTitle')}: <span className="text-slate-100">{purchase.item}</span></p>
         )}
@@ -335,8 +354,28 @@ export function PurchaseForm({
           )
         })()}
         {error && <p className="text-sm text-rose-400">{error}</p>}
+        {confirmCancel && (
+          <Modal open title={t('common.unsavedTitle')} dismissable onClose={() => setConfirmCancel(false)}>
+            <div className="space-y-3">
+              <p className="text-sm text-slate-300">{t('common.unsavedBody')}</p>
+              <div className="flex gap-2">
+                <Button type="button" variant="secondary" onClick={() => setConfirmCancel(false)}>
+                  {t('common.keepEditing')}
+                </Button>
+                <Button type="button" onClick={() => { setConfirmCancel(false); onDone() }}>
+                  {t('common.discard')}
+                </Button>
+              </div>
+            </div>
+          </Modal>
+        )}
         <div className="flex gap-2">
-          <Button type="button" variant="secondary" onClick={onDone} disabled={busy}>
+          <Button
+            type="button"
+            variant="secondary"
+            onClick={() => (isDirty ? setConfirmCancel(true) : onDone())}
+            disabled={busy}
+          >
             {t('common.cancel')}
           </Button>
           <Button type="submit" disabled={busy || !online || (!purchase && !item) || Object.keys(consumers).length === 0}>

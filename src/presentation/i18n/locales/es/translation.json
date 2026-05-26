@@ -3,7 +3,7 @@
   "updateAvailable": "Nueva versión disponible",
   "updateNow": "Actualizar ahora",
   "app": { "title": "EventSplit", "notFound": "Evento no encontrado" },
-  "common": { "you": "Tú", "cancel": "Cancelar", "save": "Guardar", "next": "Siguiente", "back": "Atrás" },
+  "common": { "you": "Tú", "cancel": "Cancelar", "save": "Guardar", "next": "Siguiente", "back": "Atrás", "unsavedTitle": "Cambios sin guardar", "unsavedBody": "Tienes cambios sin guardar. ¿Descartarlos?", "keepEditing": "Seguir editando", "discard": "Descartar" },
   "home": {
     "tagline": "Divide los gastos del evento entre amigos — sin login.",
     "createEvent": "Crear evento",

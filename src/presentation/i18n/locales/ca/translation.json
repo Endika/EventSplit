@@ -3,7 +3,7 @@
   "updateAvailable": "Nova versió disponible",
   "updateNow": "Actualitza ara",
   "app": { "title": "EventSplit", "notFound": "Esdeveniment no trobat" },
-  "common": { "you": "Tu", "cancel": "Cancel·la", "save": "Desa", "next": "Següent", "back": "Enrere" },
+  "common": { "you": "Tu", "cancel": "Cancel·la", "save": "Desa", "next": "Següent", "back": "Enrere", "unsavedTitle": "Canvis sense desar", "unsavedBody": "Tens canvis sense desar. Descartar-los?", "keepEditing": "Continuar editant", "discard": "Descartar" },
   "home": {
     "tagline": "Reparteix les despeses de l'esdeveniment entre amics — sense login.",
     "createEvent": "Crea un esdeveniment",

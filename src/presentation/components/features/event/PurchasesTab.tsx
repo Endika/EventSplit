@@ -30,7 +30,19 @@ export function PurchasesTab() {
   const [editing, setEditing] = useState<PurchaseSnapshot | null>(null)
   const [deleting, setDeleting] = useState<PurchaseSnapshot | null>(null)
   const [showDeleted, setShowDeleted] = useState(false)
+  const [formDirty, setFormDirty] = useState(false)
+  const [pendingEdit, setPendingEdit] = useState<PurchaseSnapshot | null>(null)
   if (!event) return null
+
+  function requestEdit(p: PurchaseSnapshot) {
+    // If a form is open with unsaved changes for a DIFFERENT item, confirm first.
+    if ((editing || adding) && formDirty && editing?.id !== p.id) {
+      setPendingEdit(p)
+      return
+    }
+    setAdding(false)
+    setEditing(p)
+  }
 
   const visible = event.purchases.filter((p) => !p.deleted)
   const deleted = event.purchases.filter((p) => p.deleted)
@@ -109,8 +121,15 @@ export function PurchasesTab() {
   return (
     <div className="space-y-3">
       {!adding && !editing && <Button onClick={() => setAdding(true)}>{t('purchases.add')}</Button>}
-      {adding && <PurchaseForm onDone={() => setAdding(false)} />}
-      {editing && <PurchaseForm purchase={editing} onDone={() => setEditing(null)} />}
+      {adding && <PurchaseForm key="new" onDone={() => { setAdding(false); setFormDirty(false) }} onDirtyChange={setFormDirty} />}
+      {editing && (
+        <PurchaseForm
+          key={editing.id}
+          purchase={editing}
+          onDone={() => { setEditing(null); setFormDirty(false) }}
+          onDirtyChange={setFormDirty}
+        />
+      )}
       {visible.length === 0 && <p className="text-sm text-slate-400">{t('purchases.empty')}</p>}
       <ul className="space-y-2">
         {visible.map((p) => (
@@ -123,7 +142,7 @@ export function PurchasesTab() {
             <div className="flex items-start justify-between gap-2">
               <button
                 type="button"
-                onClick={() => setEditing(p)}
+                onClick={() => requestEdit(p)}
                 className="flex-1 rounded text-left hover:opacity-80"
                 aria-label={t('purchases.edit')}
               >
@@ -201,6 +220,30 @@ export function PurchasesTab() {
             </ul>
           )}
         </div>
+      )}
+      {pendingEdit && (
+        <Modal open title={t('common.unsavedTitle')} dismissable onClose={() => setPendingEdit(null)}>
+          <div className="space-y-3">
+            <p className="text-sm text-slate-300">{t('common.unsavedBody')}</p>
+            <div className="flex gap-2">
+              <Button type="button" variant="secondary" onClick={() => setPendingEdit(null)}>
+                {t('common.keepEditing')}
+              </Button>
+              <Button
+                type="button"
+                onClick={() => {
+                  const target = pendingEdit
+                  setPendingEdit(null)
+                  setFormDirty(false)
+                  setAdding(false)
+                  setEditing(target)
+                }}
+              >
+                {t('common.discard')}
+              </Button>
+            </div>
+          </div>
+        </Modal>
       )}
       {deleting && (
         <Modal open title={t('purchases.deleteTitle')} dismissable onClose={() => setDeleting(null)}>

@@ -3,7 +3,7 @@
   "updateAvailable": "New version available",
   "updateNow": "Update now",
   "app": { "title": "EventSplit", "notFound": "Event not found" },
-  "common": { "you": "You", "cancel": "Cancel", "save": "Save", "next": "Next", "back": "Back" },
+  "common": { "you": "You", "cancel": "Cancel", "save": "Save", "next": "Next", "back": "Back", "unsavedTitle": "Unsaved changes", "unsavedBody": "You have unsaved changes. Discard them?", "keepEditing": "Keep editing", "discard": "Discard" },
   "home": {
     "tagline": "Split event expenses fairly with friends — no login needed.",
     "createEvent": "Create event",

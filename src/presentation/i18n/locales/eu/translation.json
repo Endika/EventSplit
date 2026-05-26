@@ -3,7 +3,7 @@
   "updateAvailable": "Bertsio berria eskuragarri",
   "updateNow": "Eguneratu orain",
   "app": { "title": "EventSplit", "notFound": "Ekitaldia ez da aurkitu" },
-  "common": { "you": "Zu", "cancel": "Utzi", "save": "Gorde", "next": "Hurrengoa", "back": "Atzera" },
+  "common": { "you": "Zu", "cancel": "Utzi", "save": "Gorde", "next": "Hurrengoa", "back": "Atzera", "unsavedTitle": "Gorde gabeko aldaketak", "unsavedBody": "Gorde gabeko aldaketak dituzu. Baztertu?", "keepEditing": "Editatzen jarraitu", "discard": "Baztertu" },
   "home": {
     "tagline": "Banatu ekitaldiko gastuak lagunekin — login gabe.",
     "createEvent": "Sortu ekitaldia",
