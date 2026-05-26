@@ -30,4 +30,31 @@ describe('AddExpenseHandler', () => {
       }),
     ).rejects.toThrow(/not in event/i)
   })
+
+  it('saves the splitAmong list', async () => {
+    const repo = new InMemoryEventRepository()
+    const create = await new CreateEventHandler(repo).execute({ name: 'Trip', creatorName: 'John' })
+    const result = await new AddExpenseHandler(repo).execute({
+      eventId: create.event.id,
+      paidBy: create.creator.id,
+      amountEuros: 10,
+      description: 'Snacks',
+      splitAmong: [create.creator.id],
+    })
+    expect(result.event.expenses[0]!.splitAmong).toEqual([create.creator.id])
+  })
+
+  it('rejects splitAmong member not in event', async () => {
+    const repo = new InMemoryEventRepository()
+    const create = await new CreateEventHandler(repo).execute({ name: 'Trip', creatorName: 'John' })
+    await expect(
+      new AddExpenseHandler(repo).execute({
+        eventId: create.event.id,
+        paidBy: create.creator.id,
+        amountEuros: 10,
+        description: 'Snacks',
+        splitAmong: ['018f4a8e-0000-7000-8000-000000000000'],
+      }),
+    ).rejects.toThrow(/splitAmong.*not in event/i)
+  })
 })

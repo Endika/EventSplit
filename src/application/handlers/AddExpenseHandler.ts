@@ -18,12 +18,20 @@ export class AddExpenseHandler {
       if (!row.snapshot.users.some((u) => u.id === parsed.paidBy))
         throw new Error(`Payer ${parsed.paidBy} not in event`)
 
+      if (parsed.splitAmong) {
+        const knownIds = new Set(row.snapshot.users.map((u) => u.id))
+        for (const id of parsed.splitAmong) {
+          if (!knownIds.has(id)) throw new Error(`splitAmong user ${id} not in event`)
+        }
+      }
+
       const expense = Expense.create({
         paidBy: parsed.paidBy,
         amount: Money.fromEuros(parsed.amountEuros),
         description: parsed.description,
         purchaseId: parsed.purchaseId ?? null,
         date: parsed.date ? new Date(parsed.date) : undefined,
+        splitAmong: parsed.splitAmong,
       })
 
       const payerName = row.snapshot.users.find((u) => u.id === parsed.paidBy)?.name ?? 'Someone'
