@@ -10,7 +10,12 @@
     "eventName": "Ekitaldiaren izena",
     "yourName": "Zure izena",
     "yourAlias": "Goitizena (aukerakoa)",
-    "submit": "Sortu"
+    "submit": "Sortu",
+    "yourEvents": "Zure ekitaldiak",
+    "lastActivity": "Azken jarduera: {{when}}",
+    "participants": "{{count}} parte-hartzaile",
+    "participants_other": "{{count}} parte-hartzaile",
+    "forget": "Gailu honetatik kendu"
   },
   "tabs": { "participants": "Lagunak", "availability": "Noiz", "location": "Non", "purchases": "Erosketak", "expenses": "Gastuak", "history": "Historiala" },
   "history": {

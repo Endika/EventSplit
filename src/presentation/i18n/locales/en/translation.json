@@ -10,7 +10,12 @@
     "eventName": "Event name",
     "yourName": "Your name",
     "yourAlias": "Nickname (optional)",
-    "submit": "Create"
+    "submit": "Create",
+    "yourEvents": "Your events",
+    "lastActivity": "Last activity {{when}}",
+    "participants": "{{count}} participant",
+    "participants_other": "{{count}} participants",
+    "forget": "Remove from this device"
   },
   "tabs": { "participants": "People", "availability": "When", "location": "Where", "purchases": "Shopping", "expenses": "Expenses", "history": "History" },
   "history": {

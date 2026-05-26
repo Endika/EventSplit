@@ -14,6 +14,14 @@ export interface CachedIdentity {
   alias: string | null
 }
 
+export interface CachedEventSummary {
+  id: string
+  name: string
+  updatedAt: string
+  participantCount: number
+  version: number
+}
+
 export class LocalStorageCache {
   get(eventId: string): CachedEvent | null {
     const raw = localStorage.getItem(EVENT_KEY(eventId))
@@ -41,5 +49,34 @@ export class LocalStorageCache {
 
   setIdentity(eventId: string, identity: CachedIdentity): void {
     localStorage.setItem(IDENT_KEY(eventId), JSON.stringify(identity))
+  }
+
+  listAll(): CachedEventSummary[] {
+    const summaries: CachedEventSummary[] = []
+    for (let i = 0; i < localStorage.length; i++) {
+      const key = localStorage.key(i)
+      if (!key || !key.startsWith('eventsplit.event.')) continue
+      const raw = localStorage.getItem(key)
+      if (!raw) continue
+      try {
+        const cached = JSON.parse(raw) as CachedEvent
+        summaries.push({
+          id: cached.snapshot.id,
+          name: cached.snapshot.name,
+          updatedAt: cached.snapshot.updatedAt,
+          participantCount: cached.snapshot.users.length,
+          version: cached.version,
+        })
+      } catch {
+        // skip corrupted entries
+      }
+    }
+    // Sort by updatedAt descending (most recent first)
+    return summaries.sort((a, b) => b.updatedAt.localeCompare(a.updatedAt))
+  }
+
+  remove(eventId: string): void {
+    localStorage.removeItem(EVENT_KEY(eventId))
+    localStorage.removeItem(IDENT_KEY(eventId))
   }
 }

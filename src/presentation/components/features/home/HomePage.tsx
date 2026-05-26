@@ -7,6 +7,7 @@ import type { LocalStorageCache } from '@/infrastructure/persistence/LocalStorag
 import { Button } from '@/presentation/components/common/Button'
 import { Input } from '@/presentation/components/common/Input'
 import { useOnlineStatus } from '@/presentation/context/SyncContext'
+import { RecentEventsList } from './RecentEventsList'
 
 export function HomePage() {
   const { t } = useTranslation()
@@ -58,6 +59,9 @@ export function HomePage() {
     <main className="mx-auto max-w-md p-6">
       <h1 className="mb-2 text-3xl font-bold text-slate-100">{t('app.title')}</h1>
       <p className="mb-6 text-slate-400">{t('home.tagline')}</p>
+
+      <RecentEventsList />
+
       <form onSubmit={onSubmit} className="space-y-3">
         <Input
           placeholder={t('home.eventName')}

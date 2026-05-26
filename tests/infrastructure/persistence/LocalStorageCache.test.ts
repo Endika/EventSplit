@@ -30,4 +30,52 @@ describe('LocalStorageCache', () => {
     localStorage.setItem('eventsplit.event.bad1234', '{not json')
     expect(new LocalStorageCache().get('bad1234')).toBeNull()
   })
+
+  it('listAll returns empty array when nothing cached', () => {
+    expect(new LocalStorageCache().listAll()).toEqual([])
+  })
+
+  it('listAll returns event summaries sorted by updatedAt desc', () => {
+    const cache = new LocalStorageCache()
+    const e1 = Event.create({ name: 'Older', creator: User.create({ name: 'John' }) }).toSnapshot()
+    const e2 = Event.create({ name: 'Newer', creator: User.create({ name: 'Maria' }) }).toSnapshot()
+    // Make e2 newer
+    e2.updatedAt = '2026-06-01T12:00:00Z'
+    e1.updatedAt = '2026-01-01T12:00:00Z'
+    cache.set(e1.id, { snapshot: e1, version: 1 })
+    cache.set(e2.id, { snapshot: e2, version: 1 })
+
+    const list = cache.listAll()
+    expect(list).toHaveLength(2)
+    expect(list[0]!.name).toBe('Newer')
+    expect(list[1]!.name).toBe('Older')
+    expect(list[0]!.participantCount).toBe(1)
+  })
+
+  it('listAll skips corrupted entries', () => {
+    const cache = new LocalStorageCache()
+    const e = Event.create({ name: 'Good', creator: User.create({ name: 'John' }) }).toSnapshot()
+    cache.set(e.id, { snapshot: e, version: 1 })
+    localStorage.setItem('eventsplit.event.broken1', '{not json')
+    expect(cache.listAll()).toHaveLength(1)
+  })
+
+  it('listAll ignores unrelated localStorage keys', () => {
+    const cache = new LocalStorageCache()
+    const e = Event.create({ name: 'Mine', creator: User.create({ name: 'John' }) }).toSnapshot()
+    cache.set(e.id, { snapshot: e, version: 1 })
+    localStorage.setItem('eventsplit.identity.xxxxxxx', '{"id":"x","name":"y","alias":null}')
+    localStorage.setItem('some.other.key', 'whatever')
+    expect(cache.listAll()).toHaveLength(1)
+  })
+
+  it('remove deletes both event and identity entries', () => {
+    const cache = new LocalStorageCache()
+    const e = Event.create({ name: 'Trip', creator: User.create({ name: 'John' }) }).toSnapshot()
+    cache.set(e.id, { snapshot: e, version: 1 })
+    cache.setIdentity(e.id, { id: 'uid', name: 'John', alias: null })
+    cache.remove(e.id)
+    expect(cache.get(e.id)).toBeNull()
+    expect(cache.getIdentity(e.id)).toBeNull()
+  })
 })
