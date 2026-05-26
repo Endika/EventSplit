@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.16.0](https://github.com/Endika/EventSplit/compare/v1.15.0...v1.16.0) (2026-05-26)
+
+
+### Features
+
+* **app:** add batch availability handler for multiple users ([b75972d](https://github.com/Endika/EventSplit/commit/b75972d1e41d619346a9cf6a7438e1622413a76f))
+* **ui:** edit availability for any participant in matrix ([84eac26](https://github.com/Endika/EventSplit/commit/84eac2698ff924a607d14fc8670886ed20a09520))
+
 ## [1.15.0](https://github.com/Endika/EventSplit/compare/v1.14.2...v1.15.0) (2026-05-26)
 
 
