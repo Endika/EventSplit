@@ -26,4 +26,58 @@ describe('User', () => {
     const u = User.restore({ id: id.value, name: 'John', alias: null, joinedAt: '2026-01-01T00:00:00Z' })
     expect(u.id.value).toBe(id.value)
   })
+
+  it('starts with empty allergies and null optional fields', () => {
+    const u = User.create({ name: 'John' })
+    const snap = u.toSnapshot()
+    expect(snap.allergies).toEqual([])
+    expect(snap.email).toBeNull()
+    expect(snap.phone).toBeNull()
+    expect(snap.dietary).toBeNull()
+    expect(snap.notes).toBeNull()
+  })
+
+  it('restores from legacy snapshot without profile fields', () => {
+    const legacy = {
+      id: '018f4a8e-0000-7000-8000-000000000001',
+      name: 'Old',
+      alias: null,
+      joinedAt: '2026-01-01T00:00:00Z',
+    }
+    const u = User.restore(legacy as never)
+    expect(u.allergies).toEqual([])
+    expect(u.email).toBeNull()
+  })
+
+  it('withProfile updates only provided fields', () => {
+    const u = User.create({ name: 'John', alias: 'cousin' })
+    const next = u.withProfile({
+      email: 'john@example.com',
+      allergies: [{ name: 'gluten', severity: 'severe', notes: null }],
+    })
+    expect(next.email).toBe('john@example.com')
+    expect(next.allergies).toHaveLength(1)
+    expect(next.alias).toBe('cousin') // unchanged
+  })
+
+  it('withProfile rejects too many allergies', () => {
+    const u = User.create({ name: 'John' })
+    const tooMany = Array.from({ length: 21 }, () => ({ name: 'other' as const, severity: 'mild' as const, notes: null }))
+    expect(() => u.withProfile({ allergies: tooMany })).toThrow(/20/)
+  })
+
+  it('withProfile validates each allergen', () => {
+    const u = User.create({ name: 'John' })
+    expect(() =>
+      u.withProfile({ allergies: [{ name: 'unicorn' as never, severity: 'mild', notes: null }] }),
+    ).toThrow(/name/)
+  })
+
+  it('withProfile rejects oversize free-text fields', () => {
+    const u = User.create({ name: 'John' })
+    expect(() => u.withProfile({ email: 'a'.repeat(101) })).toThrow(/email/)
+    expect(() => u.withProfile({ phone: '9'.repeat(31) })).toThrow(/phone/)
+    expect(() => u.withProfile({ dietary: 'x'.repeat(201) })).toThrow(/dietary/)
+    expect(() => u.withProfile({ notes: 'x'.repeat(501) })).toThrow(/notes/)
+  })
 })
