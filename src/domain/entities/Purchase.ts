@@ -9,7 +9,6 @@ export interface PurchaseConsumer {
 export interface PurchaseSnapshot {
   id: string
   createdBy: string
-  category: string
   item: string
   quantity: number
   unit: string
@@ -27,7 +26,6 @@ export interface PurchaseSnapshot {
   group: string | null
 }
 
-const VALID_CATEGORIES = ['food', 'drinks', 'snacks', 'other'] as const
 export const VALID_UNITS = ['units', 'bottles', 'cans', 'kg', 'liters'] as const
 
 function validateUnit(unit: string): string {
@@ -42,7 +40,6 @@ export class Purchase {
 
   static create(input: {
     createdBy: string
-    category: string
     item: string
     quantity: number
     unit: string
@@ -54,8 +51,6 @@ export class Purchase {
   }): Purchase {
     const item = input.item.trim()
     if (item.length < 2 || item.length > 50) throw new Error('Purchase: item must be 2..50 chars')
-    if (!VALID_CATEGORIES.includes(input.category as never))
-      throw new Error('Purchase: invalid category')
     const unit = validateUnit(input.unit)
     if (input.quantity <= 0 || input.quantity > 10_000)
       throw new Error('Purchase: quantity must be in (0, 10000]')
@@ -78,7 +73,6 @@ export class Purchase {
     return new Purchase({
       id: uuidv7(),
       createdBy: input.createdBy,
-      category: input.category,
       item,
       quantity: input.quantity,
       unit,
@@ -98,7 +92,8 @@ export class Purchase {
   }
 
   static restore(s: PurchaseSnapshot | Omit<PurchaseSnapshot, 'assignedTo' | 'purchased' | 'boughtQuantity' | 'group'>): Purchase {
-    const full = s as PurchaseSnapshot
+    const { category: _legacyCategory, ...rest } = s as PurchaseSnapshot & { category?: string }
+    const full = rest as PurchaseSnapshot
     const purchased = full.purchased ?? false
     return new Purchase({
       ...full,
@@ -130,7 +125,6 @@ export class Purchase {
   }
 
   edit(input: {
-    category: string
     item: string
     quantity: number
     unit: string
@@ -142,8 +136,6 @@ export class Purchase {
   }): Purchase {
     const item = input.item.trim()
     if (item.length < 2 || item.length > 50) throw new Error('Purchase: item must be 2..50 chars')
-    if (!VALID_CATEGORIES.includes(input.category as never))
-      throw new Error('Purchase: invalid category')
     const unit = validateUnit(input.unit)
     if (input.quantity <= 0 || input.quantity > 10_000)
       throw new Error('Purchase: quantity must be in (0, 10000]')
@@ -165,7 +157,6 @@ export class Purchase {
 
     return new Purchase({
       ...this.s,
-      category: input.category,
       item,
       quantity: input.quantity,
       unit,

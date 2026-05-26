@@ -81,7 +81,7 @@ describe('EditExpenseHandler', () => {
     const create = await new CreateEventHandler(repo).execute({ name: 'Trip', creatorName: 'John' })
     const p1 = await new AddPurchaseHandler(repo).execute({
       eventId: create.event.id, createdBy: create.creator.id,
-      category: 'drinks', item: 'Coke', quantity: 1, unit: 'units',
+      item: 'Coke', quantity: 1, unit: 'units',
       dailyConsumption: 1, consumers: [{ userId: create.creator.id, multiplier: 1 }], days: 1,
     })
     const purchaseId = p1.event.purchases[0]!.id

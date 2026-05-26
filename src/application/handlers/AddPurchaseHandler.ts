@@ -30,7 +30,6 @@ export class AddPurchaseHandler {
 
       const purchase = Purchase.create({
         createdBy: parsed.createdBy,
-        category: parsed.category,
         item: parsed.item,
         quantity: parsed.quantity,
         unit: parsed.unit,

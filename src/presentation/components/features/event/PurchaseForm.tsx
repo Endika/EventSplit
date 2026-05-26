@@ -17,7 +17,6 @@ import { AllergyChecker, type AllergyMatch } from '@/domain/services/AllergyChec
 import { AllergyAlertModal } from './AllergyAlertModal'
 import { reportError } from '@/shared/utils/reportError'
 
-const CATEGORIES = ['food', 'drinks', 'snacks', 'other'] as const
 const UNITS = ['units', 'bottles', 'cans', 'kg', 'liters'] as const
 
 export function PurchaseForm({
@@ -45,9 +44,6 @@ export function PurchaseForm({
     return d > 0 ? d : 2
   })()
 
-  const [category, setCategory] = useState<(typeof CATEGORIES)[number]>(
-    (purchase?.category as (typeof CATEGORIES)[number]) ?? 'drinks',
-  )
   const [item, setItem] = useState(purchase?.item ?? '')
   const [quantity, _setQuantity] = useState(purchase?.quantity ?? 1)
   const [unit, setUnit] = useState<string>(purchase?.unit ?? 'units')
@@ -79,7 +75,7 @@ export function PurchaseForm({
   }, [])
 
   const currentSnapshot = JSON.stringify({
-    category, item, quantity, unit, dailyConsumption, days, consumers, assignedTo, group,
+    item, quantity, unit, dailyConsumption, days, consumers, assignedTo, group,
   })
   const [initialSnapshot] = useState(currentSnapshot)
   const isDirty = initialSnapshot !== currentSnapshot
@@ -138,7 +134,6 @@ export function PurchaseForm({
             eventId: event.id,
             purchaseId: purchase.id,
             editedBy: me.id,
-            category,
             item,
             quantity,
             unit,
@@ -157,7 +152,6 @@ export function PurchaseForm({
           const result = await handler.execute({
             eventId: event.id,
             createdBy: me.id,
-            category,
             item,
             quantity,
             unit,
@@ -223,16 +217,20 @@ export function PurchaseForm({
           <p className="text-sm font-medium text-slate-300">{t('purchases.form.editTitle')}: <span className="text-slate-100">{purchase.item}</span></p>
         )}
         <label className="block text-sm text-slate-300">
-          {t('purchases.form.category')}
-          <select
-            className="mt-1 block w-full rounded-lg border border-slate-700 bg-slate-900 p-2 text-sm text-slate-100 disabled:opacity-50"
-            value={category}
-            onChange={(e) => setCategory(e.target.value as (typeof CATEGORIES)[number])}
-          >
-            {CATEGORIES.map((c) => (
-              <option key={c} value={c}>{t(`purchases.form.categories.${c}`)}</option>
+          {t('purchases.form.group')}
+          <input
+            className="mt-1 block w-full rounded-lg border border-slate-700 bg-slate-900 px-3 py-2 text-sm text-slate-100 placeholder-slate-500 focus:border-violet-500 focus:outline-none focus:ring-1 focus:ring-violet-500"
+            list="group-suggestions"
+            value={group}
+            onChange={(e) => setGroup(e.target.value)}
+            maxLength={50}
+            placeholder={t('purchases.form.groupPlaceholder')}
+          />
+          <datalist id="group-suggestions">
+            {existingGroups.map((g) => (
+              <option key={g} value={g} />
             ))}
-          </select>
+          </datalist>
         </label>
         <label className="block text-sm text-slate-300">
           {t('purchases.form.item')}
@@ -343,22 +341,6 @@ export function PurchaseForm({
                 <option key={u.id} value={u.id}>{u.alias ? `${u.name} (${u.alias})` : u.name}</option>
               ))}
           </select>
-        </label>
-        <label className="block text-sm text-slate-300">
-          {t('purchases.form.group')}
-          <input
-            className="mt-1 block w-full rounded-lg border border-slate-700 bg-slate-900 px-3 py-2 text-sm text-slate-100 placeholder-slate-500 focus:border-violet-500 focus:outline-none focus:ring-1 focus:ring-violet-500"
-            list="group-suggestions"
-            value={group}
-            onChange={(e) => setGroup(e.target.value)}
-            maxLength={50}
-            placeholder={t('purchases.form.groupPlaceholder')}
-          />
-          <datalist id="group-suggestions">
-            {existingGroups.map((g) => (
-              <option key={g} value={g} />
-            ))}
-          </datalist>
         </label>
         {(() => {
           const totalDaily = Object.values(consumers).reduce(

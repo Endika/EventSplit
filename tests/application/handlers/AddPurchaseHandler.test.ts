@@ -12,7 +12,6 @@ describe('AddPurchaseHandler', () => {
     const result = await new AddPurchaseHandler(repo).execute({
       eventId: create.event.id,
       createdBy: creatorId,
-      category: 'drinks',
       item: 'Coke',
       quantity: 3,
       unit: 'bottles',
@@ -35,7 +34,7 @@ describe('AddPurchaseHandler', () => {
       handler.execute({
         eventId: create.event.id,
         createdBy: create.creator.id,
-        category: 'drinks', item: 'Coke', quantity: 1, unit: 'bottles', dailyConsumption: 1,
+        item: 'Coke', quantity: 1, unit: 'bottles', dailyConsumption: 1,
         consumers: [{ userId: '018f4a8e-0000-7000-8000-000000000000', multiplier: 1 }],
         days: 1,
       }),
@@ -50,7 +49,6 @@ describe('AddPurchaseHandler', () => {
     const result = await new AddPurchaseHandler(repo).execute({
       eventId: create.event.id,
       createdBy: creatorId,
-      category: 'drinks',
       item: 'Coke',
       quantity: 3,
       unit: 'bottles',

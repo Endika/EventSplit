@@ -208,7 +208,6 @@
     "moveUp": "Pujar",
     "moveDown": "Baixar",
     "form": {
-      "category": "Categoria",
       "item": "Producte",
       "quantity": "Quantitat inicial",
       "unit": "Unitat",
@@ -224,12 +223,6 @@
       "submit": "Guarda la compra",
       "editTitle": "Edita la compra",
       "update": "Guarda els canvis",
-      "categories": {
-        "food": "Menjar",
-        "drinks": "Begudes",
-        "snacks": "Picar",
-        "other": "Altre"
-      },
       "units": {
         "units": "unitats",
         "bottles": "botelles",

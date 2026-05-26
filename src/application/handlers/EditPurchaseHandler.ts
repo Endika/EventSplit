@@ -28,7 +28,6 @@ export class EditPurchaseHandler {
       if (existing.deleted) throw new Error('Cannot edit a deleted purchase')
 
       const updated = Purchase.restore(existing).edit({
-        category: parsed.category,
         item: parsed.item,
         quantity: parsed.quantity,
         unit: parsed.unit,

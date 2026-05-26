@@ -208,7 +208,6 @@
     "moveUp": "Subir",
     "moveDown": "Bajar",
     "form": {
-      "category": "Categoría",
       "item": "Producto",
       "quantity": "Cantidad inicial",
       "unit": "Unidad",
@@ -224,12 +223,6 @@
       "submit": "Guardar compra",
       "editTitle": "Editar compra",
       "update": "Guardar cambios",
-      "categories": {
-        "food": "Comida",
-        "drinks": "Bebidas",
-        "snacks": "Picoteo",
-        "other": "Otro"
-      },
       "units": {
         "units": "unidades",
         "bottles": "botellas",

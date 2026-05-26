@@ -208,7 +208,6 @@
     "moveUp": "Gora",
     "moveDown": "Behera",
     "form": {
-      "category": "Kategoria",
       "item": "Produktua",
       "quantity": "Hasierako kopurua",
       "unit": "Unitatea",
@@ -224,12 +223,6 @@
       "submit": "Gorde erosketa",
       "editTitle": "Erosketa editatu",
       "update": "Aldaketak gorde",
-      "categories": {
-        "food": "Janaria",
-        "drinks": "Edariak",
-        "snacks": "Pikatzekoak",
-        "other": "Bestelakoa"
-      },
       "units": {
         "units": "unitateak",
         "bottles": "botilak",

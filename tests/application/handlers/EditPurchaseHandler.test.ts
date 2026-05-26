@@ -11,7 +11,6 @@ describe('EditPurchaseHandler', () => {
     const added = await new AddPurchaseHandler(repo).execute({
       eventId: create.event.id,
       createdBy: create.creator.id,
-      category: 'drinks',
       item: 'Coke',
       quantity: 3,
       unit: 'bottles',
@@ -28,7 +27,6 @@ describe('EditPurchaseHandler', () => {
       eventId: ctx.eventId,
       purchaseId: ctx.purchaseId,
       editedBy: ctx.userId,
-      category: 'drinks',
       item: 'Coke',
       quantity: 5,
       unit: 'cans',
@@ -39,7 +37,6 @@ describe('EditPurchaseHandler', () => {
     const p = result.event.purchases[0]!
     expect(p.quantity).toBe(5)
     expect(p.unit).toBe('cans')
-    expect(p.category).toBe('drinks') // unchanged
     expect(p.item).toBe('Coke') // unchanged
     expect(result.event.history.at(-1)?.type).toBe('purchase_edited')
   })
@@ -50,7 +47,6 @@ describe('EditPurchaseHandler', () => {
       eventId: ctx.eventId,
       purchaseId: ctx.purchaseId,
       editedBy: ctx.userId,
-      category: 'drinks',
       item: 'Coke',
       quantity: 3,
       unit: 'bottles',
@@ -68,7 +64,6 @@ describe('EditPurchaseHandler', () => {
         eventId: ctx.eventId,
         purchaseId: '00000000-0000-7000-8000-000000000000',
         editedBy: ctx.userId,
-        category: 'drinks',
         item: 'Coke',
         quantity: 1,
         unit: 'bottles',
@@ -86,7 +81,6 @@ describe('EditPurchaseHandler', () => {
         eventId: ctx.eventId,
         purchaseId: ctx.purchaseId,
         editedBy: '00000000-0000-7000-8000-000000000000',
-        category: 'drinks',
         item: 'Coke',
         quantity: 1,
         unit: 'bottles',
@@ -97,13 +91,12 @@ describe('EditPurchaseHandler', () => {
     ).rejects.toThrow(/not in event/i)
   })
 
-  it('can change the item name and category', async () => {
+  it('can change the item name', async () => {
     const ctx = await setup()
     const result = await new EditPurchaseHandler(ctx.repo).execute({
       eventId: ctx.eventId,
       purchaseId: ctx.purchaseId,
       editedBy: ctx.userId,
-      category: 'food',
       item: 'Bread',
       quantity: 2,
       unit: 'loaves',
@@ -112,7 +105,6 @@ describe('EditPurchaseHandler', () => {
       days: 2,
     })
     expect(result.event.purchases[0]!.item).toBe('Bread')
-    expect(result.event.purchases[0]!.category).toBe('food')
     expect(result.event.purchases[0]!.unit).toBe('loaves')
   })
 
@@ -122,7 +114,6 @@ describe('EditPurchaseHandler', () => {
       eventId: ctx.eventId,
       purchaseId: ctx.purchaseId,
       editedBy: ctx.userId,
-      category: 'drinks',
       item: 'Coke',
       quantity: 3,
       unit: 'bottles',

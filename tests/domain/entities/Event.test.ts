@@ -79,7 +79,6 @@ describe('Event', () => {
     snap.purchases.push({
       id: '01900000-0000-7000-8000-000000000001',
       createdBy: creator.id.value, // creator owns it — not maria
-      category: 'drinks',
       item: 'Coke',
       quantity: 1,
       unit: 'bottles',
@@ -132,7 +131,6 @@ describe('Event', () => {
     snap.purchases.push({
       id: '01900000-0000-7000-8000-000000000003',
       createdBy: maria.id.value,
-      category: 'drinks',
       item: 'Coke',
       quantity: 1,
       unit: 'bottles',
@@ -280,7 +278,7 @@ describe('Event', () => {
     const snap = e.toSnapshot()
     snap.purchases.push({
       id: '01900000-0000-7000-8000-0000000000a1', createdBy: creator.id.value,
-      category: 'food', item: 'Bread', quantity: 1, unit: 'units', dailyConsumption: 1,
+      item: 'Bread', quantity: 1, unit: 'units', dailyConsumption: 1,
       totalQuantity: 1, consumers: [{ userId: creator.id.value, multiplier: 1 }],
       deleted: false, deletedBy: null, deletedAt: null, deleteReason: null,
       createdAt: '2026-01-01T00:00:00Z', assignedTo: null, purchased: false, boughtQuantity: 0,

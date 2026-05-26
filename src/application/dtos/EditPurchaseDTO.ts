@@ -4,7 +4,6 @@ export const EditPurchaseSchema = z.object({
   eventId: z.string().regex(/^[a-z0-9]{7}$/),
   purchaseId: z.string().uuid(),
   editedBy: z.string().uuid(),
-  category: z.enum(['food', 'drinks', 'snacks', 'other']),
   item: z.string().trim().min(2).max(50),
   quantity: z.number().positive().max(10_000),
   unit: z.string().trim().min(1).max(30),
