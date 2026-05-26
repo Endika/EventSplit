@@ -62,11 +62,23 @@ export function ExpensesTab() {
       )}
       <ul className="space-y-2">
         {visible.map((e) => (
-          <li key={e.id} className="rounded-lg border border-slate-800 bg-slate-900 p-3">
+          <li
+            key={e.id}
+            className={`rounded-lg border bg-slate-900 p-3 ${
+              editing?.id === e.id ? 'border-violet-500 ring-1 ring-violet-500' : 'border-slate-800'
+            }`}
+          >
             <div className="flex items-start justify-between gap-2">
-              <div className="flex-1">
-                <div className="flex items-center justify-between">
-                  <span className="font-medium text-slate-100">{e.description}</span>
+              <button
+                type="button"
+                onClick={() => setEditing(e)}
+                className="flex-1 rounded text-left hover:opacity-80"
+                aria-label={t('expenses.edit')}
+              >
+                <div className="flex items-center justify-between gap-2">
+                  <span className="font-medium text-slate-100">
+                    {e.description} <span className="text-xs text-slate-500">✎</span>
+                  </span>
                   <span className="text-sm text-slate-200">€{fmt(e.cents)}</span>
                 </div>
                 <div className="text-xs text-slate-500">
@@ -80,23 +92,14 @@ export function ExpensesTab() {
                     })}
                   </div>
                 )}
-              </div>
-              <div className="flex flex-col items-end gap-1">
-                <button
-                  type="button"
-                  onClick={() => setEditing(e)}
-                  className="rounded p-1.5 text-xs text-slate-400 hover:bg-slate-800 hover:text-slate-200"
-                  aria-label={t('expenses.edit')}
-                  title={t('expenses.edit')}
-                >✎</button>
-                <button
-                  type="button"
-                  onClick={() => setDeleting(e)}
-                  className="rounded p-1.5 text-xs text-slate-400 hover:bg-slate-800 hover:text-rose-400"
-                  aria-label={t('expenses.delete')}
-                  title={t('expenses.delete')}
-                >🗑️</button>
-              </div>
+              </button>
+              <button
+                type="button"
+                onClick={() => setDeleting(e)}
+                className="rounded p-1.5 text-xs text-slate-400 hover:bg-slate-800 hover:text-rose-400"
+                aria-label={t('expenses.delete')}
+                title={t('expenses.delete')}
+              >🗑️</button>
             </div>
           </li>
         ))}
