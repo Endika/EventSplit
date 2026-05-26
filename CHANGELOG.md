@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.52.0](https://github.com/Endika/EventSplit/compare/v1.51.0...v1.52.0) (2026-05-26)
+
+
+### Features
+
+* **purchases:** allergy/diet chips on consumers, fix bring label ([1545c58](https://github.com/Endika/EventSplit/commit/1545c583c7af3b0aeeac3e6a063fc0891f5f2acc))
+
 ## [1.51.0](https://github.com/Endika/EventSplit/compare/v1.50.1...v1.51.0) (2026-05-26)
 
 
