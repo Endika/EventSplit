@@ -1,5 +1,14 @@
 # Changelog
 
+## [1.25.0](https://github.com/Endika/EventSplit/compare/v1.24.0...v1.25.0) (2026-05-26)
+
+
+### Features
+
+* **app:** add recover handlers for purchase and expense ([93fc931](https://github.com/Endika/EventSplit/commit/93fc9319e32a94a90def3cbe34741454abd77f1d))
+* **domain:** add recover to purchase and expense entities ([087fd21](https://github.com/Endika/EventSplit/commit/087fd21c8a6b60010610f7edb8a3a9337e14b54d))
+* **ui:** show deleted items with restore button ([3fd534a](https://github.com/Endika/EventSplit/commit/3fd534a392abb37741ebebb367864d53f5e5ae2c))
+
 ## [1.24.0](https://github.com/Endika/EventSplit/compare/v1.23.0...v1.24.0) (2026-05-26)
 
 
