@@ -26,6 +26,7 @@ import { RecoverPurchaseHandler } from '@/application/handlers/RecoverPurchaseHa
 import { RecoverExpenseHandler } from '@/application/handlers/RecoverExpenseHandler'
 import { RemoveParticipantHandler } from '@/application/handlers/RemoveParticipantHandler'
 import { SetEventStageHandler } from '@/application/handlers/SetEventStageHandler'
+import { ToggleSettlementHandler } from '@/application/handlers/ToggleSettlementHandler'
 import type { IEventRepository } from '@/domain/repositories/IEventRepository'
 
 export function buildContainer(): Container {
@@ -61,5 +62,6 @@ export function buildContainer(): Container {
   c.register('recoverExpense', () => new RecoverExpenseHandler(c.resolve('eventRepo')))
   c.register('removeParticipant', () => new RemoveParticipantHandler(c.resolve('eventRepo')))
   c.register('setEventStage', () => new SetEventStageHandler(c.resolve('eventRepo')))
+  c.register('toggleSettlement', () => new ToggleSettlementHandler(c.resolve('eventRepo')))
   return c
 }
