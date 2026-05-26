@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.41.0](https://github.com/Endika/EventSplit/compare/v1.40.0...v1.41.0) (2026-05-26)
+
+
+### Features
+
+* **domain:** track partial bought quantity on purchases ([ee041ba](https://github.com/Endika/EventSplit/commit/ee041ba695b6d3a496e9f7f7858b35eb4f470f46))
+* **ui:** show estimated quantity in expense buy-list ([fced38d](https://github.com/Endika/EventSplit/commit/fced38d615a086c2f27f3092cdda14b4454b08c0))
+
 ## [1.40.0](https://github.com/Endika/EventSplit/compare/v1.39.0...v1.40.0) (2026-05-26)
 
 
