@@ -10,6 +10,7 @@ import { YouLabel } from '@/presentation/components/common/YouLabel'
 import type { PurchaseSnapshot } from '@/domain/entities/Purchase'
 import type { AssignPurchaseHandler } from '@/application/handlers/AssignPurchaseHandler'
 import type { DeletePurchaseHandler } from '@/application/handlers/DeletePurchaseHandler'
+import type { RecoverPurchaseHandler } from '@/application/handlers/RecoverPurchaseHandler'
 import type { LocalStorageCache } from '@/infrastructure/persistence/LocalStorageCache'
 import { reportError } from '@/shared/utils/reportError'
 import { PurchaseForm } from './PurchaseForm'
@@ -28,9 +29,11 @@ export function PurchasesTab() {
   const [adding, setAdding] = useState(false)
   const [editing, setEditing] = useState<PurchaseSnapshot | null>(null)
   const [deleting, setDeleting] = useState<PurchaseSnapshot | null>(null)
+  const [showDeleted, setShowDeleted] = useState(false)
   if (!event) return null
 
   const visible = event.purchases.filter((p) => !p.deleted)
+  const deleted = event.purchases.filter((p) => p.deleted)
   const userName = (id: string) => event.users.find((u) => u.id === id)?.name ?? '?'
 
   function assignBuyer(p: PurchaseSnapshot, assignedTo: string | null) {
@@ -69,6 +72,20 @@ export function PurchasesTab() {
 
   function askDelete(p: PurchaseSnapshot) {
     setDeleting(p)
+  }
+
+  function recover(p: PurchaseSnapshot) {
+    if (!event || !me) return
+    guardedExecute(async () => {
+      try {
+        const handler = container.resolve<RecoverPurchaseHandler>('recoverPurchase')
+        const result = await handler.execute({ eventId: event.id, purchaseId: p.id, recoveredBy: me.id })
+        container.resolve<LocalStorageCache>('cache').set(event.id, { snapshot: result.event, version: result.version })
+        setEvent(result.event, result.version)
+      } catch (err) {
+        reportError('PurchasesTab', err)
+      }
+    })
   }
 
   function confirmDelete() {
@@ -158,6 +175,33 @@ export function PurchasesTab() {
           </li>
         ))}
       </ul>
+      {deleted.length > 0 && (
+        <div className="pt-2">
+          <button
+            type="button"
+            onClick={() => setShowDeleted((v) => !v)}
+            className="text-xs text-slate-500 hover:text-slate-300"
+          >
+            {showDeleted ? '▾' : '▸'} {t('purchases.showDeleted', { count: deleted.length })}
+          </button>
+          {showDeleted && (
+            <ul className="mt-2 space-y-2">
+              {deleted.map((p) => (
+                <li key={p.id} className="flex items-center justify-between rounded-lg border border-slate-800 bg-slate-900/50 p-3 text-sm">
+                  <span className="text-slate-500 line-through">{p.item}</span>
+                  <button
+                    type="button"
+                    onClick={() => recover(p)}
+                    className="rounded px-2 py-1 text-xs text-teal-300 hover:bg-slate-800"
+                  >
+                    ↺ {t('purchases.restore')}
+                  </button>
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
+      )}
       {deleting && (
         <Modal open title={t('purchases.deleteTitle')} dismissable onClose={() => setDeleting(null)}>
           <div className="space-y-3">

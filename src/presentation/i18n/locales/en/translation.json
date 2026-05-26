@@ -148,6 +148,8 @@
     "deleteTitle": "Delete purchase",
     "deleteConfirm": "Delete \"{{item}}\"? You can't undo this from the list.",
     "deleteYes": "Delete",
+    "showDeleted": "Deleted ({{count}})",
+    "restore": "Restore",
     "bought": "Bought",
     "assignedShort": "Buyer:",
     "unassigned": "Unassigned",
@@ -199,6 +201,8 @@
     "deleteTitle": "Delete expense",
     "deleteConfirm": "Delete \"{{desc}}\"?",
     "deleteYes": "Delete",
+    "showDeleted": "Deleted ({{count}})",
+    "restore": "Restore",
     "form": {
       "paidBy": "Who paid",
       "amount": "Amount (€)",

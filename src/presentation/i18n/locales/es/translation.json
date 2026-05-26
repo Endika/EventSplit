@@ -148,6 +148,8 @@
     "deleteTitle": "Borrar compra",
     "deleteConfirm": "¿Borrar \"{{item}}\"? No podrás deshacerlo desde la lista.",
     "deleteYes": "Borrar",
+    "showDeleted": "Borrados ({{count}})",
+    "restore": "Restaurar",
     "bought": "Comprado",
     "assignedShort": "Compra:",
     "unassigned": "Sin asignar",
@@ -199,6 +201,8 @@
     "deleteTitle": "Borrar gasto",
     "deleteConfirm": "¿Borrar \"{{desc}}\"?",
     "deleteYes": "Borrar",
+    "showDeleted": "Borrados ({{count}})",
+    "restore": "Restaurar",
     "form": {
       "paidBy": "Quién pagó",
       "amount": "Importe (€)",

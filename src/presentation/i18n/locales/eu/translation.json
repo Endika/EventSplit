@@ -148,6 +148,8 @@
     "deleteTitle": "Erosketa ezabatu",
     "deleteConfirm": "\"{{item}}\" ezabatu? Ezin da zerrendatik desegin.",
     "deleteYes": "Ezabatu",
+    "showDeleted": "Ezabatuak ({{count}})",
+    "restore": "Berreskuratu",
     "bought": "Erosita",
     "assignedShort": "Eroslea:",
     "unassigned": "Esleitu gabe",
@@ -199,6 +201,8 @@
     "deleteTitle": "Gastua ezabatu",
     "deleteConfirm": "\"{{desc}}\" ezabatu?",
     "deleteYes": "Ezabatu",
+    "showDeleted": "Ezabatuak ({{count}})",
+    "restore": "Berreskuratu",
     "form": {
       "paidBy": "Nork ordaindu du",
       "amount": "Zenbatekoa (€)",

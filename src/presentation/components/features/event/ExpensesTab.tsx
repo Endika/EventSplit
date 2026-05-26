@@ -9,6 +9,7 @@ import { Modal } from '@/presentation/components/common/Modal'
 import { YouLabel } from '@/presentation/components/common/YouLabel'
 import type { ExpenseSnapshot } from '@/domain/entities/Expense'
 import type { DeleteExpenseHandler } from '@/application/handlers/DeleteExpenseHandler'
+import type { RecoverExpenseHandler } from '@/application/handlers/RecoverExpenseHandler'
 import type { LocalStorageCache } from '@/infrastructure/persistence/LocalStorageCache'
 import { reportError } from '@/shared/utils/reportError'
 import { ExpenseForm } from './ExpenseForm'
@@ -25,10 +26,28 @@ export function ExpensesTab() {
   const [adding, setAdding] = useState(false)
   const [editing, setEditing] = useState<ExpenseSnapshot | null>(null)
   const [deleting, setDeleting] = useState<ExpenseSnapshot | null>(null)
+  const [showDeleted, setShowDeleted] = useState(false)
   if (!event) return null
 
   const visible = event.expenses.filter((e) => !e.deleted)
+  const deleted = event.expenses.filter((e) => e.deleted)
   const nameOf = (id: string) => event.users.find((u) => u.id === id)?.name ?? '?'
+
+  function recover(e: ExpenseSnapshot) {
+    if (!event || !me) return
+    guardedExecute(async () => {
+      try {
+        const handler = container.resolve<RecoverExpenseHandler>('recoverExpense')
+        const result = await handler.execute({ eventId: event.id, expenseId: e.id, recoveredBy: me.id })
+        container
+          .resolve<LocalStorageCache>('cache')
+          .set(event.id, { snapshot: result.event, version: result.version })
+        setEvent(result.event, result.version)
+      } catch (err) {
+        reportError('ExpensesTab', err)
+      }
+    })
+  }
 
   function confirmDelete() {
     if (!event || !me || !deleting) return
@@ -105,6 +124,36 @@ export function ExpensesTab() {
         ))}
       </ul>
       {visible.length > 0 && <ExpenseSummary />}
+      {deleted.length > 0 && (
+        <div className="pt-2">
+          <button
+            type="button"
+            onClick={() => setShowDeleted((v) => !v)}
+            className="text-xs text-slate-500 hover:text-slate-300"
+          >
+            {showDeleted ? '▾' : '▸'} {t('expenses.showDeleted', { count: deleted.length })}
+          </button>
+          {showDeleted && (
+            <ul className="mt-2 space-y-2">
+              {deleted.map((e) => (
+                <li key={e.id} className="flex items-center justify-between gap-2 rounded-lg border border-slate-800 bg-slate-900/50 p-3 text-sm">
+                  <span className="text-slate-500 line-through">{e.description}</span>
+                  <span className="flex items-center gap-2">
+                    <span className="text-slate-500 line-through">€{fmt(e.cents)}</span>
+                    <button
+                      type="button"
+                      onClick={() => recover(e)}
+                      className="rounded px-2 py-1 text-xs text-teal-300 hover:bg-slate-800"
+                    >
+                      ↺ {t('expenses.restore')}
+                    </button>
+                  </span>
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
+      )}
       {deleting && (
         <Modal open title={t('expenses.deleteTitle')} dismissable onClose={() => setDeleting(null)}>
           <div className="space-y-3">
