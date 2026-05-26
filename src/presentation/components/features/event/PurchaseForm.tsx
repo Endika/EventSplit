@@ -46,16 +46,23 @@ export function PurchaseForm({
     (purchase?.category as (typeof CATEGORIES)[number]) ?? 'drinks',
   )
   const [item, setItem] = useState(purchase?.item ?? '')
-  const [quantity, setQuantity] = useState(purchase?.quantity ?? 1)
+  const [quantity, _setQuantity] = useState(purchase?.quantity ?? 1)
   const [unit, setUnit] = useState<(typeof UNITS)[number]>(
     (purchase?.unit as (typeof UNITS)[number]) ?? 'units',
   )
   const [dailyConsumption, setDailyConsumption] = useState(purchase?.dailyConsumption ?? 1)
   const [days, setDays] = useState(inferredDays)
   const [consumers, setConsumers] = useState<Record<string, number>>(() => {
-    if (!purchase) return {}
+    if (purchase) {
+      const map: Record<string, number> = {}
+      for (const c of purchase.consumers) map[c.userId] = c.multiplier
+      return map
+    }
+    // New purchase: pre-select everyone at their default multiplier
     const map: Record<string, number> = {}
-    for (const c of purchase.consumers) map[c.userId] = c.multiplier
+    for (const u of event?.users ?? []) {
+      map[u.id] = u.kind === 'child' ? 0.5 : 1
+    }
     return map
   })
   const [busy, setBusy] = useState(false)
@@ -63,6 +70,18 @@ export function PurchaseForm({
   const [pendingMatches, setPendingMatches] = useState<AllergyMatch[] | null>(null)
 
   if (!event || !me) return null
+
+  function selectAllConsumers() {
+    const map: Record<string, number> = {}
+    for (const u of event?.users ?? []) {
+      map[u.id] = u.kind === 'child' ? 0.5 : 1
+    }
+    setConsumers(map)
+  }
+
+  function selectNoConsumers() {
+    setConsumers({})
+  }
 
   function toggleConsumer(id: string) {
     setConsumers((prev) => {
@@ -185,54 +204,70 @@ export function PurchaseForm({
             ))}
           </select>
         </label>
-        <Input
-          placeholder={t('purchases.form.item')}
-          value={item}
-          onChange={(e) => setItem(e.target.value)}
-          required
-          minLength={2}
-          maxLength={50}
-          disabled={!!purchase}
-        />
-        <div className="grid grid-cols-2 gap-3">
+        <label className="block text-sm text-slate-300">
+          {t('purchases.form.item')}
           <Input
-            type="number"
-            min="0.5"
-            max="10000"
-            step="0.5"
-            placeholder={t('purchases.form.quantity')}
-            value={quantity}
-            onChange={(e) => setQuantity(parseFloat(e.target.value))}
+            className="mt-1"
+            placeholder={t('purchases.form.itemPlaceholder')}
+            value={item}
+            onChange={(e) => setItem(e.target.value)}
+            required
+            minLength={2}
+            maxLength={50}
+            disabled={!!purchase}
           />
-          <select
-            className="rounded-lg border border-slate-700 bg-slate-900 p-2 text-sm text-slate-100"
-            value={unit}
-            onChange={(e) => setUnit(e.target.value as (typeof UNITS)[number])}
-          >
-            {UNITS.map((u) => (
-              <option key={u} value={u}>{t(`purchases.form.units.${u}`)}</option>
-            ))}
-          </select>
+        </label>
+        <div className="grid grid-cols-2 gap-3">
+          <label className="block text-sm text-slate-300">
+            {t('purchases.form.dailyConsumption')}
+            <Input
+              className="mt-1"
+              type="number"
+              min="0.5"
+              max="100"
+              step="0.5"
+              value={dailyConsumption}
+              onChange={(e) => setDailyConsumption(parseFloat(e.target.value))}
+            />
+          </label>
+          <label className="block text-sm text-slate-300">
+            {t('purchases.form.unit')}
+            <select
+              className="mt-1 block w-full rounded-lg border border-slate-700 bg-slate-900 p-2 text-sm text-slate-100"
+              value={unit}
+              onChange={(e) => setUnit(e.target.value as (typeof UNITS)[number])}
+            >
+              {UNITS.map((u) => (
+                <option key={u} value={u}>{t(`purchases.form.units.${u}`)}</option>
+              ))}
+            </select>
+          </label>
         </div>
-        <Input
-          type="number"
-          min="0.5"
-          max="100"
-          step="0.5"
-          placeholder={t('purchases.form.dailyConsumption')}
-          value={dailyConsumption}
-          onChange={(e) => setDailyConsumption(parseFloat(e.target.value))}
-        />
-        <Input
-          type="number"
-          min="1"
-          step="1"
-          placeholder={t('purchases.form.days')}
-          value={days}
-          onChange={(e) => setDays(parseInt(e.target.value, 10))}
-        />
+        <p className="-mt-1 text-xs text-slate-500">{t('purchases.form.dailyConsumptionHelp')}</p>
+        <label className="block text-sm text-slate-300">
+          {t('purchases.form.days')}
+          <Input
+            className="mt-1"
+            type="number"
+            min="1"
+            step="1"
+            value={days}
+            onChange={(e) => setDays(parseInt(e.target.value, 10))}
+          />
+        </label>
+        <p className="-mt-1 text-xs text-slate-500">{t('purchases.form.daysHelp')}</p>
         <div>
-          <p className="mb-2 text-sm font-medium text-slate-300">{t('purchases.form.consumers')}</p>
+          <div className="mb-2 flex items-center justify-between">
+            <p className="text-sm font-medium text-slate-300">{t('purchases.form.consumers')}</p>
+            <div className="flex gap-2 text-xs">
+              <button type="button" onClick={selectAllConsumers} className="rounded px-2 py-1 text-slate-400 hover:bg-slate-800 hover:text-slate-200">
+                {t('purchases.form.selectAll')}
+              </button>
+              <button type="button" onClick={selectNoConsumers} className="rounded px-2 py-1 text-slate-400 hover:bg-slate-800 hover:text-slate-200">
+                {t('purchases.form.selectNone')}
+              </button>
+            </div>
+          </div>
           <ul className="space-y-1">
             {event.users.map((u) => {
               const selected = consumers[u.id] !== undefined
@@ -262,6 +297,22 @@ export function PurchaseForm({
             })}
           </ul>
         </div>
+        {(() => {
+          const totalDaily = Object.values(consumers).reduce(
+            (sum, mul) => sum + dailyConsumption * mul,
+            0,
+          )
+          const total = totalDaily * days
+          if (!Number.isFinite(total) || total <= 0) return null
+          return (
+            <div className="rounded-lg bg-violet-900/30 px-3 py-2 text-sm text-violet-100">
+              {t('purchases.form.totalPreview', {
+                n: Math.round(total * 100) / 100,
+                unit: t(`purchases.form.units.${unit}`),
+              })}
+            </div>
+          )
+        })()}
         {error && <p className="text-sm text-rose-400">{error}</p>}
         <div className="flex gap-2">
           <Button type="button" variant="secondary" onClick={onDone} disabled={busy}>
