@@ -27,8 +27,12 @@ export function ExpenseForm({ onDone, expense }: { onDone: () => void; expense?:
   const [error, setError] = useState<string | null>(null)
   const [splitAmong, setSplitAmong] = useState<Set<string>>(() => {
     const allIds = event?.users.map((u) => u.id) ?? []
-    if (expense && expense.splitAmong.length > 0) return new Set(expense.splitAmong)
-    return new Set(allIds)
+    if (expense) {
+      // Editing: preserve the saved split (empty array meant "everyone").
+      return new Set(expense.splitAmong.length > 0 ? expense.splitAmong : allIds)
+    }
+    // New expense: default to adults only — children don't usually share costs.
+    return new Set((event?.users ?? []).filter((u) => u.kind === 'adult').map((u) => u.id))
   })
 
   if (!event) return null
