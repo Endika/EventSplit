@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.43.0](https://github.com/Endika/EventSplit/compare/v1.42.0...v1.43.0) (2026-05-26)
+
+
+### Features
+
+* **app:** edit expense can mark or unmark bought items ([51780ec](https://github.com/Endika/EventSplit/commit/51780ec48401f5e0e378548115ab912e6ae143c6))
+* **ui:** toggle bought list items when editing an expense ([836720c](https://github.com/Endika/EventSplit/commit/836720c9d92f82452afe602558a199077f7f4f4b))
+
 ## [1.42.0](https://github.com/Endika/EventSplit/compare/v1.41.0...v1.42.0) (2026-05-26)
 
 
