@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.46.3](https://github.com/Endika/EventSplit/compare/v1.46.2...v1.46.3) (2026-05-26)
+
+
+### Bug Fixes
+
+* **allergy:** match allergen name and free-text note ([7dcf46d](https://github.com/Endika/EventSplit/commit/7dcf46d3d0e577d84c6ff44d59c8359b3e3f65e2))
+
 ## [1.46.2](https://github.com/Endika/EventSplit/compare/v1.46.1...v1.46.2) (2026-05-26)
 
 
