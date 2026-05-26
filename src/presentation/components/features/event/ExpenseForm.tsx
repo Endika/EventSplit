@@ -1,4 +1,4 @@
-import { type FormEvent, useState } from 'react'
+import { type FormEvent, useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useContainer } from '@/presentation/context/ContainerProvider'
 import { useEventState } from '@/presentation/context/EventContext'
@@ -9,11 +9,20 @@ import type { ExpenseSnapshot } from '@/domain/entities/Expense'
 import type { LocalStorageCache } from '@/infrastructure/persistence/LocalStorageCache'
 import { Button } from '@/presentation/components/common/Button'
 import { Input } from '@/presentation/components/common/Input'
+import { Modal } from '@/presentation/components/common/Modal'
 import { useOnlineStatus } from '@/presentation/context/SyncContext'
 import { useWriteGuard } from '@/presentation/context/WriteGuardContext'
 import { reportError } from '@/shared/utils/reportError'
 
-export function ExpenseForm({ onDone, expense }: { onDone: () => void; expense?: ExpenseSnapshot }) {
+export function ExpenseForm({
+  onDone,
+  expense,
+  onDirtyChange,
+}: {
+  onDone: () => void
+  expense?: ExpenseSnapshot
+  onDirtyChange?: (dirty: boolean) => void
+}) {
   const { t } = useTranslation()
   const container = useContainer()
   const { event, setEvent } = useEventState()
@@ -34,6 +43,25 @@ export function ExpenseForm({ onDone, expense }: { onDone: () => void; expense?:
     // New expense: default to adults only — children don't usually share costs.
     return new Set((event?.users ?? []).filter((u) => u.kind === 'adult').map((u) => u.id))
   })
+  const [confirmCancel, setConfirmCancel] = useState(false)
+
+  const rootRef = useRef<HTMLFormElement>(null)
+  useEffect(() => {
+    rootRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+  }, [])
+
+  const currentSnapshot = JSON.stringify({
+    paidBy,
+    amount,
+    description,
+    splitAmong: [...splitAmong].sort(),
+  })
+  const [initialSnapshot] = useState(currentSnapshot)
+  const isDirty = initialSnapshot !== currentSnapshot
+
+  useEffect(() => {
+    onDirtyChange?.(isDirty)
+  }, [isDirty, onDirtyChange])
 
   if (!event) return null
 
@@ -100,7 +128,23 @@ export function ExpenseForm({ onDone, expense }: { onDone: () => void; expense?:
   }
 
   return (
-    <form onSubmit={submit} className="space-y-3 rounded-lg border border-slate-800 bg-slate-900 p-4">
+    <>
+      {confirmCancel && (
+        <Modal open title={t('common.unsavedTitle')} dismissable onClose={() => setConfirmCancel(false)}>
+          <div className="space-y-3">
+            <p className="text-sm text-slate-300">{t('common.unsavedBody')}</p>
+            <div className="flex gap-2">
+              <Button type="button" variant="secondary" onClick={() => setConfirmCancel(false)}>
+                {t('common.keepEditing')}
+              </Button>
+              <Button type="button" onClick={() => { setConfirmCancel(false); onDone() }}>
+                {t('common.discard')}
+              </Button>
+            </div>
+          </div>
+        </Modal>
+      )}
+      <form ref={rootRef} onSubmit={submit} className="space-y-3 rounded-lg border border-slate-800 bg-slate-900 p-4">
       <label className="block text-sm text-slate-300">
         {t('expenses.form.paidBy')}
         <select
@@ -174,13 +218,19 @@ export function ExpenseForm({ onDone, expense }: { onDone: () => void; expense?:
       </fieldset>
       {error && <p className="text-sm text-rose-400">{error}</p>}
       <div className="flex gap-2">
-        <Button type="button" variant="secondary" onClick={onDone} disabled={busy}>
+        <Button
+          type="button"
+          variant="secondary"
+          onClick={() => (isDirty ? setConfirmCancel(true) : onDone())}
+          disabled={busy}
+        >
           {t('common.cancel')}
         </Button>
         <Button type="submit" disabled={busy || !online || !paidBy || !amount}>
           {expense ? t('expenses.form.update') : t('expenses.form.submit')}
         </Button>
       </div>
-    </form>
+      </form>
+    </>
   )
 }

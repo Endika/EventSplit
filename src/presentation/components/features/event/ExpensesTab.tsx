@@ -27,7 +27,19 @@ export function ExpensesTab() {
   const [editing, setEditing] = useState<ExpenseSnapshot | null>(null)
   const [deleting, setDeleting] = useState<ExpenseSnapshot | null>(null)
   const [showDeleted, setShowDeleted] = useState(false)
+  const [formDirty, setFormDirty] = useState(false)
+  const [pendingEdit, setPendingEdit] = useState<ExpenseSnapshot | null>(null)
   if (!event) return null
+
+  function requestEdit(e: ExpenseSnapshot) {
+    // If a form is open with unsaved changes for a DIFFERENT item, confirm first.
+    if ((editing || adding) && formDirty && editing?.id !== e.id) {
+      setPendingEdit(e)
+      return
+    }
+    setAdding(false)
+    setEditing(e)
+  }
 
   const visible = event.expenses.filter((e) => !e.deleted)
   const deleted = event.expenses.filter((e) => e.deleted)
@@ -74,8 +86,15 @@ export function ExpensesTab() {
   return (
     <div className="space-y-4">
       {!adding && !editing && <Button onClick={() => setAdding(true)}>{t('expenses.add')}</Button>}
-      {adding && <ExpenseForm onDone={() => setAdding(false)} />}
-      {editing && <ExpenseForm expense={editing} onDone={() => setEditing(null)} />}
+      {adding && <ExpenseForm key="new" onDone={() => { setAdding(false); setFormDirty(false) }} onDirtyChange={setFormDirty} />}
+      {editing && (
+        <ExpenseForm
+          key={editing.id}
+          expense={editing}
+          onDone={() => { setEditing(null); setFormDirty(false) }}
+          onDirtyChange={setFormDirty}
+        />
+      )}
       {visible.length === 0 && (
         <p className="text-sm text-slate-400">{t('expenses.empty')}</p>
       )}
@@ -90,7 +109,7 @@ export function ExpensesTab() {
             <div className="flex items-start justify-between gap-2">
               <button
                 type="button"
-                onClick={() => setEditing(e)}
+                onClick={() => requestEdit(e)}
                 className="flex-1 rounded text-left hover:opacity-80"
                 aria-label={t('expenses.edit')}
               >
@@ -153,6 +172,30 @@ export function ExpensesTab() {
             </ul>
           )}
         </div>
+      )}
+      {pendingEdit && (
+        <Modal open title={t('common.unsavedTitle')} dismissable onClose={() => setPendingEdit(null)}>
+          <div className="space-y-3">
+            <p className="text-sm text-slate-300">{t('common.unsavedBody')}</p>
+            <div className="flex gap-2">
+              <Button type="button" variant="secondary" onClick={() => setPendingEdit(null)}>
+                {t('common.keepEditing')}
+              </Button>
+              <Button
+                type="button"
+                onClick={() => {
+                  const target = pendingEdit
+                  setPendingEdit(null)
+                  setFormDirty(false)
+                  setAdding(false)
+                  setEditing(target)
+                }}
+              >
+                {t('common.discard')}
+              </Button>
+            </div>
+          </div>
+        </Modal>
       )}
       {deleting && (
         <Modal open title={t('expenses.deleteTitle')} dismissable onClose={() => setDeleting(null)}>
