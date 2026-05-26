@@ -201,6 +201,11 @@
     "createdBy": "Engadida por {{name}}",
     "totalQuantity": "Total a comprar: {{n}} {{unit}}",
     "noGroup": "Sen grupo",
+    "renameGroup": "Renomear grupo",
+    "renameGroupTitle": "Renomear grupo",
+    "renameGroupHint": "Déixao baleiro para quitar o grupo dos seus items.",
+    "moveUp": "Subir",
+    "moveDown": "Baixar",
     "form": {
       "category": "Categoría",
       "item": "Produto",

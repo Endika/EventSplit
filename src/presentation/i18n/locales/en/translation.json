@@ -201,6 +201,11 @@
     "createdBy": "Created by {{name}}",
     "totalQuantity": "Total to buy: {{n}} {{unit}}",
     "noGroup": "No group",
+    "renameGroup": "Rename group",
+    "renameGroupTitle": "Rename group",
+    "renameGroupHint": "Leave empty to remove the group from its items.",
+    "moveUp": "Move up",
+    "moveDown": "Move down",
     "form": {
       "category": "Category",
       "item": "Item name",

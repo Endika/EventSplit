@@ -5,12 +5,15 @@ import { useContainer } from '@/presentation/context/ContainerProvider'
 import { useCurrentUser } from '@/presentation/context/UserContext'
 import { useWriteGuard } from '@/presentation/context/WriteGuardContext'
 import { Button } from '@/presentation/components/common/Button'
+import { Input } from '@/presentation/components/common/Input'
 import { Modal } from '@/presentation/components/common/Modal'
 import { YouLabel } from '@/presentation/components/common/YouLabel'
 import type { PurchaseSnapshot } from '@/domain/entities/Purchase'
 import type { AssignPurchaseHandler } from '@/application/handlers/AssignPurchaseHandler'
 import type { DeletePurchaseHandler } from '@/application/handlers/DeletePurchaseHandler'
 import type { RecoverPurchaseHandler } from '@/application/handlers/RecoverPurchaseHandler'
+import type { RenameGroupHandler } from '@/application/handlers/RenameGroupHandler'
+import type { SetGroupOrderHandler } from '@/application/handlers/SetGroupOrderHandler'
 import type { LocalStorageCache } from '@/infrastructure/persistence/LocalStorageCache'
 import { reportError } from '@/shared/utils/reportError'
 import { PurchaseForm } from './PurchaseForm'
@@ -32,6 +35,8 @@ export function PurchasesTab() {
   const [showDeleted, setShowDeleted] = useState(false)
   const [formDirty, setFormDirty] = useState(false)
   const [pendingEdit, setPendingEdit] = useState<PurchaseSnapshot | null>(null)
+  const [renamingGroup, setRenamingGroup] = useState<string | null>(null)
+  const [groupNewName, setGroupNewName] = useState('')
   if (!event) return null
 
   function requestEdit(p: PurchaseSnapshot) {
@@ -55,10 +60,16 @@ export function PurchasesTab() {
       if (!map.has(key)) map.set(key, [])
       map.get(key)!.push(p)
     }
-    // sorted group names first, ungrouped ('') last
+    // ordered groups first, then unordered alphabetically, ungrouped ('') last
+    const order = event.groupOrder ?? []
     const keys = [...map.keys()].sort((a, b) => {
       if (a === '') return 1
       if (b === '') return -1
+      const ia = order.indexOf(a)
+      const ib = order.indexOf(b)
+      if (ia !== -1 && ib !== -1) return ia - ib
+      if (ia !== -1) return -1
+      if (ib !== -1) return 1
       return a.localeCompare(b)
     })
     return keys.map((k) => ({ group: k, items: map.get(k)! }))
@@ -134,6 +145,44 @@ export function PurchasesTab() {
     })
   }
 
+  function moveGroup(group: string, dir: -1 | 1) {
+    if (!event || !me) return
+    // build the ordered list of real group names (current visual order minus ungrouped)
+    const realGroups = grouped.map((g) => g.group).filter((g) => g !== '')
+    const idx = realGroups.indexOf(group)
+    const target = idx + dir
+    if (idx < 0 || target < 0 || target >= realGroups.length) return
+    const next = [...realGroups]
+    ;[next[idx], next[target]] = [next[target]!, next[idx]!]
+    guardedExecute(async () => {
+      try {
+        const handler = container.resolve<SetGroupOrderHandler>('setGroupOrder')
+        const result = await handler.execute({ eventId: event.id, userId: me.id, order: next })
+        container.resolve<LocalStorageCache>('cache').set(event.id, { snapshot: result.event, version: result.version })
+        setEvent(result.event, result.version)
+      } catch (err) {
+        reportError('PurchasesTab', err)
+      }
+    })
+  }
+
+  function submitRename() {
+    if (!event || !me || renamingGroup === null) return
+    const from = renamingGroup
+    const to = groupNewName
+    guardedExecute(async () => {
+      try {
+        const handler = container.resolve<RenameGroupHandler>('renameGroup')
+        const result = await handler.execute({ eventId: event.id, userId: me.id, from, to })
+        container.resolve<LocalStorageCache>('cache').set(event.id, { snapshot: result.event, version: result.version })
+        setEvent(result.event, result.version)
+        setRenamingGroup(null)
+      } catch (err) {
+        reportError('PurchasesTab', err)
+      }
+    })
+  }
+
   return (
     <div className="space-y-3">
       {!adding && !editing && <Button onClick={() => setAdding(true)}>{t('purchases.add')}</Button>}
@@ -149,9 +198,17 @@ export function PurchasesTab() {
       {visible.length === 0 && <p className="text-sm text-slate-400">{t('purchases.empty')}</p>}
       {grouped.map(({ group, items }) => (
         <div key={group || '__none__'} className="space-y-2">
-          {(grouped.length > 1 || group !== '') && (
+          {group !== '' && (
+            <div className="flex items-center gap-2 px-1">
+              <h3 className="flex-1 text-xs font-semibold uppercase tracking-wide text-violet-300">{group}</h3>
+              <button type="button" onClick={() => moveGroup(group, -1)} className="text-xs text-slate-500 hover:text-slate-300" aria-label={t('purchases.moveUp')}>↑</button>
+              <button type="button" onClick={() => moveGroup(group, 1)} className="text-xs text-slate-500 hover:text-slate-300" aria-label={t('purchases.moveDown')}>↓</button>
+              <button type="button" onClick={() => { setRenamingGroup(group); setGroupNewName(group) }} className="text-xs text-slate-500 hover:text-slate-200" aria-label={t('purchases.renameGroup')}>✎</button>
+            </div>
+          )}
+          {group === '' && grouped.length > 1 && (
             <h3 className="px-1 text-xs font-semibold uppercase tracking-wide text-violet-300">
-              {group === '' ? t('purchases.noGroup') : group}
+              {t('purchases.noGroup')}
             </h3>
           )}
           <ul className="space-y-2">
@@ -266,6 +323,18 @@ export function PurchasesTab() {
               >
                 {t('common.discard')}
               </Button>
+            </div>
+          </div>
+        </Modal>
+      )}
+      {renamingGroup !== null && (
+        <Modal open title={t('purchases.renameGroupTitle')} dismissable onClose={() => setRenamingGroup(null)}>
+          <div className="space-y-3">
+            <Input value={groupNewName} onChange={(e) => setGroupNewName(e.target.value)} maxLength={50} placeholder={t('purchases.form.groupPlaceholder')} autoFocus />
+            <p className="text-xs text-slate-500">{t('purchases.renameGroupHint')}</p>
+            <div className="flex gap-2">
+              <Button type="button" variant="secondary" onClick={() => setRenamingGroup(null)}>{t('common.cancel')}</Button>
+              <Button type="button" onClick={submitRename}>{t('common.save')}</Button>
             </div>
           </div>
         </Modal>

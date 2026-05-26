@@ -201,6 +201,11 @@
     "createdBy": "Gehitu duena: {{name}}",
     "totalQuantity": "Erosi beharrekoa: {{n}} {{unit}}",
     "noGroup": "Talderik gabe",
+    "renameGroup": "Berrizendatu taldea",
+    "renameGroupTitle": "Berrizendatu taldea",
+    "renameGroupHint": "Hutsik utzi taldea bere elementuetatik kentzeko.",
+    "moveUp": "Gora",
+    "moveDown": "Behera",
     "form": {
       "category": "Kategoria",
       "item": "Produktua",

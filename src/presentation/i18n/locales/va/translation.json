@@ -201,6 +201,11 @@
     "createdBy": "Afegida per {{name}}",
     "totalQuantity": "Total a comprar: {{n}} {{unit}}",
     "noGroup": "Sense grup",
+    "renameGroup": "Renomenar grup",
+    "renameGroupTitle": "Renomenar grup",
+    "renameGroupHint": "Deixa-ho buit per a llevar el grup dels seus elements.",
+    "moveUp": "Pujar",
+    "moveDown": "Baixar",
     "form": {
       "category": "Categoria",
       "item": "Producte",
