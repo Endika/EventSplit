@@ -30,12 +30,21 @@ export interface HistoryEntry {
   after: unknown
 }
 
+export interface EventLocation {
+  name: string
+  address: string | null
+  lat: number | null
+  lng: number | null
+  postalCode: string | null
+  googleMapsUrl: string | null
+}
+
 export interface EventSnapshot {
   id: string
   name: string
   createdBy: string
   description: string | null
-  location: null
+  location: EventLocation | null
   generalNotes: string | null
   wifiPassword: string | null
   emergencyContact: string | null
