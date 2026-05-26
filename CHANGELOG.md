@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.21.0](https://github.com/Endika/EventSplit/compare/v1.20.1...v1.21.0) (2026-05-26)
+
+
+### Features
+
+* **i18n:** rename add-purchase button to add-to-list ([a475953](https://github.com/Endika/EventSplit/commit/a475953c83d0c84d4ab7bd8128193e2c8aa73625))
+
 ## [1.20.1](https://github.com/Endika/EventSplit/compare/v1.20.0...v1.20.1) (2026-05-26)
 
 
