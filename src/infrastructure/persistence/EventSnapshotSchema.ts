@@ -97,6 +97,7 @@ export const EventSnapshotSchema = z.object({
   chosenDay: z.string().nullable().default(null),
   days: z.array(z.string()).default([]),
   purchases: z.array(PurchaseSchema).default([]),
+  groupOrder: z.array(z.string()).default([]),
   expenses: z.array(ExpenseSchema).default([]),
   editPin: z.string().nullable().default(null),
   stage: z.enum(['doodle', 'shopping', 'expenses']).default('doodle'),

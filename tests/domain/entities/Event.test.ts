@@ -273,4 +273,38 @@ describe('Event', () => {
     const e = Event.create({ name: 'Trip', creator: User.create({ name: 'John' }) })
     expect(e.toSnapshot().settledTransfers).toEqual([])
   })
+
+  it('renameGroup renames the group across its purchases', () => {
+    const creator = User.create({ name: 'John' })
+    let e = Event.create({ name: 'Trip', creator })
+    const snap = e.toSnapshot()
+    snap.purchases.push({
+      id: '01900000-0000-7000-8000-0000000000a1', createdBy: creator.id.value,
+      category: 'food', item: 'Bread', quantity: 1, unit: 'units', dailyConsumption: 1,
+      totalQuantity: 1, consumers: [{ userId: creator.id.value, multiplier: 1 }],
+      deleted: false, deletedBy: null, deletedAt: null, deleteReason: null,
+      createdAt: '2026-01-01T00:00:00Z', assignedTo: null, purchased: false, boughtQuantity: 0,
+      group: 'Cena',
+    } as never)
+    e = Event.restore(snap)
+    const renamed = e.renameGroup({ userId: creator.id.value, from: 'Cena', to: 'Cena sábado' })
+    expect(renamed.toSnapshot().purchases[0]!.group).toBe('Cena sábado')
+  })
+
+  it('setGroupOrder stores the order', () => {
+    const creator = User.create({ name: 'John' })
+    const e = Event.create({ name: 'Trip', creator })
+    const next = e.setGroupOrder({ userId: creator.id.value, order: ['B', 'A'] })
+    expect(next.toSnapshot().groupOrder).toEqual(['B', 'A'])
+  })
+
+  it('renameGroup rejects unknown user', () => {
+    const e = Event.create({ name: 'Trip', creator: User.create({ name: 'John' }) })
+    expect(() => e.renameGroup({ userId: '00000000-0000-7000-8000-000000000000', from: 'X', to: 'Y' })).toThrow(/not in event/i)
+  })
+
+  it('Event.create starts with empty groupOrder', () => {
+    const e = Event.create({ name: 'Trip', creator: User.create({ name: 'John' }) })
+    expect(e.toSnapshot().groupOrder).toEqual([])
+  })
 })
