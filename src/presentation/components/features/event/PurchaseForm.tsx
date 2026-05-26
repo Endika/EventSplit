@@ -20,8 +20,8 @@ import { AllergyChecker, type AllergyMatch } from '@/domain/services/AllergyChec
 import { AllergyAlertModal } from './AllergyAlertModal'
 import { reportError } from '@/shared/utils/reportError'
 import { parseDecimal } from '@/shared/utils/parseDecimal'
-
-const UNITS = ['units', 'bottles', 'cans', 'kg', 'liters', 'single'] as const
+import { SHARED_UNIT } from '@/domain/entities/Purchase'
+import { SELECTABLE_UNITS as UNITS } from '@/presentation/utils/units'
 
 export function PurchaseForm({
   onDone,
@@ -58,7 +58,7 @@ export function PurchaseForm({
   const [dailyStr, setDailyStr] = useState(String(purchase?.dailyConsumption ?? 1))
   const dailyConsumption = parseDecimal(dailyStr)
   // Shared staples (unit "single"): fixed quantity, no per-person/day calc.
-  const isSingle = mode === 'buy' && unit === 'single'
+  const isSingle = mode === 'buy' && unit === SHARED_UNIT
   const [days, setDays] = useState(inferredDays)
   const [consumers, setConsumers] = useState<Record<string, number>>(() => {
     if (purchase) {

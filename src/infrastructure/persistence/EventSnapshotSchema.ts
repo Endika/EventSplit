@@ -1,9 +1,11 @@
 import { z } from 'zod'
-import { COMMON_ALLERGENS } from '@/domain/value-objects/Allergen'
+import { COMMON_ALLERGENS, ALLERGEN_SEVERITIES } from '@/domain/value-objects/Allergen'
+import { EVENT_STAGES } from '@/domain/entities/Event'
+import { USER_KINDS } from '@/domain/entities/User'
 
 const AllergenSchema = z.object({
   name: z.enum(COMMON_ALLERGENS),
-  severity: z.enum(['mild', 'moderate', 'severe']),
+  severity: z.enum(ALLERGEN_SEVERITIES),
   notes: z.string().nullable().default(null),
 })
 
@@ -17,7 +19,7 @@ const UserSchema = z.object({
   allergies: z.array(AllergenSchema).default([]),
   dietary: z.string().nullable().default(null),
   notes: z.string().nullable().default(null),
-  kind: z.enum(['adult', 'child']).default('adult'),
+  kind: z.enum(USER_KINDS).default('adult'),
 })
 
 const PurchaseConsumerSchema = z.object({
@@ -103,7 +105,7 @@ export const EventSnapshotSchema = z.object({
   groupOrder: z.array(z.string()).default([]),
   expenses: z.array(ExpenseSchema).default([]),
   editPin: z.string().nullable().default(null),
-  stage: z.enum(['doodle', 'shopping', 'expenses']).default('doodle'),
+  stage: z.enum(EVENT_STAGES).default('doodle'),
   settledTransfers: z.array(z.object({ from: z.string(), to: z.string() })).default([]),
   history: z.array(HistoryEntrySchema).default([]),
   createdAt: z.string(),

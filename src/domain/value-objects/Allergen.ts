@@ -5,9 +5,8 @@ export const COMMON_ALLERGENS = [
 
 export type AllergenName = (typeof COMMON_ALLERGENS)[number]
 
-export type AllergenSeverity = 'mild' | 'moderate' | 'severe'
-
-const VALID_SEVERITIES: AllergenSeverity[] = ['mild', 'moderate', 'severe']
+export const ALLERGEN_SEVERITIES = ['mild', 'moderate', 'severe'] as const
+export type AllergenSeverity = (typeof ALLERGEN_SEVERITIES)[number]
 
 export interface AllergenSnapshot {
   name: AllergenName
@@ -25,7 +24,7 @@ export class Allergen {
   static of(input: { name: string; severity: string; notes?: string | null }): Allergen {
     if (!(COMMON_ALLERGENS as readonly string[]).includes(input.name))
       throw new Error(`Allergen: unknown name "${input.name}"`)
-    if (!VALID_SEVERITIES.includes(input.severity as AllergenSeverity))
+    if (!ALLERGEN_SEVERITIES.includes(input.severity as AllergenSeverity))
       throw new Error(`Allergen: invalid severity "${input.severity}"`)
     const trimmed = input.notes?.trim() ?? ''
     if (trimmed.length > 200) throw new Error('Allergen: notes must be ≤ 200 chars')

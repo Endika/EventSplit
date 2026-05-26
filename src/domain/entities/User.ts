@@ -2,9 +2,8 @@ import type { AllergenSnapshot } from '@/domain/value-objects/Allergen'
 import { Allergen } from '@/domain/value-objects/Allergen'
 import { UserId } from '@/domain/value-objects/UserId'
 
-export type UserKind = 'adult' | 'child'
-
-const VALID_KINDS: UserKind[] = ['adult', 'child']
+export const USER_KINDS = ['adult', 'child'] as const
+export type UserKind = (typeof USER_KINDS)[number]
 
 export interface UserSnapshot {
   id: string
@@ -51,7 +50,7 @@ export class User {
     if (aliasRaw.length > 50) throw new Error('User: alias must be ≤ 50 chars')
     const alias = aliasRaw === '' ? null : aliasRaw
     const kind = input.kind ?? 'adult'
-    if (!VALID_KINDS.includes(kind)) throw new Error(`User: invalid kind "${kind}"`)
+    if (!USER_KINDS.includes(kind)) throw new Error(`User: invalid kind "${kind}"`)
     return new User(
       UserId.generate(), name, alias, new Date().toISOString(),
       null, null, [], null, null, kind,
@@ -97,7 +96,7 @@ export class User {
     allergies.forEach((a) => Allergen.of({ name: a.name, severity: a.severity, notes: a.notes ?? null }))
 
     const kind = update.kind === undefined ? this.kind : update.kind
-    if (!VALID_KINDS.includes(kind)) throw new Error(`User: invalid kind "${kind}"`)
+    if (!USER_KINDS.includes(kind)) throw new Error(`User: invalid kind "${kind}"`)
 
     return new User(this.id, name, alias, this.joinedAt, email, phone, allergies, dietary, notes, kind)
   }

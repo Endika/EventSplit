@@ -1,9 +1,10 @@
 import { useTranslation } from 'react-i18next'
 import type { AllergyMatch } from '@/domain/services/AllergyChecker'
+import type { AllergenSeverity } from '@/domain/value-objects/Allergen'
 import { Modal } from '@/presentation/components/common/Modal'
 import { Button } from '@/presentation/components/common/Button'
 
-function severityIcon(s: 'mild' | 'moderate' | 'severe'): string {
+function severityIcon(s: AllergenSeverity): string {
   return s === 'severe' ? '🔴' : s === 'moderate' ? '🚨' : '⚠️'
 }
 

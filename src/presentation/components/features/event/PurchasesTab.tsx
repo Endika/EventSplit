@@ -16,12 +16,8 @@ import type { RenameGroupHandler } from '@/application/handlers/RenameGroupHandl
 import type { SetGroupOrderHandler } from '@/application/handlers/SetGroupOrderHandler'
 import type { LocalStorageCache } from '@/infrastructure/persistence/LocalStorageCache'
 import { reportError } from '@/shared/utils/reportError'
+import { displayUnit } from '@/presentation/utils/units'
 import { PurchaseForm } from './PurchaseForm'
-
-const KNOWN_UNITS = ['units', 'bottles', 'cans', 'kg', 'liters', 'single']
-function displayUnit(unit: string, t: (k: string) => string): string {
-  return KNOWN_UNITS.includes(unit) ? t(`purchases.form.units.${unit}`) : unit
-}
 
 export function PurchasesTab() {
   const { t } = useTranslation()

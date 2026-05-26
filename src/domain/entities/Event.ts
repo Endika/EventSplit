@@ -4,7 +4,8 @@ import type { UserSnapshot } from '@/domain/entities/User'
 import type { PurchaseSnapshot } from '@/domain/entities/Purchase'
 import type { ExpenseSnapshot } from '@/domain/entities/Expense'
 
-export type EventStage = 'doodle' | 'shopping' | 'expenses'
+export const EVENT_STAGES = ['doodle', 'shopping', 'expenses'] as const
+export type EventStage = (typeof EVENT_STAGES)[number]
 
 export type HistoryType =
   | 'event_created'
@@ -278,8 +279,7 @@ export class Event {
   }
 
   setStage(input: { stage: EventStage; userId: string }): Event {
-    const VALID: EventStage[] = ['doodle', 'shopping', 'expenses']
-    if (!VALID.includes(input.stage))
+    if (!EVENT_STAGES.includes(input.stage))
       throw new Error(`Event: invalid stage "${input.stage}"`)
     if (!this.s.users.some((u) => u.id === input.userId))
       throw new Error('Event: user not in event')

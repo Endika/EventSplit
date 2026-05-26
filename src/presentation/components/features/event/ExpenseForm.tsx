@@ -14,11 +14,7 @@ import { useOnlineStatus } from '@/presentation/context/SyncContext'
 import { useWriteGuard } from '@/presentation/context/WriteGuardContext'
 import { reportError } from '@/shared/utils/reportError'
 import { parseDecimal } from '@/shared/utils/parseDecimal'
-
-const KNOWN_UNITS = ['units', 'bottles', 'cans', 'kg', 'liters', 'single']
-function displayUnit(unit: string, t: (k: string) => string): string {
-  return KNOWN_UNITS.includes(unit) ? t(`purchases.form.units.${unit}`) : unit
-}
+import { displayUnit } from '@/presentation/utils/units'
 
 export function ExpenseForm({
   onDone,

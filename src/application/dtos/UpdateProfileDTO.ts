@@ -1,5 +1,6 @@
 import { z } from 'zod'
-import { COMMON_ALLERGENS } from '@/domain/value-objects/Allergen'
+import { COMMON_ALLERGENS, ALLERGEN_SEVERITIES } from '@/domain/value-objects/Allergen'
+import { USER_KINDS } from '@/domain/entities/User'
 
 export const UpdateProfileSchema = z.object({
   eventId: z.string().regex(/^[a-z0-9]{7}$/),
@@ -10,12 +11,12 @@ export const UpdateProfileSchema = z.object({
   phone: z.string().trim().max(30).nullable().optional(),
   dietary: z.string().trim().max(200).nullable().optional(),
   notes: z.string().trim().max(500).nullable().optional(),
-  kind: z.enum(['adult', 'child']).optional(),
+  kind: z.enum(USER_KINDS).optional(),
   allergies: z
     .array(
       z.object({
         name: z.enum(COMMON_ALLERGENS),
-        severity: z.enum(['mild', 'moderate', 'severe']),
+        severity: z.enum(ALLERGEN_SEVERITIES),
         notes: z.string().trim().max(200).nullable().optional(),
       }),
     )
