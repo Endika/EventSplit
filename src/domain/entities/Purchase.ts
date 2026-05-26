@@ -111,6 +111,16 @@ export class Purchase {
     })
   }
 
+  recover(): Purchase {
+    return new Purchase({
+      ...this.s,
+      deleted: false,
+      deletedBy: null,
+      deletedAt: null,
+      deleteReason: null,
+    })
+  }
+
   edit(input: {
     category: string
     item: string

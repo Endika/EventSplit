@@ -166,4 +166,16 @@ describe('Purchase', () => {
     expect(assigned.toSnapshot().purchased).toBe(true)
     expect(p.toSnapshot().assignedTo).toBeNull() // original immutable
   })
+
+  it('recover clears the deleted flags', () => {
+    const p = Purchase.create({
+      createdBy: u1, category: 'drinks', item: 'Coke', quantity: 1, unit: 'units',
+      dailyConsumption: 1, consumers: [{ userId: u1, multiplier: 1 }], days: 1,
+    })
+    const deleted = p.softDelete({ by: u2, reason: 'oops' })
+    const recovered = deleted.recover()
+    expect(recovered.deleted).toBe(false)
+    expect(recovered.toSnapshot().deletedBy).toBeNull()
+    expect(recovered.toSnapshot().deleteReason).toBeNull()
+  })
 })

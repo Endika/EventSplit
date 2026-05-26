@@ -98,6 +98,15 @@ export class Expense {
     })
   }
 
+  recover(): Expense {
+    return new Expense({
+      ...this.s,
+      deleted: false,
+      deletedBy: null,
+      deletedAt: null,
+    })
+  }
+
   get id(): string { return this.s.id }
   get paidBy(): string { return this.s.paidBy }
   get amount(): Money { return Money.fromCents(this.s.cents) }

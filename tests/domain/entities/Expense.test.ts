@@ -34,4 +34,11 @@ describe('Expense', () => {
     expect(deleted.toSnapshot().deletedBy).toBe(u2)
     expect(e.toSnapshot().deleted).toBe(false) // original immutable
   })
+
+  it('recover clears the deleted flags', () => {
+    const e = Expense.create({ paidBy: u1, amount: Money.fromEuros(10), description: 'Bread' })
+    const recovered = e.softDelete({ by: u2 }).recover()
+    expect(recovered.toSnapshot().deleted).toBe(false)
+    expect(recovered.toSnapshot().deletedBy).toBeNull()
+  })
 })

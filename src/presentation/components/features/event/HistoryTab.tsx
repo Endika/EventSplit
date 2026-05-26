@@ -18,6 +18,7 @@ const ICONS: Record<HistoryType, string> = {
   expense_added: '💰',
   expense_edited: '✏️',
   expense_deleted: '🗑️',
+  expense_recovered: '↺',
   availability_voted: '📅',
   location_set: '📍',
   notes_added: '📝',
