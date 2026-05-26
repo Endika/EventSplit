@@ -1,5 +1,18 @@
 # Changelog
 
+## [1.10.0](https://github.com/Endika/EventSplit/compare/v1.9.0...v1.10.0) (2026-05-26)
+
+
+### Features
+
+* **i18n:** translate purchase categories and units ([d11f34a](https://github.com/Endika/EventSplit/commit/d11f34a3e904873d7884f8fba1c6a795c2d4651f))
+* **ui:** add share event button with web share fallback ([385cd5f](https://github.com/Endika/EventSplit/commit/385cd5ffa809e9010c2cb49be0c248b883c0fa34))
+
+
+### Chores
+
+* **ui:** log write errors to console for diagnostics ([4d65868](https://github.com/Endika/EventSplit/commit/4d65868b7de8e53f39228b4dcdcbde92093089be))
+
 ## [1.9.0](https://github.com/Endika/EventSplit/compare/v1.8.0...v1.9.0) (2026-05-26)
 
 
