@@ -21,10 +21,19 @@ export interface PurchaseSnapshot {
   deletedAt: string | null
   deleteReason: string | null
   createdAt: string
+  assignedTo: string | null
+  purchased: boolean
 }
 
 const VALID_CATEGORIES = ['food', 'drinks', 'snacks', 'other'] as const
-const VALID_UNITS = ['units', 'bottles', 'cans', 'kg', 'liters'] as const
+export const VALID_UNITS = ['units', 'bottles', 'cans', 'kg', 'liters'] as const
+
+function validateUnit(unit: string): string {
+  const trimmed = unit.trim()
+  if (trimmed.length < 1 || trimmed.length > 30)
+    throw new Error('Purchase: unit must be 1..30 chars')
+  return trimmed
+}
 
 export class Purchase {
   private constructor(private readonly s: PurchaseSnapshot) {}
@@ -38,13 +47,13 @@ export class Purchase {
     dailyConsumption: number
     consumers: PurchaseConsumer[]
     days: number
+    assignedTo?: string | null
   }): Purchase {
     const item = input.item.trim()
     if (item.length < 2 || item.length > 50) throw new Error('Purchase: item must be 2..50 chars')
     if (!VALID_CATEGORIES.includes(input.category as never))
       throw new Error('Purchase: invalid category')
-    if (!VALID_UNITS.includes(input.unit as never))
-      throw new Error('Purchase: invalid unit')
+    const unit = validateUnit(input.unit)
     if (input.quantity <= 0 || input.quantity > 10_000)
       throw new Error('Purchase: quantity must be in (0, 10000]')
     if (input.dailyConsumption <= 0 || input.dailyConsumption > 100)
@@ -69,7 +78,7 @@ export class Purchase {
       category: input.category,
       item,
       quantity: input.quantity,
-      unit: input.unit,
+      unit,
       dailyConsumption: input.dailyConsumption,
       totalQuantity,
       consumers: input.consumers,
@@ -78,11 +87,18 @@ export class Purchase {
       deletedAt: null,
       deleteReason: null,
       createdAt: new Date().toISOString(),
+      assignedTo: input.assignedTo ?? null,
+      purchased: false,
     })
   }
 
-  static restore(s: PurchaseSnapshot): Purchase {
-    return new Purchase(s)
+  static restore(s: PurchaseSnapshot | Omit<PurchaseSnapshot, 'assignedTo' | 'purchased'>): Purchase {
+    const full = s as PurchaseSnapshot
+    return new Purchase({
+      ...full,
+      assignedTo: full.assignedTo ?? null,
+      purchased: full.purchased ?? false,
+    })
   }
 
   softDelete(input: { by: string; reason: string | null }): Purchase {
@@ -96,14 +112,20 @@ export class Purchase {
   }
 
   edit(input: {
+    category: string
+    item: string
     quantity: number
     unit: string
     dailyConsumption: number
     consumers: PurchaseConsumer[]
     days: number
+    assignedTo: string | null
   }): Purchase {
-    if (!VALID_UNITS.includes(input.unit as never))
-      throw new Error('Purchase: invalid unit')
+    const item = input.item.trim()
+    if (item.length < 2 || item.length > 50) throw new Error('Purchase: item must be 2..50 chars')
+    if (!VALID_CATEGORIES.includes(input.category as never))
+      throw new Error('Purchase: invalid category')
+    const unit = validateUnit(input.unit)
     if (input.quantity <= 0 || input.quantity > 10_000)
       throw new Error('Purchase: quantity must be in (0, 10000]')
     if (input.dailyConsumption <= 0 || input.dailyConsumption > 100)
@@ -124,11 +146,22 @@ export class Purchase {
 
     return new Purchase({
       ...this.s,
+      category: input.category,
+      item,
       quantity: input.quantity,
-      unit: input.unit,
+      unit,
       dailyConsumption: input.dailyConsumption,
       totalQuantity,
       consumers: input.consumers,
+      assignedTo: input.assignedTo,
+    })
+  }
+
+  assign(input: { assignedTo: string | null; purchased: boolean }): Purchase {
+    return new Purchase({
+      ...this.s,
+      assignedTo: input.assignedTo,
+      purchased: input.purchased,
     })
   }
 
@@ -138,6 +171,8 @@ export class Purchase {
   get deleteReason(): string | null { return this.s.deleteReason }
   get totalQuantity(): number { return this.s.totalQuantity }
   get createdBy(): string { return this.s.createdBy }
+  get assignedTo(): string | null { return this.s.assignedTo }
+  get purchased(): boolean { return this.s.purchased }
 
   toSnapshot(): PurchaseSnapshot { return { ...this.s, consumers: [...this.s.consumers] } }
 }

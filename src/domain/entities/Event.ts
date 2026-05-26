@@ -126,7 +126,11 @@ export class Event {
       emergencyContact: s.emergencyContact ?? null,
       days: s.days ?? [],
       availability: s.availability ?? {},
-      purchases: s.purchases ?? [],
+      purchases: (s.purchases ?? []).map((p) => ({
+        ...p,
+        assignedTo: (p as { assignedTo?: string | null }).assignedTo ?? null,
+        purchased: (p as { purchased?: boolean }).purchased ?? false,
+      })),
       expenses: (s.expenses ?? []).map((e) => ({ ...e, splitAmong: e.splitAmong ?? [] })),
       history: s.history ?? [],
       editPin: s.editPin ?? null,

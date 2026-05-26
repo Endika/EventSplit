@@ -40,6 +40,8 @@ const PurchaseSchema = z.object({
   deletedAt: z.string().nullable().default(null),
   deleteReason: z.string().nullable().default(null),
   createdAt: z.string(),
+  assignedTo: z.string().nullable().default(null),
+  purchased: z.boolean().default(false),
 })
 
 const ExpenseSchema = z.object({

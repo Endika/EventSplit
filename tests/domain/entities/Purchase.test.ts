@@ -68,8 +68,8 @@ describe('Purchase', () => {
       consumers: [{ userId: u1, multiplier: 1 }], days: 2,
     })
     const next = p.edit({
-      quantity: 5, unit: 'cans', dailyConsumption: 2,
-      consumers: [{ userId: u1, multiplier: 1 }], days: 2,
+      category: 'drinks', item: 'Coke', quantity: 5, unit: 'cans', dailyConsumption: 2,
+      consumers: [{ userId: u1, multiplier: 1 }], days: 2, assignedTo: null,
     })
     expect(next.id).toBe(p.id) // same id (preserved)
     expect(next.toSnapshot().quantity).toBe(5)
@@ -88,8 +88,8 @@ describe('Purchase', () => {
     expect(p.totalQuantity).toBe(4) // 2*1*2
 
     const next = p.edit({
-      quantity: 3, unit: 'bottles', dailyConsumption: 3,
-      consumers: [{ userId: u1, multiplier: 2 }], days: 3,
+      category: 'drinks', item: 'Coke', quantity: 3, unit: 'bottles', dailyConsumption: 3,
+      consumers: [{ userId: u1, multiplier: 2 }], days: 3, assignedTo: null,
     })
     expect(next.totalQuantity).toBe(18) // 3*2*3
   })
@@ -101,16 +101,69 @@ describe('Purchase', () => {
       consumers: [{ userId: u1, multiplier: 1 }], days: 2,
     })
     expect(() => p.edit({
-      quantity: 0, unit: 'bottles', dailyConsumption: 1,
-      consumers: [{ userId: u1, multiplier: 1 }], days: 1,
+      category: 'drinks', item: 'Coke', quantity: 0, unit: 'bottles', dailyConsumption: 1,
+      consumers: [{ userId: u1, multiplier: 1 }], days: 1, assignedTo: null,
     })).toThrow(/quantity/)
     expect(() => p.edit({
-      quantity: 1, unit: 'bottles', dailyConsumption: 1,
-      consumers: [], days: 1,
+      category: 'drinks', item: 'Coke', quantity: 1, unit: 'bottles', dailyConsumption: 1,
+      consumers: [], days: 1, assignedTo: null,
     })).toThrow(/consumer/)
     expect(() => p.edit({
-      quantity: 1, unit: 'invalid_unit', dailyConsumption: 1,
-      consumers: [{ userId: u1, multiplier: 1 }], days: 1,
+      category: 'drinks', item: 'Coke', quantity: 1, unit: '   ', dailyConsumption: 1,
+      consumers: [{ userId: u1, multiplier: 1 }], days: 1, assignedTo: null,
     })).toThrow(/unit/)
+  })
+
+  it('accepts a free-text unit', () => {
+    const p = Purchase.create({
+      createdBy: u1, category: 'drinks', item: 'Agua', quantity: 2, unit: 'garrafa de 8 litros',
+      dailyConsumption: 1, consumers: [{ userId: u1, multiplier: 1 }], days: 2,
+    })
+    expect(p.toSnapshot().unit).toBe('garrafa de 8 litros')
+  })
+
+  it('rejects an empty or overlong unit', () => {
+    expect(() => Purchase.create({
+      createdBy: u1, category: 'drinks', item: 'Agua', quantity: 1, unit: '   ',
+      dailyConsumption: 1, consumers: [{ userId: u1, multiplier: 1 }], days: 1,
+    })).toThrow(/unit/)
+    expect(() => Purchase.create({
+      createdBy: u1, category: 'drinks', item: 'Agua', quantity: 1, unit: 'x'.repeat(31),
+      dailyConsumption: 1, consumers: [{ userId: u1, multiplier: 1 }], days: 1,
+    })).toThrow(/unit/)
+  })
+
+  it('new purchase starts unassigned and not purchased', () => {
+    const p = Purchase.create({
+      createdBy: u1, category: 'drinks', item: 'Coke', quantity: 1, unit: 'units',
+      dailyConsumption: 1, consumers: [{ userId: u1, multiplier: 1 }], days: 1,
+    })
+    expect(p.toSnapshot().assignedTo).toBeNull()
+    expect(p.toSnapshot().purchased).toBe(false)
+  })
+
+  it('edit can change item, category and unit', () => {
+    const p = Purchase.create({
+      createdBy: u1, category: 'drinks', item: 'Coke', quantity: 1, unit: 'units',
+      dailyConsumption: 1, consumers: [{ userId: u1, multiplier: 1 }], days: 1,
+    })
+    const next = p.edit({
+      category: 'food', item: 'Bread', quantity: 2, unit: 'loaves',
+      dailyConsumption: 1, consumers: [{ userId: u1, multiplier: 1 }], days: 1, assignedTo: null,
+    })
+    expect(next.toSnapshot().item).toBe('Bread')
+    expect(next.toSnapshot().category).toBe('food')
+    expect(next.toSnapshot().unit).toBe('loaves')
+  })
+
+  it('assign sets the responsible buyer and purchased flag', () => {
+    const p = Purchase.create({
+      createdBy: u1, category: 'drinks', item: 'Coke', quantity: 1, unit: 'units',
+      dailyConsumption: 1, consumers: [{ userId: u1, multiplier: 1 }], days: 1,
+    })
+    const assigned = p.assign({ assignedTo: u2, purchased: true })
+    expect(assigned.toSnapshot().assignedTo).toBe(u2)
+    expect(assigned.toSnapshot().purchased).toBe(true)
+    expect(p.toSnapshot().assignedTo).toBeNull() // original immutable
   })
 })
