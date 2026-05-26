@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.50.1](https://github.com/Endika/EventSplit/compare/v1.50.0...v1.50.1) (2026-05-26)
+
+
+### Chores
+
+* **i18n:** simplify single unit label ([715fb6e](https://github.com/Endika/EventSplit/commit/715fb6eab13bbc8d62bab7c88f9c14d34f7bfa33))
+
 ## [1.50.0](https://github.com/Endika/EventSplit/compare/v1.49.0...v1.50.0) (2026-05-26)
 
 
