@@ -1,5 +1,14 @@
 # Changelog
 
+## [1.48.0](https://github.com/Endika/EventSplit/compare/v1.47.1...v1.48.0) (2026-05-26)
+
+
+### Features
+
+* **app:** handlers for bring-from-home items ([89a3006](https://github.com/Endika/EventSplit/commit/89a3006ca0ae1e4de9897bbcbaa54b417dd3c8c3))
+* **domain:** add bring-from-home shopping items ([9b30299](https://github.com/Endika/EventSplit/commit/9b302996f62fc74d3250900cca35097f828259aa))
+* **ui:** dual buy/bring selector in shopping list ([ff27c5e](https://github.com/Endika/EventSplit/commit/ff27c5ea67df37033def6594431dd81315f9b38d))
+
 ## [1.47.1](https://github.com/Endika/EventSplit/compare/v1.47.0...v1.47.1) (2026-05-26)
 
 
