@@ -95,6 +95,43 @@ export class Purchase {
     })
   }
 
+  edit(input: {
+    quantity: number
+    unit: string
+    dailyConsumption: number
+    consumers: PurchaseConsumer[]
+    days: number
+  }): Purchase {
+    if (!VALID_UNITS.includes(input.unit as never))
+      throw new Error('Purchase: invalid unit')
+    if (input.quantity <= 0 || input.quantity > 10_000)
+      throw new Error('Purchase: quantity must be in (0, 10000]')
+    if (input.dailyConsumption <= 0 || input.dailyConsumption > 100)
+      throw new Error('Purchase: dailyConsumption must be in (0, 100]')
+    if (input.consumers.length === 0) throw new Error('Purchase: at least 1 consumer required')
+    if (input.days <= 0 || !Number.isInteger(input.days))
+      throw new Error('Purchase: days must be a positive integer')
+
+    input.consumers.forEach((c) => {
+      void Multiplier.of(c.multiplier)
+    })
+
+    const totalDaily = input.consumers.reduce(
+      (sum, c) => sum + input.dailyConsumption * c.multiplier,
+      0,
+    )
+    const totalQuantity = totalDaily * input.days
+
+    return new Purchase({
+      ...this.s,
+      quantity: input.quantity,
+      unit: input.unit,
+      dailyConsumption: input.dailyConsumption,
+      totalQuantity,
+      consumers: input.consumers,
+    })
+  }
+
   get id(): string { return this.s.id }
   get deleted(): boolean { return this.s.deleted }
   get deletedBy(): string | null { return this.s.deletedBy }

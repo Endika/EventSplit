@@ -60,4 +60,57 @@ describe('Purchase', () => {
     expect(deleted.deleteReason).toBe('Out of stock')
     expect(p.deleted).toBe(false) // original unchanged (immutable)
   })
+
+  it('edit returns a new Purchase with updated quantity and unit', () => {
+    const p = Purchase.create({
+      createdBy: u1, category: 'drinks', item: 'Coke', quantity: 3, unit: 'bottles',
+      dailyConsumption: 2,
+      consumers: [{ userId: u1, multiplier: 1 }], days: 2,
+    })
+    const next = p.edit({
+      quantity: 5, unit: 'cans', dailyConsumption: 2,
+      consumers: [{ userId: u1, multiplier: 1 }], days: 2,
+    })
+    expect(next.id).toBe(p.id) // same id (preserved)
+    expect(next.toSnapshot().quantity).toBe(5)
+    expect(next.toSnapshot().unit).toBe('cans')
+    expect(next.toSnapshot().category).toBe('drinks') // unchanged
+    expect(next.toSnapshot().item).toBe('Coke') // unchanged
+    expect(p.toSnapshot().quantity).toBe(3) // original immutable
+  })
+
+  it('edit recomputes totalQuantity', () => {
+    const p = Purchase.create({
+      createdBy: u1, category: 'drinks', item: 'Coke', quantity: 3, unit: 'bottles',
+      dailyConsumption: 2,
+      consumers: [{ userId: u1, multiplier: 1 }], days: 2,
+    })
+    expect(p.totalQuantity).toBe(4) // 2*1*2
+
+    const next = p.edit({
+      quantity: 3, unit: 'bottles', dailyConsumption: 3,
+      consumers: [{ userId: u1, multiplier: 2 }], days: 3,
+    })
+    expect(next.totalQuantity).toBe(18) // 3*2*3
+  })
+
+  it('edit validates the same constraints as create', () => {
+    const p = Purchase.create({
+      createdBy: u1, category: 'drinks', item: 'Coke', quantity: 3, unit: 'bottles',
+      dailyConsumption: 2,
+      consumers: [{ userId: u1, multiplier: 1 }], days: 2,
+    })
+    expect(() => p.edit({
+      quantity: 0, unit: 'bottles', dailyConsumption: 1,
+      consumers: [{ userId: u1, multiplier: 1 }], days: 1,
+    })).toThrow(/quantity/)
+    expect(() => p.edit({
+      quantity: 1, unit: 'bottles', dailyConsumption: 1,
+      consumers: [], days: 1,
+    })).toThrow(/consumer/)
+    expect(() => p.edit({
+      quantity: 1, unit: 'invalid_unit', dailyConsumption: 1,
+      consumers: [{ userId: u1, multiplier: 1 }], days: 1,
+    })).toThrow(/unit/)
+  })
 })
