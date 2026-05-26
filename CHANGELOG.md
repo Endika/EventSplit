@@ -1,5 +1,14 @@
 # Changelog
 
+## [1.18.0](https://github.com/Endika/EventSplit/compare/v1.17.0...v1.18.0) (2026-05-26)
+
+
+### Features
+
+* **app:** add assign-purchase handler for buyer and bought flag ([446a0f2](https://github.com/Endika/EventSplit/commit/446a0f2002803639a1e0fbfb263eeac1fe047331))
+* **app:** edit item/category/unit and assign buyer on purchase ([f3d137e](https://github.com/Endika/EventSplit/commit/f3d137e1b9135b47cf3675ad92a01194b0f081f0))
+* **domain:** free-text unit, editable fields, buyer assignment ([9653cfe](https://github.com/Endika/EventSplit/commit/9653cfe9e36ade38d3d5a4530da26a76b6a31072))
+
 ## [1.17.0](https://github.com/Endika/EventSplit/compare/v1.16.0...v1.17.0) (2026-05-26)
 
 
