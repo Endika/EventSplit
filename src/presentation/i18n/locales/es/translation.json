@@ -52,7 +52,6 @@
   "history": {
     "title": "Registro de actividad",
     "empty": "Sin actividad aún.",
-    "view": "Ver",
     "by": "por {{name}}",
     "types": {
       "event_created": "Evento creado",
@@ -75,18 +74,6 @@
       "edit_pin_set": "PIN configurado",
       "edit_pin_cleared": "PIN eliminado",
       "settlement_toggled": "Pago liquidado"
-    },
-    "diff": {
-      "before": "Antes",
-      "after": "Después",
-      "noChanges": "Sin datos de diff",
-      "revert": "Revertir a esta versión"
-    },
-    "revert": {
-      "title": "¿Revertir a esta versión?",
-      "summary": "Esto deshará {{count}} cambio(s) después de la versión {{version}}.",
-      "confirm": "Sí, revertir",
-      "cancel": "Cancelar"
     }
   },
   "allergens": {

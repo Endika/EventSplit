@@ -47,8 +47,6 @@ export class AddBroughtItemHandler {
           type: 'purchase_added',
           userId: parsed.createdBy,
           description: `${creatorName} added ${created.toSnapshot().item} (from home)`,
-          before: null,
-          after: created.toSnapshot(),
         },
       )
 

@@ -23,7 +23,6 @@ export class SetAvailabilityHandler {
         )
 
       const nextAvailability = { ...row.snapshot.availability, [parsed.userId]: parsed.votes }
-      const before = row.snapshot.availability[parsed.userId] ?? null
 
       const nextSnapshot: EventSnapshot = HistoryAppender.append(
         { ...row.snapshot, availability: nextAvailability },
@@ -31,8 +30,6 @@ export class SetAvailabilityHandler {
           type: 'availability_voted',
           userId: parsed.userId,
           description: `${user.name} voted availability`,
-          before,
-          after: parsed.votes,
         },
       )
 

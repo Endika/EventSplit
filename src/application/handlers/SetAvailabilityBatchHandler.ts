@@ -43,8 +43,6 @@ export class SetAvailabilityBatchHandler {
           description: `${editorName} updated availability for ${changedCount} ${
             changedCount === 1 ? 'person' : 'people'
           }`,
-          before: row.snapshot.availability,
-          after: nextAvailability,
         },
       )
 

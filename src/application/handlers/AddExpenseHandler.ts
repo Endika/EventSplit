@@ -52,7 +52,6 @@ export class AddExpenseHandler {
         {
           type: 'expense_added', userId: parsed.paidBy,
           description: `${payerName} added expense: ${expense.toSnapshot().description}`,
-          before: null, after: { expenseId: expense.id, cents: expense.amount.cents },
         },
       )
 

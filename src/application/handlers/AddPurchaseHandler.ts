@@ -51,8 +51,6 @@ export class AddPurchaseHandler {
           type: 'purchase_added',
           userId: parsed.createdBy,
           description: `${creatorDisplay} added ${purchase.toSnapshot().item}`,
-          before: null,
-          after: { purchaseId: purchase.id, item: purchase.toSnapshot().item },
         },
       )
 

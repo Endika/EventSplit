@@ -38,8 +38,6 @@ export class DeletePurchaseHandler {
           type: 'purchase_deleted',
           userId: parsed.deletedBy,
           description: `${editorName} deleted ${existing.item}`,
-          before: existing,
-          after: null,
         },
       )
       try {

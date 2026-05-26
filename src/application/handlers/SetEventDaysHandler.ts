@@ -37,8 +37,6 @@ export class SetEventDaysHandler {
           type: 'days_set',
           userId: row.snapshot.createdBy,
           description: `Event days set: ${parsed.days.join(', ')}`,
-          before: oldDays,
-          after: parsed.days,
         },
       )
 

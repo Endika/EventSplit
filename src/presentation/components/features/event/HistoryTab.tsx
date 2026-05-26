@@ -1,11 +1,7 @@
-import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useEventState } from '@/presentation/context/EventContext'
-import type { HistoryEntry, HistoryType } from '@/domain/entities/Event'
+import type { HistoryType } from '@/domain/entities/Event'
 import { YouLabel } from '@/presentation/components/common/YouLabel'
-import { Button } from '@/presentation/components/common/Button'
-import { DiffViewer } from './DiffViewer'
-import { RevertConfirmModal } from './RevertConfirmModal'
 
 const ICONS: Record<HistoryType, string> = {
   event_created: '🎉',
@@ -24,7 +20,6 @@ const ICONS: Record<HistoryType, string> = {
   notes_added: '📝',
   days_set: '📆',
   user_profile_updated: '👤',
-  revert: '↩️',
   edit_pin_set: '🔒',
   edit_pin_cleared: '🔓',
   stage_changed: '🔄',
@@ -48,8 +43,6 @@ function formatRelative(iso: string, locale: string): string {
 export function HistoryTab() {
   const { t, i18n } = useTranslation()
   const { event } = useEventState()
-  const [selected, setSelected] = useState<HistoryEntry | null>(null)
-  const [reverting, setReverting] = useState<HistoryEntry | null>(null)
   if (!event) return null
 
   const entries = [...event.history].reverse() // latest first
@@ -83,28 +76,9 @@ export function HistoryTab() {
               </div>
               <div className="mt-1 text-xs text-slate-500">{h.description}</div>
             </div>
-            <Button variant="secondary" onClick={() => setSelected(h)}>
-              {t('history.view')}
-            </Button>
           </li>
         ))}
       </ul>
-      {selected && (
-        <DiffViewer
-          entry={selected}
-          onClose={() => setSelected(null)}
-          onRevert={(e) => {
-            setSelected(null)
-            setReverting(e)
-          }}
-        />
-      )}
-      {reverting && (
-        <RevertConfirmModal
-          entry={reverting}
-          onClose={() => setReverting(null)}
-        />
-      )}
     </div>
   )
 }

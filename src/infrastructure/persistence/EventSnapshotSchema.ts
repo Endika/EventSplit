@@ -73,9 +73,6 @@ const HistoryEntrySchema = z.object({
   type: z.string(), // permissive — old events may have history types we no longer recognise
   userId: z.string(),
   description: z.string(),
-  before: z.unknown().default(null),
-  after: z.unknown().default(null),
-  fullState: z.unknown().optional(),
 })
 
 const EventLocationSchema = z.object({

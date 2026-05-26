@@ -32,8 +32,6 @@ export class DeleteExpenseHandler {
           type: 'expense_deleted',
           userId: parsed.deletedBy,
           description: `${editorName} deleted expense: ${existing.description}`,
-          before: existing,
-          after: null,
         },
       )
       try {

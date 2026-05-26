@@ -52,7 +52,6 @@
   "history": {
     "title": "Jardueraren erregistroa",
     "empty": "Oraindik ez dago jarduerarik.",
-    "view": "Ikusi",
     "by": "{{name}}-(e)k",
     "types": {
       "event_created": "Ekitaldia sortu",
@@ -75,18 +74,6 @@
       "edit_pin_set": "PIN ezarri",
       "edit_pin_cleared": "PIN kendu",
       "settlement_toggled": "Ordainketa kitatu"
-    },
-    "diff": {
-      "before": "Lehen",
-      "after": "Ondoren",
-      "noChanges": "Diff daturik ez",
-      "revert": "Bertsio honetara itzuli"
-    },
-    "revert": {
-      "title": "Bertsio honetara itzuli?",
-      "summary": "{{version}} bertsioaren ondorengo {{count}} aldaketa desegingo dira.",
-      "confirm": "Bai, itzuli",
-      "cancel": "Utzi"
     }
   },
   "allergens": {
