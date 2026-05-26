@@ -38,6 +38,13 @@ export interface HistoryEntry {
   description: string
 }
 
+export const MAX_HISTORY_ENTRIES = 30
+
+/** Keep only the most recent entries; history is an informational audit log. */
+export function capHistory(entries: HistoryEntry[]): HistoryEntry[] {
+  return entries.length > MAX_HISTORY_ENTRIES ? entries.slice(-MAX_HISTORY_ENTRIES) : entries
+}
+
 export interface EventLocation {
   name: string
   address: string | null
@@ -73,10 +80,14 @@ export interface EventSnapshot {
 }
 
 export class Event {
+  private readonly s: EventSnapshot
+
   private constructor(
     readonly id: EventId,
-    private readonly s: EventSnapshot,
-  ) {}
+    snapshot: EventSnapshot,
+  ) {
+    this.s = { ...snapshot, history: capHistory(snapshot.history) }
+  }
 
   static create(input: { name: string; creator: User; id?: EventId }): Event {
     const name = input.name.trim()

@@ -1,4 +1,4 @@
-import type { EventSnapshot, HistoryType } from '@/domain/entities/Event'
+import { capHistory, type EventSnapshot, type HistoryType } from '@/domain/entities/Event'
 
 export const HistoryAppender = {
   append(
@@ -10,7 +10,7 @@ export const HistoryAppender = {
     return {
       ...snapshot,
       updatedAt: now,
-      history: [
+      history: capHistory([
         ...snapshot.history,
         {
           id: crypto.randomUUID(),
@@ -20,7 +20,7 @@ export const HistoryAppender = {
           userId: input.userId,
           description: input.description,
         },
-      ],
+      ]),
     }
   },
 }
