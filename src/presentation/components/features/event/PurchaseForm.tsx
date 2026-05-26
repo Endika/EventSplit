@@ -16,6 +16,7 @@ import { useWriteGuard } from '@/presentation/context/WriteGuardContext'
 import { AllergyChecker, type AllergyMatch } from '@/domain/services/AllergyChecker'
 import { AllergyAlertModal } from './AllergyAlertModal'
 import { reportError } from '@/shared/utils/reportError'
+import { parseDecimal } from '@/shared/utils/parseDecimal'
 
 const UNITS = ['units', 'bottles', 'cans', 'kg', 'liters'] as const
 
@@ -47,7 +48,8 @@ export function PurchaseForm({
   const [item, setItem] = useState(purchase?.item ?? '')
   const [quantity, _setQuantity] = useState(purchase?.quantity ?? 1)
   const [unit, setUnit] = useState<string>(purchase?.unit ?? 'units')
-  const [dailyConsumption, setDailyConsumption] = useState(purchase?.dailyConsumption ?? 1)
+  const [dailyStr, setDailyStr] = useState(String(purchase?.dailyConsumption ?? 1))
+  const dailyConsumption = parseDecimal(dailyStr)
   const [days, setDays] = useState(inferredDays)
   const [consumers, setConsumers] = useState<Record<string, number>>(() => {
     if (purchase) {
@@ -75,7 +77,7 @@ export function PurchaseForm({
   }, [])
 
   const currentSnapshot = JSON.stringify({
-    item, quantity, unit, dailyConsumption, days, consumers, assignedTo, group,
+    item, quantity, unit, dailyStr, days, consumers, assignedTo, group,
   })
   const [initialSnapshot] = useState(currentSnapshot)
   const isDirty = initialSnapshot !== currentSnapshot
@@ -249,12 +251,10 @@ export function PurchaseForm({
             {t('purchases.form.dailyConsumption')}
             <Input
               className="mt-1"
-              type="number"
-              min="0.01"
-              max="100"
-              step="any"
-              value={dailyConsumption}
-              onChange={(e) => setDailyConsumption(parseFloat(e.target.value))}
+              type="text"
+              inputMode="decimal"
+              value={dailyStr}
+              onChange={(e) => setDailyStr(e.target.value)}
             />
           </label>
           <label className="block text-sm text-slate-300">

@@ -252,6 +252,7 @@
     "form": {
       "paidBy": "Who paid",
       "amount": "Amount (€)",
+      "invalidAmount": "Enter a valid amount (use , or . for decimals).",
       "description": "What was it for",
       "submit": "Save expense",
       "update": "Save changes",

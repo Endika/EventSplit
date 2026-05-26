@@ -252,6 +252,7 @@
     "form": {
       "paidBy": "Quen pagou",
       "amount": "Importe (€)",
+      "invalidAmount": "Introduce un importe válido (usa , ou . para decimais).",
       "description": "Concepto",
       "submit": "Gardar gasto",
       "update": "Gardar cambios",

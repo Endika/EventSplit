@@ -13,6 +13,7 @@ import { Modal } from '@/presentation/components/common/Modal'
 import { useOnlineStatus } from '@/presentation/context/SyncContext'
 import { useWriteGuard } from '@/presentation/context/WriteGuardContext'
 import { reportError } from '@/shared/utils/reportError'
+import { parseDecimal } from '@/shared/utils/parseDecimal'
 
 const KNOWN_UNITS = ['units', 'bottles', 'cans', 'kg', 'liters']
 function displayUnit(unit: string, t: (k: string) => string): string {
@@ -103,6 +104,11 @@ export function ExpenseForm({
   function submit(e: FormEvent) {
     e.preventDefault()
     if (!event || !me) return
+    const amountEuros = parseDecimal(amount)
+    if (!Number.isFinite(amountEuros) || amountEuros <= 0) {
+      setError(t('expenses.form.invalidAmount'))
+      return
+    }
     guardedExecute(async () => {
       setBusy(true)
       setError(null)
@@ -120,7 +126,7 @@ export function ExpenseForm({
             expenseId: expense.id,
             editedBy: me.id,
             paidBy,
-            amountEuros: parseFloat(amount),
+            amountEuros,
             description,
             splitAmong: split,
             markPurchasedIds: markIds,
@@ -131,7 +137,7 @@ export function ExpenseForm({
           result = await handler.execute({
             eventId: event.id,
             paidBy,
-            amountEuros: parseFloat(amount),
+            amountEuros,
             description,
             splitAmong: split,
             markPurchasedIds: [...markBought],
@@ -186,10 +192,8 @@ export function ExpenseForm({
         </select>
       </label>
       <Input
-        type="number"
-        min="0.01"
-        max="999999.99"
-        step="0.01"
+        type="text"
+        inputMode="decimal"
         placeholder={t('expenses.form.amount')}
         value={amount}
         onChange={(e) => setAmount(e.target.value)}

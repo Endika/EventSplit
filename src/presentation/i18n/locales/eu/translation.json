@@ -252,6 +252,7 @@
     "form": {
       "paidBy": "Nork ordaindu du",
       "amount": "Zenbatekoa (€)",
+      "invalidAmount": "Sartu zenbateko baliogarri bat (erabili , edo . hamartarrentzat).",
       "description": "Zer izan zen",
       "submit": "Gorde gastua",
       "update": "Aldaketak gorde",
