@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.38.1](https://github.com/Endika/EventSplit/compare/v1.38.0...v1.38.1) (2026-05-26)
+
+
+### Bug Fixes
+
+* **pwa:** reference favicon and apple-touch-icon with base path ([6632ccc](https://github.com/Endika/EventSplit/commit/6632ccc26c11e2df253d5c076f4d96e290f574df))
+
 ## [1.38.0](https://github.com/Endika/EventSplit/compare/v1.37.0...v1.38.0) (2026-05-26)
 
 
