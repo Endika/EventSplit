@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.46.2](https://github.com/Endika/EventSplit/compare/v1.46.1...v1.46.2) (2026-05-26)
+
+
+### Bug Fixes
+
+* **purchases:** drop empty groups from the saved order ([d491ba7](https://github.com/Endika/EventSplit/commit/d491ba70fd24401c5dd7627a4bfb39fe1abbcc8b))
+
 ## [1.46.1](https://github.com/Endika/EventSplit/compare/v1.46.0...v1.46.1) (2026-05-26)
 
 
