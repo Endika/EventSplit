@@ -1,6 +1,7 @@
 import { describe, it, expect } from 'vitest'
 import { CreateEventHandler } from '@/application/handlers/CreateEventHandler'
 import { AddExpenseHandler } from '@/application/handlers/AddExpenseHandler'
+import { AddPurchaseHandler } from '@/application/handlers/AddPurchaseHandler'
 import { InMemoryEventRepository } from '@/infrastructure/persistence/InMemoryEventRepository'
 
 describe('AddExpenseHandler', () => {
@@ -56,5 +57,25 @@ describe('AddExpenseHandler', () => {
         splitAmong: ['018f4a8e-0000-7000-8000-000000000000'],
       }),
     ).rejects.toThrow(/splitAmong.*not in event/i)
+  })
+
+  it('marks linked purchases as bought when adding an expense', async () => {
+    const repo = new InMemoryEventRepository()
+    const create = await new CreateEventHandler(repo).execute({ name: 'Trip', creatorName: 'John' })
+    const added = await new AddPurchaseHandler(repo).execute({
+      eventId: create.event.id, createdBy: create.creator.id,
+      category: 'drinks', item: 'Coke', quantity: 1, unit: 'units',
+      dailyConsumption: 1, consumers: [{ userId: create.creator.id, multiplier: 1 }], days: 1,
+    })
+    const purchaseId = added.event.purchases[0]!.id
+    const result = await new AddExpenseHandler(repo).execute({
+      eventId: create.event.id,
+      paidBy: create.creator.id,
+      amountEuros: 10,
+      description: 'Supermarket',
+      markPurchasedIds: [purchaseId],
+    })
+    expect(result.event.purchases.find((p) => p.id === purchaseId)!.purchased).toBe(true)
+    expect(result.event.expenses).toHaveLength(1)
   })
 })
