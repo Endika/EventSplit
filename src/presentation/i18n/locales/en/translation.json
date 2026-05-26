@@ -13,6 +13,18 @@
     "submit": "Create"
   },
   "tabs": { "participants": "People", "purchases": "Shopping", "expenses": "Expenses" },
+  "availability": {
+    "title": "When can people come?",
+    "addDay": "Add a day",
+    "noDays": "No days yet. Add the candidate dates above.",
+    "save": "Save my availability",
+    "saving": "Saving…",
+    "yes": "Yes",
+    "no": "No",
+    "dayHeader": "{{date}}",
+    "myVotes": "Your votes",
+    "othersVotes": "Others"
+  },
   "id": {
     "who": "Who are you in \"{{eventName}}\"?",
     "pick": "Pick yourself from the list",

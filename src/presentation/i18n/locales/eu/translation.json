@@ -13,6 +13,18 @@
     "submit": "Sortu"
   },
   "tabs": { "participants": "Lagunak", "purchases": "Erosketak", "expenses": "Gastuak" },
+  "availability": {
+    "title": "Noiz etor daiteke nor?",
+    "addDay": "Eguna gehitu",
+    "noDays": "Oraindik egunik ez. Gehitu hautagaiak goian.",
+    "save": "Gorde nire eskuragarritasuna",
+    "saving": "Gordetzen…",
+    "yes": "Bai",
+    "no": "Ez",
+    "dayHeader": "{{date}}",
+    "myVotes": "Zure botoak",
+    "othersVotes": "Besteak"
+  },
   "id": {
     "who": "Nor zara \"{{eventName}}\" ekitaldian?",
     "pick": "Aukeratu zeure burua zerrendatik",

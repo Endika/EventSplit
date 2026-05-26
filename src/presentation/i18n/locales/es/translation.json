@@ -13,6 +13,18 @@
     "submit": "Crear"
   },
   "tabs": { "participants": "Personas", "purchases": "Compra", "expenses": "Gastos" },
+  "availability": {
+    "title": "¿Cuándo puede venir cada uno?",
+    "addDay": "Añadir un día",
+    "noDays": "Sin días aún. Añade las fechas candidatas arriba.",
+    "save": "Guardar mi disponibilidad",
+    "saving": "Guardando…",
+    "yes": "Sí",
+    "no": "No",
+    "dayHeader": "{{date}}",
+    "myVotes": "Tus votos",
+    "othersVotes": "Otros"
+  },
   "id": {
     "who": "¿Quién eres en \"{{eventName}}\"?",
     "pick": "Elígete de la lista",
