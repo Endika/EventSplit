@@ -77,6 +77,42 @@ export function EventPage({ eventId }: { eventId: string }) {
     return unsub
   }, [eventId, container, setEvent])
 
+  // Realtime can miss updates if the WebSocket drops (device sleep, network
+  // blips). Re-fetch and merge whenever the tab regains focus or reconnects.
+  useEffect(() => {
+    const repo = container.resolve<IEventRepository>('eventRepo')
+    const syncHandler = container.resolve<SyncEventHandler>('syncEvent')
+    const cache = container.resolve<LocalStorageCache>('cache')
+
+    const refetch = () => {
+      if (document.visibilityState === 'hidden') return
+      repo
+        .findById(eventId)
+        .then((row) => {
+          if (!row) return
+          const local = cache.get(eventId)
+          if (!local) {
+            cache.set(eventId, row)
+            setEvent(row.snapshot, row.version)
+            return
+          }
+          const result = syncHandler.merge({ local, remote: row })
+          if (result.applied) {
+            cache.set(eventId, { snapshot: result.snapshot, version: result.version })
+            setEvent(result.snapshot, result.version)
+          }
+        })
+        .catch(() => {})
+    }
+
+    document.addEventListener('visibilitychange', refetch)
+    window.addEventListener('online', refetch)
+    return () => {
+      document.removeEventListener('visibilitychange', refetch)
+      window.removeEventListener('online', refetch)
+    }
+  }, [eventId, container, setEvent])
+
   async function handleIdentification(r: IdentificationResult) {
     const cache = container.resolve<LocalStorageCache>('cache')
     if (r.kind === 'pick' && r.pickedUser) {

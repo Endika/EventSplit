@@ -202,6 +202,7 @@
     "totalQuantity": "Total a comprar: {{n}} {{unit}}",
     "noGroup": "Sen grupo",
     "renameGroup": "Renomear grupo",
+    "toggleGroup": "Amosar ou agochar grupo",
     "renameGroupTitle": "Renomear grupo",
     "renameGroupHint": "Déixao baleiro para quitar o grupo dos seus items.",
     "moveUp": "Subir",

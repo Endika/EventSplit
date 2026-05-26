@@ -37,7 +37,17 @@ export function PurchasesTab() {
   const [pendingEdit, setPendingEdit] = useState<PurchaseSnapshot | null>(null)
   const [renamingGroup, setRenamingGroup] = useState<string | null>(null)
   const [groupNewName, setGroupNewName] = useState('')
+  const [collapsed, setCollapsed] = useState<Set<string>>(new Set())
   if (!event) return null
+
+  function toggleCollapse(group: string) {
+    setCollapsed((prev) => {
+      const next = new Set(prev)
+      if (next.has(group)) next.delete(group)
+      else next.add(group)
+      return next
+    })
+  }
 
   function requestEdit(p: PurchaseSnapshot) {
     // If a form is open with unsaved changes for a DIFFERENT item, confirm first.
@@ -200,17 +210,32 @@ export function PurchasesTab() {
         <div key={group || '__none__'} className="space-y-2">
           {group !== '' && (
             <div className="flex items-center gap-2 px-1">
-              <h3 className="flex-1 text-xs font-semibold uppercase tracking-wide text-violet-300">{group}</h3>
+              <button
+                type="button"
+                onClick={() => toggleCollapse(group)}
+                className="flex flex-1 items-center gap-1 text-left text-xs font-semibold uppercase tracking-wide text-violet-300"
+                aria-label={t('purchases.toggleGroup')}
+              >
+                <span className="text-slate-500">{collapsed.has(group) ? '▸' : '▾'}</span>
+                {group} <span className="text-slate-500">({items.length})</span>
+              </button>
               <button type="button" onClick={() => moveGroup(group, -1)} className="text-xs text-slate-500 hover:text-slate-300" aria-label={t('purchases.moveUp')}>↑</button>
               <button type="button" onClick={() => moveGroup(group, 1)} className="text-xs text-slate-500 hover:text-slate-300" aria-label={t('purchases.moveDown')}>↓</button>
               <button type="button" onClick={() => { setRenamingGroup(group); setGroupNewName(group) }} className="text-xs text-slate-500 hover:text-slate-200" aria-label={t('purchases.renameGroup')}>✎</button>
             </div>
           )}
           {group === '' && grouped.length > 1 && (
-            <h3 className="px-1 text-xs font-semibold uppercase tracking-wide text-violet-300">
-              {t('purchases.noGroup')}
-            </h3>
+            <button
+              type="button"
+              onClick={() => toggleCollapse(group)}
+              className="flex w-full items-center gap-1 px-1 text-left text-xs font-semibold uppercase tracking-wide text-violet-300"
+              aria-label={t('purchases.toggleGroup')}
+            >
+              <span className="text-slate-500">{collapsed.has(group) ? '▸' : '▾'}</span>
+              {t('purchases.noGroup')} <span className="text-slate-500">({items.length})</span>
+            </button>
           )}
+          {!collapsed.has(group) && (
           <ul className="space-y-2">
             {items.map((p) => (
               <li
@@ -274,6 +299,7 @@ export function PurchasesTab() {
               </li>
             ))}
           </ul>
+          )}
         </div>
       ))}
       {deleted.length > 0 && (

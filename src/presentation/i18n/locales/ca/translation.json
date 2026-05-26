@@ -202,6 +202,7 @@
     "totalQuantity": "Total a comprar: {{n}} {{unit}}",
     "noGroup": "Sense grup",
     "renameGroup": "Reanomenar grup",
+    "toggleGroup": "Mostrar o amagar grup",
     "renameGroupTitle": "Reanomenar grup",
     "renameGroupHint": "Deixa-ho buit per treure el grup dels seus elements.",
     "moveUp": "Pujar",

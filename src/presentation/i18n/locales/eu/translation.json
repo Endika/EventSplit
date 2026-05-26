@@ -202,6 +202,7 @@
     "totalQuantity": "Erosi beharrekoa: {{n}} {{unit}}",
     "noGroup": "Talderik gabe",
     "renameGroup": "Berrizendatu taldea",
+    "toggleGroup": "Erakutsi edo ezkutatu taldea",
     "renameGroupTitle": "Berrizendatu taldea",
     "renameGroupHint": "Hutsik utzi taldea bere elementuetatik kentzeko.",
     "moveUp": "Gora",
