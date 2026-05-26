@@ -7,6 +7,8 @@ export const HistoryAppender = {
   ): EventSnapshot {
     const nextVersion = (snapshot.history.at(-1)?.version ?? 0) + 1
     const now = new Date().toISOString()
+    const { history: _ignored, ...rest } = snapshot
+    const fullState = rest
     return {
       ...snapshot,
       updatedAt: now,
@@ -21,6 +23,7 @@ export const HistoryAppender = {
           description: input.description,
           before: input.before,
           after: input.after,
+          fullState,
         },
       ],
     }

@@ -16,8 +16,10 @@ export type HistoryType =
   | 'location_set'
   | 'notes_added'
   | 'revert'
-  | 'user_profile_updated'
   | 'days_set'
+  | 'user_profile_updated'
+  | 'edit_pin_set'
+  | 'edit_pin_cleared'
 
 export interface HistoryEntry {
   id: string
@@ -28,6 +30,7 @@ export interface HistoryEntry {
   description: string
   before: unknown
   after: unknown
+  fullState?: Omit<EventSnapshot, 'history'>
 }
 
 export interface EventLocation {
@@ -53,6 +56,7 @@ export interface EventSnapshot {
   days: string[]
   purchases: PurchaseSnapshot[]
   expenses: ExpenseSnapshot[]
+  editPin: string | null
   history: HistoryEntry[]
   createdAt: string
   updatedAt: string
@@ -83,6 +87,7 @@ export class Event {
       days: [],
       purchases: [],
       expenses: [],
+      editPin: null,
       history: [
         {
           id: crypto.randomUUID(),
@@ -98,6 +103,8 @@ export class Event {
       createdAt: now,
       updatedAt: now,
     }
+    const { history: _omit, ...fullState } = snapshot
+    snapshot.history[0]!.fullState = fullState
     return new Event(id, snapshot)
   }
 
@@ -110,7 +117,7 @@ export class Event {
       throw new Error('Event: user already in event')
     const now = new Date().toISOString()
     const nextVersion = (this.s.history.at(-1)?.version ?? 0) + 1
-    return new Event(this.id, {
+    const nextSnapshot: EventSnapshot = {
       ...this.s,
       users: [...this.s.users, user.toSnapshot()],
       updatedAt: now,
@@ -127,7 +134,10 @@ export class Event {
           after: { userId: user.id.value, displayName: user.displayName },
         },
       ],
-    })
+    }
+    const { history: _omit, ...fullState } = nextSnapshot
+    nextSnapshot.history.at(-1)!.fullState = fullState
+    return new Event(this.id, nextSnapshot)
   }
 
   get name(): string { return this.s.name }

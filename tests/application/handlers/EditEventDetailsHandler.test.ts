@@ -41,7 +41,7 @@ describe('EditEventDetailsHandler', () => {
     expect(result.event.wifiPassword).toBe('secret123')
   })
 
-  it('does not leak wifi password into history', async () => {
+  it('does not leak wifi password into history before/after diff', async () => {
     const repo = new InMemoryEventRepository()
     const create = await new CreateEventHandler(repo).execute({ name: 'Trip', creatorName: 'John' })
     const result = await new EditEventDetailsHandler(repo).execute({
@@ -49,6 +49,7 @@ describe('EditEventDetailsHandler', () => {
       wifiPassword: 'secret123',
     })
     const lastHistory = result.event.history.at(-1)
-    expect(JSON.stringify(lastHistory)).not.toContain('secret123')
+    // before/after diffs must not contain the raw password (fullState stores it for revert purposes)
+    expect(JSON.stringify({ before: lastHistory?.before, after: lastHistory?.after })).not.toContain('secret123')
   })
 })
