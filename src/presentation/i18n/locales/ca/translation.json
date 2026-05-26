@@ -120,6 +120,9 @@
     "pickDay": "Marca com a dia escollit",
     "chosenDay": "Dia escollit",
     "removeDay": "Treu el dia",
+    "removeDayTitle": "Treure dia",
+    "removeDayConfirm": "Treure {{date}} de la votació?",
+    "removeDayYes": "Treure",
     "cannotRemoveLast": "No pots treure l'únic dia — afegeix-ne un altre primer.",
     "showChildren": "Mostra els nens ({{count}})"
   },

@@ -120,6 +120,9 @@
     "pickDay": "Aukeratutako eguna markatu",
     "chosenDay": "Aukeratutako eguna",
     "removeDay": "Kendu eguna",
+    "removeDayTitle": "Kendu eguna",
+    "removeDayConfirm": "{{date}} bozketatik kendu?",
+    "removeDayYes": "Kendu",
     "cannotRemoveLast": "Ezin duzu egun bakarra kendu — gehitu beste bat lehenik.",
     "showChildren": "Erakutsi haurrak ({{count}})"
   },

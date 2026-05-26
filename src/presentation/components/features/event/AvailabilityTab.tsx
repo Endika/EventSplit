@@ -11,6 +11,7 @@ import { useWriteGuard } from '@/presentation/context/WriteGuardContext'
 import { reportError } from '@/shared/utils/reportError'
 import { Button } from '@/presentation/components/common/Button'
 import { Input } from '@/presentation/components/common/Input'
+import { Modal } from '@/presentation/components/common/Modal'
 import { YouLabel } from '@/presentation/components/common/YouLabel'
 
 function formatDate(iso: string, locale: string): string {
@@ -52,11 +53,18 @@ export function AvailabilityTab() {
   const [showChildren, setShowChildren] = useState(false)
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [dayToRemove, setDayToRemove] = useState<string | null>(null)
   const [drafts, setDrafts] = useState<Drafts>(() =>
     event ? buildDrafts(event.users, event.days, event.availability) : {},
   )
 
   if (!event) return null
+
+  function savedVotesForDay(day: string): number {
+    const idx = event!.days.indexOf(day)
+    if (idx < 0) return 0
+    return event!.users.reduce((n, u) => n + (event!.availability[u.id]?.[idx] ? 1 : 0), 0)
+  }
 
   // Reconcile drafts when the set of users or days changes (e.g. realtime update).
   const draftUserIds = Object.keys(drafts).sort().join(',')
@@ -279,16 +287,18 @@ export function AvailabilityTab() {
                             <span>{formatDate(d, i18n.language)}</span>
                             <span className={isChosen ? 'text-violet-300' : 'text-slate-600'}>📌</span>
                           </button>
-                          <button
-                            type="button"
-                            onClick={() => removeDay(d)}
-                            disabled={busy}
-                            className="text-[10px] text-slate-600 hover:text-rose-400"
-                            title={t('availability.removeDay')}
-                            aria-label={t('availability.removeDay')}
-                          >
-                            ✕
-                          </button>
+                          {savedVotesForDay(d) === 0 && (
+                            <button
+                              type="button"
+                              onClick={() => setDayToRemove(d)}
+                              disabled={busy}
+                              className="mt-1 text-[10px] text-slate-600 hover:text-rose-400"
+                              title={t('availability.removeDay')}
+                              aria-label={t('availability.removeDay')}
+                            >
+                              ✕
+                            </button>
+                          )}
                         </div>
                       </th>
                     )
@@ -349,6 +359,44 @@ export function AvailabilityTab() {
             </Button>
           )}
         </>
+      )}
+
+      {dayToRemove && (
+        <Modal
+          open
+          title={t('availability.removeDayTitle')}
+          dismissable={!busy}
+          onClose={() => setDayToRemove(null)}
+        >
+          <div className="space-y-3">
+            <p className="text-sm text-slate-300">
+              {t('availability.removeDayConfirm', {
+                date: formatDate(dayToRemove, i18n.language),
+              })}
+            </p>
+            <div className="flex gap-2">
+              <Button
+                type="button"
+                variant="secondary"
+                onClick={() => setDayToRemove(null)}
+                disabled={busy}
+              >
+                {t('common.cancel')}
+              </Button>
+              <Button
+                type="button"
+                onClick={() => {
+                  const d = dayToRemove
+                  setDayToRemove(null)
+                  removeDay(d)
+                }}
+                disabled={busy}
+              >
+                {t('availability.removeDayYes')}
+              </Button>
+            </div>
+          </div>
+        </Modal>
       )}
     </div>
   )

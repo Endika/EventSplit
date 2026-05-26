@@ -120,6 +120,9 @@
     "pickDay": "Mark as chosen day",
     "chosenDay": "Chosen day",
     "removeDay": "Remove day",
+    "removeDayTitle": "Remove day",
+    "removeDayConfirm": "Remove {{date}} from the poll?",
+    "removeDayYes": "Remove",
     "cannotRemoveLast": "Can't remove the only day — add another first.",
     "showChildren": "Show children ({{count}})"
   },

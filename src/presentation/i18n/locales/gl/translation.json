@@ -120,6 +120,9 @@
     "pickDay": "Marcar como día elixido",
     "chosenDay": "Día elixido",
     "removeDay": "Quitar día",
+    "removeDayTitle": "Quitar día",
+    "removeDayConfirm": "Quitar {{date}} da votación?",
+    "removeDayYes": "Quitar",
     "cannotRemoveLast": "Non podes quitar o único día — engade outro primeiro.",
     "showChildren": "Mostrar nenos ({{count}})"
   },

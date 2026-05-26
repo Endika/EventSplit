@@ -120,6 +120,9 @@
     "pickDay": "Marca com a dia triat",
     "chosenDay": "Dia triat",
     "removeDay": "Lleva el dia",
+    "removeDayTitle": "Llevar dia",
+    "removeDayConfirm": "Llevar {{date}} de la votació?",
+    "removeDayYes": "Llevar",
     "cannotRemoveLast": "No pots llevar l'únic dia — afig-ne un altre primer.",
     "showChildren": "Mostra els xiquets ({{count}})"
   },
