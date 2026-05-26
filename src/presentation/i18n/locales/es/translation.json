@@ -261,12 +261,16 @@
   },
   "stage": {
     "title": "Fase",
-    "doodle": "Planificación",
-    "shopping": "Compra",
-    "expenses": "Gastos",
+    "doodle": "Fechas",
+    "shopping": "Organizar",
+    "expenses": "Cuentas",
     "doodleHint": "Elegir los días",
     "shoppingHint": "Lista de la compra",
-    "expensesHint": "Quién pagó qué"
+    "expensesHint": "Quién pagó qué",
+    "doodleDesc": "Decidid entre todos qué días van bien. Marca tu disponibilidad y mira el día más votado.",
+    "shoppingDesc": "Preparad la lista de la compra: qué hace falta, cuánto y quién compra cada cosa.",
+    "expensesDesc": "Registrad quién ha pagado qué y ved la liquidación: quién debe a quién.",
+    "goTo": "Ir a esta fase"
   },
   "event": {
     "share": "Compartir",

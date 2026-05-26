@@ -261,12 +261,16 @@
   },
   "stage": {
     "title": "Fase",
-    "doodle": "Planificació",
-    "shopping": "Compra",
-    "expenses": "Despeses",
+    "doodle": "Dates",
+    "shopping": "Organitzar",
+    "expenses": "Comptes",
     "doodleHint": "Triar els dies",
     "shoppingHint": "Llista de la compra",
-    "expensesHint": "Qui ha pagat què"
+    "expensesHint": "Qui ha pagat què",
+    "doodleDesc": "Decidiu entre tots quins dies van bé. Marca la teua disponibilitat i mira el dia més votat.",
+    "shoppingDesc": "Prepareu la llista de la compra: què cal, quant i qui compra cada cosa.",
+    "expensesDesc": "Registreu qui ha pagat què i mireu la liquidació: qui deu a qui.",
+    "goTo": "Anar a aquesta fase"
   },
   "event": {
     "share": "Comparteix",

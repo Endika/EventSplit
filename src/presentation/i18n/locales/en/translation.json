@@ -261,12 +261,16 @@
   },
   "stage": {
     "title": "Stage",
-    "doodle": "Planning",
-    "shopping": "Shopping",
-    "expenses": "Expenses",
+    "doodle": "Dates",
+    "shopping": "Organise",
+    "expenses": "Accounts",
     "doodleHint": "Pick the days",
     "shoppingHint": "List what to buy",
-    "expensesHint": "Track who paid"
+    "expensesHint": "Track who paid",
+    "doodleDesc": "Decide together which days work. Mark your availability and see the most-voted day.",
+    "shoppingDesc": "Prepare the shopping list: what's needed, how much, and who buys each thing.",
+    "expensesDesc": "Record who paid for what and see the settlement — who owes whom.",
+    "goTo": "Go to this phase"
   },
   "event": {
     "share": "Share",

@@ -1,8 +1,11 @@
+import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useContainer } from '@/presentation/context/ContainerProvider'
 import { useEventState } from '@/presentation/context/EventContext'
 import { useCurrentUser } from '@/presentation/context/UserContext'
 import { useWriteGuard } from '@/presentation/context/WriteGuardContext'
+import { Modal } from '@/presentation/components/common/Modal'
+import { Button } from '@/presentation/components/common/Button'
 import type { SetEventStageHandler } from '@/application/handlers/SetEventStageHandler'
 import type { LocalStorageCache } from '@/infrastructure/persistence/LocalStorageCache'
 import type { EventStage } from '@/domain/entities/Event'
@@ -16,6 +19,7 @@ export function StageSelector() {
   const { event, setEvent } = useEventState()
   const me = useCurrentUser()
   const { guardedExecute } = useWriteGuard()
+  const [info, setInfo] = useState<EventStage | null>(null)
 
   if (!event || !me) return null
   const current = event.stage
@@ -48,7 +52,7 @@ export function StageSelector() {
           <button
             key={s}
             type="button"
-            onClick={() => change(s)}
+            onClick={() => setInfo(s)}
             className={`flex-1 rounded px-2 py-1.5 text-xs font-medium transition ${
               active
                 ? 'bg-violet-600 text-white shadow'
@@ -60,6 +64,28 @@ export function StageSelector() {
           </button>
         )
       })}
+      {info && (
+        <Modal open title={t(`stage.${info}`)} dismissable onClose={() => setInfo(null)}>
+          <div className="space-y-3">
+            <p className="text-sm text-slate-300">{t(`stage.${info}Desc`)}</p>
+            <div className="flex gap-2">
+              <Button type="button" variant="secondary" onClick={() => setInfo(null)}>
+                {t('common.cancel')}
+              </Button>
+              <Button
+                type="button"
+                onClick={() => {
+                  const target = info
+                  setInfo(null)
+                  if (target !== current) change(target)
+                }}
+              >
+                {t('stage.goTo')}
+              </Button>
+            </div>
+          </div>
+        </Modal>
+      )}
     </div>
   )
 }

@@ -261,12 +261,16 @@
   },
   "stage": {
     "title": "Fasea",
-    "doodle": "Plangintza",
-    "shopping": "Erosketa",
-    "expenses": "Gastuak",
+    "doodle": "Datak",
+    "shopping": "Antolatu",
+    "expenses": "Kontuak",
     "doodleHint": "Egunak aukeratu",
     "shoppingHint": "Erosi beharrekoa",
-    "expensesHint": "Nork ordaindu duen"
+    "expensesHint": "Nork ordaindu duen",
+    "doodleDesc": "Erabaki denon artean zein egun datozen ondo. Markatu zure eskuragarritasuna eta ikusi egunik bozkatuena.",
+    "shoppingDesc": "Prestatu erosketa-zerrenda: zer behar den, zenbat eta nork erosten duen gauza bakoitza.",
+    "expensesDesc": "Erregistratu nork zer ordaindu duen eta ikusi likidazioa: nork nori zor dion.",
+    "goTo": "Joan fase honetara"
   },
   "event": {
     "share": "Partekatu",
