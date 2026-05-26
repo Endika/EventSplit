@@ -19,6 +19,34 @@ describe('AllergyChecker', () => {
     expect(result).toEqual([])
   })
 
+  it('matches the allergen own name "gluten" in the item', () => {
+    const result = AllergyChecker.findMatches({
+      item: 'Tarta de gluten',
+      users: [profile('a', 'John', [gluten])],
+    })
+    expect(result).toHaveLength(1)
+    expect(result[0]?.keyword).toBe('gluten')
+  })
+
+  it('matches an "other" allergen by its free-text note', () => {
+    const other: AllergenSnapshot = { name: 'other', severity: 'severe', notes: 'mango' }
+    const result = AllergyChecker.findMatches({
+      item: 'Zumo de mango',
+      users: [profile('a', 'Eva', [other])],
+    })
+    expect(result).toHaveLength(1)
+    expect(result[0]?.allergen).toBe('other')
+  })
+
+  it('ignores an "other" allergen with no note', () => {
+    const other: AllergenSnapshot = { name: 'other', severity: 'mild', notes: null }
+    const result = AllergyChecker.findMatches({
+      item: 'Mango',
+      users: [profile('a', 'Eva', [other])],
+    })
+    expect(result).toEqual([])
+  })
+
   it('detects spanish keyword "pan" → gluten', () => {
     const result = AllergyChecker.findMatches({
       item: 'Pan integral',
