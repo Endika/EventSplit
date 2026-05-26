@@ -1,5 +1,15 @@
 # Changelog
 
+## [1.19.0](https://github.com/Endika/EventSplit/compare/v1.18.0...v1.19.0) (2026-05-26)
+
+
+### Features
+
+* **app:** add soft-delete purchase handler ([c5b49b5](https://github.com/Endika/EventSplit/commit/c5b49b5b142ac91cec639fac59e64367f0da165a))
+* **ui:** assign buyer, mark bought, delete in purchase list ([eed0960](https://github.com/Endika/EventSplit/commit/eed096035bacea50225787dfae771e868cf43bfe))
+* **ui:** doodle vote counts and rename shopping list tab ([4886d49](https://github.com/Endika/EventSplit/commit/4886d49fced115b40e708e6c06308abe9d63b24b))
+* **ui:** editable item/category, free unit, assignee in form ([6ff0b5d](https://github.com/Endika/EventSplit/commit/6ff0b5ddcaf3d5e63cad8e04c835ba57626c623e))
+
 ## [1.18.0](https://github.com/Endika/EventSplit/compare/v1.17.0...v1.18.0) (2026-05-26)
 
 
