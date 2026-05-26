@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.30.0](https://github.com/Endika/EventSplit/compare/v1.29.1...v1.30.0) (2026-05-26)
+
+
+### Features
+
+* **ui:** manage edit-pin after event creation in details tab ([0aedaf2](https://github.com/Endika/EventSplit/commit/0aedaf28e2892a95b418a08771f4fa9ae7a06cff))
+
 ## [1.29.1](https://github.com/Endika/EventSplit/compare/v1.29.0...v1.29.1) (2026-05-26)
 
 
