@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.34.0](https://github.com/Endika/EventSplit/compare/v1.33.0...v1.34.0) (2026-05-26)
+
+
+### Features
+
+* **i18n:** reword pin copy for access gating ([1548ee8](https://github.com/Endika/EventSplit/commit/1548ee86696341ae8a247c5770a28e02b11591d3))
+* **ui:** pin now gates event access not just edits ([95fee40](https://github.com/Endika/EventSplit/commit/95fee40220a9aee61feb54d12c4046fa091b4689))
+
 ## [1.33.0](https://github.com/Endika/EventSplit/compare/v1.32.0...v1.33.0) (2026-05-26)
 
 
