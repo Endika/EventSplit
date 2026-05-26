@@ -69,7 +69,7 @@ describe('Purchase', () => {
     })
     const next = p.edit({
       category: 'drinks', item: 'Coke', quantity: 5, unit: 'cans', dailyConsumption: 2,
-      consumers: [{ userId: u1, multiplier: 1 }], days: 2, assignedTo: null,
+      consumers: [{ userId: u1, multiplier: 1 }], days: 2, assignedTo: null, group: null,
     })
     expect(next.id).toBe(p.id) // same id (preserved)
     expect(next.toSnapshot().quantity).toBe(5)
@@ -89,7 +89,7 @@ describe('Purchase', () => {
 
     const next = p.edit({
       category: 'drinks', item: 'Coke', quantity: 3, unit: 'bottles', dailyConsumption: 3,
-      consumers: [{ userId: u1, multiplier: 2 }], days: 3, assignedTo: null,
+      consumers: [{ userId: u1, multiplier: 2 }], days: 3, assignedTo: null, group: null,
     })
     expect(next.totalQuantity).toBe(18) // 3*2*3
   })
@@ -102,15 +102,15 @@ describe('Purchase', () => {
     })
     expect(() => p.edit({
       category: 'drinks', item: 'Coke', quantity: 0, unit: 'bottles', dailyConsumption: 1,
-      consumers: [{ userId: u1, multiplier: 1 }], days: 1, assignedTo: null,
+      consumers: [{ userId: u1, multiplier: 1 }], days: 1, assignedTo: null, group: null,
     })).toThrow(/quantity/)
     expect(() => p.edit({
       category: 'drinks', item: 'Coke', quantity: 1, unit: 'bottles', dailyConsumption: 1,
-      consumers: [], days: 1, assignedTo: null,
+      consumers: [], days: 1, assignedTo: null, group: null,
     })).toThrow(/consumer/)
     expect(() => p.edit({
       category: 'drinks', item: 'Coke', quantity: 1, unit: '   ', dailyConsumption: 1,
-      consumers: [{ userId: u1, multiplier: 1 }], days: 1, assignedTo: null,
+      consumers: [{ userId: u1, multiplier: 1 }], days: 1, assignedTo: null, group: null,
     })).toThrow(/unit/)
   })
 
@@ -149,7 +149,7 @@ describe('Purchase', () => {
     })
     const next = p.edit({
       category: 'food', item: 'Bread', quantity: 2, unit: 'loaves',
-      dailyConsumption: 1, consumers: [{ userId: u1, multiplier: 1 }], days: 1, assignedTo: null,
+      dailyConsumption: 1, consumers: [{ userId: u1, multiplier: 1 }], days: 1, assignedTo: null, group: null,
     })
     expect(next.toSnapshot().item).toBe('Bread')
     expect(next.toSnapshot().category).toBe('food')
@@ -210,5 +210,41 @@ describe('Purchase', () => {
     })
     expect(p.assign({ assignedTo: null, purchased: true }).toSnapshot().boughtQuantity).toBe(6)
     expect(p.assign({ assignedTo: null, purchased: false }).toSnapshot().boughtQuantity).toBe(0)
+  })
+
+  it('stores a trimmed group, null when blank', () => {
+    const p = Purchase.create({
+      createdBy: u1, category: 'food', item: 'Bread', quantity: 1, unit: 'units',
+      dailyConsumption: 1, consumers: [{ userId: u1, multiplier: 1 }], days: 1,
+      group: '  Cena sábado  ',
+    })
+    expect(p.toSnapshot().group).toBe('Cena sábado')
+    const p2 = Purchase.create({
+      createdBy: u1, category: 'food', item: 'Milk', quantity: 1, unit: 'units',
+      dailyConsumption: 1, consumers: [{ userId: u1, multiplier: 1 }], days: 1,
+      group: '   ',
+    })
+    expect(p2.toSnapshot().group).toBeNull()
+  })
+
+  it('edit can change the group', () => {
+    const p = Purchase.create({
+      createdBy: u1, category: 'food', item: 'Bread', quantity: 1, unit: 'units',
+      dailyConsumption: 1, consumers: [{ userId: u1, multiplier: 1 }], days: 1,
+    })
+    const next = p.edit({
+      category: 'food', item: 'Bread', quantity: 1, unit: 'units',
+      dailyConsumption: 1, consumers: [{ userId: u1, multiplier: 1 }], days: 1,
+      assignedTo: null, group: 'Comida domingo',
+    })
+    expect(next.toSnapshot().group).toBe('Comida domingo')
+  })
+
+  it('new purchase has null group by default', () => {
+    const p = Purchase.create({
+      createdBy: u1, category: 'food', item: 'XY', quantity: 1, unit: 'units',
+      dailyConsumption: 1, consumers: [{ userId: u1, multiplier: 1 }], days: 1,
+    })
+    expect(p.toSnapshot().group).toBeNull()
   })
 })

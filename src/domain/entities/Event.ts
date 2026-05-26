@@ -146,6 +146,7 @@ export class Event {
           purchased,
           boughtQuantity:
             (p as { boughtQuantity?: number }).boughtQuantity ?? (purchased ? p.totalQuantity : 0),
+          group: p.group ?? null,
         }
       }),
       expenses: (s.expenses ?? []).map((e) => ({

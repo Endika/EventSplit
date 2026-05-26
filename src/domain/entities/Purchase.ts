@@ -24,6 +24,7 @@ export interface PurchaseSnapshot {
   assignedTo: string | null
   purchased: boolean
   boughtQuantity: number
+  group: string | null
 }
 
 const VALID_CATEGORIES = ['food', 'drinks', 'snacks', 'other'] as const
@@ -49,6 +50,7 @@ export class Purchase {
     consumers: PurchaseConsumer[]
     days: number
     assignedTo?: string | null
+    group?: string | null
   }): Purchase {
     const item = input.item.trim()
     if (item.length < 2 || item.length > 50) throw new Error('Purchase: item must be 2..50 chars')
@@ -91,10 +93,11 @@ export class Purchase {
       assignedTo: input.assignedTo ?? null,
       purchased: false,
       boughtQuantity: 0,
+      group: input.group?.trim() ? input.group.trim().slice(0, 50) : null,
     })
   }
 
-  static restore(s: PurchaseSnapshot | Omit<PurchaseSnapshot, 'assignedTo' | 'purchased' | 'boughtQuantity'>): Purchase {
+  static restore(s: PurchaseSnapshot | Omit<PurchaseSnapshot, 'assignedTo' | 'purchased' | 'boughtQuantity' | 'group'>): Purchase {
     const full = s as PurchaseSnapshot
     const purchased = full.purchased ?? false
     return new Purchase({
@@ -102,6 +105,7 @@ export class Purchase {
       assignedTo: full.assignedTo ?? null,
       purchased,
       boughtQuantity: full.boughtQuantity ?? (purchased ? full.totalQuantity : 0),
+      group: full.group ?? null,
     })
   }
 
@@ -134,6 +138,7 @@ export class Purchase {
     consumers: PurchaseConsumer[]
     days: number
     assignedTo: string | null
+    group: string | null
   }): Purchase {
     const item = input.item.trim()
     if (item.length < 2 || item.length > 50) throw new Error('Purchase: item must be 2..50 chars')
@@ -168,6 +173,7 @@ export class Purchase {
       totalQuantity,
       consumers: input.consumers,
       assignedTo: input.assignedTo,
+      group: input.group?.trim() ? input.group.trim().slice(0, 50) : null,
     })
   }
 
@@ -198,6 +204,7 @@ export class Purchase {
   get assignedTo(): string | null { return this.s.assignedTo }
   get purchased(): boolean { return this.s.purchased }
   get boughtQuantity(): number { return this.s.boughtQuantity }
+  get group(): string | null { return this.s.group }
 
   toSnapshot(): PurchaseSnapshot { return { ...this.s, consumers: [...this.s.consumers] } }
 }
