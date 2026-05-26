@@ -297,7 +297,6 @@ export function LocationTab() {
         </form>
       )}
 
-      {me?.id === event.createdBy && (
       <div className="space-y-3 rounded-lg border border-slate-800 bg-slate-900 p-4">
         <h2 className="text-sm font-semibold uppercase tracking-wide text-slate-400">
           🔒 {t('pin.manageTitle')}
@@ -391,7 +390,6 @@ export function LocationTab() {
         <p className="text-xs text-slate-600">{t('pin.manageHint')}</p>
         <p className="text-xs text-slate-600">{t('pin.ownerVerifiedHint')}</p>
       </div>
-      )}
     </div>
   )
 }
