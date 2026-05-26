@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.50.0](https://github.com/Endika/EventSplit/compare/v1.49.0...v1.50.0) (2026-05-26)
+
+
+### Features
+
+* **purchases:** switch buy/bring when editing an item ([8e031e1](https://github.com/Endika/EventSplit/commit/8e031e1282843ae56179db99fa432edc9403576b))
+
 ## [1.49.0](https://github.com/Endika/EventSplit/compare/v1.48.0...v1.49.0) (2026-05-26)
 
 
