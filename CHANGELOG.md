@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.53.0](https://github.com/Endika/EventSplit/compare/v1.52.0...v1.53.0) (2026-05-26)
+
+
+### Features
+
+* **ui:** loading spinner on save and delete buttons ([a6ad585](https://github.com/Endika/EventSplit/commit/a6ad585b0ca7822a8eaf16931ccc4dfaf6f9694a))
+
 ## [1.52.0](https://github.com/Endika/EventSplit/compare/v1.51.0...v1.52.0) (2026-05-26)
 
 
