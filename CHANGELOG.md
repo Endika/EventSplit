@@ -1,5 +1,14 @@
 # Changelog
 
+## [1.11.0](https://github.com/Endika/EventSplit/compare/v1.10.0...v1.11.0) (2026-05-26)
+
+
+### Features
+
+* **app:** pass split-among to expense handler with validation ([8a15066](https://github.com/Endika/EventSplit/commit/8a15066d6c37e8e8be72ec542888b0b683554476))
+* **domain:** support per-expense split among subset of users ([bed1d78](https://github.com/Endika/EventSplit/commit/bed1d780360e3f450e92df75cdb78f8932f075ba))
+* **ui:** allow selecting who an expense is split between ([aaf042e](https://github.com/Endika/EventSplit/commit/aaf042ea98ecbd387a0e65a02f2439caf1710476))
+
 ## [1.10.0](https://github.com/Endika/EventSplit/compare/v1.9.0...v1.10.0) (2026-05-26)
 
 
