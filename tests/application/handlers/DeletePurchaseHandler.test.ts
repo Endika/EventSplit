@@ -2,6 +2,7 @@ import { describe, it, expect } from 'vitest'
 import { CreateEventHandler } from '@/application/handlers/CreateEventHandler'
 import { AddPurchaseHandler } from '@/application/handlers/AddPurchaseHandler'
 import { DeletePurchaseHandler } from '@/application/handlers/DeletePurchaseHandler'
+import { SetGroupOrderHandler } from '@/application/handlers/SetGroupOrderHandler'
 import { InMemoryEventRepository } from '@/infrastructure/persistence/InMemoryEventRepository'
 
 async function setup() {
@@ -42,5 +43,22 @@ describe('DeletePurchaseHandler', () => {
         eventId: ctx.eventId, purchaseId: ctx.purchaseId, deletedBy: '00000000-0000-7000-8000-000000000000',
       }),
     ).rejects.toThrow(/not in event/i)
+  })
+
+  it('prunes a group from the order when its last item is deleted', async () => {
+    const repo = new InMemoryEventRepository()
+    const create = await new CreateEventHandler(repo).execute({ name: 'Trip', creatorName: 'John' })
+    const added = await new AddPurchaseHandler(repo).execute({
+      eventId: create.event.id, createdBy: create.creator.id,
+      item: 'Coke', quantity: 1, unit: 'units', dailyConsumption: 1,
+      consumers: [{ userId: create.creator.id, multiplier: 1 }], days: 1, group: 'Dinner',
+    })
+    await new SetGroupOrderHandler(repo).execute({
+      eventId: create.event.id, userId: create.creator.id, order: ['Dinner'],
+    })
+    const result = await new DeletePurchaseHandler(repo).execute({
+      eventId: create.event.id, purchaseId: added.event.purchases[0]!.id, deletedBy: create.creator.id,
+    })
+    expect(result.event.groupOrder).not.toContain('Dinner')
   })
 })

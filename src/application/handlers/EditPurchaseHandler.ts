@@ -2,6 +2,7 @@ import { EditPurchaseSchema, type EditPurchaseInput } from '@/application/dtos/E
 import type { EventSnapshot } from '@/domain/entities/Event'
 import { Purchase } from '@/domain/entities/Purchase'
 import { HistoryAppender } from '@/domain/services/HistoryAppender'
+import { pruneGroupOrder } from '@/domain/services/pruneGroupOrder'
 import { type IEventRepository, VersionConflictError } from '@/domain/repositories/IEventRepository'
 
 const MAX_RETRIES = 3
@@ -40,12 +41,14 @@ export class EditPurchaseHandler {
 
       const editorName =
         row.snapshot.users.find((u) => u.id === parsed.editedBy)?.name ?? 'Someone'
+      const newPurchases = row.snapshot.purchases.map((p) =>
+        p.id === parsed.purchaseId ? updated.toSnapshot() : p,
+      )
       const nextSnapshot: EventSnapshot = HistoryAppender.append(
         {
           ...row.snapshot,
-          purchases: row.snapshot.purchases.map((p) =>
-            p.id === parsed.purchaseId ? updated.toSnapshot() : p,
-          ),
+          purchases: newPurchases,
+          groupOrder: pruneGroupOrder(newPurchases, row.snapshot.groupOrder),
         },
         {
           type: 'purchase_edited',
