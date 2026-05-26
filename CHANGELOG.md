@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.54.3](https://github.com/Endika/EventSplit/compare/v1.54.2...v1.54.3) (2026-05-26)
+
+
+### Chores
+
+* **deps-dev:** bump @commitlint/config-conventional ([173ce42](https://github.com/Endika/EventSplit/commit/173ce42af2afc33ce2b50862dbdf61d13a8262b9))
+
 ## [1.54.2](https://github.com/Endika/EventSplit/compare/v1.54.1...v1.54.2) (2026-05-26)
 
 
