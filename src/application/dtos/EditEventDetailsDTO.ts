@@ -10,6 +10,7 @@ export const LocationSchema = z.object({
 
 export const EditEventDetailsSchema = z.object({
   eventId: z.string().regex(/^[a-z0-9]{7}$/),
+  name: z.string().trim().min(3).max(100).optional(),
   location: LocationSchema.nullable().optional(),
   generalNotes: z.string().trim().max(500).nullable().optional(),
   wifiPassword: z.string().trim().max(50).nullable().optional(),

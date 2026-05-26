@@ -138,6 +138,7 @@
   },
   "location": {
     "title": "Non eta nola",
+    "eventName": "Ekitaldiaren izena",
     "edit": "Editatu",
     "save": "Gorde",
     "saving": "Gordetzen…",

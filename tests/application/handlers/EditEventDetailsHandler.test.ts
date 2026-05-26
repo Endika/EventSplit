@@ -41,6 +41,16 @@ describe('EditEventDetailsHandler', () => {
     expect(result.event.wifiPassword).toBe('secret123')
   })
 
+  it('updates the event name', async () => {
+    const repo = new InMemoryEventRepository()
+    const create = await new CreateEventHandler(repo).execute({ name: 'Trip', creatorName: 'John' })
+    const result = await new EditEventDetailsHandler(repo).execute({
+      eventId: create.event.id,
+      name: 'Mountain weekend',
+    })
+    expect(result.event.name).toBe('Mountain weekend')
+  })
+
   it('does not leak wifi password into history before/after diff', async () => {
     const repo = new InMemoryEventRepository()
     const create = await new CreateEventHandler(repo).execute({ name: 'Trip', creatorName: 'John' })

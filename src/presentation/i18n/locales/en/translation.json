@@ -138,6 +138,7 @@
   },
   "location": {
     "title": "Where and how",
+    "eventName": "Event name",
     "edit": "Edit",
     "save": "Save",
     "saving": "Saving…",

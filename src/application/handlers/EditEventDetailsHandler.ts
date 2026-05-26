@@ -39,6 +39,7 @@ export class EditEventDetailsHandler {
       const nextSnapshot: EventSnapshot = HistoryAppender.append(
         {
           ...row.snapshot,
+          name: parsed.name ?? row.snapshot.name,
           location: nextLocation,
           generalNotes: parsed.generalNotes === undefined ? row.snapshot.generalNotes : parsed.generalNotes,
           wifiPassword:

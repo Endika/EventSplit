@@ -138,6 +138,7 @@
   },
   "location": {
     "title": "On i com",
+    "eventName": "Nom de l'esdeveniment",
     "edit": "Edita",
     "save": "Guarda",
     "saving": "S'està guardant…",

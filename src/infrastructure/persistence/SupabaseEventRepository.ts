@@ -49,6 +49,7 @@ export class SupabaseEventRepository implements IEventRepository {
       .from('events')
       .update({
         data: snapshot,
+        name: snapshot.name,
         version: expectedVersion + 1,
         updated_at: new Date().toISOString(),
       })

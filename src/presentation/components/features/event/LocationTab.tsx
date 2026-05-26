@@ -29,6 +29,7 @@ export function LocationTab() {
   const [confirmRemovePin, setConfirmRemovePin] = useState(false)
   const hasPin = !!event?.editPin
 
+  const [eventName, setEventName] = useState(event?.name ?? '')
   const [name, setName] = useState(loc?.name ?? '')
   const [address, setAddress] = useState(loc?.address ?? '')
   const [lat, setLat] = useState(loc?.lat?.toString() ?? '')
@@ -50,6 +51,27 @@ export function LocationTab() {
     setWifi(event!.wifiPassword ?? '')
     setEmergency(event!.emergencyContact ?? '')
     setEditing(true)
+  }
+
+  function saveName() {
+    if (!event || !me) return
+    const trimmed = eventName.trim()
+    if (trimmed.length < 3 || trimmed === event.name) {
+      setEventName(event.name) // reset if invalid/unchanged
+      return
+    }
+    guardedExecute(async () => {
+      try {
+        const handler = container.resolve<EditEventDetailsHandler>('editEventDetails')
+        const result = await handler.execute({ eventId: event.id, name: trimmed })
+        container
+          .resolve<LocalStorageCache>('cache')
+          .set(event.id, { snapshot: result.event, version: result.version })
+        setEvent(result.event, result.version)
+      } catch (err) {
+        reportError('LocationTab', err)
+      }
+    })
   }
 
   function save(e: FormEvent) {
@@ -122,6 +144,18 @@ export function LocationTab() {
 
   return (
     <div className="space-y-4">
+      <label className="block text-sm text-slate-300">
+        {t('location.eventName')}
+        <input
+          className="mt-1 block w-full rounded-lg border border-slate-700 bg-slate-900 px-3 py-2 text-sm text-slate-100 focus:border-violet-500 focus:outline-none focus:ring-1 focus:ring-violet-500"
+          value={eventName}
+          onChange={(e) => setEventName(e.target.value)}
+          onBlur={saveName}
+          minLength={3}
+          maxLength={100}
+        />
+      </label>
+
       <div className="flex items-center justify-between">
         <h2 className="text-sm font-semibold uppercase tracking-wide text-slate-400">
           {t('location.title')}
