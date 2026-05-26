@@ -201,6 +201,7 @@
     "empty": "Encara no hi ha compres.",
     "createdBy": "Afegida per {{name}}",
     "totalQuantity": "Total a comprar: {{n}} {{unit}}",
+    "totalToBring": "A portar: {{n}} {{unit}}",
     "noGroup": "Sense grup",
     "renameGroup": "Renomenar grup",
     "toggleGroup": "Mostrar o amagar grup",
@@ -242,7 +243,9 @@
       "modeBring": "El porte de casa",
       "broughtBy": "El porta",
       "broughtByNobody": "Ningú encara",
-      "invalidQuantity": "Introduïx una quantitat vàlida."
+      "invalidQuantity": "Introduïx una quantitat vàlida.",
+      "allergyChip": "Al·lèrgia a: {{list}}",
+      "dietaryChip": "Dieta: {{text}}"
     },
     "boughtProgress": "Comprat {{n}}/{{total}} {{unit}}",
     "boughtByMany": "Comprat per {{names}}"

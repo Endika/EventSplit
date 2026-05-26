@@ -295,7 +295,7 @@ export function PurchasesTab() {
                   {p.kind === 'bring' && <span title={t('purchases.form.modeBring')}>🏠 </span>}{p.item} <span className="text-xs text-slate-500">✎</span>
                 </div>
                 <div className="text-sm text-slate-400">
-                  {t('purchases.totalQuantity', { n: Math.round(p.totalQuantity * 100) / 100, unit: displayUnit(p.unit, t) })}
+                  {t(p.kind === 'bring' ? 'purchases.totalToBring' : 'purchases.totalQuantity', { n: Math.round(p.totalQuantity * 100) / 100, unit: displayUnit(p.unit, t) })}
                 </div>
                 <div className="text-xs text-slate-500">
                   {t('purchases.createdBy', { name: userName(p.createdBy) })}

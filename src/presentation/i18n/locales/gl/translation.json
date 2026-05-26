@@ -201,6 +201,7 @@
     "empty": "Aínda non hai compras.",
     "createdBy": "Engadida por {{name}}",
     "totalQuantity": "Total a comprar: {{n}} {{unit}}",
+    "totalToBring": "A levar: {{n}} {{unit}}",
     "noGroup": "Sen grupo",
     "renameGroup": "Renomear grupo",
     "toggleGroup": "Amosar ou agochar grupo",
@@ -242,7 +243,9 @@
       "modeBring": "Lévoo da casa",
       "broughtBy": "Lévao",
       "broughtByNobody": "Ninguén aínda",
-      "invalidQuantity": "Introduce unha cantidade válida."
+      "invalidQuantity": "Introduce unha cantidade válida.",
+      "allergyChip": "Alerxia a: {{list}}",
+      "dietaryChip": "Dieta: {{text}}"
     },
     "boughtProgress": "Mercado {{n}}/{{total}} {{unit}}",
     "boughtByMany": "Mercado por {{names}}"

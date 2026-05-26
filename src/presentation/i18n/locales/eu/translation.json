@@ -201,6 +201,7 @@
     "empty": "Oraindik ez dago erosketarik.",
     "createdBy": "Gehitu duena: {{name}}",
     "totalQuantity": "Erosi beharrekoa: {{n}} {{unit}}",
+    "totalToBring": "Eramateko: {{n}} {{unit}}",
     "noGroup": "Talderik gabe",
     "renameGroup": "Berrizendatu taldea",
     "toggleGroup": "Erakutsi edo ezkutatu taldea",
@@ -242,7 +243,9 @@
       "modeBring": "Etxetik daramat",
       "broughtBy": "Nork darama",
       "broughtByNobody": "Inork ez oraindik",
-      "invalidQuantity": "Sartu kopuru baliogarri bat."
+      "invalidQuantity": "Sartu kopuru baliogarri bat.",
+      "allergyChip": "Alergia: {{list}}",
+      "dietaryChip": "Dieta: {{text}}"
     },
     "boughtProgress": "Erosita {{n}}/{{total}} {{unit}}",
     "boughtByMany": "{{names}}(e)k erosita"

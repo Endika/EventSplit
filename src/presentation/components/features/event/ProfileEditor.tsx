@@ -235,11 +235,19 @@ export function ProfileEditor({
               onChange={(e) => setNewAllergen(e.target.value as AllergenName)}
               disabled={busy}
             >
-              {COMMON_ALLERGENS.map((name) => (
-                <option key={name} value={name}>
-                  {t(`allergens.${name}`)}
-                </option>
-              ))}
+              {(() => {
+                const opts: AllergenName[] = [
+                  ...COMMON_ALLERGENS.filter((n) => n !== 'other').sort((a, b) =>
+                    t(`allergens.${a}`).localeCompare(t(`allergens.${b}`)),
+                  ),
+                  'other',
+                ]
+                return opts.map((name) => (
+                  <option key={name} value={name}>
+                    {t(`allergens.${name}`)}
+                  </option>
+                ))
+              })()}
             </select>
             <select
               className="rounded border border-slate-700 bg-slate-900 px-2 py-1 text-sm text-slate-100"

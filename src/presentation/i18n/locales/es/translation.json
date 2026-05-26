@@ -201,6 +201,7 @@
     "empty": "Aún no hay compras.",
     "createdBy": "Añadida por {{name}}",
     "totalQuantity": "Total a comprar: {{n}} {{unit}}",
+    "totalToBring": "A llevar: {{n}} {{unit}}",
     "noGroup": "Sin grupo",
     "renameGroup": "Renombrar grupo",
     "toggleGroup": "Mostrar u ocultar grupo",
@@ -242,7 +243,9 @@
       "modeBring": "Lo llevo de casa",
       "broughtBy": "Lo lleva",
       "broughtByNobody": "Nadie aún",
-      "invalidQuantity": "Introduce una cantidad válida."
+      "invalidQuantity": "Introduce una cantidad válida.",
+      "allergyChip": "Alergia a: {{list}}",
+      "dietaryChip": "Dieta: {{text}}"
     },
     "boughtProgress": "Comprado {{n}}/{{total}} {{unit}}",
     "boughtByMany": "Comprado por {{names}}"

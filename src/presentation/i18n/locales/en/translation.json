@@ -201,6 +201,7 @@
     "empty": "No purchases yet.",
     "createdBy": "Created by {{name}}",
     "totalQuantity": "Total to buy: {{n}} {{unit}}",
+    "totalToBring": "To bring: {{n}} {{unit}}",
     "noGroup": "No group",
     "renameGroup": "Rename group",
     "toggleGroup": "Show or hide group",
@@ -242,7 +243,9 @@
       "modeBring": "I bring it",
       "broughtBy": "Brought by",
       "broughtByNobody": "Nobody yet",
-      "invalidQuantity": "Enter a valid quantity."
+      "invalidQuantity": "Enter a valid quantity.",
+      "allergyChip": "Allergic to: {{list}}",
+      "dietaryChip": "Diet: {{text}}"
     },
     "boughtProgress": "Bought {{n}}/{{total}} {{unit}}",
     "boughtByMany": "Bought by {{names}}"

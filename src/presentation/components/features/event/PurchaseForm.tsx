@@ -13,6 +13,7 @@ import { Button } from '@/presentation/components/common/Button'
 import { Input } from '@/presentation/components/common/Input'
 import { Modal } from '@/presentation/components/common/Modal'
 import { YouLabel } from '@/presentation/components/common/YouLabel'
+import { InfoChip } from '@/presentation/components/common/InfoChip'
 import { useOnlineStatus } from '@/presentation/context/SyncContext'
 import { useWriteGuard } from '@/presentation/context/WriteGuardContext'
 import { AllergyChecker, type AllergyMatch } from '@/domain/services/AllergyChecker'
@@ -129,6 +130,12 @@ export function PurchaseForm({
 
   function setMultiplier(id: string, m: number) {
     setConsumers((prev) => ({ ...prev, [id]: m }))
+  }
+
+  function allergenLabel(a: { name: string; notes: string | null }): string {
+    const base = t(`allergens.${a.name}`)
+    if (a.name === 'other') return a.notes || base
+    return a.notes ? `${base} (${a.notes})` : base
   }
 
   function switchMode(next: 'buy' | 'bring') {
@@ -445,6 +452,13 @@ export function PurchaseForm({
             {event.users.map((u) => {
               const selected = consumers[u.id] !== undefined
               const m = consumers[u.id] ?? 1
+              const allergens = u.allergies ?? []
+              const allergyMatchesItem =
+                allergens.length > 0 &&
+                AllergyChecker.findMatches({
+                  item,
+                  users: [{ userId: u.id, displayName: '', allergies: allergens }],
+                }).length > 0
               return (
                 <li key={u.id} className="flex items-center gap-2 text-sm">
                   <input
@@ -454,6 +468,22 @@ export function PurchaseForm({
                   />
                   <span>{u.alias ? `${u.name} (${u.alias})` : u.name}</span>
                   <YouLabel userId={u.id} />
+                  {allergens.length > 0 && (
+                    <InfoChip
+                      icon="⚠️"
+                      tone={allergyMatchesItem ? 'rose' : 'amber'}
+                      label={t('purchases.form.allergyChip', {
+                        list: allergens.map((a) => allergenLabel(a)).join(', '),
+                      })}
+                    />
+                  )}
+                  {u.dietary && (
+                    <InfoChip
+                      icon="🥗"
+                      tone="slate"
+                      label={t('purchases.form.dietaryChip', { text: u.dietary })}
+                    />
+                  )}
                   {selected && (
                     <select
                       className="ml-auto rounded border border-slate-700 bg-slate-900 p-1 text-slate-200"
