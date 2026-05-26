@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.6.0](https://github.com/Endika/EventSplit/compare/v1.5.0...v1.6.0) (2026-05-26)
+
+
+### Features
+
+* **ui:** responsive layout with mobile side menu and safe areas ([b2c1753](https://github.com/Endika/EventSplit/commit/b2c175385b5e918dba6bbef98c4647126f7cb8d7))
+
 ## [1.5.0](https://github.com/Endika/EventSplit/compare/v1.4.0...v1.5.0) (2026-05-26)
 
 
