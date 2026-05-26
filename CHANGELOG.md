@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.54.0](https://github.com/Endika/EventSplit/compare/v1.53.0...v1.54.0) (2026-05-26)
+
+
+### Features
+
+* **profile:** reveal allergy picker only on add click ([b371cba](https://github.com/Endika/EventSplit/commit/b371cba5772f890786809c61932ca738222dc582))
+
 ## [1.53.0](https://github.com/Endika/EventSplit/compare/v1.52.0...v1.53.0) (2026-05-26)
 
 
