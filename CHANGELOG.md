@@ -1,5 +1,26 @@
 # Changelog
 
+## [2.0.0](https://github.com/Endika/EventSplit/compare/v1.54.3...v2.0.0) (2026-05-26)
+
+
+### ⚠ BREAKING CHANGES
+
+* **history:** the revert/undo feature is removed; history is now an audit log only.
+
+### Features
+
+* **history:** record audit-log entries only, remove revert ([75e9fdc](https://github.com/Endika/EventSplit/commit/75e9fdc4e8beb405fb777068597d5f2f29c7be66))
+
+
+### Bug Fixes
+
+* **i18n:** render EN/ES flags as inline SVG ([90bf97e](https://github.com/Endika/EventSplit/commit/90bf97ecb83df4941d2d5ce9fbe92e6105bf5099))
+
+
+### Performance
+
+* **history:** cap the audit log to the most recent 30 entries ([efd3643](https://github.com/Endika/EventSplit/commit/efd36430c864428cfdbe48a5f073b1e2f81f0939))
+
 ## [1.54.3](https://github.com/Endika/EventSplit/compare/v1.54.2...v1.54.3) (2026-05-26)
 
 
