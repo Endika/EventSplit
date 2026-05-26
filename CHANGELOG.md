@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.46.1](https://github.com/Endika/EventSplit/compare/v1.46.0...v1.46.1) (2026-05-26)
+
+
+### Refactor
+
+* **purchases:** drop category, use group only ([6896f28](https://github.com/Endika/EventSplit/commit/6896f2847a4b410cc771e2f3eb5f6deb4496f3ca))
+
 ## [1.46.0](https://github.com/Endika/EventSplit/compare/v1.45.0...v1.46.0) (2026-05-26)
 
 
