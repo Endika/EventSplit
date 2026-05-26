@@ -148,7 +148,20 @@
       "dailyConsumption": "Daily consumption per share",
       "days": "Event duration (days)",
       "consumers": "Who consumes this",
-      "submit": "Save purchase"
+      "submit": "Save purchase",
+      "categories": {
+        "food": "Food",
+        "drinks": "Drinks",
+        "snacks": "Snacks",
+        "other": "Other"
+      },
+      "units": {
+        "units": "units",
+        "bottles": "bottles",
+        "cans": "cans",
+        "kg": "kg",
+        "liters": "liters"
+      }
     }
   },
   "expenses": {

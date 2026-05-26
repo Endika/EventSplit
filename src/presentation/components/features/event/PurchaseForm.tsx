@@ -128,7 +128,7 @@ export function PurchaseForm({ onDone }: { onDone: () => void }) {
             onChange={(e) => setCategory(e.target.value as (typeof CATEGORIES)[number])}
           >
             {CATEGORIES.map((c) => (
-              <option key={c} value={c}>{c}</option>
+              <option key={c} value={c}>{t(`purchases.form.categories.${c}`)}</option>
             ))}
           </select>
         </label>
@@ -156,7 +156,7 @@ export function PurchaseForm({ onDone }: { onDone: () => void }) {
             onChange={(e) => setUnit(e.target.value as (typeof UNITS)[number])}
           >
             {UNITS.map((u) => (
-              <option key={u} value={u}>{u}</option>
+              <option key={u} value={u}>{t(`purchases.form.units.${u}`)}</option>
             ))}
           </select>
         </div>

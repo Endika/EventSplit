@@ -148,7 +148,20 @@
       "dailyConsumption": "Eguneko kontsumoa pertsonako",
       "days": "Iraupena (egunak)",
       "consumers": "Nork kontsumitzen du",
-      "submit": "Gorde erosketa"
+      "submit": "Gorde erosketa",
+      "categories": {
+        "food": "Janaria",
+        "drinks": "Edariak",
+        "snacks": "Pikatzekoak",
+        "other": "Bestelakoa"
+      },
+      "units": {
+        "units": "unitateak",
+        "bottles": "botilak",
+        "cans": "latak",
+        "kg": "kg",
+        "liters": "litroak"
+      }
     }
   },
   "expenses": {

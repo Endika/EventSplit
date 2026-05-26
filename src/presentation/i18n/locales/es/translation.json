@@ -148,7 +148,20 @@
       "dailyConsumption": "Consumo diario por persona",
       "days": "Duración del evento (días)",
       "consumers": "Quién consume",
-      "submit": "Guardar compra"
+      "submit": "Guardar compra",
+      "categories": {
+        "food": "Comida",
+        "drinks": "Bebidas",
+        "snacks": "Picoteo",
+        "other": "Otro"
+      },
+      "units": {
+        "units": "unidades",
+        "bottles": "botellas",
+        "cans": "latas",
+        "kg": "kg",
+        "liters": "litros"
+      }
     }
   },
   "expenses": {

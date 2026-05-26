@@ -24,7 +24,7 @@ export function PurchasesTab() {
           <li key={p.id} className="rounded-lg border border-slate-800 bg-slate-900 p-3">
             <div className="font-medium text-slate-100">{p.item}</div>
             <div className="text-sm text-slate-400">
-              {t('purchases.totalQuantity', { n: p.totalQuantity, unit: p.unit })}
+              {t('purchases.totalQuantity', { n: p.totalQuantity, unit: t(`purchases.form.units.${p.unit}`) })}
             </div>
             <div className="text-xs text-slate-500">
               {t('purchases.createdBy', { name: userName(p.createdBy) })}
