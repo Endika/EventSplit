@@ -42,6 +42,7 @@ const PurchaseSchema = z.object({
   createdAt: z.string(),
   assignedTo: z.string().nullable().default(null),
   purchased: z.boolean().default(false),
+  boughtQuantity: z.number().default(0),
 })
 
 const ExpenseSchema = z.object({

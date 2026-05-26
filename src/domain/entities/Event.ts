@@ -138,11 +138,16 @@ export class Event {
       availability: s.availability ?? {},
       availabilityNote: s.availabilityNote ?? null,
       chosenDay: s.chosenDay ?? null,
-      purchases: (s.purchases ?? []).map((p) => ({
-        ...p,
-        assignedTo: (p as { assignedTo?: string | null }).assignedTo ?? null,
-        purchased: (p as { purchased?: boolean }).purchased ?? false,
-      })),
+      purchases: (s.purchases ?? []).map((p) => {
+        const purchased = (p as { purchased?: boolean }).purchased ?? false
+        return {
+          ...p,
+          assignedTo: (p as { assignedTo?: string | null }).assignedTo ?? null,
+          purchased,
+          boughtQuantity:
+            (p as { boughtQuantity?: number }).boughtQuantity ?? (purchased ? p.totalQuantity : 0),
+        }
+      }),
       expenses: (s.expenses ?? []).map((e) => ({
         ...e,
         splitAmong: e.splitAmong ?? [],

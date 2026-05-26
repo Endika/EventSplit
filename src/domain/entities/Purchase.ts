@@ -23,6 +23,7 @@ export interface PurchaseSnapshot {
   createdAt: string
   assignedTo: string | null
   purchased: boolean
+  boughtQuantity: number
 }
 
 const VALID_CATEGORIES = ['food', 'drinks', 'snacks', 'other'] as const
@@ -89,15 +90,18 @@ export class Purchase {
       createdAt: new Date().toISOString(),
       assignedTo: input.assignedTo ?? null,
       purchased: false,
+      boughtQuantity: 0,
     })
   }
 
-  static restore(s: PurchaseSnapshot | Omit<PurchaseSnapshot, 'assignedTo' | 'purchased'>): Purchase {
+  static restore(s: PurchaseSnapshot | Omit<PurchaseSnapshot, 'assignedTo' | 'purchased' | 'boughtQuantity'>): Purchase {
     const full = s as PurchaseSnapshot
+    const purchased = full.purchased ?? false
     return new Purchase({
       ...full,
       assignedTo: full.assignedTo ?? null,
-      purchased: full.purchased ?? false,
+      purchased,
+      boughtQuantity: full.boughtQuantity ?? (purchased ? full.totalQuantity : 0),
     })
   }
 
@@ -172,6 +176,16 @@ export class Purchase {
       ...this.s,
       assignedTo: input.assignedTo,
       purchased: input.purchased,
+      boughtQuantity: input.purchased ? this.s.totalQuantity : 0,
+    })
+  }
+
+  setBoughtQuantity(qty: number): Purchase {
+    const clamped = Math.max(0, Math.min(qty, this.s.totalQuantity))
+    return new Purchase({
+      ...this.s,
+      boughtQuantity: clamped,
+      purchased: clamped >= this.s.totalQuantity && this.s.totalQuantity > 0,
     })
   }
 
@@ -183,6 +197,7 @@ export class Purchase {
   get createdBy(): string { return this.s.createdBy }
   get assignedTo(): string | null { return this.s.assignedTo }
   get purchased(): boolean { return this.s.purchased }
+  get boughtQuantity(): number { return this.s.boughtQuantity }
 
   toSnapshot(): PurchaseSnapshot { return { ...this.s, consumers: [...this.s.consumers] } }
 }

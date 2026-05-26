@@ -178,4 +178,37 @@ describe('Purchase', () => {
     expect(recovered.toSnapshot().deletedBy).toBeNull()
     expect(recovered.toSnapshot().deleteReason).toBeNull()
   })
+
+  it('starts with boughtQuantity 0', () => {
+    const p = Purchase.create({
+      createdBy: u1, category: 'drinks', item: 'Coke', quantity: 1, unit: 'units',
+      dailyConsumption: 2, consumers: [{ userId: u1, multiplier: 1 }], days: 3,
+    })
+    expect(p.toSnapshot().boughtQuantity).toBe(0)
+    expect(p.toSnapshot().purchased).toBe(false)
+  })
+
+  it('setBoughtQuantity clamps and derives purchased', () => {
+    const p = Purchase.create({
+      createdBy: u1, category: 'drinks', item: 'Coke', quantity: 1, unit: 'units',
+      dailyConsumption: 2, consumers: [{ userId: u1, multiplier: 1 }], days: 3,
+    }) // totalQuantity = 6
+    const partial = p.setBoughtQuantity(4)
+    expect(partial.toSnapshot().boughtQuantity).toBe(4)
+    expect(partial.toSnapshot().purchased).toBe(false)
+    const over = p.setBoughtQuantity(999)
+    expect(over.toSnapshot().boughtQuantity).toBe(6) // clamped to total
+    expect(over.toSnapshot().purchased).toBe(true)
+    const neg = p.setBoughtQuantity(-5)
+    expect(neg.toSnapshot().boughtQuantity).toBe(0)
+  })
+
+  it('assign purchased=true sets boughtQuantity to total', () => {
+    const p = Purchase.create({
+      createdBy: u1, category: 'drinks', item: 'Coke', quantity: 1, unit: 'units',
+      dailyConsumption: 2, consumers: [{ userId: u1, multiplier: 1 }], days: 3,
+    })
+    expect(p.assign({ assignedTo: null, purchased: true }).toSnapshot().boughtQuantity).toBe(6)
+    expect(p.assign({ assignedTo: null, purchased: false }).toSnapshot().boughtQuantity).toBe(0)
+  })
 })
