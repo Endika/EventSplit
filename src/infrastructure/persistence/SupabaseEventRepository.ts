@@ -1,11 +1,11 @@
 import type { SupabaseClient } from '@supabase/supabase-js'
-import { Event } from '@/domain/entities/Event'
 import type { EventSnapshot } from '@/domain/entities/Event'
 import {
   type IEventRepository,
   type SaveResult,
   VersionConflictError,
 } from '@/domain/repositories/IEventRepository'
+import { parseEventSnapshot } from '@/infrastructure/persistence/EventSnapshotSchema'
 
 export class SupabaseEventRepository implements IEventRepository {
   constructor(private readonly client: SupabaseClient) {}
@@ -15,12 +15,11 @@ export class SupabaseEventRepository implements IEventRepository {
       .from('events')
       .select('data, version, active')
       .eq('id', id)
-      .maybeSingle<{ data: EventSnapshot; version: number; active: boolean }>()
+      .maybeSingle<{ data: unknown; version: number; active: boolean }>()
     if (error) throw error
     if (!data || !data.active) return null
-    // Backfill missing fields from legacy snapshots
-    const restored = Event.restore(data.data).toSnapshot()
-    return { snapshot: restored, version: data.version }
+    const parsed = parseEventSnapshot(data.data)
+    return { snapshot: parsed as unknown as EventSnapshot, version: data.version }
   }
 
   async create(snapshot: EventSnapshot): Promise<SaveResult> {

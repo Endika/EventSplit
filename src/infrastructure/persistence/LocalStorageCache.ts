@@ -1,4 +1,5 @@
 import type { EventSnapshot } from '@/domain/entities/Event'
+import { parseEventSnapshot } from '@/infrastructure/persistence/EventSnapshotSchema'
 
 const EVENT_KEY = (id: string) => `eventsplit.event.${id}`
 const IDENT_KEY = (id: string) => `eventsplit.identity.${id}`
@@ -27,7 +28,9 @@ export class LocalStorageCache {
     const raw = localStorage.getItem(EVENT_KEY(eventId))
     if (!raw) return null
     try {
-      return JSON.parse(raw) as CachedEvent
+      const json = JSON.parse(raw) as { snapshot: unknown; version: number }
+      const snapshot = parseEventSnapshot(json.snapshot) as unknown as EventSnapshot
+      return { snapshot, version: json.version }
     } catch {
       return null
     }
@@ -59,7 +62,8 @@ export class LocalStorageCache {
       const raw = localStorage.getItem(key)
       if (!raw) continue
       try {
-        const cached = JSON.parse(raw) as CachedEvent
+        const json = JSON.parse(raw) as { snapshot: unknown; version: number }
+        const cached = { snapshot: parseEventSnapshot(json.snapshot) as unknown as EventSnapshot, version: json.version }
         summaries.push({
           id: cached.snapshot.id,
           name: cached.snapshot.name,
@@ -73,6 +77,10 @@ export class LocalStorageCache {
     }
     // Sort by updatedAt descending (most recent first)
     return summaries.sort((a, b) => b.updatedAt.localeCompare(a.updatedAt))
+  }
+
+  removeIdentity(eventId: string): void {
+    localStorage.removeItem(IDENT_KEY(eventId))
   }
 
   remove(eventId: string): void {
