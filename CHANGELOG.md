@@ -1,5 +1,17 @@
 # Changelog
 
+## [1.7.0](https://github.com/Endika/EventSplit/compare/v1.6.0...v1.7.0) (2026-05-26)
+
+
+### Features
+
+* **ui:** add language switcher in footer ([d7bf2a0](https://github.com/Endika/EventSplit/commit/d7bf2a0129576ac963ac66c76f2039e10b859dec))
+
+
+### Bug Fixes
+
+* **domain:** backfill missing fields when restoring legacy events ([7f4beb8](https://github.com/Endika/EventSplit/commit/7f4beb8cf31dbcfbf50cab5130700eb6b27e7cb6))
+
 ## [1.6.0](https://github.com/Endika/EventSplit/compare/v1.5.0...v1.6.0) (2026-05-26)
 
 
