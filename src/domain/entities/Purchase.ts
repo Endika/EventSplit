@@ -9,6 +9,7 @@ export interface PurchaseConsumer {
 export interface PurchaseSnapshot {
   id: string
   createdBy: string
+  kind: 'buy' | 'bring'
   item: string
   quantity: number
   unit: string
@@ -73,6 +74,7 @@ export class Purchase {
     return new Purchase({
       id: uuidv7(),
       createdBy: input.createdBy,
+      kind: 'buy',
       item,
       quantity: input.quantity,
       unit,
@@ -91,12 +93,49 @@ export class Purchase {
     })
   }
 
-  static restore(s: PurchaseSnapshot | Omit<PurchaseSnapshot, 'assignedTo' | 'purchased' | 'boughtQuantity' | 'group'>): Purchase {
+  static createBring(input: {
+    createdBy: string
+    item: string
+    quantity: number
+    unit: string
+    group?: string | null
+    broughtBy?: string | null
+  }): Purchase {
+    const item = input.item.trim()
+    if (item.length < 2 || item.length > 50) throw new Error('Purchase: item must be 2..50 chars')
+    const unit = validateUnit(input.unit)
+    if (input.quantity <= 0 || input.quantity > 10_000)
+      throw new Error('Purchase: quantity must be in (0, 10000]')
+
+    return new Purchase({
+      id: uuidv7(),
+      createdBy: input.createdBy,
+      kind: 'bring',
+      item,
+      quantity: input.quantity,
+      unit,
+      dailyConsumption: 0,
+      totalQuantity: input.quantity,
+      consumers: [],
+      deleted: false,
+      deletedBy: null,
+      deletedAt: null,
+      deleteReason: null,
+      createdAt: new Date().toISOString(),
+      assignedTo: input.broughtBy ?? null,
+      purchased: false,
+      boughtQuantity: 0,
+      group: input.group?.trim() ? input.group.trim().slice(0, 50) : null,
+    })
+  }
+
+  static restore(s: PurchaseSnapshot | Omit<PurchaseSnapshot, 'assignedTo' | 'purchased' | 'boughtQuantity' | 'group' | 'kind'>): Purchase {
     const { category: _legacyCategory, ...rest } = s as PurchaseSnapshot & { category?: string }
     const full = rest as PurchaseSnapshot
     const purchased = full.purchased ?? false
     return new Purchase({
       ...full,
+      kind: full.kind ?? 'buy',
       assignedTo: full.assignedTo ?? null,
       purchased,
       boughtQuantity: full.boughtQuantity ?? (purchased ? full.totalQuantity : 0),
@@ -168,6 +207,31 @@ export class Purchase {
     })
   }
 
+  editBring(input: {
+    item: string
+    quantity: number
+    unit: string
+    group: string | null
+    broughtBy: string | null
+  }): Purchase {
+    const item = input.item.trim()
+    if (item.length < 2 || item.length > 50) throw new Error('Purchase: item must be 2..50 chars')
+    const unit = validateUnit(input.unit)
+    if (input.quantity <= 0 || input.quantity > 10_000)
+      throw new Error('Purchase: quantity must be in (0, 10000]')
+
+    return new Purchase({
+      ...this.s,
+      kind: 'bring',
+      item,
+      quantity: input.quantity,
+      unit,
+      totalQuantity: input.quantity,
+      assignedTo: input.broughtBy,
+      group: input.group?.trim() ? input.group.trim().slice(0, 50) : null,
+    })
+  }
+
   assign(input: { assignedTo: string | null; purchased: boolean }): Purchase {
     return new Purchase({
       ...this.s,
@@ -187,6 +251,7 @@ export class Purchase {
   }
 
   get id(): string { return this.s.id }
+  get kind(): 'buy' | 'bring' { return this.s.kind }
   get deleted(): boolean { return this.s.deleted }
   get deletedBy(): string | null { return this.s.deletedBy }
   get deleteReason(): string | null { return this.s.deleteReason }

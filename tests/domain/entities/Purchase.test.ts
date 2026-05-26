@@ -245,4 +245,52 @@ describe('Purchase', () => {
     })
     expect(p.toSnapshot().group).toBeNull()
   })
+
+  it('a normal create has kind "buy"', () => {
+    const p = Purchase.create({
+      createdBy: u1, item: 'Coke', quantity: 1, unit: 'units',
+      dailyConsumption: 1, consumers: [{ userId: u1, multiplier: 1 }], days: 1,
+    })
+    expect(p.kind).toBe('buy')
+  })
+
+  it('createBring produces a bring item', () => {
+    const p = Purchase.createBring({
+      createdBy: u1, item: 'Tortilla', quantity: 2, unit: 'units',
+      group: 'Desayuno', broughtBy: u2,
+    })
+    expect(p.kind).toBe('bring')
+    expect(p.toSnapshot().totalQuantity).toBe(2)
+    expect(p.toSnapshot().quantity).toBe(2)
+    expect(p.toSnapshot().consumers).toEqual([])
+    expect(p.toSnapshot().assignedTo).toBe(u2)
+    expect(p.toSnapshot().group).toBe('Desayuno')
+    expect(p.toSnapshot().dailyConsumption).toBe(0)
+  })
+
+  it('createBring defaults bringer to null and validates quantity', () => {
+    const p = Purchase.createBring({ createdBy: u1, item: 'Pan', quantity: 1, unit: 'units' })
+    expect(p.toSnapshot().assignedTo).toBeNull()
+    expect(() =>
+      Purchase.createBring({ createdBy: u1, item: 'Pan', quantity: 0, unit: 'units' }),
+    ).toThrow(/quantity/)
+  })
+
+  it('editBring updates fields and keeps kind "bring"', () => {
+    const p = Purchase.createBring({
+      createdBy: u1, item: 'Tortilla', quantity: 2, unit: 'units',
+      group: 'Desayuno', broughtBy: u1,
+    })
+    const next = p.editBring({
+      item: 'Tortilla de patatas', quantity: 3, unit: 'kg', group: 'Comida', broughtBy: u2,
+    })
+    expect(next.kind).toBe('bring')
+    expect(next.id).toBe(p.id)
+    expect(next.toSnapshot().item).toBe('Tortilla de patatas')
+    expect(next.toSnapshot().quantity).toBe(3)
+    expect(next.toSnapshot().totalQuantity).toBe(3)
+    expect(next.toSnapshot().unit).toBe('kg')
+    expect(next.toSnapshot().group).toBe('Comida')
+    expect(next.toSnapshot().assignedTo).toBe(u2)
+  })
 })

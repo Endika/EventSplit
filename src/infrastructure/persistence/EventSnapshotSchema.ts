@@ -28,6 +28,7 @@ const PurchaseConsumerSchema = z.object({
 const PurchaseSchema = z.object({
   id: z.string(),
   createdBy: z.string(),
+  kind: z.enum(['buy', 'bring']).default('buy'),
   item: z.string(),
   quantity: z.number(),
   unit: z.string(),
