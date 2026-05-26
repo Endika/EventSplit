@@ -7,6 +7,8 @@ import { OnlineDetector } from '@/infrastructure/network/OnlineDetector'
 import { CreateEventHandler } from '@/application/handlers/CreateEventHandler'
 import { JoinAsNewUserHandler } from '@/application/handlers/JoinAsNewUserHandler'
 import { AddPurchaseHandler } from '@/application/handlers/AddPurchaseHandler'
+import { AddBroughtItemHandler } from '@/application/handlers/AddBroughtItemHandler'
+import { EditBroughtItemHandler } from '@/application/handlers/EditBroughtItemHandler'
 import { AddExpenseHandler } from '@/application/handlers/AddExpenseHandler'
 import { EditExpenseHandler } from '@/application/handlers/EditExpenseHandler'
 import { DeleteExpenseHandler } from '@/application/handlers/DeleteExpenseHandler'
@@ -45,6 +47,8 @@ export function buildContainer(): Container {
   c.register('createEvent', () => new CreateEventHandler(c.resolve('eventRepo')))
   c.register('joinAsNewUser', () => new JoinAsNewUserHandler(c.resolve('eventRepo')))
   c.register('addPurchase', () => new AddPurchaseHandler(c.resolve('eventRepo')))
+  c.register('addBroughtItem', () => new AddBroughtItemHandler(c.resolve('eventRepo')))
+  c.register('editBroughtItem', () => new EditBroughtItemHandler(c.resolve('eventRepo')))
   c.register('addExpense', () => new AddExpenseHandler(c.resolve('eventRepo')))
   c.register('editExpense', () => new EditExpenseHandler(c.resolve('eventRepo')))
   c.register('deleteExpense', () => new DeleteExpenseHandler(c.resolve('eventRepo')))
