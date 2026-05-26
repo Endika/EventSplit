@@ -33,6 +33,8 @@
       "purchase_deleted": "Purchase deleted",
       "purchase_recovered": "Purchase recovered",
       "expense_added": "Expense added",
+      "expense_edited": "Expense edited",
+      "expense_deleted": "Expense deleted",
       "availability_voted": "Availability voted",
       "location_set": "Location set",
       "notes_added": "Notes updated",

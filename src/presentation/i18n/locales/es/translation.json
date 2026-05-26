@@ -33,6 +33,8 @@
       "purchase_deleted": "Compra borrada",
       "purchase_recovered": "Compra recuperada",
       "expense_added": "Gasto añadido",
+      "expense_edited": "Gasto editado",
+      "expense_deleted": "Gasto borrado",
       "availability_voted": "Disponibilidad votada",
       "location_set": "Ubicación añadida",
       "notes_added": "Notas actualizadas",

@@ -33,6 +33,8 @@
       "purchase_deleted": "Erosketa ezabatu",
       "purchase_recovered": "Erosketa berreskuratu",
       "expense_added": "Gastua gehitu",
+      "expense_edited": "Gastua editatu",
+      "expense_deleted": "Gastua ezabatu",
       "availability_voted": "Eskuragarritasuna bozkatu",
       "location_set": "Kokapena ezarri",
       "notes_added": "Oharrak eguneratu",

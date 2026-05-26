@@ -8,6 +8,8 @@ import { CreateEventHandler } from '@/application/handlers/CreateEventHandler'
 import { JoinAsNewUserHandler } from '@/application/handlers/JoinAsNewUserHandler'
 import { AddPurchaseHandler } from '@/application/handlers/AddPurchaseHandler'
 import { AddExpenseHandler } from '@/application/handlers/AddExpenseHandler'
+import { EditExpenseHandler } from '@/application/handlers/EditExpenseHandler'
+import { DeleteExpenseHandler } from '@/application/handlers/DeleteExpenseHandler'
 import { SyncEventHandler } from '@/application/handlers/SyncEventHandler'
 import { UpdateProfileHandler } from '@/application/handlers/UpdateProfileHandler'
 import { SetEventDaysHandler } from '@/application/handlers/SetEventDaysHandler'
@@ -38,6 +40,8 @@ export function buildContainer(): Container {
   c.register('joinAsNewUser', () => new JoinAsNewUserHandler(c.resolve('eventRepo')))
   c.register('addPurchase', () => new AddPurchaseHandler(c.resolve('eventRepo')))
   c.register('addExpense', () => new AddExpenseHandler(c.resolve('eventRepo')))
+  c.register('editExpense', () => new EditExpenseHandler(c.resolve('eventRepo')))
+  c.register('deleteExpense', () => new DeleteExpenseHandler(c.resolve('eventRepo')))
   c.register('syncEvent', () => new SyncEventHandler())
   c.register('updateProfile', () => new UpdateProfileHandler(c.resolve('eventRepo')))
   c.register('setEventDays', () => new SetEventDaysHandler(c.resolve('eventRepo')))

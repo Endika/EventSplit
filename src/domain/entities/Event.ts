@@ -15,6 +15,8 @@ export type HistoryType =
   | 'purchase_deleted'
   | 'purchase_recovered'
   | 'expense_added'
+  | 'expense_edited'
+  | 'expense_deleted'
   | 'availability_voted'
   | 'location_set'
   | 'notes_added'
