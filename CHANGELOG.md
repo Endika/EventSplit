@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.28.0](https://github.com/Endika/EventSplit/compare/v1.27.0...v1.28.0) (2026-05-26)
+
+
+### Features
+
+* **ui:** doodle textarea, remove day, hide children toggle ([036fdfd](https://github.com/Endika/EventSplit/commit/036fdfd3724f05d7cb8116ac594dc89414eff5ec))
+
 ## [1.27.0](https://github.com/Endika/EventSplit/compare/v1.26.0...v1.27.0) (2026-05-26)
 
 
