@@ -1,5 +1,17 @@
 # Changelog
 
+## [1.36.0](https://github.com/Endika/EventSplit/compare/v1.35.0...v1.36.0) (2026-05-26)
+
+
+### Features
+
+* **ui:** allow editing a participant name ([3f5fe23](https://github.com/Endika/EventSplit/commit/3f5fe23471b333ea2e998ae26ee8a7223f43531f))
+
+
+### Bug Fixes
+
+* **ui:** make modal and identification list scrollable ([6834f94](https://github.com/Endika/EventSplit/commit/6834f9453cb1f43ae21a78123b8c7652c22a8d3c))
+
 ## [1.35.0](https://github.com/Endika/EventSplit/compare/v1.34.0...v1.35.0) (2026-05-26)
 
 
