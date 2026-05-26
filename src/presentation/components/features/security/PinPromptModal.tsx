@@ -40,6 +40,7 @@ export function PinPromptModal() {
           await result
         }
       } catch (err) {
+        console.error('[PinPrompt]', err)
         onError(err)
       }
     } finally {

@@ -79,11 +79,13 @@ export function PurchaseForm({ onDone }: { onDone: () => void }) {
         setPendingMatches(null)
         onDone()
       } catch (err) {
+        console.error('[PurchaseForm]', err)
         setError(err instanceof Error ? err.message : 'Error')
       } finally {
         setBusy(false)
       }
     }, (err) => {
+      console.error('[PurchaseForm]', err)
       setError(err instanceof Error ? err.message : 'Error')
       setBusy(false)
     })

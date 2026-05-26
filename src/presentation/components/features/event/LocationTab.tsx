@@ -73,6 +73,7 @@ export function LocationTab() {
         setEvent(result.event, result.version)
         setEditing(false)
       } catch (err) {
+        console.error('[LocationTab]', err)
         setError(err instanceof Error ? err.message : 'Error')
       } finally {
         setBusy(false)

@@ -73,6 +73,7 @@ export function AvailabilityTab() {
         setEvent(result.event, result.version)
         setNewDay('')
       } catch (err) {
+        console.error('[AvailabilityTab]', err)
         setError(err instanceof Error ? err.message : 'Error')
       } finally {
         setBusy(false)
@@ -97,6 +98,7 @@ export function AvailabilityTab() {
           .set(event.id, { snapshot: result.event, version: result.version })
         setEvent(result.event, result.version)
       } catch (err) {
+        console.error('[AvailabilityTab]', err)
         setError(err instanceof Error ? err.message : 'Error')
       } finally {
         setBusy(false)

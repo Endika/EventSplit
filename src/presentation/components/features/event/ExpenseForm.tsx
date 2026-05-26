@@ -43,6 +43,7 @@ export function ExpenseForm({ onDone }: { onDone: () => void }) {
         setEvent(result.event, result.version)
         onDone()
       } catch (err) {
+        console.error('[ExpenseForm]', err)
         setError(err instanceof Error ? err.message : 'Error')
       } finally {
         setBusy(false)

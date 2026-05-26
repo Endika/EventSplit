@@ -87,6 +87,7 @@ export function ProfileEditor({ onClose }: { onClose: () => void }) {
         }
         onClose()
       } catch (err) {
+        console.error('[ProfileEditor]', err)
         setError(err instanceof Error ? err.message : 'Error')
       } finally {
         setBusy(false)

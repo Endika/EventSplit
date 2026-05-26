@@ -60,6 +60,7 @@ export function HomePage() {
       window.history.pushState({}, '', `${import.meta.env.BASE_URL}?event=${result.event.id}`)
       window.dispatchEvent(new PopStateEvent('popstate'))
     } catch (err) {
+      console.error('[HomePage]', err)
       setError(err instanceof Error ? err.message : 'Unknown error')
     } finally {
       setBusy(false)

@@ -44,12 +44,14 @@ export function AddParticipantModal({ onClose }: { onClose: () => void }) {
           setEvent(result.event, result.version)
           onClose()
         } catch (err) {
+          console.error('[AddParticipant]', err)
           setError(err instanceof Error ? err.message : 'Error')
         } finally {
           setBusy(false)
         }
       },
       (err) => {
+        console.error('[AddParticipant]', err)
         setError(err instanceof Error ? err.message : 'Error')
         setBusy(false)
       },
