@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.14.2](https://github.com/Endika/EventSplit/compare/v1.14.1...v1.14.2) (2026-05-26)
+
+
+### Bug Fixes
+
+* **pwa:** use prompt mode with periodic update checks ([b621a4a](https://github.com/Endika/EventSplit/commit/b621a4a1d82457ca51ffb0a5cdd021030fd954ea))
+
 ## [1.14.1](https://github.com/Endika/EventSplit/compare/v1.14.0...v1.14.1) (2026-05-26)
 
 
