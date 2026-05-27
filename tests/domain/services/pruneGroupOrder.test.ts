@@ -64,9 +64,23 @@ describe('pruneSubgroupOrder', () => {
     expect(pruneSubgroupOrder(purchases, { Dinner: ['Mains'] })).toEqual({ Dinner: ['Mains'] })
   })
 
-  it('only keeps a subgroup under the group it actually belongs to', () => {
-    // 'Mains' exists in Dinner but the order lists it under Lunch — must be dropped there.
+  it('files a subgroup under the group its item belongs to, ignoring a wrong order key', () => {
+    // 'Mains' is on a Dinner item while a stale order lists it under Lunch. It
+    // must surface under Dinner (self-heal); the empty Lunch key is dropped.
     const purchases = [sub('Dinner', 'Mains')]
-    expect(pruneSubgroupOrder(purchases, { Lunch: ['Mains'] })).toEqual({})
+    expect(pruneSubgroupOrder(purchases, { Lunch: ['Mains'] })).toEqual({ Dinner: ['Mains'] })
+  })
+
+  it('re-adds a subgroup present on items but missing from the order (self-heal)', () => {
+    const purchases = [sub('Dinner', 'Mains')]
+    expect(pruneSubgroupOrder(purchases, {})).toEqual({ Dinner: ['Mains'] })
+  })
+
+  it('appends newly-assigned subgroups after the saved order', () => {
+    // only 'Mains' was saved; 'Starters' was just assigned and must follow it.
+    const purchases = [sub('Dinner', 'Starters'), sub('Dinner', 'Mains')]
+    expect(pruneSubgroupOrder(purchases, { Dinner: ['Mains'] })).toEqual({
+      Dinner: ['Mains', 'Starters'],
+    })
   })
 })

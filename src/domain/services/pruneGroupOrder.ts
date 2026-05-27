@@ -15,15 +15,18 @@ export function pruneGroupOrder(
 }
 
 /**
- * Keep only subgroup names that still have at least one non-deleted purchase in
- * their group. Drops stale subgroups and group keys left empty after a move or
- * delete, keeping the snapshot consistent. Mirrors pruneGroupOrder, one level down.
+ * Reconcile the saved subgroup order with the live purchases: keep the saved
+ * order (dropping subgroups whose last non-deleted purchase is gone) and append
+ * any subgroup an item references that the order doesn't list yet. This keeps
+ * subgroupOrder a faithful, self-healing reflection of the items — a subgroup
+ * assigned on a purchase always surfaces, and stale/empty ones go. Mirrors
+ * pruneGroupOrder, one level down.
  */
 export function pruneSubgroupOrder(
   purchases: PurchaseSnapshot[],
   subgroupOrder: Record<string, string[]>,
 ): Record<string, string[]> {
-  // active.get(group) → set of subgroups that still have a live purchase in that group
+  // active.get(group) → subgroups (insertion-ordered) that still have a live purchase
   const active = new Map<string, Set<string>>()
   for (const p of purchases) {
     if (p.deleted || !p.group || !p.subgroup) continue
@@ -31,11 +34,11 @@ export function pruneSubgroupOrder(
     active.get(p.group)!.add(p.subgroup)
   }
   const result: Record<string, string[]> = {}
-  for (const [group, subgroups] of Object.entries(subgroupOrder)) {
-    const liveSubs = active.get(group)
-    if (!liveSubs) continue
-    const kept = subgroups.filter((s) => liveSubs.has(s))
-    if (kept.length > 0) result[group] = kept
+  for (const [group, liveSubs] of active) {
+    const saved = subgroupOrder[group] ?? []
+    const kept = saved.filter((s) => liveSubs.has(s))
+    const appended = [...liveSubs].filter((s) => !kept.includes(s))
+    result[group] = [...kept, ...appended]
   }
   return result
 }
