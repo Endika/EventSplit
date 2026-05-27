@@ -3,18 +3,15 @@ import { useTranslation } from 'react-i18next'
 import { useContainer } from '@/presentation/context/ContainerProvider'
 import { useEventState } from '@/presentation/context/EventContext'
 import { useCurrentUser, useSetCurrentUser } from '@/presentation/context/UserContext'
+import { useEventSync } from '@/presentation/hooks/useEventSync'
 import type { LocalStorageCache } from '@/infrastructure/persistence/LocalStorageCache'
-import type { IEventRepository } from '@/domain/repositories/IEventRepository'
 import type { JoinAsNewUserHandler } from '@/application/handlers/JoinAsNewUserHandler'
-import type { RealtimeSync } from '@/infrastructure/sync/RealtimeSync'
-import type { SyncEventHandler } from '@/application/handlers/SyncEventHandler'
 import {
   IdentificationModal,
   type IdentificationResult,
 } from '@/presentation/components/features/identification/IdentificationModal'
 import { EventTabs } from '@/presentation/components/features/event/EventTabs'
 import { EventPinGate } from '@/presentation/components/features/security/EventPinGate'
-import { notify } from '@/shared/utils/notify'
 
 export function EventPage({ eventId }: { eventId: string }) {
   const { t } = useTranslation()
@@ -22,14 +19,12 @@ export function EventPage({ eventId }: { eventId: string }) {
   const { event, setEvent } = useEventState()
   const me = useCurrentUser()
   const setMe = useSetCurrentUser()
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
   const [pinTick, setPinTick] = useState(0)
+  const { loading, error } = useEventSync(eventId)
 
+  // Restore a previously chosen identity for this event from the local cache.
   useEffect(() => {
     const cache = container.resolve<LocalStorageCache>('cache')
-    const cached = cache.get(eventId)
-    if (cached) setEvent(cached.snapshot, cached.version)
     const identity = cache.getIdentity(eventId)
     if (identity) {
       setMe({
@@ -37,85 +32,7 @@ export function EventPage({ eventId }: { eventId: string }) {
         displayName: identity.alias ? `${identity.name} (${identity.alias})` : identity.name,
       })
     }
-
-    const repo = container.resolve<IEventRepository>('eventRepo')
-    repo
-      .findById(eventId)
-      .then((row) => {
-        if (!row) {
-          setError(t('app.notFound'))
-          setLoading(false)
-          return
-        }
-        cache.set(eventId, row)
-        setEvent(row.snapshot, row.version)
-        setLoading(false)
-      })
-      .catch((err) => {
-        if (!cached) setError(err instanceof Error ? err.message : 'Error')
-        setLoading(false)
-      })
-  }, [eventId, container, setEvent, setMe, t])
-
-  useEffect(() => {
-    const realtime = container.resolve<RealtimeSync>('realtime')
-    const syncHandler = container.resolve<SyncEventHandler>('syncEvent')
-    const cache = container.resolve<LocalStorageCache>('cache')
-
-    const unsub = realtime.subscribe(eventId, ({ snapshot, version }) => {
-      const localFromCache = cache.get(eventId)
-      if (!localFromCache) {
-        cache.set(eventId, { snapshot, version })
-        setEvent(snapshot, version)
-        return
-      }
-      const result = syncHandler.merge({ local: localFromCache, remote: { snapshot, version } })
-      if (result.applied) {
-        cache.set(eventId, { snapshot: result.snapshot, version: result.version })
-        setEvent(result.snapshot, result.version)
-        // Toast only when the change came from someone else, not our own echo.
-        const lastBy = result.snapshot.history.at(-1)?.userId
-        if (lastBy && lastBy !== me?.id) notify('sync.remoteUpdate')
-      }
-    })
-    return unsub
-  }, [eventId, container, setEvent, me?.id])
-
-  // Realtime can miss updates if the WebSocket drops (device sleep, network
-  // blips). Re-fetch and merge whenever the tab regains focus or reconnects.
-  useEffect(() => {
-    const repo = container.resolve<IEventRepository>('eventRepo')
-    const syncHandler = container.resolve<SyncEventHandler>('syncEvent')
-    const cache = container.resolve<LocalStorageCache>('cache')
-
-    const refetch = () => {
-      if (document.visibilityState === 'hidden') return
-      repo
-        .findById(eventId)
-        .then((row) => {
-          if (!row) return
-          const local = cache.get(eventId)
-          if (!local) {
-            cache.set(eventId, row)
-            setEvent(row.snapshot, row.version)
-            return
-          }
-          const result = syncHandler.merge({ local, remote: row })
-          if (result.applied) {
-            cache.set(eventId, { snapshot: result.snapshot, version: result.version })
-            setEvent(result.snapshot, result.version)
-          }
-        })
-        .catch(() => {})
-    }
-
-    document.addEventListener('visibilitychange', refetch)
-    window.addEventListener('online', refetch)
-    return () => {
-      document.removeEventListener('visibilitychange', refetch)
-      window.removeEventListener('online', refetch)
-    }
-  }, [eventId, container, setEvent])
+  }, [eventId, container, setMe])
 
   async function handleIdentification(r: IdentificationResult) {
     const cache = container.resolve<LocalStorageCache>('cache')
@@ -141,8 +58,7 @@ export function EventPage({ eventId }: { eventId: string }) {
         name: r.newUser.name,
         alias: r.newUser.alias,
       })
-      cache.set(eventId, { snapshot: result.event, version: result.version })
-      setEvent(result.event, result.version)
+      setEvent(result.event, result.version) // setEvent write-through persists to cache
       const identity = { id: result.newUser.id, name: r.newUser.name, alias: r.newUser.alias }
       cache.setIdentity(eventId, identity)
       setMe({ ...identity, displayName: result.newUser.displayName })

@@ -12,10 +12,17 @@ interface Row {
 
 export class InMemoryEventRepository implements IEventRepository {
   private rows = new Map<string, Row>()
+  /** Test seam: counts full-snapshot downloads so callers can assert egress savings. */
+  findByIdCalls = 0
 
   async findById(id: string): Promise<Row | null> {
+    this.findByIdCalls++
     const row = this.rows.get(id)
     return row ? { snapshot: structuredClone(row.snapshot), version: row.version } : null
+  }
+
+  async getVersion(id: string): Promise<number | null> {
+    return this.rows.get(id)?.version ?? null
   }
 
   async create(snapshot: EventSnapshot): Promise<SaveResult> {
