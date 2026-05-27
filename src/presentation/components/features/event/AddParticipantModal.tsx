@@ -4,7 +4,6 @@ import { useContainer } from '@/presentation/context/ContainerProvider'
 import { useEventState } from '@/presentation/context/EventContext'
 import { useWriteGuard } from '@/presentation/context/WriteGuardContext'
 import type { JoinAsNewUserHandler } from '@/application/handlers/JoinAsNewUserHandler'
-import type { LocalStorageCache } from '@/infrastructure/persistence/LocalStorageCache'
 import type { UserKind } from '@/domain/entities/User'
 import { Modal } from '@/presentation/components/common/Modal'
 import { Button } from '@/presentation/components/common/Button'
@@ -39,9 +38,6 @@ export function AddParticipantModal({ onClose }: { onClose: () => void }) {
             alias: alias.trim() || null,
             kind,
           })
-          container
-            .resolve<LocalStorageCache>('cache')
-            .set(event.id, { snapshot: result.event, version: result.version })
           setEvent(result.event, result.version)
           onClose()
         } catch (err) {

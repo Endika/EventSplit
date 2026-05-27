@@ -6,7 +6,6 @@ import { useCurrentUser } from '@/presentation/context/UserContext'
 import type { AddExpenseHandler } from '@/application/handlers/AddExpenseHandler'
 import type { EditExpenseHandler } from '@/application/handlers/EditExpenseHandler'
 import type { ExpenseSnapshot } from '@/domain/entities/Expense'
-import type { LocalStorageCache } from '@/infrastructure/persistence/LocalStorageCache'
 import { Button } from '@/presentation/components/common/Button'
 import { Input } from '@/presentation/components/common/Input'
 import { Modal } from '@/presentation/components/common/Modal'
@@ -149,9 +148,6 @@ export function ExpenseForm({
             purchaseLinks,
           })
         }
-        container
-          .resolve<LocalStorageCache>('cache')
-          .set(event.id, { snapshot: result.event, version: result.version })
         setEvent(result.event, result.version)
         onDone()
       } catch (err) {

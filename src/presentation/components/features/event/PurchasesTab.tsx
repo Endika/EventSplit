@@ -14,7 +14,6 @@ import type { DeletePurchaseHandler } from '@/application/handlers/DeletePurchas
 import type { RecoverPurchaseHandler } from '@/application/handlers/RecoverPurchaseHandler'
 import type { RenameGroupHandler } from '@/application/handlers/RenameGroupHandler'
 import type { SetGroupOrderHandler } from '@/application/handlers/SetGroupOrderHandler'
-import type { LocalStorageCache } from '@/infrastructure/persistence/LocalStorageCache'
 import { reportError } from '@/shared/utils/reportError'
 import { displayUnit } from '@/presentation/utils/units'
 import { PurchaseForm } from './PurchaseForm'
@@ -103,7 +102,6 @@ export function PurchasesTab() {
           eventId: event.id, purchaseId: p.id, editedBy: me.id,
           assignedTo, purchased: p.purchased,
         })
-        container.resolve<LocalStorageCache>('cache').set(event.id, { snapshot: result.event, version: result.version })
         setEvent(result.event, result.version)
       } catch (err) {
         reportError('PurchasesTab', err)
@@ -120,7 +118,6 @@ export function PurchasesTab() {
           eventId: event.id, purchaseId: p.id, editedBy: me.id,
           assignedTo, purchased: false,
         })
-        container.resolve<LocalStorageCache>('cache').set(event.id, { snapshot: result.event, version: result.version })
         setEvent(result.event, result.version)
       } catch (err) {
         reportError('PurchasesTab', err)
@@ -137,7 +134,6 @@ export function PurchasesTab() {
           eventId: event.id, purchaseId: p.id, editedBy: me.id,
           assignedTo: p.assignedTo ?? null, purchased,
         })
-        container.resolve<LocalStorageCache>('cache').set(event.id, { snapshot: result.event, version: result.version })
         setEvent(result.event, result.version)
       } catch (err) {
         reportError('PurchasesTab', err)
@@ -155,7 +151,6 @@ export function PurchasesTab() {
       try {
         const handler = container.resolve<RecoverPurchaseHandler>('recoverPurchase')
         const result = await handler.execute({ eventId: event.id, purchaseId: p.id, recoveredBy: me.id })
-        container.resolve<LocalStorageCache>('cache').set(event.id, { snapshot: result.event, version: result.version })
         setEvent(result.event, result.version)
       } catch (err) {
         reportError('PurchasesTab', err)
@@ -173,7 +168,6 @@ export function PurchasesTab() {
         const result = await handler.execute({
           eventId: event.id, purchaseId: target.id, deletedBy: me.id,
         })
-        container.resolve<LocalStorageCache>('cache').set(event.id, { snapshot: result.event, version: result.version })
         setEvent(result.event, result.version)
         setDeleting(null)
       } catch (err) {
@@ -197,7 +191,6 @@ export function PurchasesTab() {
       try {
         const handler = container.resolve<SetGroupOrderHandler>('setGroupOrder')
         const result = await handler.execute({ eventId: event.id, userId: me.id, order: next })
-        container.resolve<LocalStorageCache>('cache').set(event.id, { snapshot: result.event, version: result.version })
         setEvent(result.event, result.version)
       } catch (err) {
         reportError('PurchasesTab', err)
@@ -213,7 +206,6 @@ export function PurchasesTab() {
       try {
         const handler = container.resolve<RenameGroupHandler>('renameGroup')
         const result = await handler.execute({ eventId: event.id, userId: me.id, from, to })
-        container.resolve<LocalStorageCache>('cache').set(event.id, { snapshot: result.event, version: result.version })
         setEvent(result.event, result.version)
         setRenamingGroup(null)
       } catch (err) {

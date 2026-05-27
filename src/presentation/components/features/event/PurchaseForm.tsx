@@ -7,7 +7,6 @@ import type { AddPurchaseHandler } from '@/application/handlers/AddPurchaseHandl
 import type { EditPurchaseHandler } from '@/application/handlers/EditPurchaseHandler'
 import type { AddBroughtItemHandler } from '@/application/handlers/AddBroughtItemHandler'
 import type { EditBroughtItemHandler } from '@/application/handlers/EditBroughtItemHandler'
-import type { LocalStorageCache } from '@/infrastructure/persistence/LocalStorageCache'
 import type { PurchaseSnapshot } from '@/domain/entities/Purchase'
 import { Button } from '@/presentation/components/common/Button'
 import { Input } from '@/presentation/components/common/Input'
@@ -169,9 +168,6 @@ export function PurchaseForm({
               group: group.trim() || null,
               broughtBy,
             })
-            container
-              .resolve<LocalStorageCache>('cache')
-              .set(event.id, { snapshot: result.event, version: result.version })
             setEvent(result.event, result.version)
           } else {
             const handler = container.resolve<AddBroughtItemHandler>('addBroughtItem')
@@ -184,9 +180,6 @@ export function PurchaseForm({
               group: group.trim() || null,
               broughtBy,
             })
-            container
-              .resolve<LocalStorageCache>('cache')
-              .set(event.id, { snapshot: result.event, version: result.version })
             setEvent(result.event, result.version)
           }
           setPendingMatches(null)
@@ -224,9 +217,6 @@ export function PurchaseForm({
             assignedTo: purchase.assignedTo ?? null,
             group: group.trim() || null,
           })
-          container
-            .resolve<LocalStorageCache>('cache')
-            .set(event.id, { snapshot: result.event, version: result.version })
           setEvent(result.event, result.version)
         } else {
           const handler = container.resolve<AddPurchaseHandler>('addPurchase')
@@ -242,9 +232,6 @@ export function PurchaseForm({
             assignedTo,
             group: group.trim() || null,
           })
-          container
-            .resolve<LocalStorageCache>('cache')
-            .set(event.id, { snapshot: result.event, version: result.version })
           setEvent(result.event, result.version)
         }
         setPendingMatches(null)
