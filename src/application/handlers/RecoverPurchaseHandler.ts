@@ -2,18 +2,15 @@ import { RecoverPurchaseSchema, type RecoverPurchaseInput } from '@/application/
 import type { EventSnapshot } from '@/domain/entities/Event'
 import { Purchase } from '@/domain/entities/Purchase'
 import { HistoryAppender } from '@/domain/services/HistoryAppender'
-import { type IEventRepository, VersionConflictError } from '@/domain/repositories/IEventRepository'
-
-const MAX_RETRIES = 3
+import type { IEventRepository } from '@/domain/repositories/IEventRepository'
+import { withOptimisticRetry } from '@/application/support/withOptimisticRetry'
 
 export class RecoverPurchaseHandler {
   constructor(private readonly repo: IEventRepository) {}
 
   async execute(input: RecoverPurchaseInput): Promise<{ event: EventSnapshot; version: number }> {
     const parsed = RecoverPurchaseSchema.parse(input)
-    for (let attempt = 0; attempt < MAX_RETRIES; attempt++) {
-      const row = await this.repo.findById(parsed.eventId)
-      if (!row) throw new Error('Event not found')
+    const saved = await withOptimisticRetry(this.repo, parsed.eventId, (row) => {
       if (!row.snapshot.users.some((u) => u.id === parsed.recoveredBy))
         throw new Error(`recoveredBy ${parsed.recoveredBy} not in event`)
       const existing = row.snapshot.purchases.find((p) => p.id === parsed.purchaseId)
@@ -34,13 +31,8 @@ export class RecoverPurchaseHandler {
           description: `${editorName} recovered ${existing.item}`,
         },
       )
-      try {
-        const saved = await this.repo.update(parsed.eventId, nextSnapshot, row.version)
-        return { event: saved.snapshot, version: saved.version }
-      } catch (err) {
-        if (!(err instanceof VersionConflictError)) throw err
-      }
-    }
-    throw new Error('Could not save: too many concurrent writes')
+      return nextSnapshot
+    })
+    return { event: saved.snapshot, version: saved.version }
   }
 }

@@ -3,18 +3,15 @@ import { type EventSnapshot } from '@/domain/entities/Event'
 import { Expense } from '@/domain/entities/Expense'
 import { Money } from '@/domain/value-objects/Money'
 import { HistoryAppender } from '@/domain/services/HistoryAppender'
-import { type IEventRepository, VersionConflictError } from '@/domain/repositories/IEventRepository'
-
-const MAX_RETRIES = 3
+import type { IEventRepository } from '@/domain/repositories/IEventRepository'
+import { withOptimisticRetry } from '@/application/support/withOptimisticRetry'
 
 export class AddExpenseHandler {
   constructor(private readonly repo: IEventRepository) {}
 
   async execute(input: AddExpenseInput): Promise<{ event: EventSnapshot; version: number }> {
     const parsed = AddExpenseSchema.parse(input)
-    for (let attempt = 0; attempt < MAX_RETRIES; attempt++) {
-      const row = await this.repo.findById(parsed.eventId)
-      if (!row) throw new Error('Event not found')
+    const saved = await withOptimisticRetry(this.repo, parsed.eventId, (row) => {
       if (!row.snapshot.users.some((u) => u.id === parsed.paidBy))
         throw new Error(`Payer ${parsed.paidBy} not in event`)
 
@@ -55,13 +52,8 @@ export class AddExpenseHandler {
         },
       )
 
-      try {
-        const saved = await this.repo.update(parsed.eventId, nextSnapshot, row.version)
-        return { event: saved.snapshot, version: saved.version }
-      } catch (err) {
-        if (!(err instanceof VersionConflictError)) throw err
-      }
-    }
-    throw new Error('Could not save: too many concurrent writes')
+      return nextSnapshot
+    })
+    return { event: saved.snapshot, version: saved.version }
   }
 }
