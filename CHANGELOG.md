@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.5.4](https://github.com/Endika/EventSplit/compare/v2.5.3...v2.5.4) (2026-05-27)
+
+
+### Bug Fixes
+
+* clean dangling refs on user removal, guard NaN inputs, fill i18n ([e87c532](https://github.com/Endika/EventSplit/commit/e87c532c2477d7334f284f6172d2421072d24585))
+
 ## [2.5.3](https://github.com/Endika/EventSplit/compare/v2.5.2...v2.5.3) (2026-05-27)
 
 
