@@ -22,13 +22,22 @@ export class SetEventDaysHandler {
         // Try to align by date when possible
         const aligned: boolean[] = parsed.days.map((d) => {
           const idx = oldDays.indexOf(d)
-          return idx >= 0 ? votes[idx] ?? false : false
+          return idx >= 0 ? (votes[idx] ?? false) : false
         })
         newAvailability[userId] = aligned
       }
 
       const nextSnapshot: EventSnapshot = HistoryAppender.append(
-        { ...row.snapshot, days: parsed.days, availability: newAvailability },
+        {
+          ...row.snapshot,
+          days: parsed.days,
+          availability: newAvailability,
+          // Drop the chosen day if it's no longer one of the event days,
+          // otherwise it dangles and later availability writes reject it.
+          chosenDay: parsed.days.includes(row.snapshot.chosenDay ?? '')
+            ? row.snapshot.chosenDay
+            : null,
+        },
         {
           type: 'days_set',
           userId: row.snapshot.createdBy,

@@ -55,4 +55,42 @@ describe('SetEventDaysHandler', () => {
     })
     expect(result.event.availability[create.creator.id]).toEqual([true, true])
   })
+
+  it('clears chosenDay when its day is dropped from the event', async () => {
+    const repo = new InMemoryEventRepository()
+    const create = await new CreateEventHandler(repo).execute({ name: 'Trip', creatorName: 'John' })
+    await new SetEventDaysHandler(repo).execute({
+      eventId: create.event.id,
+      days: ['2026-06-05', '2026-06-06', '2026-06-07'],
+    })
+    const row = await repo.findById(create.event.id)
+    if (!row) throw new Error('unexpected')
+    row.snapshot.chosenDay = '2026-06-06'
+    await repo.update(create.event.id, row.snapshot, row.version)
+
+    const result = await new SetEventDaysHandler(repo).execute({
+      eventId: create.event.id,
+      days: ['2026-06-05', '2026-06-07'],
+    })
+    expect(result.event.chosenDay).toBeNull()
+  })
+
+  it('keeps chosenDay when its day is still present', async () => {
+    const repo = new InMemoryEventRepository()
+    const create = await new CreateEventHandler(repo).execute({ name: 'Trip', creatorName: 'John' })
+    await new SetEventDaysHandler(repo).execute({
+      eventId: create.event.id,
+      days: ['2026-06-05', '2026-06-06'],
+    })
+    const row = await repo.findById(create.event.id)
+    if (!row) throw new Error('unexpected')
+    row.snapshot.chosenDay = '2026-06-05'
+    await repo.update(create.event.id, row.snapshot, row.version)
+
+    const result = await new SetEventDaysHandler(repo).execute({
+      eventId: create.event.id,
+      days: ['2026-06-05', '2026-06-07'],
+    })
+    expect(result.event.chosenDay).toBe('2026-06-05')
+  })
 })

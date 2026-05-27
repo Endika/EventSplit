@@ -9,18 +9,31 @@ async function setup() {
   const repo = new InMemoryEventRepository()
   const create = await new CreateEventHandler(repo).execute({ name: 'Trip', creatorName: 'John' })
   const added = await new AddPurchaseHandler(repo).execute({
-    eventId: create.event.id, createdBy: create.creator.id,
-    item: 'Coke', quantity: 1, unit: 'units',
-    dailyConsumption: 1, consumers: [{ userId: create.creator.id, multiplier: 1 }], days: 1,
+    eventId: create.event.id,
+    createdBy: create.creator.id,
+    item: 'Coke',
+    quantity: 1,
+    unit: 'units',
+    dailyConsumption: 1,
+    consumers: [{ userId: create.creator.id, multiplier: 1 }],
+    days: 1,
   })
-  return { repo, eventId: create.event.id, userId: create.creator.id, purchaseId: added.event.purchases[0]!.id }
+  return {
+    repo,
+    eventId: create.event.id,
+    userId: create.creator.id,
+    purchaseId: added.event.purchases[0]!.id,
+  }
 }
 
 describe('DeletePurchaseHandler', () => {
   it('soft-deletes a purchase with reason', async () => {
     const ctx = await setup()
     const result = await new DeletePurchaseHandler(ctx.repo).execute({
-      eventId: ctx.eventId, purchaseId: ctx.purchaseId, deletedBy: ctx.userId, reason: 'Wrong item',
+      eventId: ctx.eventId,
+      purchaseId: ctx.purchaseId,
+      deletedBy: ctx.userId,
+      reason: 'Wrong item',
     })
     expect(result.event.purchases[0]!.deleted).toBe(true)
     expect(result.event.purchases[0]!.deleteReason).toBe('Wrong item')
@@ -31,7 +44,9 @@ describe('DeletePurchaseHandler', () => {
     const ctx = await setup()
     await expect(
       new DeletePurchaseHandler(ctx.repo).execute({
-        eventId: ctx.eventId, purchaseId: '00000000-0000-7000-8000-000000000000', deletedBy: ctx.userId,
+        eventId: ctx.eventId,
+        purchaseId: '00000000-0000-7000-8000-000000000000',
+        deletedBy: ctx.userId,
       }),
     ).rejects.toThrow(/not found/i)
   })
@@ -40,7 +55,9 @@ describe('DeletePurchaseHandler', () => {
     const ctx = await setup()
     await expect(
       new DeletePurchaseHandler(ctx.repo).execute({
-        eventId: ctx.eventId, purchaseId: ctx.purchaseId, deletedBy: '00000000-0000-7000-8000-000000000000',
+        eventId: ctx.eventId,
+        purchaseId: ctx.purchaseId,
+        deletedBy: '00000000-0000-7000-8000-000000000000',
       }),
     ).rejects.toThrow(/not in event/i)
   })
@@ -51,9 +68,14 @@ describe('DeletePurchaseHandler', () => {
     const ids: string[] = []
     for (let i = 0; i < 8; i++) {
       const added = await new AddPurchaseHandler(repo).execute({
-        eventId: create.event.id, createdBy: create.creator.id,
-        item: `Item ${i}`, quantity: 1, unit: 'units', dailyConsumption: 1,
-        consumers: [{ userId: create.creator.id, multiplier: 1 }], days: 1,
+        eventId: create.event.id,
+        createdBy: create.creator.id,
+        item: `Item ${i}`,
+        quantity: 1,
+        unit: 'units',
+        dailyConsumption: 1,
+        consumers: [{ userId: create.creator.id, multiplier: 1 }],
+        days: 1,
       })
       ids.push(added.event.purchases.at(-1)!.id)
     }
@@ -61,7 +83,9 @@ describe('DeletePurchaseHandler', () => {
     let result
     for (const id of ids.slice(2)) {
       result = await new DeletePurchaseHandler(repo).execute({
-        eventId: create.event.id, purchaseId: id, deletedBy: create.creator.id,
+        eventId: create.event.id,
+        purchaseId: id,
+        deletedBy: create.creator.id,
       })
     }
     const deleted = result!.event.purchases.filter((p) => p.deleted)
@@ -74,16 +98,42 @@ describe('DeletePurchaseHandler', () => {
     const repo = new InMemoryEventRepository()
     const create = await new CreateEventHandler(repo).execute({ name: 'Trip', creatorName: 'John' })
     const added = await new AddPurchaseHandler(repo).execute({
-      eventId: create.event.id, createdBy: create.creator.id,
-      item: 'Coke', quantity: 1, unit: 'units', dailyConsumption: 1,
-      consumers: [{ userId: create.creator.id, multiplier: 1 }], days: 1, group: 'Dinner',
+      eventId: create.event.id,
+      createdBy: create.creator.id,
+      item: 'Coke',
+      quantity: 1,
+      unit: 'units',
+      dailyConsumption: 1,
+      consumers: [{ userId: create.creator.id, multiplier: 1 }],
+      days: 1,
+      group: 'Dinner',
     })
     await new SetGroupOrderHandler(repo).execute({
-      eventId: create.event.id, userId: create.creator.id, order: ['Dinner'],
+      eventId: create.event.id,
+      userId: create.creator.id,
+      order: ['Dinner'],
     })
     const result = await new DeletePurchaseHandler(repo).execute({
-      eventId: create.event.id, purchaseId: added.event.purchases[0]!.id, deletedBy: create.creator.id,
+      eventId: create.event.id,
+      purchaseId: added.event.purchases[0]!.id,
+      deletedBy: create.creator.id,
     })
     expect(result.event.groupOrder).not.toContain('Dinner')
+  })
+
+  it('rejects deleting an already-deleted purchase', async () => {
+    const ctx = await setup()
+    await new DeletePurchaseHandler(ctx.repo).execute({
+      eventId: ctx.eventId,
+      purchaseId: ctx.purchaseId,
+      deletedBy: ctx.userId,
+    })
+    await expect(
+      new DeletePurchaseHandler(ctx.repo).execute({
+        eventId: ctx.eventId,
+        purchaseId: ctx.purchaseId,
+        deletedBy: ctx.userId,
+      }),
+    ).rejects.toThrow(/already-deleted/i)
   })
 })

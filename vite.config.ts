@@ -40,7 +40,8 @@ export default defineConfig({
         navigateFallbackDenylist: [/^\/api\//],
         runtimeCaching: [
           {
-            urlPattern: /^https:\/\/.*\.supabase\.co\//,
+            // REST only — never intercept the Realtime WebSocket or auth endpoints.
+            urlPattern: /^https:\/\/.*\.supabase\.co\/rest\//,
             handler: 'NetworkFirst',
             options: { cacheName: 'supabase-cache', networkTimeoutSeconds: 5 },
           },

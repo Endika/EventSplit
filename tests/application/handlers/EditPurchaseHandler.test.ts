@@ -18,7 +18,12 @@ describe('EditPurchaseHandler', () => {
       consumers: [{ userId: create.creator.id, multiplier: 1 }],
       days: 2,
     })
-    return { repo, eventId: create.event.id, userId: create.creator.id, purchaseId: added.event.purchases[0]!.id }
+    return {
+      repo,
+      eventId: create.event.id,
+      userId: create.creator.id,
+      purchaseId: added.event.purchases[0]!.id,
+    }
   }
 
   it('updates quantity and unit', async () => {
@@ -123,5 +128,37 @@ describe('EditPurchaseHandler', () => {
       group: 'Comida',
     })
     expect(result.event.purchases[0]!.group).toBe('Comida')
+  })
+
+  it('clears the group and subgroup when passed null', async () => {
+    const ctx = await setup()
+    await new EditPurchaseHandler(ctx.repo).execute({
+      eventId: ctx.eventId,
+      purchaseId: ctx.purchaseId,
+      editedBy: ctx.userId,
+      item: 'Coke',
+      quantity: 3,
+      unit: 'bottles',
+      dailyConsumption: 2,
+      consumers: [{ userId: ctx.userId, multiplier: 1 }],
+      days: 2,
+      group: 'Comida',
+      subgroup: 'Bebidas',
+    })
+    const result = await new EditPurchaseHandler(ctx.repo).execute({
+      eventId: ctx.eventId,
+      purchaseId: ctx.purchaseId,
+      editedBy: ctx.userId,
+      item: 'Coke',
+      quantity: 3,
+      unit: 'bottles',
+      dailyConsumption: 2,
+      consumers: [{ userId: ctx.userId, multiplier: 1 }],
+      days: 2,
+      group: null,
+      subgroup: null,
+    })
+    expect(result.event.purchases[0]!.group).toBeNull()
+    expect(result.event.purchases[0]!.subgroup).toBeNull()
   })
 })

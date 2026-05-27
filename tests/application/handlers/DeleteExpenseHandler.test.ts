@@ -13,7 +13,12 @@ async function setup() {
     amountEuros: 10,
     description: 'Bread',
   })
-  return { repo, eventId: create.event.id, userId: create.creator.id, expenseId: added.event.expenses[0]!.id }
+  return {
+    repo,
+    eventId: create.event.id,
+    userId: create.creator.id,
+    expenseId: added.event.expenses[0]!.id,
+  }
 }
 
 describe('DeleteExpenseHandler', () => {
@@ -57,8 +62,10 @@ describe('DeleteExpenseHandler', () => {
     const ids: string[] = []
     for (let i = 0; i < 8; i++) {
       const added = await new AddExpenseHandler(repo).execute({
-        eventId: create.event.id, paidBy: create.creator.id,
-        amountEuros: 10, description: `Expense ${i}`,
+        eventId: create.event.id,
+        paidBy: create.creator.id,
+        amountEuros: 10,
+        description: `Expense ${i}`,
       })
       ids.push(added.event.expenses.at(-1)!.id)
     }
@@ -66,12 +73,30 @@ describe('DeleteExpenseHandler', () => {
     let result
     for (const id of ids.slice(2)) {
       result = await new DeleteExpenseHandler(repo).execute({
-        eventId: create.event.id, expenseId: id, deletedBy: create.creator.id,
+        eventId: create.event.id,
+        expenseId: id,
+        deletedBy: create.creator.id,
       })
     }
     const deleted = result!.event.expenses.filter((e) => e.deleted)
     const alive = result!.event.expenses.filter((e) => !e.deleted)
     expect(deleted).toHaveLength(5)
     expect(alive.map((e) => e.id).sort()).toEqual(ids.slice(0, 2).sort())
+  })
+
+  it('rejects deleting an already-deleted expense', async () => {
+    const ctx = await setup()
+    await new DeleteExpenseHandler(ctx.repo).execute({
+      eventId: ctx.eventId,
+      expenseId: ctx.expenseId,
+      deletedBy: ctx.userId,
+    })
+    await expect(
+      new DeleteExpenseHandler(ctx.repo).execute({
+        eventId: ctx.eventId,
+        expenseId: ctx.expenseId,
+        deletedBy: ctx.userId,
+      }),
+    ).rejects.toThrow(/already-deleted/i)
   })
 })

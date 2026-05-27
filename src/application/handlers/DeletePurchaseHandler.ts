@@ -1,4 +1,7 @@
-import { DeletePurchaseSchema, type DeletePurchaseInput } from '@/application/dtos/DeletePurchaseDTO'
+import {
+  DeletePurchaseSchema,
+  type DeletePurchaseInput,
+} from '@/application/dtos/DeletePurchaseDTO'
 import type { EventSnapshot } from '@/domain/entities/Event'
 import { Purchase } from '@/domain/entities/Purchase'
 import { HistoryAppender } from '@/domain/services/HistoryAppender'
@@ -17,16 +20,16 @@ export class DeletePurchaseHandler {
         throw new Error(`deletedBy ${parsed.deletedBy} not in event`)
       const existing = row.snapshot.purchases.find((p) => p.id === parsed.purchaseId)
       if (!existing) throw new Error(`Purchase ${parsed.purchaseId} not found`)
+      if (existing.deleted) throw new Error('Cannot delete an already-deleted purchase')
 
       const deleted = Purchase.restore(existing).softDelete({
         by: parsed.deletedBy,
         reason: parsed.reason ?? null,
       })
-      const editorName = row.snapshot.users.find((u) => u.id === parsed.deletedBy)?.name ?? 'Someone'
+      const editorName =
+        row.snapshot.users.find((u) => u.id === parsed.deletedBy)?.name ?? 'Someone'
       const newPurchases = capTrash(
-        row.snapshot.purchases.map((p) =>
-          p.id === parsed.purchaseId ? deleted.toSnapshot() : p,
-        ),
+        row.snapshot.purchases.map((p) => (p.id === parsed.purchaseId ? deleted.toSnapshot() : p)),
       )
       const nextSnapshot: EventSnapshot = HistoryAppender.append(
         {
