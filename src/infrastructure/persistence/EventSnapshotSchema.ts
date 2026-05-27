@@ -9,7 +9,7 @@ const AllergenSchema = z.object({
   notes: z.string().nullable().default(null),
 })
 
-const UserSchema = z.object({
+export const UserSchema = z.object({
   id: z.string(),
   name: z.string(),
   alias: z.string().nullable().default(null),
@@ -27,7 +27,7 @@ const PurchaseConsumerSchema = z.object({
   multiplier: z.number(),
 })
 
-const PurchaseSchema = z.object({
+export const PurchaseSchema = z.object({
   id: z.string(),
   createdBy: z.string(),
   kind: z.enum(['buy', 'bring']).default('buy'),
@@ -49,7 +49,7 @@ const PurchaseSchema = z.object({
   subgroup: z.string().nullable().default(null),
 })
 
-const ExpenseSchema = z.object({
+export const ExpenseSchema = z.object({
   id: z.string(),
   paidBy: z.string(),
   cents: z.number(),
@@ -76,7 +76,7 @@ const HistoryEntrySchema = z.object({
   description: z.string(),
 })
 
-const EventLocationSchema = z.object({
+export const EventLocationSchema = z.object({
   name: z.string(),
   address: z.string().nullable().default(null),
   lat: z.number().nullable().default(null),
@@ -85,6 +85,11 @@ const EventLocationSchema = z.object({
   googleMapsUrl: z.string().nullable().default(null),
 })
 
+/**
+ * ⚠️ If you add, remove, or rename a field here OR in the nested schemas above,
+ * bump SCHEMA_VERSION in ./schemaVersion.ts — the server-side stale-client write
+ * guard relies on it. eventSnapshotShape.test.ts fails until you do.
+ */
 export const EventSnapshotSchema = z.object({
   id: z.string(),
   name: z.string(),
