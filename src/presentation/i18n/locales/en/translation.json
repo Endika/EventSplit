@@ -56,6 +56,7 @@
     "by": "by {{name}}",
     "types": {
       "event_created": "Event created",
+      "stage_changed": "Stage changed",
       "user_joined": "User joined",
       "user_removed": "User removed",
       "purchase_added": "Purchase added",
@@ -144,6 +145,7 @@
     "removeDayConfirm": "Remove {{date}} from the poll?",
     "removeDayYes": "Remove",
     "cannotRemoveLast": "Can't remove the only day — add another first.",
+    "dayAlreadyExists": "That day is already in the list.",
     "showChildren": "Show children ({{count}})"
   },
   "id": {

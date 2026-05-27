@@ -223,7 +223,7 @@ export class Event {
       throw new Error('Event: user not in event')
 
     // Hard rules: refuse if user has expenses paid or non-deleted purchases created
-    const hasExpenses = this.s.expenses.some((e) => e.paidBy === userId)
+    const hasExpenses = this.s.expenses.some((e) => e.paidBy === userId && !e.deleted)
     if (hasExpenses)
       throw new Error(
         'Event: cannot remove user who paid for expenses (delete those expenses first)',
@@ -244,10 +244,12 @@ export class Event {
     const newAvailability = { ...this.s.availability }
     delete newAvailability[userId]
 
-    // Clean up: remove from each purchase's consumers list
+    // Clean up: remove from each purchase's consumers list, and clear any
+    // assignment to the removed user so it doesn't dangle.
     const newPurchases = this.s.purchases.map((p) => ({
       ...p,
       consumers: p.consumers.filter((c) => c.userId !== userId),
+      assignedTo: p.assignedTo === userId ? null : p.assignedTo,
     }))
 
     // Clean up: remove from each expense's splitAmong list
@@ -267,6 +269,9 @@ export class Event {
       availability: newAvailability,
       purchases: newPurchases,
       expenses: newExpenses,
+      settledTransfers: this.s.settledTransfers.filter(
+        (s) => s.from !== userId && s.to !== userId,
+      ),
       updatedAt: now,
       history: [
         ...this.s.history,

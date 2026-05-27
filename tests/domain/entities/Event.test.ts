@@ -101,6 +101,63 @@ describe('Event', () => {
     expect(after.purchases[0]!.consumers.map((c) => c.userId)).toEqual([creator.id.value])
   })
 
+  it('removeUser clears assignedTo and settledTransfers referencing the user', () => {
+    const creator = User.create({ name: 'John' })
+    let e = Event.create({ name: 'Trip', creator })
+    const maria = User.create({ name: 'Maria' })
+    e = e.addUser(maria)
+    const snap = e.toSnapshot()
+    snap.purchases.push({
+      id: '01900000-0000-7000-8000-000000000002',
+      createdBy: creator.id.value, // creator owns it — not maria
+      item: 'Beer',
+      quantity: 1,
+      unit: 'bottles',
+      dailyConsumption: 1,
+      totalQuantity: 1,
+      consumers: [{ userId: creator.id.value, multiplier: 1 }],
+      deleted: false,
+      deletedBy: null,
+      deletedAt: null,
+      deleteReason: null,
+      createdAt: '2026-01-01T00:00:00Z',
+      assignedTo: maria.id.value, // maria is assigned to buy it
+    })
+    snap.settledTransfers.push({ from: maria.id.value, to: creator.id.value })
+    e = Event.restore(snap)
+
+    const after = e.removeUser(maria.id.value).toSnapshot()
+    expect(after.purchases[0]!.assignedTo).toBeNull()
+    expect(after.settledTransfers).toEqual([])
+  })
+
+  it('removeUser allows removing a user who only paid a since-deleted expense', () => {
+    const creator = User.create({ name: 'John' })
+    let e = Event.create({ name: 'Trip', creator })
+    const maria = User.create({ name: 'Maria' })
+    e = e.addUser(maria)
+    const snap = e.toSnapshot()
+    snap.expenses.push({
+      id: '01900000-0000-7000-8000-000000000003',
+      paidBy: maria.id.value,
+      cents: 1000,
+      currency: 'EUR',
+      description: 'Snacks',
+      purchaseId: null,
+      date: '2026-01-01T00:00:00Z',
+      createdAt: '2026-01-01T00:00:00Z',
+      splitAmong: [],
+      purchaseLinks: [],
+      deleted: true,
+      deletedBy: creator.id.value,
+      deletedAt: '2026-01-02T00:00:00Z',
+    })
+    e = Event.restore(snap)
+
+    const after = e.removeUser(maria.id.value).toSnapshot()
+    expect(after.users.map((u) => u.name)).toEqual(['John'])
+  })
+
   it('removeUser rejects if user paid for expenses', () => {
     const creator = User.create({ name: 'John' })
     let e = Event.create({ name: 'Trip', creator })

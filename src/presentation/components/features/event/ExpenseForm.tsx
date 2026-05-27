@@ -120,7 +120,9 @@ export function ExpenseForm({
       setError(null)
       try {
         const allUserIds = event.users.map((u) => u.id)
-        const split = splitAmong.size === allUserIds.length ? [] : [...splitAmong]
+        // Store [] ("everyone") only if every CURRENT user is selected — recompute
+        // against live users so a realtime join/leave can't silently mis-scope it.
+        const split = allUserIds.every((id) => splitAmong.has(id)) ? [] : [...splitAmong]
         const purchaseLinks = Object.entries(links)
           .map(([purchaseId, q]) => ({ purchaseId, quantity: parseDecimal(q) }))
           .filter((l) => Number.isFinite(l.quantity) && l.quantity > 0)

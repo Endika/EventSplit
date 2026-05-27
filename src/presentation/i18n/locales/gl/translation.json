@@ -56,6 +56,7 @@
     "by": "por {{name}}",
     "types": {
       "event_created": "Evento creado",
+      "stage_changed": "Etapa cambiada",
       "user_joined": "Uniuse un usuario",
       "user_removed": "Usuario eliminado",
       "purchase_added": "Compra engadida",
@@ -144,6 +145,7 @@
     "removeDayConfirm": "Quitar {{date}} da votación?",
     "removeDayYes": "Quitar",
     "cannotRemoveLast": "Non podes quitar o único día — engade outro primeiro.",
+    "dayAlreadyExists": "Ese día xa está na lista.",
     "showChildren": "Mostrar nenos ({{count}})"
   },
   "id": {

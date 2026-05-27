@@ -30,10 +30,13 @@ function formatRelative(iso: string, locale: string): string {
   const then = new Date(iso).getTime()
   const now = Date.now()
   const diff = Math.round((now - then) / 1000)
-  if (diff < 60) return 'just now'
-  if (diff < 3600) return `${Math.floor(diff / 60)}m ago`
-  if (diff < 86400) return `${Math.floor(diff / 3600)}h ago`
   try {
+    if (diff < 86400) {
+      const rtf = new Intl.RelativeTimeFormat(locale, { numeric: 'auto' })
+      if (diff < 60) return rtf.format(-diff, 'second')
+      if (diff < 3600) return rtf.format(-Math.floor(diff / 60), 'minute')
+      return rtf.format(-Math.floor(diff / 3600), 'hour')
+    }
     return new Intl.DateTimeFormat(locale, { dateStyle: 'medium', timeStyle: 'short' }).format(new Date(iso))
   } catch {
     return iso
