@@ -1,5 +1,17 @@
 # Changelog
 
+## [2.1.0](https://github.com/Endika/EventSplit/compare/v2.0.0...v2.1.0) (2026-05-27)
+
+
+### Features
+
+* **trash:** cap soft-deleted purchases and expenses at 5 per list ([475dd44](https://github.com/Endika/EventSplit/commit/475dd441c98b88b17e170296bf67ec11efc9e784))
+
+
+### Performance
+
+* **sync:** broadcast version-only and version-gate snapshot fetches ([570f86e](https://github.com/Endika/EventSplit/commit/570f86e7439067617445826a2365ca730579a094))
+
 ## [2.0.0](https://github.com/Endika/EventSplit/compare/v1.54.3...v2.0.0) (2026-05-26)
 
 
