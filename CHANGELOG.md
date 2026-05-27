@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.3.0](https://github.com/Endika/EventSplit/compare/v2.2.0...v2.3.0) (2026-05-27)
+
+
+### Features
+
+* **purchases:** add bag, tray and grams units ([1b7f0e2](https://github.com/Endika/EventSplit/commit/1b7f0e20aa6bc6bcf3167be68852b11b0d3a1e70))
+
 ## [2.2.0](https://github.com/Endika/EventSplit/compare/v2.1.1...v2.2.0) (2026-05-27)
 
 
