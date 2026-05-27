@@ -15,6 +15,8 @@ export class RecoverExpenseHandler {
         throw new Error(`recoveredBy ${parsed.recoveredBy} not in event`)
       const existing = row.snapshot.expenses.find((e) => e.id === parsed.expenseId)
       if (!existing) throw new Error(`Expense ${parsed.expenseId} not found`)
+      if (!row.snapshot.users.some((u) => u.id === existing.paidBy))
+        throw new Error('Cannot recover an expense whose payer is no longer in the event')
 
       const recovered = Expense.restore(existing).recover()
       const editorName = row.snapshot.users.find((u) => u.id === parsed.recoveredBy)?.name ?? 'Someone'

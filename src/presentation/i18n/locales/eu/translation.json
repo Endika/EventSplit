@@ -56,6 +56,7 @@
     "by": "{{name}}-(e)k",
     "types": {
       "event_created": "Ekitaldia sortu",
+      "stage_changed": "Etapa aldatu da",
       "user_joined": "Erabiltzailea sartu",
       "user_removed": "Erabiltzailea kendu",
       "purchase_added": "Erosketa gehitu",
@@ -144,6 +145,7 @@
     "removeDayConfirm": "{{date}} bozketatik kendu?",
     "removeDayYes": "Kendu",
     "cannotRemoveLast": "Ezin duzu egun bakarra kendu — gehitu beste bat lehenik.",
+    "dayAlreadyExists": "Egun hori dagoeneko zerrendan dago.",
     "showChildren": "Erakutsi haurrak ({{count}})"
   },
   "id": {

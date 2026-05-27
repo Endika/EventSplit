@@ -209,6 +209,17 @@ export function PurchaseForm({
             return
           }
         }
+        if (
+          !isSingle &&
+          (!Number.isFinite(dailyConsumption) ||
+            dailyConsumption <= 0 ||
+            !Number.isInteger(days) ||
+            days <= 0)
+        ) {
+          setError(t('purchases.form.invalidQuantity'))
+          setBusy(false)
+          return
+        }
         const buyDaily = isSingle ? 1 : dailyConsumption
         const buyDays = isSingle ? 1 : days
         const list = isSingle

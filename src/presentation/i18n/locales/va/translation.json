@@ -56,6 +56,7 @@
     "by": "per {{name}}",
     "types": {
       "event_created": "Esdeveniment creat",
+      "stage_changed": "Etapa canviada",
       "user_joined": "S'ha unit un usuari",
       "user_removed": "Usuari eliminat",
       "purchase_added": "Compra afegida",
@@ -144,6 +145,7 @@
     "removeDayConfirm": "Llevar {{date}} de la votació?",
     "removeDayYes": "Llevar",
     "cannotRemoveLast": "No pots llevar l'únic dia — afig-ne un altre primer.",
+    "dayAlreadyExists": "Eixe dia ja està en la llista.",
     "showChildren": "Mostra els xiquets ({{count}})"
   },
   "id": {

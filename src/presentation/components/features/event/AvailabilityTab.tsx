@@ -88,7 +88,7 @@ export function AvailabilityTab() {
     e.preventDefault()
     if (!event || !newDay) return
     if (event.days.includes(newDay)) {
-      setError(`${newDay} is already in the list`)
+      setError(t('availability.dayAlreadyExists'))
       return
     }
     guardedExecute(async () => {

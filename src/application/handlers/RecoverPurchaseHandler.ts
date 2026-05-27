@@ -15,6 +15,8 @@ export class RecoverPurchaseHandler {
         throw new Error(`recoveredBy ${parsed.recoveredBy} not in event`)
       const existing = row.snapshot.purchases.find((p) => p.id === parsed.purchaseId)
       if (!existing) throw new Error(`Purchase ${parsed.purchaseId} not found`)
+      if (!row.snapshot.users.some((u) => u.id === existing.createdBy))
+        throw new Error('Cannot recover a purchase whose creator is no longer in the event')
 
       const recovered = Purchase.restore(existing).recover()
       const editorName = row.snapshot.users.find((u) => u.id === parsed.recoveredBy)?.name ?? 'Someone'
