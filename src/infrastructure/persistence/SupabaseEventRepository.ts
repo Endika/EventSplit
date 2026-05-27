@@ -4,8 +4,10 @@ import {
   type IEventRepository,
   type SaveResult,
   VersionConflictError,
+  StaleClientError,
 } from '@/domain/repositories/IEventRepository'
 import { parseEventSnapshot } from '@/infrastructure/persistence/EventSnapshotSchema'
+import { SCHEMA_VERSION } from '@/infrastructure/persistence/schemaVersion'
 
 export class SupabaseEventRepository implements IEventRepository {
   constructor(private readonly client: SupabaseClient) {}
@@ -38,17 +40,17 @@ export class SupabaseEventRepository implements IEventRepository {
       id: snapshot.id,
       name: snapshot.name,
       created_by: snapshot.createdBy,
-      data: snapshot,
+      data: { ...snapshot, _schemaVersion: SCHEMA_VERSION },
       version: 1,
       updated_by: snapshot.createdBy,
     }
     const { data, error } = await this.client
       .from('events')
       .insert(row)
-      .select('data, version')
-      .single<{ data: EventSnapshot; version: number }>()
+      .select('version')
+      .single<{ version: number }>()
     if (error) throw error
-    return { snapshot: data.data, version: data.version }
+    return { snapshot, version: data.version }
   }
 
   async update(
@@ -59,20 +61,25 @@ export class SupabaseEventRepository implements IEventRepository {
     const { data, error } = await this.client
       .from('events')
       .update({
-        data: snapshot,
+        data: { ...snapshot, _schemaVersion: SCHEMA_VERSION },
         name: snapshot.name,
         version: expectedVersion + 1,
         updated_at: new Date().toISOString(),
       })
       .eq('id', id)
       .eq('version', expectedVersion)
-      .select('data, version')
-      .maybeSingle<{ data: EventSnapshot; version: number }>()
-    if (error) throw error
+      .select('version')
+      .maybeSingle<{ version: number }>()
+    if (error) {
+      // PT426 → the guard trigger refused this write because our schema is
+      // older than the stored event (PostgREST maps it to HTTP 426).
+      if (error.code === 'PT426') throw new StaleClientError()
+      throw error
+    }
     if (!data) {
       const current = await this.findById(id)
       throw new VersionConflictError(current?.version ?? -1)
     }
-    return { snapshot: data.data, version: data.version }
+    return { snapshot, version: data.version }
   }
 }

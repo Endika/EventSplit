@@ -1,6 +1,7 @@
 {
   "offline": "Sense connexió — només lectura",
   "updateAvailable": "Nova versió disponible",
+  "updateRequired": "La teua versió està desactualitzada — actualitza per a continuar guardant",
   "updateNow": "Actualitza ara",
   "install": {
     "title": "Instal·la EventSplit al teu dispositiu",

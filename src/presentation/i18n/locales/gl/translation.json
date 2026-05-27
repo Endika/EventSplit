@@ -1,6 +1,7 @@
 {
   "offline": "Sen conexión — só lectura",
   "updateAvailable": "Nova versión dispoñible",
+  "updateRequired": "A túa versión está anticuada — actualiza para seguir gardando",
   "updateNow": "Actualizar agora",
   "install": {
     "title": "Instala EventSplit no teu dispositivo",

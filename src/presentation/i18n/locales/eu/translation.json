@@ -1,6 +1,7 @@
 {
   "offline": "Konexiorik gabe — irakurri soilik",
   "updateAvailable": "Bertsio berria eskuragarri",
+  "updateRequired": "Zure bertsioa zaharkituta dago — eguneratu gordetzen jarraitzeko",
   "updateNow": "Eguneratu orain",
   "install": {
     "title": "Instalatu EventSplit zure gailuan",
