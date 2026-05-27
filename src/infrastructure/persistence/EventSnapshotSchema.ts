@@ -1,6 +1,6 @@
 import { z } from 'zod'
 import { COMMON_ALLERGENS, ALLERGEN_SEVERITIES } from '@/domain/value-objects/Allergen'
-import { EVENT_STAGES } from '@/domain/entities/Event'
+import { EVENT_STAGES, type EventSnapshot } from '@/domain/entities/Event'
 import { USER_KINDS } from '@/domain/entities/User'
 
 const AllergenSchema = z.object({
@@ -109,13 +109,15 @@ export const EventSnapshotSchema = z.object({
   updatedAt: z.string(),
 })
 
-export type EventSnapshotParsed = z.infer<typeof EventSnapshotSchema>
-
 /**
  * Parse a raw JSON value (from Supabase JSONB or localStorage) into a valid EventSnapshot,
  * filling defaults for missing fields. Throws a descriptive error if mandatory fields are missing.
+ *
+ * The single narrowing cast lives here: the schema keeps `history[].type` as a
+ * permissive `string` (old events may carry types we no longer recognise), so
+ * callers get a domain `EventSnapshot` without each one re-casting.
  */
-export function parseEventSnapshot(raw: unknown): EventSnapshotParsed {
+export function parseEventSnapshot(raw: unknown): EventSnapshot {
   const result = EventSnapshotSchema.safeParse(raw)
   if (!result.success) {
     const issues = result.error.issues
@@ -124,5 +126,5 @@ export function parseEventSnapshot(raw: unknown): EventSnapshotParsed {
       .join('; ')
     throw new Error(`Event snapshot validation failed: ${issues}`)
   }
-  return result.data
+  return result.data as EventSnapshot
 }
