@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.5.2](https://github.com/Endika/EventSplit/compare/v2.5.1...v2.5.2) (2026-05-27)
+
+
+### Bug Fixes
+
+* resolve code-review findings across the app ([c9c0deb](https://github.com/Endika/EventSplit/commit/c9c0debedb3039656a4b8ed3961ef6ffddb78acc))
+
 ## [2.5.1](https://github.com/Endika/EventSplit/compare/v2.5.0...v2.5.1) (2026-05-27)
 
 
