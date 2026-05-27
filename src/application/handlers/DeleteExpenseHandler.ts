@@ -16,9 +16,11 @@ export class DeleteExpenseHandler {
         throw new Error(`deletedBy ${parsed.deletedBy} not in event`)
       const existing = row.snapshot.expenses.find((e) => e.id === parsed.expenseId)
       if (!existing) throw new Error(`Expense ${parsed.expenseId} not found`)
+      if (existing.deleted) throw new Error('Cannot delete an already-deleted expense')
 
       const deleted = Expense.restore(existing).softDelete({ by: parsed.deletedBy })
-      const editorName = row.snapshot.users.find((u) => u.id === parsed.deletedBy)?.name ?? 'Someone'
+      const editorName =
+        row.snapshot.users.find((u) => u.id === parsed.deletedBy)?.name ?? 'Someone'
       const nextSnapshot: EventSnapshot = HistoryAppender.append(
         {
           ...row.snapshot,

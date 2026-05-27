@@ -13,10 +13,7 @@ interface WriteGuardState {
   isLocked: boolean
   verified: boolean
   markVerified: () => void
-  guardedExecute: (
-    fn: () => Promise<unknown> | unknown,
-    onError?: (err: unknown) => void,
-  ) => void
+  guardedExecute: (fn: () => Promise<unknown> | unknown, onError?: (err: unknown) => void) => void
   clearPending: () => void
 }
 
@@ -33,8 +30,7 @@ export function WriteGuardProvider({ children }: { children: ReactNode }) {
   const [verifiedTick, setVerifiedTick] = useState(0)
 
   const isLocked = !!event?.editPin
-  const verified =
-    !isLocked || (event ? localStorage.getItem(pinKey(event.id)) === 'true' : false)
+  const verified = !isLocked || (event ? localStorage.getItem(pinKey(event.id)) === 'true' : false)
 
   function markVerified(): void {
     if (event) {
@@ -52,9 +48,14 @@ export function WriteGuardProvider({ children }: { children: ReactNode }) {
       return
     }
     if (!isLocked || verified) {
-      const result = fn()
-      if (result instanceof Promise) {
-        result.catch(onError)
+      try {
+        const result = fn()
+        if (result instanceof Promise) {
+          result.catch(onError)
+        }
+      } catch (err) {
+        // Route synchronous throws to onError too, so they don't escape unhandled.
+        onError(err)
       }
       return
     }

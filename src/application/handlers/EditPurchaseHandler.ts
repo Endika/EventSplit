@@ -32,12 +32,13 @@ export class EditPurchaseHandler {
         consumers: parsed.consumers,
         days: parsed.days,
         assignedTo: parsed.assignedTo ?? existing.assignedTo ?? null,
-        group: parsed.group ?? existing.group ?? null,
-        subgroup: parsed.subgroup ?? existing.subgroup ?? null,
+        // Distinguish "not provided" (undefined → keep) from an explicit null
+        // (the form clears the field), which `??` would wrongly swallow.
+        group: parsed.group !== undefined ? parsed.group : (existing.group ?? null),
+        subgroup: parsed.subgroup !== undefined ? parsed.subgroup : (existing.subgroup ?? null),
       })
 
-      const editorName =
-        row.snapshot.users.find((u) => u.id === parsed.editedBy)?.name ?? 'Someone'
+      const editorName = row.snapshot.users.find((u) => u.id === parsed.editedBy)?.name ?? 'Someone'
       const newPurchases = row.snapshot.purchases.map((p) =>
         p.id === parsed.purchaseId ? updated.toSnapshot() : p,
       )

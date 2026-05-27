@@ -53,11 +53,7 @@ export class SupabaseEventRepository implements IEventRepository {
     return { snapshot, version: data.version }
   }
 
-  async update(
-    id: string,
-    snapshot: EventSnapshot,
-    expectedVersion: number,
-  ): Promise<SaveResult> {
+  async update(id: string, snapshot: EventSnapshot, expectedVersion: number): Promise<SaveResult> {
     const { data, error } = await this.client
       .from('events')
       .update({
@@ -77,8 +73,10 @@ export class SupabaseEventRepository implements IEventRepository {
       throw error
     }
     if (!data) {
-      const current = await this.findById(id)
-      throw new VersionConflictError(current?.version ?? -1)
+      // Only the version is needed here; probe it instead of re-downloading the
+      // whole blob (withOptimisticRetry re-reads the snapshot on its next try).
+      const version = await this.getVersion(id)
+      throw new VersionConflictError(version ?? -1)
     }
     return { snapshot, version: data.version }
   }
