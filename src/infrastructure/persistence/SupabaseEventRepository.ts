@@ -19,7 +19,7 @@ export class SupabaseEventRepository implements IEventRepository {
     if (error) throw error
     if (!data || !data.active) return null
     const parsed = parseEventSnapshot(data.data)
-    return { snapshot: parsed as unknown as EventSnapshot, version: data.version }
+    return { snapshot: parsed, version: data.version }
   }
 
   async getVersion(id: string): Promise<number | null> {

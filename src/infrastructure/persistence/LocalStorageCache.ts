@@ -29,7 +29,7 @@ export class LocalStorageCache {
     if (!raw) return null
     try {
       const json = JSON.parse(raw) as { snapshot: unknown; version: number }
-      const snapshot = parseEventSnapshot(json.snapshot) as unknown as EventSnapshot
+      const snapshot = parseEventSnapshot(json.snapshot)
       return { snapshot, version: json.version }
     } catch {
       return null
@@ -63,7 +63,7 @@ export class LocalStorageCache {
       if (!raw) continue
       try {
         const json = JSON.parse(raw) as { snapshot: unknown; version: number }
-        const cached = { snapshot: parseEventSnapshot(json.snapshot) as unknown as EventSnapshot, version: json.version }
+        const cached = { snapshot: parseEventSnapshot(json.snapshot), version: json.version }
         summaries.push({
           id: cached.snapshot.id,
           name: cached.snapshot.name,
