@@ -27,9 +27,7 @@ export function IdentificationModal({
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
-  const nameCollision = users.some(
-    (u) => u.name.trim().toLowerCase() === name.trim().toLowerCase(),
-  )
+  const nameCollision = users.some((u) => u.name.trim().toLowerCase() === name.trim().toLowerCase())
 
   async function submitNew(e: FormEvent) {
     e.preventDefault()
@@ -104,7 +102,12 @@ export function IdentificationModal({
           />
           {error && <p className="text-sm text-rose-400">{error}</p>}
           <div className="flex gap-2">
-            <Button type="button" variant="secondary" onClick={() => setMode('list')} disabled={busy}>
+            <Button
+              type="button"
+              variant="secondary"
+              onClick={() => setMode('list')}
+              disabled={busy}
+            >
               {t('id.back')}
             </Button>
             <Button type="submit" disabled={busy || name.trim().length < 2}>

@@ -34,7 +34,10 @@ export function PurchasesTab() {
   const [pendingEdit, setPendingEdit] = useState<PurchaseSnapshot | null>(null)
   const [renamingGroup, setRenamingGroup] = useState<string | null>(null)
   const [groupNewName, setGroupNewName] = useState('')
-  const [renamingSubgroup, setRenamingSubgroup] = useState<{ group: string; subgroup: string } | null>(null)
+  const [renamingSubgroup, setRenamingSubgroup] = useState<{
+    group: string
+    subgroup: string
+  } | null>(null)
   const [subgroupNewName, setSubgroupNewName] = useState('')
   const [collapsed, setCollapsed] = useState<Set<string>>(new Set())
   const [deleteBusy, setDeleteBusy] = useState(false)
@@ -125,8 +128,11 @@ export function PurchasesTab() {
       try {
         const handler = container.resolve<AssignPurchaseHandler>('assignPurchase')
         const result = await handler.execute({
-          eventId: event.id, purchaseId: p.id, editedBy: me.id,
-          assignedTo, purchased: p.purchased,
+          eventId: event.id,
+          purchaseId: p.id,
+          editedBy: me.id,
+          assignedTo,
+          purchased: p.purchased,
         })
         setEvent(result.event, result.version)
       } catch (err) {
@@ -141,8 +147,11 @@ export function PurchasesTab() {
       try {
         const handler = container.resolve<AssignPurchaseHandler>('assignPurchase')
         const result = await handler.execute({
-          eventId: event.id, purchaseId: p.id, editedBy: me.id,
-          assignedTo, purchased: false,
+          eventId: event.id,
+          purchaseId: p.id,
+          editedBy: me.id,
+          assignedTo,
+          purchased: false,
         })
         setEvent(result.event, result.version)
       } catch (err) {
@@ -157,8 +166,11 @@ export function PurchasesTab() {
       try {
         const handler = container.resolve<AssignPurchaseHandler>('assignPurchase')
         const result = await handler.execute({
-          eventId: event.id, purchaseId: p.id, editedBy: me.id,
-          assignedTo: p.assignedTo ?? null, purchased,
+          eventId: event.id,
+          purchaseId: p.id,
+          editedBy: me.id,
+          assignedTo: p.assignedTo ?? null,
+          purchased,
         })
         setEvent(result.event, result.version)
       } catch (err) {
@@ -176,7 +188,11 @@ export function PurchasesTab() {
     guardedExecute(async () => {
       try {
         const handler = container.resolve<RecoverPurchaseHandler>('recoverPurchase')
-        const result = await handler.execute({ eventId: event.id, purchaseId: p.id, recoveredBy: me.id })
+        const result = await handler.execute({
+          eventId: event.id,
+          purchaseId: p.id,
+          recoveredBy: me.id,
+        })
         setEvent(result.event, result.version)
       } catch (err) {
         reportError('PurchasesTab', err)
@@ -192,7 +208,9 @@ export function PurchasesTab() {
       try {
         const handler = container.resolve<DeletePurchaseHandler>('deletePurchase')
         const result = await handler.execute({
-          eventId: event.id, purchaseId: target.id, deletedBy: me.id,
+          eventId: event.id,
+          purchaseId: target.id,
+          deletedBy: me.id,
         })
         setEvent(result.event, result.version)
         setDeleting(null)
@@ -254,7 +272,12 @@ export function PurchasesTab() {
     guardedExecute(async () => {
       try {
         const handler = container.resolve<SetSubgroupOrderHandler>('setSubgroupOrder')
-        const result = await handler.execute({ eventId: event.id, userId: me.id, group, order: next })
+        const result = await handler.execute({
+          eventId: event.id,
+          userId: me.id,
+          group,
+          order: next,
+        })
         setEvent(result.event, result.version)
       } catch (err) {
         reportError('PurchasesTab', err)
@@ -293,102 +316,120 @@ export function PurchasesTab() {
                 .join(', ')
             : ''
           return (
-          <li
-            key={p.id}
-            className={`rounded-lg border bg-slate-900 p-3 ${
-              editing?.id === p.id ? 'border-violet-500 ring-1 ring-violet-500' : 'border-slate-800'
-            }`}
-          >
-            <div className="flex items-start justify-between gap-2">
-          <button
-            type="button"
-            onClick={() => requestEdit(p)}
-            className="flex-1 rounded text-left hover:opacity-80"
-            aria-label={t('purchases.edit')}
-          >
-            <div className={`font-medium ${struck ? 'text-slate-500 line-through' : 'text-slate-100'}`}>
-              {p.kind === 'bring' && <span title={t('purchases.form.modeBring')}>🏠 </span>}{p.item} <span className="text-xs text-slate-500">✎</span>
-            </div>
-            <div className="text-sm text-slate-400">
-              {t(p.kind === 'bring' ? 'purchases.totalToBring' : 'purchases.totalQuantity', { n: Math.round(p.totalQuantity * 100) / 100, unit: displayUnit(p.unit, t) })}
-            </div>
-            <div className="text-xs text-slate-500">
-              {t('purchases.createdBy', { name: userName(p.createdBy) })}
-              <YouLabel userId={p.createdBy} />
-            </div>
-          </button>
-          <button
-            type="button"
-            onClick={() => askDelete(p)}
-            className="rounded p-1.5 text-xs text-slate-400 hover:bg-slate-800 hover:text-rose-400"
-            aria-label={t('purchases.delete')}
-            title={t('purchases.delete')}
-          >🗑️</button>
-        </div>
-        <div className="mt-2 flex flex-wrap items-center gap-2 border-t border-slate-800 pt-2 text-xs">
-          {p.kind === 'bring' ? (
-            <label className="ml-auto flex items-center gap-1 text-slate-400">
-              {t('purchases.broughtByShort')}
-              <select
-                value={p.assignedTo ?? ''}
-                onChange={(e) => assignBringer(p, e.target.value || null)}
-                className="rounded border border-slate-700 bg-slate-900 p-1 text-slate-200"
-              >
-                <option value="">{t('purchases.unassigned')}</option>
-                {event!.users.map((u) => (
-                  <option key={u.id} value={u.id}>{u.alias ? `${u.name} (${u.alias})` : u.name}</option>
-                ))}
-              </select>
-            </label>
-          ) : hasLinks ? (
-            <div className="flex w-full flex-col gap-1.5">
-              <div className="flex items-center justify-between gap-2">
-                <span className="text-slate-300">
-                  {t('purchases.boughtProgress', {
-                    n: round2(bought),
-                    total: round2(total),
-                    unit: displayUnit(p.unit, t),
-                  })}
-                </span>
-              </div>
-              <div className="h-1.5 w-full overflow-hidden rounded-full bg-slate-800">
-                <div
-                  className="h-full rounded-full bg-violet-500"
-                  style={{ width: `${total > 0 ? Math.min(100, (bought / total) * 100) : 100}%` }}
-                />
-              </div>
-              <span className="text-slate-400">{t('purchases.boughtByMany', { names: buyerNames })}</span>
-            </div>
-          ) : (
-            <>
-              <label className="flex items-center gap-1 text-slate-400">
-                <input
-                  type="checkbox"
-                  checked={p.purchased}
-                  onChange={(e) => toggleBought(p, e.target.checked)}
-                  className="size-4 rounded border-slate-600 bg-slate-800 accent-violet-500"
-                />
-                {t('purchases.bought')}
-              </label>
-              <label className="ml-auto flex items-center gap-1 text-slate-400">
-                {t('purchases.assignedShort')}
-                <select
-                  value={p.assignedTo ?? ''}
-                  onChange={(e) => assignBuyer(p, e.target.value || null)}
-                  className="rounded border border-slate-700 bg-slate-900 p-1 text-slate-200"
+            <li
+              key={p.id}
+              className={`rounded-lg border bg-slate-900 p-3 ${
+                editing?.id === p.id
+                  ? 'border-violet-500 ring-1 ring-violet-500'
+                  : 'border-slate-800'
+              }`}
+            >
+              <div className="flex items-start justify-between gap-2">
+                <button
+                  type="button"
+                  onClick={() => requestEdit(p)}
+                  className="flex-1 rounded text-left hover:opacity-80"
+                  aria-label={t('purchases.edit')}
                 >
-                  <option value="">{t('purchases.unassigned')}</option>
-                  {event!.users
-                    .filter((u) => u.kind === 'adult')
-                    .map((u) => (
-                      <option key={u.id} value={u.id}>{u.alias ? `${u.name} (${u.alias})` : u.name}</option>
-                    ))}
-                </select>
-              </label>
-            </>
-          )}
-            </div>
-          </li>
+                  <div
+                    className={`font-medium ${struck ? 'text-slate-500 line-through' : 'text-slate-100'}`}
+                  >
+                    {p.kind === 'bring' && <span title={t('purchases.form.modeBring')}>🏠 </span>}
+                    {p.item} <span className="text-xs text-slate-500">✎</span>
+                  </div>
+                  <div className="text-sm text-slate-400">
+                    {t(p.kind === 'bring' ? 'purchases.totalToBring' : 'purchases.totalQuantity', {
+                      n: Math.round(p.totalQuantity * 100) / 100,
+                      unit: displayUnit(p.unit, t),
+                    })}
+                  </div>
+                  <div className="text-xs text-slate-500">
+                    {t('purchases.createdBy', { name: userName(p.createdBy) })}
+                    <YouLabel userId={p.createdBy} />
+                  </div>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => askDelete(p)}
+                  className="rounded p-1.5 text-xs text-slate-400 hover:bg-slate-800 hover:text-rose-400"
+                  aria-label={t('purchases.delete')}
+                  title={t('purchases.delete')}
+                >
+                  🗑️
+                </button>
+              </div>
+              <div className="mt-2 flex flex-wrap items-center gap-2 border-t border-slate-800 pt-2 text-xs">
+                {p.kind === 'bring' ? (
+                  <label className="ml-auto flex items-center gap-1 text-slate-400">
+                    {t('purchases.broughtByShort')}
+                    <select
+                      value={p.assignedTo ?? ''}
+                      onChange={(e) => assignBringer(p, e.target.value || null)}
+                      className="rounded border border-slate-700 bg-slate-900 p-1 text-slate-200"
+                    >
+                      <option value="">{t('purchases.unassigned')}</option>
+                      {event!.users.map((u) => (
+                        <option key={u.id} value={u.id}>
+                          {u.alias ? `${u.name} (${u.alias})` : u.name}
+                        </option>
+                      ))}
+                    </select>
+                  </label>
+                ) : hasLinks ? (
+                  <div className="flex w-full flex-col gap-1.5">
+                    <div className="flex items-center justify-between gap-2">
+                      <span className="text-slate-300">
+                        {t('purchases.boughtProgress', {
+                          n: round2(bought),
+                          total: round2(total),
+                          unit: displayUnit(p.unit, t),
+                        })}
+                      </span>
+                    </div>
+                    <div className="h-1.5 w-full overflow-hidden rounded-full bg-slate-800">
+                      <div
+                        className="h-full rounded-full bg-violet-500"
+                        style={{
+                          width: `${total > 0 ? Math.min(100, (bought / total) * 100) : 100}%`,
+                        }}
+                      />
+                    </div>
+                    <span className="text-slate-400">
+                      {t('purchases.boughtByMany', { names: buyerNames })}
+                    </span>
+                  </div>
+                ) : (
+                  <>
+                    <label className="flex items-center gap-1 text-slate-400">
+                      <input
+                        type="checkbox"
+                        checked={p.purchased}
+                        onChange={(e) => toggleBought(p, e.target.checked)}
+                        className="size-4 rounded border-slate-600 bg-slate-800 accent-violet-500"
+                      />
+                      {t('purchases.bought')}
+                    </label>
+                    <label className="ml-auto flex items-center gap-1 text-slate-400">
+                      {t('purchases.assignedShort')}
+                      <select
+                        value={p.assignedTo ?? ''}
+                        onChange={(e) => assignBuyer(p, e.target.value || null)}
+                        className="rounded border border-slate-700 bg-slate-900 p-1 text-slate-200"
+                      >
+                        <option value="">{t('purchases.unassigned')}</option>
+                        {event!.users
+                          .filter((u) => u.kind === 'adult')
+                          .map((u) => (
+                            <option key={u.id} value={u.id}>
+                              {u.alias ? `${u.name} (${u.alias})` : u.name}
+                            </option>
+                          ))}
+                      </select>
+                    </label>
+                  </>
+                )}
+              </div>
+            </li>
           )
         })}
       </ul>
@@ -398,12 +439,24 @@ export function PurchasesTab() {
   return (
     <div className="space-y-3">
       {!adding && !editing && <Button onClick={() => setAdding(true)}>{t('purchases.add')}</Button>}
-      {adding && <PurchaseForm key="new" onDone={() => { setAdding(false); setFormDirty(false) }} onDirtyChange={setFormDirty} />}
+      {adding && (
+        <PurchaseForm
+          key="new"
+          onDone={() => {
+            setAdding(false)
+            setFormDirty(false)
+          }}
+          onDirtyChange={setFormDirty}
+        />
+      )}
       {editing && (
         <PurchaseForm
           key={editing.id}
           purchase={editing}
-          onDone={() => { setEditing(null); setFormDirty(false) }}
+          onDone={() => {
+            setEditing(null)
+            setFormDirty(false)
+          }}
           onDirtyChange={setFormDirty}
         />
       )}
@@ -421,9 +474,33 @@ export function PurchasesTab() {
                 <span className="text-sm text-slate-500">{collapsed.has(group) ? '▸' : '▾'}</span>
                 {group} <span className="text-slate-500">({items.length})</span>
               </button>
-              <button type="button" onClick={() => moveGroup(group, -1)} className="flex size-9 items-center justify-center rounded-lg text-base text-slate-400 hover:bg-slate-800 hover:text-slate-200" aria-label={t('purchases.moveUp')}>↑</button>
-              <button type="button" onClick={() => moveGroup(group, 1)} className="flex size-9 items-center justify-center rounded-lg text-base text-slate-400 hover:bg-slate-800 hover:text-slate-200" aria-label={t('purchases.moveDown')}>↓</button>
-              <button type="button" onClick={() => { setRenamingGroup(group); setGroupNewName(group) }} className="flex size-9 items-center justify-center rounded-lg text-base text-slate-400 hover:bg-slate-800 hover:text-slate-200" aria-label={t('purchases.renameGroup')}>✎</button>
+              <button
+                type="button"
+                onClick={() => moveGroup(group, -1)}
+                className="flex size-9 items-center justify-center rounded-lg text-base text-slate-400 hover:bg-slate-800 hover:text-slate-200"
+                aria-label={t('purchases.moveUp')}
+              >
+                ↑
+              </button>
+              <button
+                type="button"
+                onClick={() => moveGroup(group, 1)}
+                className="flex size-9 items-center justify-center rounded-lg text-base text-slate-400 hover:bg-slate-800 hover:text-slate-200"
+                aria-label={t('purchases.moveDown')}
+              >
+                ↓
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setRenamingGroup(group)
+                  setGroupNewName(group)
+                }}
+                className="flex size-9 items-center justify-center rounded-lg text-base text-slate-400 hover:bg-slate-800 hover:text-slate-200"
+                aria-label={t('purchases.renameGroup')}
+              >
+                ✎
+              </button>
             </div>
           )}
           {group === '' && grouped.length > 1 && (
@@ -452,12 +529,38 @@ export function PurchasesTab() {
                         className="flex flex-1 items-center gap-1.5 rounded-lg py-1.5 text-left text-[0.7rem] font-semibold uppercase tracking-wide text-violet-400/80 hover:bg-slate-800/50"
                         aria-label={t('purchases.toggleSubgroup')}
                       >
-                        <span className="text-xs text-slate-500">{collapsed.has(subCollapseKey(group, subgroup)) ? '▸' : '▾'}</span>
+                        <span className="text-xs text-slate-500">
+                          {collapsed.has(subCollapseKey(group, subgroup)) ? '▸' : '▾'}
+                        </span>
                         {subgroup} <span className="text-slate-500">({subItems.length})</span>
                       </button>
-                      <button type="button" onClick={() => moveSubgroup(group, subgroup, -1)} className="flex size-8 items-center justify-center rounded-lg text-sm text-slate-400 hover:bg-slate-800 hover:text-slate-200" aria-label={t('purchases.moveSubgroupUp')}>↑</button>
-                      <button type="button" onClick={() => moveSubgroup(group, subgroup, 1)} className="flex size-8 items-center justify-center rounded-lg text-sm text-slate-400 hover:bg-slate-800 hover:text-slate-200" aria-label={t('purchases.moveSubgroupDown')}>↓</button>
-                      <button type="button" onClick={() => { setRenamingSubgroup({ group, subgroup }); setSubgroupNewName(subgroup) }} className="flex size-8 items-center justify-center rounded-lg text-sm text-slate-400 hover:bg-slate-800 hover:text-slate-200" aria-label={t('purchases.renameSubgroup')}>✎</button>
+                      <button
+                        type="button"
+                        onClick={() => moveSubgroup(group, subgroup, -1)}
+                        className="flex size-8 items-center justify-center rounded-lg text-sm text-slate-400 hover:bg-slate-800 hover:text-slate-200"
+                        aria-label={t('purchases.moveSubgroupUp')}
+                      >
+                        ↑
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => moveSubgroup(group, subgroup, 1)}
+                        className="flex size-8 items-center justify-center rounded-lg text-sm text-slate-400 hover:bg-slate-800 hover:text-slate-200"
+                        aria-label={t('purchases.moveSubgroupDown')}
+                      >
+                        ↓
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setRenamingSubgroup({ group, subgroup })
+                          setSubgroupNewName(subgroup)
+                        }}
+                        className="flex size-8 items-center justify-center rounded-lg text-sm text-slate-400 hover:bg-slate-800 hover:text-slate-200"
+                        aria-label={t('purchases.renameSubgroup')}
+                      >
+                        ✎
+                      </button>
                     </div>
                     {!collapsed.has(subCollapseKey(group, subgroup)) && (
                       <div className="pl-4">{renderItems(subItems)}</div>
@@ -481,7 +584,10 @@ export function PurchasesTab() {
           {showDeleted && (
             <ul className="mt-2 space-y-2">
               {deleted.map((p) => (
-                <li key={p.id} className="flex items-center justify-between rounded-lg border border-slate-800 bg-slate-900/50 p-3 text-sm">
+                <li
+                  key={p.id}
+                  className="flex items-center justify-between rounded-lg border border-slate-800 bg-slate-900/50 p-3 text-sm"
+                >
                   <span className="text-slate-500 line-through">{p.item}</span>
                   <button
                     type="button"
@@ -497,7 +603,12 @@ export function PurchasesTab() {
         </div>
       )}
       {pendingEdit && (
-        <Modal open title={t('common.unsavedTitle')} dismissable onClose={() => setPendingEdit(null)}>
+        <Modal
+          open
+          title={t('common.unsavedTitle')}
+          dismissable
+          onClose={() => setPendingEdit(null)}
+        >
           <div className="space-y-3">
             <p className="text-sm text-slate-300">{t('common.unsavedBody')}</p>
             <div className="flex gap-2">
@@ -521,31 +632,66 @@ export function PurchasesTab() {
         </Modal>
       )}
       {renamingGroup !== null && (
-        <Modal open title={t('purchases.renameGroupTitle')} dismissable onClose={() => setRenamingGroup(null)}>
+        <Modal
+          open
+          title={t('purchases.renameGroupTitle')}
+          dismissable
+          onClose={() => setRenamingGroup(null)}
+        >
           <div className="space-y-3">
-            <Input value={groupNewName} onChange={(e) => setGroupNewName(e.target.value)} maxLength={50} placeholder={t('purchases.form.groupPlaceholder')} autoFocus />
+            <Input
+              value={groupNewName}
+              onChange={(e) => setGroupNewName(e.target.value)}
+              maxLength={50}
+              placeholder={t('purchases.form.groupPlaceholder')}
+              autoFocus
+            />
             <p className="text-xs text-slate-500">{t('purchases.renameGroupHint')}</p>
             <div className="flex gap-2">
-              <Button type="button" variant="secondary" onClick={() => setRenamingGroup(null)}>{t('common.cancel')}</Button>
-              <Button type="button" onClick={submitRename}>{t('common.save')}</Button>
+              <Button type="button" variant="secondary" onClick={() => setRenamingGroup(null)}>
+                {t('common.cancel')}
+              </Button>
+              <Button type="button" onClick={submitRename}>
+                {t('common.save')}
+              </Button>
             </div>
           </div>
         </Modal>
       )}
       {renamingSubgroup !== null && (
-        <Modal open title={t('purchases.renameSubgroupTitle')} dismissable onClose={() => setRenamingSubgroup(null)}>
+        <Modal
+          open
+          title={t('purchases.renameSubgroupTitle')}
+          dismissable
+          onClose={() => setRenamingSubgroup(null)}
+        >
           <div className="space-y-3">
-            <Input value={subgroupNewName} onChange={(e) => setSubgroupNewName(e.target.value)} maxLength={50} placeholder={t('purchases.form.subgroupPlaceholder')} autoFocus />
+            <Input
+              value={subgroupNewName}
+              onChange={(e) => setSubgroupNewName(e.target.value)}
+              maxLength={50}
+              placeholder={t('purchases.form.subgroupPlaceholder')}
+              autoFocus
+            />
             <p className="text-xs text-slate-500">{t('purchases.renameSubgroupHint')}</p>
             <div className="flex gap-2">
-              <Button type="button" variant="secondary" onClick={() => setRenamingSubgroup(null)}>{t('common.cancel')}</Button>
-              <Button type="button" onClick={submitRenameSubgroup}>{t('common.save')}</Button>
+              <Button type="button" variant="secondary" onClick={() => setRenamingSubgroup(null)}>
+                {t('common.cancel')}
+              </Button>
+              <Button type="button" onClick={submitRenameSubgroup}>
+                {t('common.save')}
+              </Button>
             </div>
           </div>
         </Modal>
       )}
       {deleting && (
-        <Modal open title={t('purchases.deleteTitle')} dismissable onClose={() => setDeleting(null)}>
+        <Modal
+          open
+          title={t('purchases.deleteTitle')}
+          dismissable
+          onClose={() => setDeleting(null)}
+        >
           <div className="space-y-3">
             <p className="text-sm text-slate-300">
               {t('purchases.deleteConfirm', { item: deleting.item })}

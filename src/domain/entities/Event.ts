@@ -217,10 +217,8 @@ export class Event {
   }
 
   removeUser(userId: string): Event {
-    if (this.s.createdBy === userId)
-      throw new Error('Event: cannot remove the event creator')
-    if (!this.s.users.some((u) => u.id === userId))
-      throw new Error('Event: user not in event')
+    if (this.s.createdBy === userId) throw new Error('Event: cannot remove the event creator')
+    if (!this.s.users.some((u) => u.id === userId)) throw new Error('Event: user not in event')
 
     // Hard rules: refuse if user has expenses paid or non-deleted purchases created
     const hasExpenses = this.s.expenses.some((e) => e.paidBy === userId && !e.deleted)
@@ -229,9 +227,7 @@ export class Event {
         'Event: cannot remove user who paid for expenses (delete those expenses first)',
       )
 
-    const hasOwnedPurchases = this.s.purchases.some(
-      (p) => p.createdBy === userId && !p.deleted,
-    )
+    const hasOwnedPurchases = this.s.purchases.some((p) => p.createdBy === userId && !p.deleted)
     if (hasOwnedPurchases)
       throw new Error(
         'Event: cannot remove user who created purchases (delete those purchases first)',
@@ -269,9 +265,7 @@ export class Event {
       availability: newAvailability,
       purchases: newPurchases,
       expenses: newExpenses,
-      settledTransfers: this.s.settledTransfers.filter(
-        (s) => s.from !== userId && s.to !== userId,
-      ),
+      settledTransfers: this.s.settledTransfers.filter((s) => s.from !== userId && s.to !== userId),
       updatedAt: now,
       history: [
         ...this.s.history,
@@ -301,8 +295,7 @@ export class Event {
 
     const now = new Date().toISOString()
     const nextVersion = (this.s.history.at(-1)?.version ?? 0) + 1
-    const userName =
-      this.s.users.find((u) => u.id === input.userId)?.name ?? 'Someone'
+    const userName = this.s.users.find((u) => u.id === input.userId)?.name ?? 'Someone'
 
     const nextSnapshot: EventSnapshot = {
       ...this.s,
@@ -324,7 +317,11 @@ export class Event {
     return new Event(this.id, nextSnapshot)
   }
 
-  setAvailabilityMeta(input: { userId: string; note: string | null; chosenDay: string | null }): Event {
+  setAvailabilityMeta(input: {
+    userId: string
+    note: string | null
+    chosenDay: string | null
+  }): Event {
     if (!this.s.users.some((u) => u.id === input.userId))
       throw new Error('Event: user not in event')
     if (input.chosenDay !== null && !this.s.days.includes(input.chosenDay))
@@ -356,9 +353,7 @@ export class Event {
   toggleSettlement(input: { userId: string; from: string; to: string }): Event {
     if (!this.s.users.some((u) => u.id === input.userId))
       throw new Error('Event: user not in event')
-    const exists = this.s.settledTransfers.some(
-      (s) => s.from === input.from && s.to === input.to,
-    )
+    const exists = this.s.settledTransfers.some((s) => s.from === input.from && s.to === input.to)
     const nextSettled = exists
       ? this.s.settledTransfers.filter((s) => !(s.from === input.from && s.to === input.to))
       : [...this.s.settledTransfers, { from: input.from, to: input.to }]
@@ -522,8 +517,12 @@ export class Event {
     return new Event(this.id, nextSnapshot)
   }
 
-  get name(): string { return this.s.name }
-  get users(): UserSnapshot[] { return this.s.users }
+  get name(): string {
+    return this.s.name
+  }
+  get users(): UserSnapshot[] {
+    return this.s.users
+  }
 
   toSnapshot(): EventSnapshot {
     return {

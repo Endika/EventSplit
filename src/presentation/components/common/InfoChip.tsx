@@ -12,7 +12,15 @@ const TONES: Record<Tone, string> = {
  * A small inline icon that reveals a text bubble on hover (desktop, via title)
  * or tap (mobile, via click). Used to surface a person's allergies / diet.
  */
-export function InfoChip({ icon, label, tone = 'slate' }: { icon: string; label: string; tone?: Tone }) {
+export function InfoChip({
+  icon,
+  label,
+  tone = 'slate',
+}: {
+  icon: string
+  label: string
+  tone?: Tone
+}) {
   const [open, setOpen] = useState(false)
   return (
     <span className="relative inline-flex">

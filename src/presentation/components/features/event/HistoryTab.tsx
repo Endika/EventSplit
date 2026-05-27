@@ -37,7 +37,9 @@ function formatRelative(iso: string, locale: string): string {
       if (diff < 3600) return rtf.format(-Math.floor(diff / 60), 'minute')
       return rtf.format(-Math.floor(diff / 3600), 'hour')
     }
-    return new Intl.DateTimeFormat(locale, { dateStyle: 'medium', timeStyle: 'short' }).format(new Date(iso))
+    return new Intl.DateTimeFormat(locale, { dateStyle: 'medium', timeStyle: 'short' }).format(
+      new Date(iso),
+    )
   } catch {
     return iso
   }

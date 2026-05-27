@@ -41,9 +41,7 @@ export const ExpenseSplitter = {
       totalCents += e.amount.cents
 
       // Determine the actual split list for this expense
-      const requestedSplit = (e.splitAmong ?? []).filter((id) =>
-        input.participantIds.includes(id),
-      )
+      const requestedSplit = (e.splitAmong ?? []).filter((id) => input.participantIds.includes(id))
       const splitList = requestedSplit.length > 0 ? requestedSplit : input.participantIds
 
       const k = splitList.length

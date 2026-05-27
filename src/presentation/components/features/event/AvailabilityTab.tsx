@@ -67,7 +67,10 @@ export function AvailabilityTab() {
 
   // Reconcile drafts when the set of users or days changes (e.g. realtime update).
   const draftUserIds = Object.keys(drafts).sort().join(',')
-  const eventUserIds = event.users.map((u) => u.id).sort().join(',')
+  const eventUserIds = event.users
+    .map((u) => u.id)
+    .sort()
+    .join(',')
   const firstUserDraft = Object.values(drafts)[0]
   const draftDayCount = firstUserDraft ? Object.keys(firstUserDraft).length : 0
   if (draftUserIds !== eventUserIds || draftDayCount !== event.days.length) {
@@ -269,7 +272,9 @@ export function AvailabilityTab() {
                             title={t('availability.pickDay')}
                           >
                             <span>{formatDate(d, i18n.language)}</span>
-                            <span className={isChosen ? 'text-violet-300' : 'text-slate-600'}>📌</span>
+                            <span className={isChosen ? 'text-violet-300' : 'text-slate-600'}>
+                              📌
+                            </span>
                           </button>
                           {savedVotesForDay(d) === 0 && (
                             <button
@@ -301,7 +306,10 @@ export function AvailabilityTab() {
                       {event.days.map((d) => {
                         const checked = drafts[u.id]?.[d] ?? false
                         return (
-                          <td key={d} className={`p-3 text-center ${event.chosenDay === d ? 'bg-violet-900/20' : ''}`}>
+                          <td
+                            key={d}
+                            className={`p-3 text-center ${event.chosenDay === d ? 'bg-violet-900/20' : ''}`}
+                          >
                             <input
                               type="checkbox"
                               checked={checked}
@@ -321,12 +329,12 @@ export function AvailabilityTab() {
                 <tr className="border-t border-slate-700 text-xs text-slate-400">
                   <td className="p-3 font-medium">{t('availability.votes')}</td>
                   {event.days.map((d) => {
-                    const count = matrixUsers.reduce(
-                      (n, u) => n + (drafts[u.id]?.[d] ? 1 : 0),
-                      0,
-                    )
+                    const count = matrixUsers.reduce((n, u) => n + (drafts[u.id]?.[d] ? 1 : 0), 0)
                     return (
-                      <td key={d} className={`p-3 text-center ${event.chosenDay === d ? 'bg-violet-900/20' : ''}`}>
+                      <td
+                        key={d}
+                        className={`p-3 text-center ${event.chosenDay === d ? 'bg-violet-900/20' : ''}`}
+                      >
                         <span className="font-semibold text-teal-300">{count}</span>
                         <span className="text-slate-500">/{matrixUsers.length}</span>
                       </td>

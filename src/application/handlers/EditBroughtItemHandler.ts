@@ -1,4 +1,7 @@
-import { EditBroughtItemSchema, type EditBroughtItemInput } from '@/application/dtos/EditBroughtItemDTO'
+import {
+  EditBroughtItemSchema,
+  type EditBroughtItemInput,
+} from '@/application/dtos/EditBroughtItemDTO'
 import type { EventSnapshot } from '@/domain/entities/Event'
 import { Purchase } from '@/domain/entities/Purchase'
 import { HistoryAppender } from '@/domain/services/HistoryAppender'
@@ -32,8 +35,7 @@ export class EditBroughtItemHandler {
         broughtBy: parsed.broughtBy ?? null,
       })
 
-      const editorName =
-        row.snapshot.users.find((u) => u.id === parsed.editedBy)?.name ?? 'Someone'
+      const editorName = row.snapshot.users.find((u) => u.id === parsed.editedBy)?.name ?? 'Someone'
       const newPurchases = row.snapshot.purchases.map((p) =>
         p.id === parsed.purchaseId ? updated.toSnapshot() : p,
       )

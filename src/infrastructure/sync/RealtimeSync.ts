@@ -39,7 +39,11 @@ export class RealtimeSync implements IEventChangeNotifier {
   publish(eventId: string, version: number): void {
     const existing = this.channels.get(eventId)
     if (existing) {
-      void existing.channel.send({ type: 'broadcast', event: BROADCAST_EVENT, payload: { version } })
+      void existing.channel.send({
+        type: 'broadcast',
+        event: BROADCAST_EVENT,
+        payload: { version },
+      })
       return
     }
     // No open subscription on this client (rare): fire a one-off channel.

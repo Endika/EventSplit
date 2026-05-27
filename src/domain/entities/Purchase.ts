@@ -28,7 +28,16 @@ export interface PurchaseSnapshot {
   subgroup: string | null
 }
 
-export const VALID_UNITS = ['units', 'bottles', 'cans', 'bag', 'tray', 'kg', 'grams', 'liters'] as const
+export const VALID_UNITS = [
+  'units',
+  'bottles',
+  'cans',
+  'bag',
+  'tray',
+  'kg',
+  'grams',
+  'liters',
+] as const
 
 /**
  * Sentinel unit for shared staples (salt, sugar, oil): the quantity is FIXED
@@ -148,7 +157,14 @@ export class Purchase {
     })
   }
 
-  static restore(s: PurchaseSnapshot | Omit<PurchaseSnapshot, 'assignedTo' | 'purchased' | 'boughtQuantity' | 'group' | 'subgroup' | 'kind'>): Purchase {
+  static restore(
+    s:
+      | PurchaseSnapshot
+      | Omit<
+          PurchaseSnapshot,
+          'assignedTo' | 'purchased' | 'boughtQuantity' | 'group' | 'subgroup' | 'kind'
+        >,
+  ): Purchase {
     const { category: _legacyCategory, ...rest } = s as PurchaseSnapshot & { category?: string }
     const full = rest as PurchaseSnapshot
     const purchased = full.purchased ?? false
@@ -278,18 +294,44 @@ export class Purchase {
     })
   }
 
-  get id(): string { return this.s.id }
-  get kind(): 'buy' | 'bring' { return this.s.kind }
-  get deleted(): boolean { return this.s.deleted }
-  get deletedBy(): string | null { return this.s.deletedBy }
-  get deleteReason(): string | null { return this.s.deleteReason }
-  get totalQuantity(): number { return this.s.totalQuantity }
-  get createdBy(): string { return this.s.createdBy }
-  get assignedTo(): string | null { return this.s.assignedTo }
-  get purchased(): boolean { return this.s.purchased }
-  get boughtQuantity(): number { return this.s.boughtQuantity }
-  get group(): string | null { return this.s.group }
-  get subgroup(): string | null { return this.s.subgroup }
+  get id(): string {
+    return this.s.id
+  }
+  get kind(): 'buy' | 'bring' {
+    return this.s.kind
+  }
+  get deleted(): boolean {
+    return this.s.deleted
+  }
+  get deletedBy(): string | null {
+    return this.s.deletedBy
+  }
+  get deleteReason(): string | null {
+    return this.s.deleteReason
+  }
+  get totalQuantity(): number {
+    return this.s.totalQuantity
+  }
+  get createdBy(): string {
+    return this.s.createdBy
+  }
+  get assignedTo(): string | null {
+    return this.s.assignedTo
+  }
+  get purchased(): boolean {
+    return this.s.purchased
+  }
+  get boughtQuantity(): number {
+    return this.s.boughtQuantity
+  }
+  get group(): string | null {
+    return this.s.group
+  }
+  get subgroup(): string | null {
+    return this.s.subgroup
+  }
 
-  toSnapshot(): PurchaseSnapshot { return { ...this.s, consumers: [...this.s.consumers] } }
+  toSnapshot(): PurchaseSnapshot {
+    return { ...this.s, consumers: [...this.s.consumers] }
+  }
 }

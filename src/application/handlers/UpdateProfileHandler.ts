@@ -29,7 +29,9 @@ export class UpdateProfileHandler {
         })),
       })
 
-      const nextUsers = row.snapshot.users.map((u) => (u.id === parsed.userId ? updated.toSnapshot() : u))
+      const nextUsers = row.snapshot.users.map((u) =>
+        u.id === parsed.userId ? updated.toSnapshot() : u,
+      )
       const nextSnapshot: EventSnapshot = HistoryAppender.append(
         { ...row.snapshot, users: nextUsers },
         {

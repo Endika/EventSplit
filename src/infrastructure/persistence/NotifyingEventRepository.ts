@@ -28,11 +28,7 @@ export class NotifyingEventRepository implements IEventRepository {
     return result
   }
 
-  async update(
-    id: string,
-    snapshot: EventSnapshot,
-    expectedVersion: number,
-  ): Promise<SaveResult> {
+  async update(id: string, snapshot: EventSnapshot, expectedVersion: number): Promise<SaveResult> {
     const result = await this.inner.update(id, snapshot, expectedVersion)
     this.notifier.publish(id, result.version)
     return result

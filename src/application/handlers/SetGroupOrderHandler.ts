@@ -1,7 +1,4 @@
-import {
-  SetGroupOrderSchema,
-  type SetGroupOrderInput,
-} from '@/application/dtos/SetGroupOrderDTO'
+import { SetGroupOrderSchema, type SetGroupOrderInput } from '@/application/dtos/SetGroupOrderDTO'
 import { Event, type EventSnapshot } from '@/domain/entities/Event'
 import type { IEventRepository } from '@/domain/repositories/IEventRepository'
 import { withOptimisticRetry } from '@/application/support/withOptimisticRetry'

@@ -37,7 +37,8 @@ export class EditEventDetailsHandler {
           ...row.snapshot,
           name: parsed.name ?? row.snapshot.name,
           location: nextLocation,
-          generalNotes: parsed.generalNotes === undefined ? row.snapshot.generalNotes : parsed.generalNotes,
+          generalNotes:
+            parsed.generalNotes === undefined ? row.snapshot.generalNotes : parsed.generalNotes,
           wifiPassword:
             parsed.wifiPassword === undefined ? row.snapshot.wifiPassword : parsed.wifiPassword,
           emergencyContact:

@@ -9,7 +9,9 @@ export const EditExpenseSchema = z.object({
   description: z.string().trim().min(3).max(100),
   splitAmong: z.array(z.string().uuid()).optional(),
   purchaseLinks: z
-    .array(z.object({ purchaseId: z.string().uuid(), quantity: z.number().positive().max(100_000) }))
+    .array(
+      z.object({ purchaseId: z.string().uuid(), quantity: z.number().positive().max(100_000) }),
+    )
     .optional(),
 })
 

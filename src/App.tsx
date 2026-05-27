@@ -37,7 +37,7 @@ export default function App() {
     <ContainerProvider>
       <SyncProvider>
         <EventProvider>
-            <UserProvider>
+          <UserProvider>
             <WriteGuardProvider>
               <OfflineBanner />
               <UpdateBanner />

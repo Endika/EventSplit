@@ -42,11 +42,7 @@ export function RecentEventsList({
             key={e.id}
             className="group flex items-center gap-2 rounded-lg border border-slate-800 bg-slate-900 transition hover:border-slate-700 hover:bg-slate-800"
           >
-            <button
-              type="button"
-              onClick={() => openEvent(e.id)}
-              className="flex-1 p-3 text-left"
-            >
+            <button type="button" onClick={() => openEvent(e.id)} className="flex-1 p-3 text-left">
               <div className="font-medium text-slate-100">{e.name}</div>
               <div className="text-xs text-slate-400">
                 {t('home.lastActivity', { when: formatRelative(e.updatedAt, i18n.language) })}

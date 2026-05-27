@@ -10,7 +10,9 @@ import { withOptimisticRetry } from '@/application/support/withOptimisticRetry'
 export class SetAvailabilityBatchHandler {
   constructor(private readonly repo: IEventRepository) {}
 
-  async execute(input: SetAvailabilityBatchInput): Promise<{ event: EventSnapshot; version: number }> {
+  async execute(
+    input: SetAvailabilityBatchInput,
+  ): Promise<{ event: EventSnapshot; version: number }> {
     const parsed = SetAvailabilityBatchSchema.parse(input)
 
     const saved = await withOptimisticRetry(this.repo, parsed.eventId, (row) => {
