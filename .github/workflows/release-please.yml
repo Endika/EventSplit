@@ -48,3 +48,13 @@ jobs:
           done
           gh api -X DELETE "repos/$REPO/git/refs/heads/$BRANCH" 2>/dev/null || true
           gh workflow run "$WORKFLOW" -R "$REPO" --ref main
+
+      # When a release is actually published, redeploy from main so the live
+      # build carries the bumped version. release-please's own version-bump
+      # commit is pushed by GITHUB_TOKEN and does NOT trigger the on:push deploy,
+      # so the site would otherwise stay one release behind.
+      - if: ${{ steps.release.outputs.release_created }}
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          REPO: ${{ github.repository }}
+        run: gh workflow run deploy.yml -R "$REPO" --ref main
