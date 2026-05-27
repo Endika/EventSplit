@@ -176,7 +176,7 @@ export function PurchaseForm({
               quantity: qty,
               unit,
               group: group.trim() || null,
-              subgroup: subgroup.trim() || null,
+              subgroup: group.trim() ? subgroup.trim() || null : null,
               broughtBy,
             })
             setEvent(result.event, result.version)
@@ -189,7 +189,7 @@ export function PurchaseForm({
               quantity: qty,
               unit,
               group: group.trim() || null,
-              subgroup: subgroup.trim() || null,
+              subgroup: group.trim() ? subgroup.trim() || null : null,
               broughtBy,
             })
             setEvent(result.event, result.version)
@@ -228,7 +228,7 @@ export function PurchaseForm({
             days: buyDays,
             assignedTo: purchase.assignedTo ?? null,
             group: group.trim() || null,
-            subgroup: subgroup.trim() || null,
+            subgroup: group.trim() ? subgroup.trim() || null : null,
           })
           setEvent(result.event, result.version)
         } else {
@@ -244,7 +244,7 @@ export function PurchaseForm({
             days: buyDays,
             assignedTo,
             group: group.trim() || null,
-            subgroup: subgroup.trim() || null,
+            subgroup: group.trim() ? subgroup.trim() || null : null,
           })
           setEvent(result.event, result.version)
         }
@@ -319,6 +319,18 @@ export function PurchaseForm({
           <p className="text-sm font-medium text-slate-300">{t('purchases.form.editTitle')}: <span className="text-slate-100">{purchase.item}</span></p>
         )}
         <label className="block text-sm text-slate-300">
+          {t('purchases.form.item')}
+          <Input
+            className="mt-1"
+            placeholder={t('purchases.form.itemPlaceholder')}
+            value={item}
+            onChange={(e) => setItem(e.target.value)}
+            required
+            minLength={2}
+            maxLength={50}
+          />
+        </label>
+        <label className="block text-sm text-slate-300">
           {t('purchases.form.group')}
           <input
             className="mt-1 block w-full rounded-lg border border-slate-700 bg-slate-900 px-3 py-2 text-sm text-slate-100 placeholder-slate-500 focus:border-violet-500 focus:outline-none focus:ring-1 focus:ring-violet-500"
@@ -334,34 +346,24 @@ export function PurchaseForm({
             ))}
           </datalist>
         </label>
-        <label className="block text-sm text-slate-300">
-          {t('purchases.form.subgroup')}
-          <input
-            className="mt-1 block w-full rounded-lg border border-slate-700 bg-slate-900 px-3 py-2 text-sm text-slate-100 placeholder-slate-500 focus:border-violet-500 focus:outline-none focus:ring-1 focus:ring-violet-500"
-            list="subgroup-suggestions"
-            value={subgroup}
-            onChange={(e) => setSubgroup(e.target.value)}
-            maxLength={50}
-            placeholder={t('purchases.form.subgroupPlaceholder')}
-          />
-          <datalist id="subgroup-suggestions">
-            {existingSubgroups.map((s) => (
-              <option key={s} value={s} />
-            ))}
-          </datalist>
-        </label>
-        <label className="block text-sm text-slate-300">
-          {t('purchases.form.item')}
-          <Input
-            className="mt-1"
-            placeholder={t('purchases.form.itemPlaceholder')}
-            value={item}
-            onChange={(e) => setItem(e.target.value)}
-            required
-            minLength={2}
-            maxLength={50}
-          />
-        </label>
+        {group.trim() !== '' && (
+          <label className="block text-sm text-slate-300">
+            {t('purchases.form.subgroup')}
+            <input
+              className="mt-1 block w-full rounded-lg border border-slate-700 bg-slate-900 px-3 py-2 text-sm text-slate-100 placeholder-slate-500 focus:border-violet-500 focus:outline-none focus:ring-1 focus:ring-violet-500"
+              list="subgroup-suggestions"
+              value={subgroup}
+              onChange={(e) => setSubgroup(e.target.value)}
+              maxLength={50}
+              placeholder={t('purchases.form.subgroupPlaceholder')}
+            />
+            <datalist id="subgroup-suggestions">
+              {existingSubgroups.map((s) => (
+                <option key={s} value={s} />
+              ))}
+            </datalist>
+          </label>
+        )}
         {mode === 'bring' && (
           <>
             <div className="grid grid-cols-2 gap-3">
