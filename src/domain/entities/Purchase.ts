@@ -25,6 +25,7 @@ export interface PurchaseSnapshot {
   purchased: boolean
   boughtQuantity: number
   group: string | null
+  subgroup: string | null
 }
 
 export const VALID_UNITS = ['units', 'bottles', 'cans', 'bag', 'tray', 'kg', 'grams', 'liters'] as const
@@ -42,6 +43,11 @@ function validateUnit(unit: string): string {
   return trimmed
 }
 
+/** Trim, cap at 50 chars, and collapse blank input to null — shared by group and subgroup. */
+function normalizeGroupName(value: string | null | undefined): string | null {
+  return value?.trim() ? value.trim().slice(0, 50) : null
+}
+
 export class Purchase {
   private constructor(private readonly s: PurchaseSnapshot) {}
 
@@ -55,6 +61,7 @@ export class Purchase {
     days: number
     assignedTo?: string | null
     group?: string | null
+    subgroup?: string | null
   }): Purchase {
     const item = input.item.trim()
     if (item.length < 2 || item.length > 50) throw new Error('Purchase: item must be 2..50 chars')
@@ -98,7 +105,8 @@ export class Purchase {
       assignedTo: input.assignedTo ?? null,
       purchased: false,
       boughtQuantity: 0,
-      group: input.group?.trim() ? input.group.trim().slice(0, 50) : null,
+      group: normalizeGroupName(input.group),
+      subgroup: normalizeGroupName(input.subgroup),
     })
   }
 
@@ -108,6 +116,7 @@ export class Purchase {
     quantity: number
     unit: string
     group?: string | null
+    subgroup?: string | null
     broughtBy?: string | null
   }): Purchase {
     const item = input.item.trim()
@@ -134,11 +143,12 @@ export class Purchase {
       assignedTo: input.broughtBy ?? null,
       purchased: false,
       boughtQuantity: 0,
-      group: input.group?.trim() ? input.group.trim().slice(0, 50) : null,
+      group: normalizeGroupName(input.group),
+      subgroup: normalizeGroupName(input.subgroup),
     })
   }
 
-  static restore(s: PurchaseSnapshot | Omit<PurchaseSnapshot, 'assignedTo' | 'purchased' | 'boughtQuantity' | 'group' | 'kind'>): Purchase {
+  static restore(s: PurchaseSnapshot | Omit<PurchaseSnapshot, 'assignedTo' | 'purchased' | 'boughtQuantity' | 'group' | 'subgroup' | 'kind'>): Purchase {
     const { category: _legacyCategory, ...rest } = s as PurchaseSnapshot & { category?: string }
     const full = rest as PurchaseSnapshot
     const purchased = full.purchased ?? false
@@ -149,6 +159,7 @@ export class Purchase {
       purchased,
       boughtQuantity: full.boughtQuantity ?? (purchased ? full.totalQuantity : 0),
       group: full.group ?? null,
+      subgroup: full.subgroup ?? null,
     })
   }
 
@@ -181,6 +192,7 @@ export class Purchase {
     days: number
     assignedTo: string | null
     group: string | null
+    subgroup?: string | null
   }): Purchase {
     const item = input.item.trim()
     if (item.length < 2 || item.length > 50) throw new Error('Purchase: item must be 2..50 chars')
@@ -216,7 +228,8 @@ export class Purchase {
       totalQuantity,
       consumers: input.consumers,
       assignedTo: input.assignedTo,
-      group: input.group?.trim() ? input.group.trim().slice(0, 50) : null,
+      group: normalizeGroupName(input.group),
+      subgroup: normalizeGroupName(input.subgroup),
     })
   }
 
@@ -225,6 +238,7 @@ export class Purchase {
     quantity: number
     unit: string
     group: string | null
+    subgroup?: string | null
     broughtBy: string | null
   }): Purchase {
     const item = input.item.trim()
@@ -241,7 +255,8 @@ export class Purchase {
       unit,
       totalQuantity: input.quantity,
       assignedTo: input.broughtBy,
-      group: input.group?.trim() ? input.group.trim().slice(0, 50) : null,
+      group: normalizeGroupName(input.group),
+      subgroup: normalizeGroupName(input.subgroup),
     })
   }
 
@@ -274,6 +289,7 @@ export class Purchase {
   get purchased(): boolean { return this.s.purchased }
   get boughtQuantity(): number { return this.s.boughtQuantity }
   get group(): string | null { return this.s.group }
+  get subgroup(): string | null { return this.s.subgroup }
 
   toSnapshot(): PurchaseSnapshot { return { ...this.s, consumers: [...this.s.consumers] } }
 }

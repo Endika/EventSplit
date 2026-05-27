@@ -29,6 +29,7 @@ export class AddBroughtItemHandler {
         quantity: parsed.quantity,
         unit: parsed.unit,
         group: parsed.group ?? null,
+        subgroup: parsed.subgroup ?? null,
         broughtBy: parsed.broughtBy ?? null,
       })
 

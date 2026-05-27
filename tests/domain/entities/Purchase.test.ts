@@ -325,4 +325,60 @@ describe('Purchase', () => {
     expect(next.toSnapshot().group).toBe('Comida')
     expect(next.toSnapshot().assignedTo).toBe(u2)
   })
+
+  it('stores a trimmed subgroup, null when blank', () => {
+    const p = Purchase.create({
+      createdBy: u1, item: 'Bread', quantity: 1, unit: 'units',
+      dailyConsumption: 1, consumers: [{ userId: u1, multiplier: 1 }], days: 1,
+      group: 'Cena', subgroup: '  Entrantes  ',
+    })
+    expect(p.toSnapshot().subgroup).toBe('Entrantes')
+    const p2 = Purchase.create({
+      createdBy: u1, item: 'Milk', quantity: 1, unit: 'units',
+      dailyConsumption: 1, consumers: [{ userId: u1, multiplier: 1 }], days: 1,
+      group: 'Cena', subgroup: '   ',
+    })
+    expect(p2.toSnapshot().subgroup).toBeNull()
+  })
+
+  it('new purchase has null subgroup by default', () => {
+    const p = Purchase.create({
+      createdBy: u1, item: 'XY', quantity: 1, unit: 'units',
+      dailyConsumption: 1, consumers: [{ userId: u1, multiplier: 1 }], days: 1,
+    })
+    expect(p.toSnapshot().subgroup).toBeNull()
+  })
+
+  it('edit can change the subgroup', () => {
+    const p = Purchase.create({
+      createdBy: u1, item: 'Bread', quantity: 1, unit: 'units',
+      dailyConsumption: 1, consumers: [{ userId: u1, multiplier: 1 }], days: 1,
+      group: 'Cena', subgroup: 'Entrantes',
+    })
+    const next = p.edit({
+      item: 'Bread', quantity: 1, unit: 'units',
+      dailyConsumption: 1, consumers: [{ userId: u1, multiplier: 1 }], days: 1,
+      assignedTo: null, group: 'Cena', subgroup: 'Postres',
+    })
+    expect(next.toSnapshot().subgroup).toBe('Postres')
+  })
+
+  it('createBring stores a trimmed subgroup', () => {
+    const p = Purchase.createBring({
+      createdBy: u1, item: 'Tortilla', quantity: 2, unit: 'units',
+      group: 'Desayuno', subgroup: '  Caliente ', broughtBy: u2,
+    })
+    expect(p.toSnapshot().subgroup).toBe('Caliente')
+  })
+
+  it('editBring can change the subgroup', () => {
+    const p = Purchase.createBring({
+      createdBy: u1, item: 'Tortilla', quantity: 2, unit: 'units',
+      group: 'Desayuno', subgroup: 'Caliente', broughtBy: u1,
+    })
+    const next = p.editBring({
+      item: 'Tortilla', quantity: 2, unit: 'units', group: 'Desayuno', subgroup: 'Frío', broughtBy: u2,
+    })
+    expect(next.toSnapshot().subgroup).toBe('Frío')
+  })
 })

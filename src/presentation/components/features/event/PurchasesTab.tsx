@@ -14,6 +14,8 @@ import type { DeletePurchaseHandler } from '@/application/handlers/DeletePurchas
 import type { RecoverPurchaseHandler } from '@/application/handlers/RecoverPurchaseHandler'
 import type { RenameGroupHandler } from '@/application/handlers/RenameGroupHandler'
 import type { SetGroupOrderHandler } from '@/application/handlers/SetGroupOrderHandler'
+import type { RenameSubgroupHandler } from '@/application/handlers/RenameSubgroupHandler'
+import type { SetSubgroupOrderHandler } from '@/application/handlers/SetSubgroupOrderHandler'
 import { reportError } from '@/shared/utils/reportError'
 import { displayUnit } from '@/presentation/utils/units'
 import { PurchaseForm } from './PurchaseForm'
@@ -32,6 +34,8 @@ export function PurchasesTab() {
   const [pendingEdit, setPendingEdit] = useState<PurchaseSnapshot | null>(null)
   const [renamingGroup, setRenamingGroup] = useState<string | null>(null)
   const [groupNewName, setGroupNewName] = useState('')
+  const [renamingSubgroup, setRenamingSubgroup] = useState<{ group: string; subgroup: string } | null>(null)
+  const [subgroupNewName, setSubgroupNewName] = useState('')
   const [collapsed, setCollapsed] = useState<Set<string>>(new Set())
   const [deleteBusy, setDeleteBusy] = useState(false)
   if (!event) return null
@@ -71,16 +75,10 @@ export function PurchasesTab() {
         0,
       )
 
-  const grouped = (() => {
-    const map = new Map<string, PurchaseSnapshot[]>()
-    for (const p of visible) {
-      const key = p.group ?? ''
-      if (!map.has(key)) map.set(key, [])
-      map.get(key)!.push(p)
-    }
-    // ordered groups first, then unordered alphabetically, ungrouped ('') last
-    const order = event.groupOrder ?? []
-    const keys = [...map.keys()].sort((a, b) => {
+  // Sort keys for a grouping level: explicitly-ordered first, then the rest
+  // alphabetically, with the empty ('') bucket always last.
+  function sortByOrder(keys: string[], order: string[]): string[] {
+    return [...keys].sort((a, b) => {
       if (a === '') return 1
       if (b === '') return -1
       const ia = order.indexOf(a)
@@ -90,8 +88,36 @@ export function PurchasesTab() {
       if (ib !== -1) return 1
       return a.localeCompare(b)
     })
-    return keys.map((k) => ({ group: k, items: map.get(k)! }))
+  }
+
+  const grouped = (() => {
+    const map = new Map<string, PurchaseSnapshot[]>()
+    for (const p of visible) {
+      const key = p.group ?? ''
+      if (!map.has(key)) map.set(key, [])
+      map.get(key)!.push(p)
+    }
+    const order = event.groupOrder ?? []
+    const subOrders = event.subgroupOrder ?? {}
+    const keys = sortByOrder([...map.keys()], order)
+    return keys.map((group) => {
+      const items = map.get(group)!
+      // partition this group's items by subgroup ('' = no subgroup)
+      const subMap = new Map<string, PurchaseSnapshot[]>()
+      for (const p of items) {
+        const sk = p.subgroup ?? ''
+        if (!subMap.has(sk)) subMap.set(sk, [])
+        subMap.get(sk)!.push(p)
+      }
+      const subKeys = sortByOrder([...subMap.keys()], subOrders[group] ?? [])
+      const subgroups = subKeys.map((subgroup) => ({ subgroup, items: subMap.get(subgroup)! }))
+      return { group, items, subgroups }
+    })
   })()
+
+  // Stable collapse key for a subgroup. NUL can't occur in trimmed user input,
+  // so it can't collide with a plain group key.
+  const subCollapseKey = (group: string, subgroup: string) => `${group}\u0000${subgroup}`
 
   function assignBuyer(p: PurchaseSnapshot, assignedTo: string | null) {
     if (!event || !me) return
@@ -214,6 +240,161 @@ export function PurchasesTab() {
     })
   }
 
+  function moveSubgroup(group: string, subgroup: string, dir: -1 | 1) {
+    if (!event || !me) return
+    const groupEntry = grouped.find((g) => g.group === group)
+    if (!groupEntry) return
+    // current visual order of real subgroups in this group (excludes the no-subgroup bucket)
+    const realSubgroups = groupEntry.subgroups.map((s) => s.subgroup).filter((s) => s !== '')
+    const idx = realSubgroups.indexOf(subgroup)
+    const target = idx + dir
+    if (idx < 0 || target < 0 || target >= realSubgroups.length) return
+    const next = [...realSubgroups]
+    ;[next[idx], next[target]] = [next[target]!, next[idx]!]
+    guardedExecute(async () => {
+      try {
+        const handler = container.resolve<SetSubgroupOrderHandler>('setSubgroupOrder')
+        const result = await handler.execute({ eventId: event.id, userId: me.id, group, order: next })
+        setEvent(result.event, result.version)
+      } catch (err) {
+        reportError('PurchasesTab', err)
+      }
+    })
+  }
+
+  function submitRenameSubgroup() {
+    if (!event || !me || renamingSubgroup === null) return
+    const { group, subgroup: from } = renamingSubgroup
+    const to = subgroupNewName
+    guardedExecute(async () => {
+      try {
+        const handler = container.resolve<RenameSubgroupHandler>('renameSubgroup')
+        const result = await handler.execute({ eventId: event.id, userId: me.id, group, from, to })
+        setEvent(result.event, result.version)
+        setRenamingSubgroup(null)
+      } catch (err) {
+        reportError('PurchasesTab', err)
+      }
+    })
+  }
+
+  function renderItems(items: PurchaseSnapshot[]) {
+    return (
+      <ul className="space-y-2">
+        {items.map((p) => {
+          const hasLinks = p.kind !== 'bring' && linkedExpenses(p.id).length > 0
+          const bought = hasLinks ? boughtQty(p.id) : 0
+          const total = p.totalQuantity
+          const done = hasLinks && bought >= total
+          const struck = done || p.purchased
+          const buyerNames = hasLinks
+            ? [...new Set(linkedExpenses(p.id).map((e) => e.paidBy))]
+                .map((id) => userName(id))
+                .join(', ')
+            : ''
+          return (
+          <li
+            key={p.id}
+            className={`rounded-lg border bg-slate-900 p-3 ${
+              editing?.id === p.id ? 'border-violet-500 ring-1 ring-violet-500' : 'border-slate-800'
+            }`}
+          >
+            <div className="flex items-start justify-between gap-2">
+          <button
+            type="button"
+            onClick={() => requestEdit(p)}
+            className="flex-1 rounded text-left hover:opacity-80"
+            aria-label={t('purchases.edit')}
+          >
+            <div className={`font-medium ${struck ? 'text-slate-500 line-through' : 'text-slate-100'}`}>
+              {p.kind === 'bring' && <span title={t('purchases.form.modeBring')}>🏠 </span>}{p.item} <span className="text-xs text-slate-500">✎</span>
+            </div>
+            <div className="text-sm text-slate-400">
+              {t(p.kind === 'bring' ? 'purchases.totalToBring' : 'purchases.totalQuantity', { n: Math.round(p.totalQuantity * 100) / 100, unit: displayUnit(p.unit, t) })}
+            </div>
+            <div className="text-xs text-slate-500">
+              {t('purchases.createdBy', { name: userName(p.createdBy) })}
+              <YouLabel userId={p.createdBy} />
+            </div>
+          </button>
+          <button
+            type="button"
+            onClick={() => askDelete(p)}
+            className="rounded p-1.5 text-xs text-slate-400 hover:bg-slate-800 hover:text-rose-400"
+            aria-label={t('purchases.delete')}
+            title={t('purchases.delete')}
+          >🗑️</button>
+        </div>
+        <div className="mt-2 flex flex-wrap items-center gap-2 border-t border-slate-800 pt-2 text-xs">
+          {p.kind === 'bring' ? (
+            <label className="ml-auto flex items-center gap-1 text-slate-400">
+              {t('purchases.broughtByShort')}
+              <select
+                value={p.assignedTo ?? ''}
+                onChange={(e) => assignBringer(p, e.target.value || null)}
+                className="rounded border border-slate-700 bg-slate-900 p-1 text-slate-200"
+              >
+                <option value="">{t('purchases.unassigned')}</option>
+                {event!.users.map((u) => (
+                  <option key={u.id} value={u.id}>{u.alias ? `${u.name} (${u.alias})` : u.name}</option>
+                ))}
+              </select>
+            </label>
+          ) : hasLinks ? (
+            <div className="flex w-full flex-col gap-1.5">
+              <div className="flex items-center justify-between gap-2">
+                <span className="text-slate-300">
+                  {t('purchases.boughtProgress', {
+                    n: round2(bought),
+                    total: round2(total),
+                    unit: displayUnit(p.unit, t),
+                  })}
+                </span>
+              </div>
+              <div className="h-1.5 w-full overflow-hidden rounded-full bg-slate-800">
+                <div
+                  className="h-full rounded-full bg-violet-500"
+                  style={{ width: `${total > 0 ? Math.min(100, (bought / total) * 100) : 100}%` }}
+                />
+              </div>
+              <span className="text-slate-400">{t('purchases.boughtByMany', { names: buyerNames })}</span>
+            </div>
+          ) : (
+            <>
+              <label className="flex items-center gap-1 text-slate-400">
+                <input
+                  type="checkbox"
+                  checked={p.purchased}
+                  onChange={(e) => toggleBought(p, e.target.checked)}
+                  className="size-4 rounded border-slate-600 bg-slate-800 accent-violet-500"
+                />
+                {t('purchases.bought')}
+              </label>
+              <label className="ml-auto flex items-center gap-1 text-slate-400">
+                {t('purchases.assignedShort')}
+                <select
+                  value={p.assignedTo ?? ''}
+                  onChange={(e) => assignBuyer(p, e.target.value || null)}
+                  className="rounded border border-slate-700 bg-slate-900 p-1 text-slate-200"
+                >
+                  <option value="">{t('purchases.unassigned')}</option>
+                  {event!.users
+                    .filter((u) => u.kind === 'adult')
+                    .map((u) => (
+                      <option key={u.id} value={u.id}>{u.alias ? `${u.name} (${u.alias})` : u.name}</option>
+                    ))}
+                </select>
+              </label>
+            </>
+          )}
+            </div>
+          </li>
+          )
+        })}
+      </ul>
+    )
+  }
+
   return (
     <div className="space-y-3">
       {!adding && !editing && <Button onClick={() => setAdding(true)}>{t('purchases.add')}</Button>}
@@ -227,7 +408,7 @@ export function PurchasesTab() {
         />
       )}
       {visible.length === 0 && <p className="text-sm text-slate-400">{t('purchases.empty')}</p>}
-      {grouped.map(({ group, items }) => (
+      {grouped.map(({ group, items, subgroups }) => (
         <div key={group || '__none__'} className="space-y-2">
           {group !== '' && (
             <div className="flex items-center gap-2 px-1">
@@ -257,118 +438,34 @@ export function PurchasesTab() {
             </button>
           )}
           {!collapsed.has(group) && (
-          <ul className="space-y-2">
-            {items.map((p) => {
-              const hasLinks = p.kind !== 'bring' && linkedExpenses(p.id).length > 0
-              const bought = hasLinks ? boughtQty(p.id) : 0
-              const total = p.totalQuantity
-              const done = hasLinks && bought >= total
-              const struck = done || p.purchased
-              const buyerNames = hasLinks
-                ? [...new Set(linkedExpenses(p.id).map((e) => e.paidBy))]
-                    .map((id) => userName(id))
-                    .join(', ')
-                : ''
-              return (
-              <li
-                key={p.id}
-                className={`rounded-lg border bg-slate-900 p-3 ${
-                  editing?.id === p.id ? 'border-violet-500 ring-1 ring-violet-500' : 'border-slate-800'
-                }`}
-              >
-                <div className="flex items-start justify-between gap-2">
-              <button
-                type="button"
-                onClick={() => requestEdit(p)}
-                className="flex-1 rounded text-left hover:opacity-80"
-                aria-label={t('purchases.edit')}
-              >
-                <div className={`font-medium ${struck ? 'text-slate-500 line-through' : 'text-slate-100'}`}>
-                  {p.kind === 'bring' && <span title={t('purchases.form.modeBring')}>🏠 </span>}{p.item} <span className="text-xs text-slate-500">✎</span>
-                </div>
-                <div className="text-sm text-slate-400">
-                  {t(p.kind === 'bring' ? 'purchases.totalToBring' : 'purchases.totalQuantity', { n: Math.round(p.totalQuantity * 100) / 100, unit: displayUnit(p.unit, t) })}
-                </div>
-                <div className="text-xs text-slate-500">
-                  {t('purchases.createdBy', { name: userName(p.createdBy) })}
-                  <YouLabel userId={p.createdBy} />
-                </div>
-              </button>
-              <button
-                type="button"
-                onClick={() => askDelete(p)}
-                className="rounded p-1.5 text-xs text-slate-400 hover:bg-slate-800 hover:text-rose-400"
-                aria-label={t('purchases.delete')}
-                title={t('purchases.delete')}
-              >🗑️</button>
-            </div>
-            <div className="mt-2 flex flex-wrap items-center gap-2 border-t border-slate-800 pt-2 text-xs">
-              {p.kind === 'bring' ? (
-                <label className="ml-auto flex items-center gap-1 text-slate-400">
-                  {t('purchases.broughtByShort')}
-                  <select
-                    value={p.assignedTo ?? ''}
-                    onChange={(e) => assignBringer(p, e.target.value || null)}
-                    className="rounded border border-slate-700 bg-slate-900 p-1 text-slate-200"
-                  >
-                    <option value="">{t('purchases.unassigned')}</option>
-                    {event.users.map((u) => (
-                      <option key={u.id} value={u.id}>{u.alias ? `${u.name} (${u.alias})` : u.name}</option>
-                    ))}
-                  </select>
-                </label>
-              ) : hasLinks ? (
-                <div className="flex w-full flex-col gap-1.5">
-                  <div className="flex items-center justify-between gap-2">
-                    <span className="text-slate-300">
-                      {t('purchases.boughtProgress', {
-                        n: round2(bought),
-                        total: round2(total),
-                        unit: displayUnit(p.unit, t),
-                      })}
-                    </span>
+            <div className="space-y-2">
+              {subgroups.map(({ subgroup, items: subItems }) =>
+                subgroup === '' ? (
+                  // items with no subgroup render directly under the group
+                  <div key="__nosub__">{renderItems(subItems)}</div>
+                ) : (
+                  <div key={subgroup} className="space-y-2">
+                    <div className="flex items-center gap-2 pl-4 pr-1">
+                      <button
+                        type="button"
+                        onClick={() => toggleCollapse(subCollapseKey(group, subgroup))}
+                        className="flex flex-1 items-center gap-1.5 rounded-lg py-1.5 text-left text-[0.7rem] font-semibold uppercase tracking-wide text-violet-400/80 hover:bg-slate-800/50"
+                        aria-label={t('purchases.toggleSubgroup')}
+                      >
+                        <span className="text-xs text-slate-500">{collapsed.has(subCollapseKey(group, subgroup)) ? '▸' : '▾'}</span>
+                        {subgroup} <span className="text-slate-500">({subItems.length})</span>
+                      </button>
+                      <button type="button" onClick={() => moveSubgroup(group, subgroup, -1)} className="flex size-8 items-center justify-center rounded-lg text-sm text-slate-400 hover:bg-slate-800 hover:text-slate-200" aria-label={t('purchases.moveSubgroupUp')}>↑</button>
+                      <button type="button" onClick={() => moveSubgroup(group, subgroup, 1)} className="flex size-8 items-center justify-center rounded-lg text-sm text-slate-400 hover:bg-slate-800 hover:text-slate-200" aria-label={t('purchases.moveSubgroupDown')}>↓</button>
+                      <button type="button" onClick={() => { setRenamingSubgroup({ group, subgroup }); setSubgroupNewName(subgroup) }} className="flex size-8 items-center justify-center rounded-lg text-sm text-slate-400 hover:bg-slate-800 hover:text-slate-200" aria-label={t('purchases.renameSubgroup')}>✎</button>
+                    </div>
+                    {!collapsed.has(subCollapseKey(group, subgroup)) && (
+                      <div className="pl-4">{renderItems(subItems)}</div>
+                    )}
                   </div>
-                  <div className="h-1.5 w-full overflow-hidden rounded-full bg-slate-800">
-                    <div
-                      className="h-full rounded-full bg-violet-500"
-                      style={{ width: `${total > 0 ? Math.min(100, (bought / total) * 100) : 100}%` }}
-                    />
-                  </div>
-                  <span className="text-slate-400">{t('purchases.boughtByMany', { names: buyerNames })}</span>
-                </div>
-              ) : (
-                <>
-                  <label className="flex items-center gap-1 text-slate-400">
-                    <input
-                      type="checkbox"
-                      checked={p.purchased}
-                      onChange={(e) => toggleBought(p, e.target.checked)}
-                      className="size-4 rounded border-slate-600 bg-slate-800 accent-violet-500"
-                    />
-                    {t('purchases.bought')}
-                  </label>
-                  <label className="ml-auto flex items-center gap-1 text-slate-400">
-                    {t('purchases.assignedShort')}
-                    <select
-                      value={p.assignedTo ?? ''}
-                      onChange={(e) => assignBuyer(p, e.target.value || null)}
-                      className="rounded border border-slate-700 bg-slate-900 p-1 text-slate-200"
-                    >
-                      <option value="">{t('purchases.unassigned')}</option>
-                      {event.users
-                        .filter((u) => u.kind === 'adult')
-                        .map((u) => (
-                          <option key={u.id} value={u.id}>{u.alias ? `${u.name} (${u.alias})` : u.name}</option>
-                        ))}
-                    </select>
-                  </label>
-                </>
+                ),
               )}
-                </div>
-              </li>
-              )
-            })}
-          </ul>
+            </div>
           )}
         </div>
       ))}
@@ -431,6 +528,18 @@ export function PurchasesTab() {
             <div className="flex gap-2">
               <Button type="button" variant="secondary" onClick={() => setRenamingGroup(null)}>{t('common.cancel')}</Button>
               <Button type="button" onClick={submitRename}>{t('common.save')}</Button>
+            </div>
+          </div>
+        </Modal>
+      )}
+      {renamingSubgroup !== null && (
+        <Modal open title={t('purchases.renameSubgroupTitle')} dismissable onClose={() => setRenamingSubgroup(null)}>
+          <div className="space-y-3">
+            <Input value={subgroupNewName} onChange={(e) => setSubgroupNewName(e.target.value)} maxLength={50} placeholder={t('purchases.form.subgroupPlaceholder')} autoFocus />
+            <p className="text-xs text-slate-500">{t('purchases.renameSubgroupHint')}</p>
+            <div className="flex gap-2">
+              <Button type="button" variant="secondary" onClick={() => setRenamingSubgroup(null)}>{t('common.cancel')}</Button>
+              <Button type="button" onClick={submitRenameSubgroup}>{t('common.save')}</Button>
             </div>
           </div>
         </Modal>

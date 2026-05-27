@@ -34,6 +34,7 @@ export class AddPurchaseHandler {
         days: parsed.days,
         assignedTo: parsed.assignedTo ?? null,
         group: parsed.group ?? null,
+        subgroup: parsed.subgroup ?? null,
       })
 
       const creatorDisplay =

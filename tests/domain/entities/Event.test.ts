@@ -305,4 +305,71 @@ describe('Event', () => {
     const e = Event.create({ name: 'Trip', creator: User.create({ name: 'John' }) })
     expect(e.toSnapshot().groupOrder).toEqual([])
   })
+
+  it('Event.create starts with empty subgroupOrder', () => {
+    const e = Event.create({ name: 'Trip', creator: User.create({ name: 'John' }) })
+    expect(e.toSnapshot().subgroupOrder).toEqual({})
+  })
+
+  it('renameGroup carries subgroupOrder to the new group name', () => {
+    const creator = User.create({ name: 'John' })
+    let e = Event.create({ name: 'Trip', creator })
+    const snap = e.toSnapshot()
+    snap.purchases.push({
+      id: '01900000-0000-7000-8000-0000000000a1', createdBy: creator.id.value,
+      item: 'Bread', quantity: 1, unit: 'units', dailyConsumption: 1,
+      totalQuantity: 1, consumers: [{ userId: creator.id.value, multiplier: 1 }],
+      deleted: false, deletedBy: null, deletedAt: null, deleteReason: null,
+      createdAt: '2026-01-01T00:00:00Z', assignedTo: null, purchased: false, boughtQuantity: 0,
+      group: 'Cena', subgroup: 'Entrantes',
+    } as never)
+    snap.groupOrder = ['Cena']
+    snap.subgroupOrder = { Cena: ['Entrantes'] }
+    e = Event.restore(snap)
+    const renamed = e.renameGroup({ userId: creator.id.value, from: 'Cena', to: 'Cena sábado' })
+    const out = renamed.toSnapshot()
+    expect(out.subgroupOrder['Cena']).toBeUndefined()
+    expect(out.subgroupOrder['Cena sábado']).toEqual(['Entrantes'])
+  })
+
+  it('renameSubgroup renames the subgroup across its purchases and order', () => {
+    const creator = User.create({ name: 'John' })
+    let e = Event.create({ name: 'Trip', creator })
+    const snap = e.toSnapshot()
+    snap.purchases.push({
+      id: '01900000-0000-7000-8000-0000000000b1', createdBy: creator.id.value,
+      item: 'Bread', quantity: 1, unit: 'units', dailyConsumption: 1,
+      totalQuantity: 1, consumers: [{ userId: creator.id.value, multiplier: 1 }],
+      deleted: false, deletedBy: null, deletedAt: null, deleteReason: null,
+      createdAt: '2026-01-01T00:00:00Z', assignedTo: null, purchased: false, boughtQuantity: 0,
+      group: 'Cena', subgroup: 'Entrantes',
+    } as never)
+    snap.subgroupOrder = { Cena: ['Entrantes'] }
+    e = Event.restore(snap)
+    const renamed = e.renameSubgroup({ userId: creator.id.value, group: 'Cena', from: 'Entrantes', to: 'Aperitivos' })
+    const out = renamed.toSnapshot()
+    expect(out.purchases[0]!.subgroup).toBe('Aperitivos')
+    expect(out.subgroupOrder['Cena']).toEqual(['Aperitivos'])
+  })
+
+  it('renameSubgroup rejects unknown user', () => {
+    const e = Event.create({ name: 'Trip', creator: User.create({ name: 'John' }) })
+    expect(() =>
+      e.renameSubgroup({ userId: '00000000-0000-7000-8000-000000000000', group: 'Cena', from: 'X', to: 'Y' }),
+    ).toThrow(/not in event/i)
+  })
+
+  it('setSubgroupOrder stores the order under its group', () => {
+    const creator = User.create({ name: 'John' })
+    const e = Event.create({ name: 'Trip', creator })
+    const next = e.setSubgroupOrder({ userId: creator.id.value, group: 'Cena', order: ['B', 'A'] })
+    expect(next.toSnapshot().subgroupOrder['Cena']).toEqual(['B', 'A'])
+  })
+
+  it('setSubgroupOrder rejects unknown user', () => {
+    const e = Event.create({ name: 'Trip', creator: User.create({ name: 'John' }) })
+    expect(() =>
+      e.setSubgroupOrder({ userId: '00000000-0000-7000-8000-000000000000', group: 'Cena', order: ['A'] }),
+    ).toThrow(/not in event/i)
+  })
 })

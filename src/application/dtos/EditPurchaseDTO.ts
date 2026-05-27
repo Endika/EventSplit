@@ -15,6 +15,7 @@ export const EditPurchaseSchema = z.object({
   days: z.number().int().positive(),
   assignedTo: z.string().uuid().nullable().optional(),
   group: z.string().trim().max(50).nullable().optional(),
+  subgroup: z.string().trim().max(50).nullable().optional(),
 })
 
 export type EditPurchaseInput = z.infer<typeof EditPurchaseSchema>

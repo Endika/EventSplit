@@ -77,6 +77,7 @@ export interface EventSnapshot {
   days: string[]
   purchases: PurchaseSnapshot[]
   groupOrder: string[]
+  subgroupOrder: Record<string, string[]>
   expenses: ExpenseSnapshot[]
   editPin: string | null
   stage: EventStage
@@ -117,6 +118,7 @@ export class Event {
       days: [],
       purchases: [],
       groupOrder: [],
+      subgroupOrder: {},
       expenses: [],
       editPin: null,
       stage: 'doodle',
@@ -160,9 +162,11 @@ export class Event {
           boughtQuantity:
             (p as { boughtQuantity?: number }).boughtQuantity ?? (purchased ? p.totalQuantity : 0),
           group: p.group ?? null,
+          subgroup: p.subgroup ?? null,
         }
       }),
       groupOrder: s.groupOrder ?? [],
+      subgroupOrder: s.subgroupOrder ?? {},
       expenses: (s.expenses ?? []).map((e) => ({
         ...e,
         splitAmong: e.splitAmong ?? [],
@@ -395,10 +399,18 @@ export class Event {
       .map((g) => (g === input.from ? (toValue ?? '') : g))
       .filter((g) => g !== '')
     const dedupedOrder = [...new Set(groupOrder)]
+    // carry the renamed group's subgroup order under its new name (drop if cleared)
+    const subgroupOrder = { ...this.s.subgroupOrder }
+    if (input.from in subgroupOrder) {
+      const moved = subgroupOrder[input.from]!
+      delete subgroupOrder[input.from]
+      if (toValue !== null) subgroupOrder[toValue] = moved
+    }
     const nextSnapshot: EventSnapshot = {
       ...this.s,
       purchases,
       groupOrder: dedupedOrder,
+      subgroupOrder,
       updatedAt: now,
       history: [
         ...this.s.history,
@@ -441,6 +453,70 @@ export class Event {
     return new Event(this.id, nextSnapshot)
   }
 
+  renameSubgroup(input: { userId: string; group: string; from: string; to: string }): Event {
+    if (!this.s.users.some((u) => u.id === input.userId))
+      throw new Error('Event: user not in event')
+    const to = input.to.trim().slice(0, 50)
+    const toValue = to === '' ? null : to
+    const now = new Date().toISOString()
+    const nextVersion = (this.s.history.at(-1)?.version ?? 0) + 1
+    const userName = this.s.users.find((u) => u.id === input.userId)?.name ?? 'Someone'
+    const purchases = this.s.purchases.map((p) =>
+      p.group === input.group && p.subgroup === input.from ? { ...p, subgroup: toValue } : p,
+    )
+    // update this group's subgroup order: replace 'from' (or drop if cleared/duplicate)
+    const current = this.s.subgroupOrder[input.group] ?? []
+    const remapped = current
+      .map((s) => (s === input.from ? (toValue ?? '') : s))
+      .filter((s) => s !== '')
+    const subgroupOrder = { ...this.s.subgroupOrder, [input.group]: [...new Set(remapped)] }
+    const nextSnapshot: EventSnapshot = {
+      ...this.s,
+      purchases,
+      subgroupOrder,
+      updatedAt: now,
+      history: [
+        ...this.s.history,
+        {
+          id: crypto.randomUUID(),
+          version: nextVersion,
+          timestamp: now,
+          type: 'purchase_edited',
+          userId: input.userId,
+          description: `${userName} renamed subgroup "${input.from}" to "${toValue ?? '—'}" in group "${input.group}"`,
+        },
+      ],
+    }
+    return new Event(this.id, nextSnapshot)
+  }
+
+  setSubgroupOrder(input: { userId: string; group: string; order: string[] }): Event {
+    if (!this.s.users.some((u) => u.id === input.userId))
+      throw new Error('Event: user not in event')
+    const order = [...new Set(input.order.filter((s) => s.trim() !== ''))]
+    const now = new Date().toISOString()
+    const nextVersion = (this.s.history.at(-1)?.version ?? 0) + 1
+    const userName = this.s.users.find((u) => u.id === input.userId)?.name ?? 'Someone'
+    const subgroupOrder = { ...this.s.subgroupOrder, [input.group]: order }
+    const nextSnapshot: EventSnapshot = {
+      ...this.s,
+      subgroupOrder,
+      updatedAt: now,
+      history: [
+        ...this.s.history,
+        {
+          id: crypto.randomUUID(),
+          version: nextVersion,
+          timestamp: now,
+          type: 'purchase_edited',
+          userId: input.userId,
+          description: `${userName} reordered subgroups in group "${input.group}"`,
+        },
+      ],
+    }
+    return new Event(this.id, nextSnapshot)
+  }
+
   get name(): string { return this.s.name }
   get users(): UserSnapshot[] { return this.s.users }
 
@@ -450,6 +526,9 @@ export class Event {
       users: this.s.users.map((u) => ({ ...u })),
       purchases: this.s.purchases.map((p) => ({ ...p, consumers: [...p.consumers] })),
       groupOrder: [...this.s.groupOrder],
+      subgroupOrder: Object.fromEntries(
+        Object.entries(this.s.subgroupOrder).map(([k, v]) => [k, [...v]]),
+      ),
       expenses: this.s.expenses.map((e) => ({ ...e, splitAmong: [...e.splitAmong] })),
       settledTransfers: this.s.settledTransfers.map((s) => ({ ...s })),
       history: this.s.history.map((h) => ({ ...h })),

@@ -3,7 +3,7 @@ import type { EventSnapshot } from '@/domain/entities/Event'
 import { Purchase } from '@/domain/entities/Purchase'
 import { HistoryAppender } from '@/domain/services/HistoryAppender'
 import { capTrash } from '@/domain/services/capTrash'
-import { pruneGroupOrder } from '@/domain/services/pruneGroupOrder'
+import { pruneGroupOrder, pruneSubgroupOrder } from '@/domain/services/pruneGroupOrder'
 import type { IEventRepository } from '@/domain/repositories/IEventRepository'
 import { withOptimisticRetry } from '@/application/support/withOptimisticRetry'
 
@@ -33,6 +33,7 @@ export class DeletePurchaseHandler {
           ...row.snapshot,
           purchases: newPurchases,
           groupOrder: pruneGroupOrder(newPurchases, row.snapshot.groupOrder),
+          subgroupOrder: pruneSubgroupOrder(newPurchases, row.snapshot.subgroupOrder),
         },
         {
           type: 'purchase_deleted',

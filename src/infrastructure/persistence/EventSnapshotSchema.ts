@@ -46,6 +46,7 @@ const PurchaseSchema = z.object({
   purchased: z.boolean().default(false),
   boughtQuantity: z.number().default(0),
   group: z.string().nullable().default(null),
+  subgroup: z.string().nullable().default(null),
 })
 
 const ExpenseSchema = z.object({
@@ -100,6 +101,7 @@ export const EventSnapshotSchema = z.object({
   days: z.array(z.string()).default([]),
   purchases: z.array(PurchaseSchema).default([]),
   groupOrder: z.array(z.string()).default([]),
+  subgroupOrder: z.record(z.string(), z.array(z.string())).default({}),
   expenses: z.array(ExpenseSchema).default([]),
   editPin: z.string().nullable().default(null),
   stage: z.enum(EVENT_STAGES).default('doodle'),

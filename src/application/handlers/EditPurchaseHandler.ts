@@ -2,7 +2,7 @@ import { EditPurchaseSchema, type EditPurchaseInput } from '@/application/dtos/E
 import type { EventSnapshot } from '@/domain/entities/Event'
 import { Purchase } from '@/domain/entities/Purchase'
 import { HistoryAppender } from '@/domain/services/HistoryAppender'
-import { pruneGroupOrder } from '@/domain/services/pruneGroupOrder'
+import { pruneGroupOrder, pruneSubgroupOrder } from '@/domain/services/pruneGroupOrder'
 import type { IEventRepository } from '@/domain/repositories/IEventRepository'
 import { withOptimisticRetry } from '@/application/support/withOptimisticRetry'
 
@@ -33,6 +33,7 @@ export class EditPurchaseHandler {
         days: parsed.days,
         assignedTo: parsed.assignedTo ?? existing.assignedTo ?? null,
         group: parsed.group ?? existing.group ?? null,
+        subgroup: parsed.subgroup ?? existing.subgroup ?? null,
       })
 
       const editorName =
@@ -45,6 +46,7 @@ export class EditPurchaseHandler {
           ...row.snapshot,
           purchases: newPurchases,
           groupOrder: pruneGroupOrder(newPurchases, row.snapshot.groupOrder),
+          subgroupOrder: pruneSubgroupOrder(newPurchases, row.snapshot.subgroupOrder),
         },
         {
           type: 'purchase_edited',

@@ -8,6 +8,7 @@ export const EditBroughtItemSchema = z.object({
   quantity: z.number().positive().max(10_000),
   unit: z.string().trim().min(1).max(30),
   group: z.string().trim().max(50).nullable().optional(),
+  subgroup: z.string().trim().max(50).nullable().optional(),
   broughtBy: z.string().uuid().nullable().optional(),
 })
 

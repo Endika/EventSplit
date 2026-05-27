@@ -29,6 +29,8 @@ import { SetEventStageHandler } from '@/application/handlers/SetEventStageHandle
 import { ToggleSettlementHandler } from '@/application/handlers/ToggleSettlementHandler'
 import { RenameGroupHandler } from '@/application/handlers/RenameGroupHandler'
 import { SetGroupOrderHandler } from '@/application/handlers/SetGroupOrderHandler'
+import { RenameSubgroupHandler } from '@/application/handlers/RenameSubgroupHandler'
+import { SetSubgroupOrderHandler } from '@/application/handlers/SetSubgroupOrderHandler'
 import { RefreshEventHandler } from '@/application/handlers/RefreshEventHandler'
 import type { IEventRepository } from '@/domain/repositories/IEventRepository'
 import type { IEventChangeNotifier } from '@/domain/ports/IEventChangeNotifier'
@@ -76,5 +78,7 @@ export function buildContainer(): Container {
   c.register('toggleSettlement', () => new ToggleSettlementHandler(c.resolve('eventRepo')))
   c.register('renameGroup', () => new RenameGroupHandler(c.resolve('eventRepo')))
   c.register('setGroupOrder', () => new SetGroupOrderHandler(c.resolve('eventRepo')))
+  c.register('renameSubgroup', () => new RenameSubgroupHandler(c.resolve('eventRepo')))
+  c.register('setSubgroupOrder', () => new SetSubgroupOrderHandler(c.resolve('eventRepo')))
   return c
 }

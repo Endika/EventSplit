@@ -74,6 +74,7 @@ export function PurchaseForm({
   })
   const [assignedTo, setAssignedTo] = useState<string | null>(purchase?.assignedTo ?? null)
   const [group, setGroup] = useState(purchase?.group ?? '')
+  const [subgroup, setSubgroup] = useState(purchase?.subgroup ?? '')
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [pendingMatches, setPendingMatches] = useState<AllergyMatch[] | null>(null)
@@ -85,7 +86,7 @@ export function PurchaseForm({
   }, [])
 
   const currentSnapshot = JSON.stringify({
-    mode, item, quantity, unit, dailyStr, days, consumers, assignedTo, group, bringQtyStr, broughtBy, singleQtyStr,
+    mode, item, quantity, unit, dailyStr, days, consumers, assignedTo, group, subgroup, bringQtyStr, broughtBy, singleQtyStr,
   })
   const [initialSnapshot] = useState(currentSnapshot)
   const isDirty = initialSnapshot !== currentSnapshot
@@ -99,6 +100,15 @@ export function PurchaseForm({
   const existingGroups = [
     ...new Set(
       event.purchases.filter((p) => !p.deleted && p.group).map((p) => p.group as string),
+    ),
+  ].sort()
+
+  const currentGroup = group.trim()
+  const existingSubgroups = [
+    ...new Set(
+      event.purchases
+        .filter((p) => !p.deleted && p.group === currentGroup && p.subgroup)
+        .map((p) => p.subgroup as string),
     ),
   ].sort()
 
@@ -166,6 +176,7 @@ export function PurchaseForm({
               quantity: qty,
               unit,
               group: group.trim() || null,
+              subgroup: subgroup.trim() || null,
               broughtBy,
             })
             setEvent(result.event, result.version)
@@ -178,6 +189,7 @@ export function PurchaseForm({
               quantity: qty,
               unit,
               group: group.trim() || null,
+              subgroup: subgroup.trim() || null,
               broughtBy,
             })
             setEvent(result.event, result.version)
@@ -216,6 +228,7 @@ export function PurchaseForm({
             days: buyDays,
             assignedTo: purchase.assignedTo ?? null,
             group: group.trim() || null,
+            subgroup: subgroup.trim() || null,
           })
           setEvent(result.event, result.version)
         } else {
@@ -231,6 +244,7 @@ export function PurchaseForm({
             days: buyDays,
             assignedTo,
             group: group.trim() || null,
+            subgroup: subgroup.trim() || null,
           })
           setEvent(result.event, result.version)
         }
@@ -317,6 +331,22 @@ export function PurchaseForm({
           <datalist id="group-suggestions">
             {existingGroups.map((g) => (
               <option key={g} value={g} />
+            ))}
+          </datalist>
+        </label>
+        <label className="block text-sm text-slate-300">
+          {t('purchases.form.subgroup')}
+          <input
+            className="mt-1 block w-full rounded-lg border border-slate-700 bg-slate-900 px-3 py-2 text-sm text-slate-100 placeholder-slate-500 focus:border-violet-500 focus:outline-none focus:ring-1 focus:ring-violet-500"
+            list="subgroup-suggestions"
+            value={subgroup}
+            onChange={(e) => setSubgroup(e.target.value)}
+            maxLength={50}
+            placeholder={t('purchases.form.subgroupPlaceholder')}
+          />
+          <datalist id="subgroup-suggestions">
+            {existingSubgroups.map((s) => (
+              <option key={s} value={s} />
             ))}
           </datalist>
         </label>

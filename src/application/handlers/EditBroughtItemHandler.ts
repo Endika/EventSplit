@@ -2,7 +2,7 @@ import { EditBroughtItemSchema, type EditBroughtItemInput } from '@/application/
 import type { EventSnapshot } from '@/domain/entities/Event'
 import { Purchase } from '@/domain/entities/Purchase'
 import { HistoryAppender } from '@/domain/services/HistoryAppender'
-import { pruneGroupOrder } from '@/domain/services/pruneGroupOrder'
+import { pruneGroupOrder, pruneSubgroupOrder } from '@/domain/services/pruneGroupOrder'
 import type { IEventRepository } from '@/domain/repositories/IEventRepository'
 import { withOptimisticRetry } from '@/application/support/withOptimisticRetry'
 
@@ -28,6 +28,7 @@ export class EditBroughtItemHandler {
         quantity: parsed.quantity,
         unit: parsed.unit,
         group: parsed.group ?? null,
+        subgroup: parsed.subgroup ?? null,
         broughtBy: parsed.broughtBy ?? null,
       })
 
@@ -41,6 +42,7 @@ export class EditBroughtItemHandler {
           ...row.snapshot,
           purchases: newPurchases,
           groupOrder: pruneGroupOrder(newPurchases, row.snapshot.groupOrder),
+          subgroupOrder: pruneSubgroupOrder(newPurchases, row.snapshot.subgroupOrder),
         },
         {
           type: 'purchase_edited',
