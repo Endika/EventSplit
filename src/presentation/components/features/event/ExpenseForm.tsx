@@ -256,6 +256,9 @@ export function ExpenseForm({
               const checked = p.id in links
               const remaining = Math.max(1, p.totalQuantity - boughtByOthers(p.id))
               const unit = displayUnit(p.unit, t)
+              const assignee = p.assignedTo
+                ? (event.users.find((u) => u.id === p.assignedTo) ?? null)
+                : null
               return (
                 <li key={p.id} className="flex flex-wrap items-center gap-2 text-sm">
                   <label className="flex flex-1 items-center gap-2">
@@ -277,6 +280,14 @@ export function ExpenseForm({
                       <span className="text-slate-500">
                         — {Math.round(p.totalQuantity * 100) / 100} {unit}
                       </span>
+                      {assignee && (
+                        <span
+                          className="ml-1 whitespace-nowrap text-xs text-violet-300"
+                          title={t('purchases.form.assignedTo')}
+                        >
+                          🛒 {assignee.alias ? `${assignee.name} (${assignee.alias})` : assignee.name}
+                        </span>
+                      )}
                     </span>
                   </label>
                   {checked && (
