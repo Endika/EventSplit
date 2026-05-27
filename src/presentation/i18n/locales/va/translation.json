@@ -219,6 +219,9 @@
         "cans": "llandes",
         "kg": "kg",
         "liters": "litres",
+        "grams": "grams",
+        "bag": "bosses",
+        "tray": "safates",
         "single": "Unitat única"
       },
       "unitPlaceholder": "ex. botelles, garrafa 8L",

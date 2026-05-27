@@ -219,6 +219,9 @@
         "cans": "latas",
         "kg": "kg",
         "liters": "litros",
+        "grams": "gramos",
+        "bag": "bolsas",
+        "tray": "bandejas",
         "single": "Unidad única"
       },
       "unitPlaceholder": "ej. botellas, garrafa 8L",

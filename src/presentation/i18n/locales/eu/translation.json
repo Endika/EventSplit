@@ -219,6 +219,9 @@
         "cans": "latak",
         "kg": "kg",
         "liters": "litroak",
+        "grams": "gramoak",
+        "bag": "poltsak",
+        "tray": "erretiluak",
         "single": "Unitate bakarra"
       },
       "unitPlaceholder": "adib. botilak, garrafa 8L",
