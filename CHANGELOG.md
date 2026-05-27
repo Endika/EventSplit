@@ -1,5 +1,14 @@
 # Changelog
 
+## [2.1.1](https://github.com/Endika/EventSplit/compare/v2.1.0...v2.1.1) (2026-05-27)
+
+
+### Refactor
+
+* **application:** extract withOptimisticRetry helper ([2d92002](https://github.com/Endika/EventSplit/commit/2d92002403ca33a546f6f839c3666ca21ee9a67f))
+* **presentation:** drop cache writes superseded by setEvent ([58bae03](https://github.com/Endika/EventSplit/commit/58bae03afa5961bd7ef3026e89fd7e0810ab0b62))
+* remove dead SetAvailabilityHandler and parse casts ([390bf85](https://github.com/Endika/EventSplit/commit/390bf8511313dfe912a7b857fffe68767f6853a8))
+
 ## [2.1.0](https://github.com/Endika/EventSplit/compare/v2.0.0...v2.1.0) (2026-05-27)
 
 
