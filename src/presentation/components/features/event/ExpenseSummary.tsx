@@ -38,19 +38,21 @@ export function ExpenseSummary() {
 
   const result = ExpenseSplitter.compute({
     participantIds: event.users.map((u) => u.id),
-    expenses: event.expenses.filter((e) => !e.deleted).map((e) => ({
-      paidBy: e.paidBy,
-      amount: Money.fromCents(e.cents),
-      splitAmong: e.splitAmong,
-    })),
+    expenses: event.expenses
+      .filter((e) => !e.deleted)
+      .map((e) => ({
+        paidBy: e.paidBy,
+        amount: Money.fromCents(e.cents),
+        splitAmong: e.splitAmong,
+      })),
   })
   const nameOf = (id: string) => event.users.find((u) => u.id === id)?.name ?? '?'
 
   return (
     <div className="space-y-4 rounded-lg border border-slate-800 bg-slate-900 p-4">
       <div className="text-sm text-slate-300">
-        {t('expenses.summary.total')}: <strong className="text-slate-100">€{fmt(result.totalCents)}</strong> ·{' '}
-        {t('expenses.summary.perPerson')}: <strong className="text-slate-100">€{fmt(result.perPersonCents)}</strong>
+        {t('expenses.summary.total')}:{' '}
+        <strong className="text-slate-100">€{fmt(result.totalCents)}</strong>
       </div>
       <table className="w-full text-sm">
         <thead className="text-left text-xs uppercase text-slate-500">
@@ -72,11 +74,7 @@ export function ExpenseSummary() {
                 <td className="py-1">€{fmt(b.spentCents)}</td>
                 <td
                   className={`py-1 ${
-                    b.balanceCents > 0
-                      ? 'text-teal-400'
-                      : b.balanceCents < 0
-                        ? 'text-rose-400'
-                        : ''
+                    b.balanceCents > 0 ? 'text-teal-400' : b.balanceCents < 0 ? 'text-rose-400' : ''
                   }`}
                 >
                   {b.balanceCents > 0 ? '+' : ''}€{fmt(b.balanceCents)}
