@@ -477,7 +477,7 @@ export function PurchaseForm({
                       value={m}
                       onChange={(e) => setMultiplier(u.id, parseFloat(e.target.value))}
                     >
-                      {[0.5, 1, 1.5, 2, 3, 4, 5].map((v) => (
+                      {[0.25, 0.5, 0.75, 1, 1.25, 1.5, 1.75, 2, 3, 4, 5].map((v) => (
                         <option key={v} value={v}>×{v}</option>
                       ))}
                     </select>
