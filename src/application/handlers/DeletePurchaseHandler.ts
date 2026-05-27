@@ -2,6 +2,7 @@ import { DeletePurchaseSchema, type DeletePurchaseInput } from '@/application/dt
 import type { EventSnapshot } from '@/domain/entities/Event'
 import { Purchase } from '@/domain/entities/Purchase'
 import { HistoryAppender } from '@/domain/services/HistoryAppender'
+import { capTrash } from '@/domain/services/capTrash'
 import { pruneGroupOrder } from '@/domain/services/pruneGroupOrder'
 import { type IEventRepository, VersionConflictError } from '@/domain/repositories/IEventRepository'
 
@@ -25,8 +26,10 @@ export class DeletePurchaseHandler {
         reason: parsed.reason ?? null,
       })
       const editorName = row.snapshot.users.find((u) => u.id === parsed.deletedBy)?.name ?? 'Someone'
-      const newPurchases = row.snapshot.purchases.map((p) =>
-        p.id === parsed.purchaseId ? deleted.toSnapshot() : p,
+      const newPurchases = capTrash(
+        row.snapshot.purchases.map((p) =>
+          p.id === parsed.purchaseId ? deleted.toSnapshot() : p,
+        ),
       )
       const nextSnapshot: EventSnapshot = HistoryAppender.append(
         {

@@ -2,6 +2,7 @@ import { DeleteExpenseSchema, type DeleteExpenseInput } from '@/application/dtos
 import type { EventSnapshot } from '@/domain/entities/Event'
 import { Expense } from '@/domain/entities/Expense'
 import { HistoryAppender } from '@/domain/services/HistoryAppender'
+import { capTrash } from '@/domain/services/capTrash'
 import { type IEventRepository, VersionConflictError } from '@/domain/repositories/IEventRepository'
 
 const MAX_RETRIES = 3
@@ -24,8 +25,10 @@ export class DeleteExpenseHandler {
       const nextSnapshot: EventSnapshot = HistoryAppender.append(
         {
           ...row.snapshot,
-          expenses: row.snapshot.expenses.map((e) =>
-            e.id === parsed.expenseId ? deleted.toSnapshot() : e,
+          expenses: capTrash(
+            row.snapshot.expenses.map((e) =>
+              e.id === parsed.expenseId ? deleted.toSnapshot() : e,
+            ),
           ),
         },
         {

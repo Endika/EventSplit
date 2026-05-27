@@ -50,4 +50,28 @@ describe('DeleteExpenseHandler', () => {
       }),
     ).rejects.toThrow(/not in event/i)
   })
+
+  it('caps the trash at 5 deleted expenses, never touching live ones', async () => {
+    const repo = new InMemoryEventRepository()
+    const create = await new CreateEventHandler(repo).execute({ name: 'Trip', creatorName: 'John' })
+    const ids: string[] = []
+    for (let i = 0; i < 8; i++) {
+      const added = await new AddExpenseHandler(repo).execute({
+        eventId: create.event.id, paidBy: create.creator.id,
+        amountEuros: 10, description: `Expense ${i}`,
+      })
+      ids.push(added.event.expenses.at(-1)!.id)
+    }
+    // Delete 6 of the 8 expenses, leaving the first two alive.
+    let result
+    for (const id of ids.slice(2)) {
+      result = await new DeleteExpenseHandler(repo).execute({
+        eventId: create.event.id, expenseId: id, deletedBy: create.creator.id,
+      })
+    }
+    const deleted = result!.event.expenses.filter((e) => e.deleted)
+    const alive = result!.event.expenses.filter((e) => !e.deleted)
+    expect(deleted).toHaveLength(5)
+    expect(alive.map((e) => e.id).sort()).toEqual(ids.slice(0, 2).sort())
+  })
 })
