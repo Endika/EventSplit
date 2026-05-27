@@ -45,6 +45,13 @@ export function capHistory(entries: HistoryEntry[]): HistoryEntry[] {
   return entries.length > MAX_HISTORY_ENTRIES ? entries.slice(-MAX_HISTORY_ENTRIES) : entries
 }
 
+/**
+ * Max soft-deleted items kept per list (purchases, expenses). The trash never
+ * empties on its own and rides along in every Realtime payload, so it is the
+ * last unbounded growth vector in the snapshot — cap it low.
+ */
+export const MAX_TRASH_ENTRIES = 5
+
 export interface EventLocation {
   name: string
   address: string | null

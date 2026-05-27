@@ -45,6 +45,31 @@ describe('DeletePurchaseHandler', () => {
     ).rejects.toThrow(/not in event/i)
   })
 
+  it('caps the trash at 5 deleted purchases, never touching live ones', async () => {
+    const repo = new InMemoryEventRepository()
+    const create = await new CreateEventHandler(repo).execute({ name: 'Trip', creatorName: 'John' })
+    const ids: string[] = []
+    for (let i = 0; i < 8; i++) {
+      const added = await new AddPurchaseHandler(repo).execute({
+        eventId: create.event.id, createdBy: create.creator.id,
+        item: `Item ${i}`, quantity: 1, unit: 'units', dailyConsumption: 1,
+        consumers: [{ userId: create.creator.id, multiplier: 1 }], days: 1,
+      })
+      ids.push(added.event.purchases.at(-1)!.id)
+    }
+    // Delete 6 of the 8 purchases, leaving the first two alive.
+    let result
+    for (const id of ids.slice(2)) {
+      result = await new DeletePurchaseHandler(repo).execute({
+        eventId: create.event.id, purchaseId: id, deletedBy: create.creator.id,
+      })
+    }
+    const deleted = result!.event.purchases.filter((p) => p.deleted)
+    const alive = result!.event.purchases.filter((p) => !p.deleted)
+    expect(deleted).toHaveLength(5)
+    expect(alive.map((p) => p.id).sort()).toEqual(ids.slice(0, 2).sort())
+  })
+
   it('prunes a group from the order when its last item is deleted', async () => {
     const repo = new InMemoryEventRepository()
     const create = await new CreateEventHandler(repo).execute({ name: 'Trip', creatorName: 'John' })
