@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.4.0](https://github.com/Endika/EventSplit/compare/v2.3.0...v2.4.0) (2026-05-27)
+
+
+### Features
+
+* **purchases:** two-level groups with reorderable subgroups ([458b366](https://github.com/Endika/EventSplit/commit/458b36693aebe2c76c596428dcaafeb78796f336))
+
 ## [2.3.0](https://github.com/Endika/EventSplit/compare/v2.2.0...v2.3.0) (2026-05-27)
 
 
