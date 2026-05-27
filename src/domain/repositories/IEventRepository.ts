@@ -13,6 +13,8 @@ export class VersionConflictError extends Error {
 
 export interface IEventRepository {
   findById(id: string): Promise<{ snapshot: EventSnapshot; version: number } | null>
+  /** Cheap version probe: avoids downloading the full snapshot when nothing changed. */
+  getVersion(id: string): Promise<number | null>
   create(snapshot: EventSnapshot): Promise<SaveResult>
   update(
     id: string,

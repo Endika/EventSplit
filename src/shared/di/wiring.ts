@@ -1,6 +1,7 @@
 import { Container } from '@/shared/di/Container'
 import { getSupabase } from '@/infrastructure/sync/SupabaseClient'
 import { SupabaseEventRepository } from '@/infrastructure/persistence/SupabaseEventRepository'
+import { NotifyingEventRepository } from '@/infrastructure/persistence/NotifyingEventRepository'
 import { LocalStorageCache } from '@/infrastructure/persistence/LocalStorageCache'
 import { RealtimeSync } from '@/infrastructure/sync/RealtimeSync'
 import { OnlineDetector } from '@/infrastructure/network/OnlineDetector'
@@ -12,7 +13,6 @@ import { EditBroughtItemHandler } from '@/application/handlers/EditBroughtItemHa
 import { AddExpenseHandler } from '@/application/handlers/AddExpenseHandler'
 import { EditExpenseHandler } from '@/application/handlers/EditExpenseHandler'
 import { DeleteExpenseHandler } from '@/application/handlers/DeleteExpenseHandler'
-import { SyncEventHandler } from '@/application/handlers/SyncEventHandler'
 import { UpdateProfileHandler } from '@/application/handlers/UpdateProfileHandler'
 import { SetEventDaysHandler } from '@/application/handlers/SetEventDaysHandler'
 import { SetAvailabilityHandler } from '@/application/handlers/SetAvailabilityHandler'
@@ -30,14 +30,23 @@ import { SetEventStageHandler } from '@/application/handlers/SetEventStageHandle
 import { ToggleSettlementHandler } from '@/application/handlers/ToggleSettlementHandler'
 import { RenameGroupHandler } from '@/application/handlers/RenameGroupHandler'
 import { SetGroupOrderHandler } from '@/application/handlers/SetGroupOrderHandler'
+import { RefreshEventHandler } from '@/application/handlers/RefreshEventHandler'
 import type { IEventRepository } from '@/domain/repositories/IEventRepository'
+import type { IEventChangeNotifier } from '@/domain/ports/IEventChangeNotifier'
 
 export function buildContainer(): Container {
   const c = new Container()
   c.register('supabase', () => getSupabase())
-  c.register<IEventRepository>('eventRepo', () => new SupabaseEventRepository(c.resolve('supabase')))
+  c.register<IEventChangeNotifier>('realtime', () => new RealtimeSync(c.resolve('supabase')))
+  c.register<IEventRepository>(
+    'eventRepo',
+    () =>
+      new NotifyingEventRepository(
+        new SupabaseEventRepository(c.resolve('supabase')),
+        c.resolve<IEventChangeNotifier>('realtime'),
+      ),
+  )
   c.register('cache', () => new LocalStorageCache())
-  c.register('realtime', () => new RealtimeSync(c.resolve('supabase')))
   c.register('online', () => {
     const d = new OnlineDetector()
     d.start()
@@ -51,7 +60,7 @@ export function buildContainer(): Container {
   c.register('addExpense', () => new AddExpenseHandler(c.resolve('eventRepo')))
   c.register('editExpense', () => new EditExpenseHandler(c.resolve('eventRepo')))
   c.register('deleteExpense', () => new DeleteExpenseHandler(c.resolve('eventRepo')))
-  c.register('syncEvent', () => new SyncEventHandler())
+  c.register('refreshEvent', () => new RefreshEventHandler(c.resolve('eventRepo')))
   c.register('updateProfile', () => new UpdateProfileHandler(c.resolve('eventRepo')))
   c.register('setEventDays', () => new SetEventDaysHandler(c.resolve('eventRepo')))
   c.register('setAvailability', () => new SetAvailabilityHandler(c.resolve('eventRepo')))

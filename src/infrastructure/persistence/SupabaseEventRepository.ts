@@ -22,6 +22,17 @@ export class SupabaseEventRepository implements IEventRepository {
     return { snapshot: parsed as unknown as EventSnapshot, version: data.version }
   }
 
+  async getVersion(id: string): Promise<number | null> {
+    const { data, error } = await this.client
+      .from('events')
+      .select('version, active')
+      .eq('id', id)
+      .maybeSingle<{ version: number; active: boolean }>()
+    if (error) throw error
+    if (!data || !data.active) return null
+    return data.version
+  }
+
   async create(snapshot: EventSnapshot): Promise<SaveResult> {
     const row = {
       id: snapshot.id,
