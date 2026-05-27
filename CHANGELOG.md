@@ -1,5 +1,13 @@
 # Changelog
 
+## [2.5.1](https://github.com/Endika/EventSplit/compare/v2.5.0...v2.5.1) (2026-05-27)
+
+
+### Bug Fixes
+
+* **persistence:** reject stale-client writes that wipe newer fields ([4ec5a7e](https://github.com/Endika/EventSplit/commit/4ec5a7ef6bb9aa450730e0b830d6a6f26600ee3d))
+* **purchases:** self-heal subgroupOrder from live item subgroups ([dc1896a](https://github.com/Endika/EventSplit/commit/dc1896a9f20c7a62ea8a8ce94347293a18a0d116))
+
 ## [2.5.0](https://github.com/Endika/EventSplit/compare/v2.4.0...v2.5.0) (2026-05-27)
 
 
