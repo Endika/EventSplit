@@ -6,7 +6,6 @@ import { useCurrentUser } from '@/presentation/context/UserContext'
 import type { SetEventDaysHandler } from '@/application/handlers/SetEventDaysHandler'
 import type { SetAvailabilityBatchHandler } from '@/application/handlers/SetAvailabilityBatchHandler'
 import type { SetAvailabilityMetaHandler } from '@/application/handlers/SetAvailabilityMetaHandler'
-import type { LocalStorageCache } from '@/infrastructure/persistence/LocalStorageCache'
 import { useWriteGuard } from '@/presentation/context/WriteGuardContext'
 import { reportError } from '@/shared/utils/reportError'
 import { Button } from '@/presentation/components/common/Button'
@@ -99,9 +98,6 @@ export function AvailabilityTab() {
         const handler = container.resolve<SetEventDaysHandler>('setEventDays')
         const next = [...event.days, newDay].sort()
         const result = await handler.execute({ eventId: event.id, days: next })
-        container
-          .resolve<LocalStorageCache>('cache')
-          .set(event.id, { snapshot: result.event, version: result.version })
         setEvent(result.event, result.version)
         setNewDay('')
       } catch (err) {
@@ -130,9 +126,6 @@ export function AvailabilityTab() {
           editedBy: me.id,
           votes,
         })
-        container
-          .resolve<LocalStorageCache>('cache')
-          .set(event.id, { snapshot: result.event, version: result.version })
         setEvent(result.event, result.version)
       } catch (err) {
         reportError('AvailabilityTab', err)
@@ -155,9 +148,6 @@ export function AvailabilityTab() {
           note: note.trim() || null,
           chosenDay: event.chosenDay,
         })
-        container
-          .resolve<LocalStorageCache>('cache')
-          .set(event.id, { snapshot: result.event, version: result.version })
         setEvent(result.event, result.version)
       } catch (err) {
         reportError('AvailabilityTab', err)
@@ -177,9 +167,6 @@ export function AvailabilityTab() {
           note: event.availabilityNote ?? null,
           chosenDay: next,
         })
-        container
-          .resolve<LocalStorageCache>('cache')
-          .set(event.id, { snapshot: result.event, version: result.version })
         setEvent(result.event, result.version)
       } catch (err) {
         reportError('AvailabilityTab', err)
@@ -200,9 +187,6 @@ export function AvailabilityTab() {
       try {
         const handler = container.resolve<SetEventDaysHandler>('setEventDays')
         const result = await handler.execute({ eventId: event.id, days: next })
-        container
-          .resolve<LocalStorageCache>('cache')
-          .set(event.id, { snapshot: result.event, version: result.version })
         setEvent(result.event, result.version)
       } catch (err) {
         reportError('AvailabilityTab', err)

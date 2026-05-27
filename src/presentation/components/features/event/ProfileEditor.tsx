@@ -85,9 +85,6 @@ export function ProfileEditor({
           kind,
           allergies,
         })
-        container
-          .resolve<LocalStorageCache>('cache')
-          .set(event.id, { snapshot: result.event, version: result.version })
         setEvent(result.event, result.version)
         // Sync local identity only when editing self
         if (targetUserId === me?.id) {
@@ -127,9 +124,6 @@ export function ProfileEditor({
           eventId: event.id,
           userId: targetUserId,
         })
-        container
-          .resolve<LocalStorageCache>('cache')
-          .set(event.id, { snapshot: result.event, version: result.version })
         setEvent(result.event, result.version)
         // If removing self, also clear identity
         if (targetUserId === me?.id) {

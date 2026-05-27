@@ -7,7 +7,6 @@ import { useWriteGuard } from '@/presentation/context/WriteGuardContext'
 import { Modal } from '@/presentation/components/common/Modal'
 import { Button } from '@/presentation/components/common/Button'
 import type { SetEventStageHandler } from '@/application/handlers/SetEventStageHandler'
-import type { LocalStorageCache } from '@/infrastructure/persistence/LocalStorageCache'
 import type { EventStage } from '@/domain/entities/Event'
 import { reportError } from '@/shared/utils/reportError'
 
@@ -34,9 +33,6 @@ export function StageSelector() {
           userId: me.id,
           stage,
         })
-        container
-          .resolve<LocalStorageCache>('cache')
-          .set(event.id, { snapshot: result.event, version: result.version })
         setEvent(result.event, result.version)
       } catch (err) {
         reportError('StageSelector', err)

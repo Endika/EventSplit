@@ -4,7 +4,6 @@ import { useContainer } from '@/presentation/context/ContainerProvider'
 import { useEventState } from '@/presentation/context/EventContext'
 import type { EditEventDetailsHandler } from '@/application/handlers/EditEventDetailsHandler'
 import type { SetEditPinHandler } from '@/application/handlers/SetEditPinHandler'
-import type { LocalStorageCache } from '@/infrastructure/persistence/LocalStorageCache'
 import { useCurrentUser } from '@/presentation/context/UserContext'
 import { useWriteGuard } from '@/presentation/context/WriteGuardContext'
 import { Button } from '@/presentation/components/common/Button'
@@ -64,9 +63,6 @@ export function LocationTab() {
       try {
         const handler = container.resolve<EditEventDetailsHandler>('editEventDetails')
         const result = await handler.execute({ eventId: event.id, name: trimmed })
-        container
-          .resolve<LocalStorageCache>('cache')
-          .set(event.id, { snapshot: result.event, version: result.version })
         setEvent(result.event, result.version)
       } catch (err) {
         reportError('LocationTab', err)
@@ -99,9 +95,6 @@ export function LocationTab() {
           wifiPassword: wifi.trim() || null,
           emergencyContact: emergency.trim() || null,
         })
-        container
-          .resolve<LocalStorageCache>('cache')
-          .set(event.id, { snapshot: result.event, version: result.version })
         setEvent(result.event, result.version)
         setEditing(false)
       } catch (err) {
@@ -121,8 +114,6 @@ export function LocationTab() {
       try {
         const handler = container.resolve<SetEditPinHandler>('setEditPin')
         const result = await handler.execute({ eventId: event.id, userId: me.id, pin })
-        const cache = container.resolve<LocalStorageCache>('cache')
-        cache.set(event.id, { snapshot: result.event, version: result.version })
         setEvent(result.event, result.version)
         // Setting a PIN from this device: mark this device verified so the user
         // who just set it isn't immediately locked out. Clearing: remove the flag.

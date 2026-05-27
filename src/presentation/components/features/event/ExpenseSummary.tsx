@@ -7,7 +7,6 @@ import { ExpenseSplitter } from '@/domain/services/ExpenseSplitter'
 import { Money } from '@/domain/value-objects/Money'
 import { YouLabel } from '@/presentation/components/common/YouLabel'
 import type { ToggleSettlementHandler } from '@/application/handlers/ToggleSettlementHandler'
-import type { LocalStorageCache } from '@/infrastructure/persistence/LocalStorageCache'
 import { reportError } from '@/shared/utils/reportError'
 
 const fmt = (cents: number): string => (cents / 100).toFixed(2)
@@ -30,9 +29,6 @@ export function ExpenseSummary() {
       try {
         const handler = container.resolve<ToggleSettlementHandler>('toggleSettlement')
         const result = await handler.execute({ eventId: event.id, userId: me.id, from, to })
-        container
-          .resolve<LocalStorageCache>('cache')
-          .set(event.id, { snapshot: result.event, version: result.version })
         setEvent(result.event, result.version)
       } catch (err) {
         reportError('ExpenseSummary', err)

@@ -10,7 +10,6 @@ import { YouLabel } from '@/presentation/components/common/YouLabel'
 import type { ExpenseSnapshot } from '@/domain/entities/Expense'
 import type { DeleteExpenseHandler } from '@/application/handlers/DeleteExpenseHandler'
 import type { RecoverExpenseHandler } from '@/application/handlers/RecoverExpenseHandler'
-import type { LocalStorageCache } from '@/infrastructure/persistence/LocalStorageCache'
 import { reportError } from '@/shared/utils/reportError'
 import { ExpenseForm } from './ExpenseForm'
 import { ExpenseSummary } from './ExpenseSummary'
@@ -52,9 +51,6 @@ export function ExpensesTab() {
       try {
         const handler = container.resolve<RecoverExpenseHandler>('recoverExpense')
         const result = await handler.execute({ eventId: event.id, expenseId: e.id, recoveredBy: me.id })
-        container
-          .resolve<LocalStorageCache>('cache')
-          .set(event.id, { snapshot: result.event, version: result.version })
         setEvent(result.event, result.version)
       } catch (err) {
         reportError('ExpensesTab', err)
@@ -74,9 +70,6 @@ export function ExpensesTab() {
           expenseId: target.id,
           deletedBy: me.id,
         })
-        container
-          .resolve<LocalStorageCache>('cache')
-          .set(event.id, { snapshot: result.event, version: result.version })
         setEvent(result.event, result.version)
         setDeleting(null)
       } catch (err) {
