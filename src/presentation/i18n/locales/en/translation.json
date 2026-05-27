@@ -1,6 +1,7 @@
 {
   "offline": "Offline — read only",
   "updateAvailable": "New version available",
+  "updateRequired": "Your version is out of date — update to keep saving",
   "updateNow": "Update now",
   "install": {
     "title": "Install EventSplit on your device",
