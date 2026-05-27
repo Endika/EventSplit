@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.5.3](https://github.com/Endika/EventSplit/compare/v2.5.2...v2.5.3) (2026-05-27)
+
+
+### Bug Fixes
+
+* **expenses:** drop misleading per-person average from summary ([9560add](https://github.com/Endika/EventSplit/commit/9560addbd2192220c22c686dfae9451087f7adaa))
+
 ## [2.5.2](https://github.com/Endika/EventSplit/compare/v2.5.1...v2.5.2) (2026-05-27)
 
 
