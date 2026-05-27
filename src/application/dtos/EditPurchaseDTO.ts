@@ -8,10 +8,14 @@ export const EditPurchaseSchema = z.object({
   quantity: z.number().positive().max(10_000),
   unit: z.string().trim().min(1).max(30),
   dailyConsumption: z.number().positive().max(100),
-  consumers: z.array(z.object({
-    userId: z.string().uuid(),
-    multiplier: z.number().min(0).max(10),
-  })).min(1),
+  consumers: z
+    .array(
+      z.object({
+        userId: z.string().uuid(),
+        multiplier: z.number().min(0).max(10),
+      }),
+    )
+    .min(1),
   days: z.number().int().positive(),
   assignedTo: z.string().uuid().nullable().optional(),
   group: z.string().trim().max(50).nullable().optional(),

@@ -10,7 +10,7 @@ export interface ExpenseSnapshot {
   purchaseId: string | null
   date: string
   createdAt: string
-  splitAmong: string[]  // empty array means "all current participants"
+  splitAmong: string[] // empty array means "all current participants"
   purchaseLinks: { purchaseId: string; quantity: number }[]
   deleted: boolean
   deletedBy: string | null
@@ -66,7 +66,10 @@ export class Expense {
   static restore(
     s:
       | ExpenseSnapshot
-      | Omit<ExpenseSnapshot, 'splitAmong' | 'purchaseLinks' | 'deleted' | 'deletedBy' | 'deletedAt'>,
+      | Omit<
+          ExpenseSnapshot,
+          'splitAmong' | 'purchaseLinks' | 'deleted' | 'deletedBy' | 'deletedAt'
+        >,
   ): Expense {
     const full = s as ExpenseSnapshot
     return new Expense({
@@ -129,10 +132,18 @@ export class Expense {
     })
   }
 
-  get id(): string { return this.s.id }
-  get paidBy(): string { return this.s.paidBy }
-  get amount(): Money { return Money.fromCents(this.s.cents) }
-  get deleted(): boolean { return this.s.deleted }
+  get id(): string {
+    return this.s.id
+  }
+  get paidBy(): string {
+    return this.s.paidBy
+  }
+  get amount(): Money {
+    return Money.fromCents(this.s.cents)
+  }
+  get deleted(): boolean {
+    return this.s.deleted
+  }
   get purchaseLinks(): { purchaseId: string; quantity: number }[] {
     return this.s.purchaseLinks.map((l) => ({ ...l }))
   }

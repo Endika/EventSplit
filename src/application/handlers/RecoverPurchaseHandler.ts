@@ -1,4 +1,7 @@
-import { RecoverPurchaseSchema, type RecoverPurchaseInput } from '@/application/dtos/RecoverPurchaseDTO'
+import {
+  RecoverPurchaseSchema,
+  type RecoverPurchaseInput,
+} from '@/application/dtos/RecoverPurchaseDTO'
 import type { EventSnapshot } from '@/domain/entities/Event'
 import { Purchase } from '@/domain/entities/Purchase'
 import { HistoryAppender } from '@/domain/services/HistoryAppender'
@@ -19,7 +22,8 @@ export class RecoverPurchaseHandler {
         throw new Error('Cannot recover a purchase whose creator is no longer in the event')
 
       const recovered = Purchase.restore(existing).recover()
-      const editorName = row.snapshot.users.find((u) => u.id === parsed.recoveredBy)?.name ?? 'Someone'
+      const editorName =
+        row.snapshot.users.find((u) => u.id === parsed.recoveredBy)?.name ?? 'Someone'
       const nextSnapshot: EventSnapshot = HistoryAppender.append(
         {
           ...row.snapshot,

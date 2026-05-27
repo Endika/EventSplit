@@ -1,4 +1,7 @@
-import { AssignPurchaseSchema, type AssignPurchaseInput } from '@/application/dtos/AssignPurchaseDTO'
+import {
+  AssignPurchaseSchema,
+  type AssignPurchaseInput,
+} from '@/application/dtos/AssignPurchaseDTO'
 import type { EventSnapshot } from '@/domain/entities/Event'
 import { Purchase } from '@/domain/entities/Purchase'
 import { HistoryAppender } from '@/domain/services/HistoryAppender'
@@ -12,7 +15,8 @@ export class AssignPurchaseHandler {
     const parsed = AssignPurchaseSchema.parse(input)
     const saved = await withOptimisticRetry(this.repo, parsed.eventId, (row) => {
       const knownIds = new Set(row.snapshot.users.map((u) => u.id))
-      if (!knownIds.has(parsed.editedBy)) throw new Error(`editedBy ${parsed.editedBy} not in event`)
+      if (!knownIds.has(parsed.editedBy))
+        throw new Error(`editedBy ${parsed.editedBy} not in event`)
       if (parsed.assignedTo !== null && !knownIds.has(parsed.assignedTo))
         throw new Error(`assignedTo ${parsed.assignedTo} not in event`)
 

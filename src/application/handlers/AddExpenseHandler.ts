@@ -47,7 +47,8 @@ export class AddExpenseHandler {
       const nextSnapshot: EventSnapshot = HistoryAppender.append(
         { ...row.snapshot, expenses: [...row.snapshot.expenses, expense.toSnapshot()] },
         {
-          type: 'expense_added', userId: parsed.paidBy,
+          type: 'expense_added',
+          userId: parsed.paidBy,
           description: `${payerName} added expense: ${expense.toSnapshot().description}`,
         },
       )

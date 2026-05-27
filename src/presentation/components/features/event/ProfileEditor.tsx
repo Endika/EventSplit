@@ -3,7 +3,12 @@ import { useTranslation } from 'react-i18next'
 import { useContainer } from '@/presentation/context/ContainerProvider'
 import { useEventState } from '@/presentation/context/EventContext'
 import { useCurrentUser, useSetCurrentUser } from '@/presentation/context/UserContext'
-import { COMMON_ALLERGENS, type AllergenName, type AllergenSeverity, type AllergenSnapshot } from '@/domain/value-objects/Allergen'
+import {
+  COMMON_ALLERGENS,
+  type AllergenName,
+  type AllergenSeverity,
+  type AllergenSnapshot,
+} from '@/domain/value-objects/Allergen'
 import type { UpdateProfileHandler } from '@/application/handlers/UpdateProfileHandler'
 import type { RemoveParticipantHandler } from '@/application/handlers/RemoveParticipantHandler'
 import type { LocalStorageCache } from '@/infrastructure/persistence/LocalStorageCache'
@@ -14,13 +19,7 @@ import { Modal } from '@/presentation/components/common/Modal'
 import { Button } from '@/presentation/components/common/Button'
 import { Input } from '@/presentation/components/common/Input'
 
-export function ProfileEditor({
-  userId,
-  onClose,
-}: {
-  userId?: string
-  onClose: () => void
-}) {
+export function ProfileEditor({ userId, onClose }: { userId?: string; onClose: () => void }) {
   const { t } = useTranslation()
   const container = useContainer()
   const { event, setEvent } = useEventState()
@@ -57,7 +56,10 @@ export function ProfileEditor({
 
   function addAllergy() {
     if (newAllergen !== 'other' && allergies.some((a) => a.name === newAllergen)) return
-    setAllergies([...allergies, { name: newAllergen, severity: newSeverity, notes: newAllergyNote.trim() || null }])
+    setAllergies([
+      ...allergies,
+      { name: newAllergen, severity: newSeverity, notes: newAllergyNote.trim() || null },
+    ])
     setNewAllergyNote('')
   }
 
@@ -141,7 +143,12 @@ export function ProfileEditor({
   }
 
   return (
-    <Modal open title={isSelf ? t('profile.title') : t('participants.editTitle')} dismissable={!busy} onClose={onClose}>
+    <Modal
+      open
+      title={isSelf ? t('profile.title') : t('participants.editTitle')}
+      dismissable={!busy}
+      onClose={onClose}
+    >
       <form onSubmit={save} className="space-y-3">
         <Input
           placeholder={t('profile.name')}
@@ -198,9 +205,7 @@ export function ProfileEditor({
 
         <div>
           <p className="mb-2 text-xs uppercase text-slate-500">{t('profile.allergies')}</p>
-          {allergies.length === 0 && (
-            <p className="text-xs text-slate-500">—</p>
-          )}
+          {allergies.length === 0 && <p className="text-xs text-slate-500">—</p>}
           <ul className="space-y-1">
             {allergies.map((a, index) => (
               <li
@@ -209,8 +214,7 @@ export function ProfileEditor({
               >
                 <span>
                   {t(`allergens.${a.name}`)}
-                  {a.notes ? ` — ${a.notes}` : ''}
-                  {' '}— {t(`allergens.severity.${a.severity}`)}
+                  {a.notes ? ` — ${a.notes}` : ''} — {t(`allergens.severity.${a.severity}`)}
                 </span>
                 <button
                   type="button"
@@ -271,7 +275,11 @@ export function ProfileEditor({
                   value={newAllergyNote}
                   onChange={(e) => setNewAllergyNote(e.target.value)}
                   maxLength={200}
-                  placeholder={newAllergen === 'other' ? t('profile.allergyOtherPlaceholder') : t('profile.allergyNotePlaceholder')}
+                  placeholder={
+                    newAllergen === 'other'
+                      ? t('profile.allergyOtherPlaceholder')
+                      : t('profile.allergyNotePlaceholder')
+                  }
                   disabled={busy}
                 />
               </div>
@@ -279,14 +287,20 @@ export function ProfileEditor({
                 <Button
                   type="button"
                   variant="secondary"
-                  onClick={() => { setShowAllergyPicker(false); setNewAllergyNote('') }}
+                  onClick={() => {
+                    setShowAllergyPicker(false)
+                    setNewAllergyNote('')
+                  }}
                   disabled={busy}
                 >
                   {t('common.cancel')}
                 </Button>
                 <Button
                   type="button"
-                  onClick={() => { addAllergy(); setShowAllergyPicker(false) }}
+                  onClick={() => {
+                    addAllergy()
+                    setShowAllergyPicker(false)
+                  }}
                   disabled={busy}
                 >
                   {t('profile.addAllergy')}
@@ -321,12 +335,19 @@ export function ProfileEditor({
             ) : (
               <div className="space-y-2">
                 <p className="text-xs text-slate-300">
-                  {t('participants.removeConfirm', { name: myRow?.alias ? `${myRow.name} (${myRow.alias})` : myRow?.name ?? '' })}
+                  {t('participants.removeConfirm', {
+                    name: myRow?.alias ? `${myRow.name} (${myRow.alias})` : (myRow?.name ?? ''),
+                  })}
                 </p>
                 <p className="text-xs text-rose-400">{t('participants.removeWarning')}</p>
                 {removeError && <p className="text-xs text-rose-400 break-all">{removeError}</p>}
                 <div className="flex gap-2">
-                  <Button type="button" variant="secondary" onClick={() => setConfirmRemove(false)} disabled={busy}>
+                  <Button
+                    type="button"
+                    variant="secondary"
+                    onClick={() => setConfirmRemove(false)}
+                    disabled={busy}
+                  >
                     {t('participants.removeCancel')}
                   </Button>
                   <Button type="button" onClick={doRemove} loading={busy} disabled={busy}>
@@ -353,7 +374,12 @@ export function ProfileEditor({
               <div className="space-y-2">
                 <p className="text-xs text-slate-300">{t('participants.switchConfirm')}</p>
                 <div className="flex gap-2">
-                  <Button type="button" variant="secondary" onClick={() => setConfirmSwitch(false)} disabled={busy}>
+                  <Button
+                    type="button"
+                    variant="secondary"
+                    onClick={() => setConfirmSwitch(false)}
+                    disabled={busy}
+                  >
                     {t('participants.switchCancel')}
                   </Button>
                   <Button

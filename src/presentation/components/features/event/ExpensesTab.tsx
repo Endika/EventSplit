@@ -50,7 +50,11 @@ export function ExpensesTab() {
     guardedExecute(async () => {
       try {
         const handler = container.resolve<RecoverExpenseHandler>('recoverExpense')
-        const result = await handler.execute({ eventId: event.id, expenseId: e.id, recoveredBy: me.id })
+        const result = await handler.execute({
+          eventId: event.id,
+          expenseId: e.id,
+          recoveredBy: me.id,
+        })
         setEvent(result.event, result.version)
       } catch (err) {
         reportError('ExpensesTab', err)
@@ -83,18 +87,28 @@ export function ExpensesTab() {
   return (
     <div className="space-y-4">
       {!adding && !editing && <Button onClick={() => setAdding(true)}>{t('expenses.add')}</Button>}
-      {adding && <ExpenseForm key="new" onDone={() => { setAdding(false); setFormDirty(false) }} onDirtyChange={setFormDirty} />}
+      {adding && (
+        <ExpenseForm
+          key="new"
+          onDone={() => {
+            setAdding(false)
+            setFormDirty(false)
+          }}
+          onDirtyChange={setFormDirty}
+        />
+      )}
       {editing && (
         <ExpenseForm
           key={editing.id}
           expense={editing}
-          onDone={() => { setEditing(null); setFormDirty(false) }}
+          onDone={() => {
+            setEditing(null)
+            setFormDirty(false)
+          }}
           onDirtyChange={setFormDirty}
         />
       )}
-      {visible.length === 0 && (
-        <p className="text-sm text-slate-400">{t('expenses.empty')}</p>
-      )}
+      {visible.length === 0 && <p className="text-sm text-slate-400">{t('expenses.empty')}</p>}
       <ul className="space-y-2">
         {visible.map((e) => (
           <li
@@ -134,7 +148,9 @@ export function ExpensesTab() {
                 className="rounded p-1.5 text-xs text-slate-400 hover:bg-slate-800 hover:text-rose-400"
                 aria-label={t('expenses.delete')}
                 title={t('expenses.delete')}
-              >🗑️</button>
+              >
+                🗑️
+              </button>
             </div>
           </li>
         ))}
@@ -152,7 +168,10 @@ export function ExpensesTab() {
           {showDeleted && (
             <ul className="mt-2 space-y-2">
               {deleted.map((e) => (
-                <li key={e.id} className="flex items-center justify-between gap-2 rounded-lg border border-slate-800 bg-slate-900/50 p-3 text-sm">
+                <li
+                  key={e.id}
+                  className="flex items-center justify-between gap-2 rounded-lg border border-slate-800 bg-slate-900/50 p-3 text-sm"
+                >
                   <span className="text-slate-500 line-through">{e.description}</span>
                   <span className="flex items-center gap-2">
                     <span className="text-slate-500 line-through">€{fmt(e.cents)}</span>
@@ -171,7 +190,12 @@ export function ExpensesTab() {
         </div>
       )}
       {pendingEdit && (
-        <Modal open title={t('common.unsavedTitle')} dismissable onClose={() => setPendingEdit(null)}>
+        <Modal
+          open
+          title={t('common.unsavedTitle')}
+          dismissable
+          onClose={() => setPendingEdit(null)}
+        >
           <div className="space-y-3">
             <p className="text-sm text-slate-300">{t('common.unsavedBody')}</p>
             <div className="flex gap-2">

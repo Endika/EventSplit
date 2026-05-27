@@ -1,7 +1,4 @@
-import {
-  RenameGroupSchema,
-  type RenameGroupInput,
-} from '@/application/dtos/RenameGroupDTO'
+import { RenameGroupSchema, type RenameGroupInput } from '@/application/dtos/RenameGroupDTO'
 import { Event, type EventSnapshot } from '@/domain/entities/Event'
 import type { IEventRepository } from '@/domain/repositories/IEventRepository'
 import { withOptimisticRetry } from '@/application/support/withOptimisticRetry'

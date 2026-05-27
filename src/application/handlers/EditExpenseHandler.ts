@@ -13,7 +13,8 @@ export class EditExpenseHandler {
     const parsed = EditExpenseSchema.parse(input)
     const saved = await withOptimisticRetry(this.repo, parsed.eventId, (row) => {
       const knownIds = new Set(row.snapshot.users.map((u) => u.id))
-      if (!knownIds.has(parsed.editedBy)) throw new Error(`editedBy ${parsed.editedBy} not in event`)
+      if (!knownIds.has(parsed.editedBy))
+        throw new Error(`editedBy ${parsed.editedBy} not in event`)
       if (!knownIds.has(parsed.paidBy)) throw new Error(`Payer ${parsed.paidBy} not in event`)
       if (parsed.splitAmong) {
         for (const id of parsed.splitAmong) {

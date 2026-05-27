@@ -86,7 +86,19 @@ export function PurchaseForm({
   }, [])
 
   const currentSnapshot = JSON.stringify({
-    mode, item, quantity, unit, dailyStr, days, consumers, assignedTo, group, subgroup, bringQtyStr, broughtBy, singleQtyStr,
+    mode,
+    item,
+    quantity,
+    unit,
+    dailyStr,
+    days,
+    consumers,
+    assignedTo,
+    group,
+    subgroup,
+    bringQtyStr,
+    broughtBy,
+    singleQtyStr,
   })
   const [initialSnapshot] = useState(currentSnapshot)
   const isDirty = initialSnapshot !== currentSnapshot
@@ -98,9 +110,7 @@ export function PurchaseForm({
   if (!event || !me) return null
 
   const existingGroups = [
-    ...new Set(
-      event.purchases.filter((p) => !p.deleted && p.group).map((p) => p.group as string),
-    ),
+    ...new Set(event.purchases.filter((p) => !p.deleted && p.group).map((p) => p.group as string)),
   ].sort()
 
   const currentGroup = group.trim()
@@ -155,123 +165,126 @@ export function PurchaseForm({
 
   function doSave() {
     if (!event || !me) return
-    guardedExecute(async () => {
-      setBusy(true)
-      setError(null)
-      try {
-        if (mode === 'bring') {
-          const qty = parseDecimal(bringQtyStr)
-          if (!Number.isFinite(qty) || qty <= 0) {
+    guardedExecute(
+      async () => {
+        setBusy(true)
+        setError(null)
+        try {
+          if (mode === 'bring') {
+            const qty = parseDecimal(bringQtyStr)
+            if (!Number.isFinite(qty) || qty <= 0) {
+              setError(t('purchases.form.invalidQuantity'))
+              setBusy(false)
+              return
+            }
+            if (purchase) {
+              const handler = container.resolve<EditBroughtItemHandler>('editBroughtItem')
+              const result = await handler.execute({
+                eventId: event.id,
+                purchaseId: purchase.id,
+                editedBy: me.id,
+                item,
+                quantity: qty,
+                unit,
+                group: group.trim() || null,
+                subgroup: group.trim() ? subgroup.trim() || null : null,
+                broughtBy,
+              })
+              setEvent(result.event, result.version)
+            } else {
+              const handler = container.resolve<AddBroughtItemHandler>('addBroughtItem')
+              const result = await handler.execute({
+                eventId: event.id,
+                createdBy: me.id,
+                item,
+                quantity: qty,
+                unit,
+                group: group.trim() || null,
+                subgroup: group.trim() ? subgroup.trim() || null : null,
+                broughtBy,
+              })
+              setEvent(result.event, result.version)
+            }
+            setPendingMatches(null)
+            onDone()
+            return
+          }
+          // Shared-staple items use a fixed quantity and skip the per-person calc;
+          // pass valid placeholders for the calc fields the domain still validates.
+          let buyQuantity = quantity
+          if (isSingle) {
+            buyQuantity = parseDecimal(singleQtyStr)
+            if (!Number.isFinite(buyQuantity) || buyQuantity <= 0) {
+              setError(t('purchases.form.invalidQuantity'))
+              setBusy(false)
+              return
+            }
+          }
+          if (
+            !isSingle &&
+            (!Number.isFinite(dailyConsumption) ||
+              dailyConsumption <= 0 ||
+              !Number.isInteger(days) ||
+              days <= 0)
+          ) {
             setError(t('purchases.form.invalidQuantity'))
             setBusy(false)
             return
           }
+          const buyDaily = isSingle ? 1 : dailyConsumption
+          const buyDays = isSingle ? 1 : days
+          const list = isSingle
+            ? event.users.map((u) => ({ userId: u.id, multiplier: 1 }))
+            : Object.entries(consumers).map(([userId, multiplier]) => ({ userId, multiplier }))
           if (purchase) {
-            const handler = container.resolve<EditBroughtItemHandler>('editBroughtItem')
+            const handler = container.resolve<EditPurchaseHandler>('editPurchase')
             const result = await handler.execute({
               eventId: event.id,
               purchaseId: purchase.id,
               editedBy: me.id,
               item,
-              quantity: qty,
+              quantity: buyQuantity,
               unit,
+              dailyConsumption: buyDaily,
+              consumers: list,
+              days: buyDays,
+              assignedTo: purchase.assignedTo ?? null,
               group: group.trim() || null,
               subgroup: group.trim() ? subgroup.trim() || null : null,
-              broughtBy,
             })
             setEvent(result.event, result.version)
           } else {
-            const handler = container.resolve<AddBroughtItemHandler>('addBroughtItem')
+            const handler = container.resolve<AddPurchaseHandler>('addPurchase')
             const result = await handler.execute({
               eventId: event.id,
               createdBy: me.id,
               item,
-              quantity: qty,
+              quantity: buyQuantity,
               unit,
+              dailyConsumption: buyDaily,
+              consumers: list,
+              days: buyDays,
+              assignedTo,
               group: group.trim() || null,
               subgroup: group.trim() ? subgroup.trim() || null : null,
-              broughtBy,
             })
             setEvent(result.event, result.version)
           }
           setPendingMatches(null)
           onDone()
-          return
-        }
-        // Shared-staple items use a fixed quantity and skip the per-person calc;
-        // pass valid placeholders for the calc fields the domain still validates.
-        let buyQuantity = quantity
-        if (isSingle) {
-          buyQuantity = parseDecimal(singleQtyStr)
-          if (!Number.isFinite(buyQuantity) || buyQuantity <= 0) {
-            setError(t('purchases.form.invalidQuantity'))
-            setBusy(false)
-            return
-          }
-        }
-        if (
-          !isSingle &&
-          (!Number.isFinite(dailyConsumption) ||
-            dailyConsumption <= 0 ||
-            !Number.isInteger(days) ||
-            days <= 0)
-        ) {
-          setError(t('purchases.form.invalidQuantity'))
+        } catch (err) {
+          reportError('PurchaseForm', err)
+          setError(err instanceof Error ? err.message : 'Error')
+        } finally {
           setBusy(false)
-          return
         }
-        const buyDaily = isSingle ? 1 : dailyConsumption
-        const buyDays = isSingle ? 1 : days
-        const list = isSingle
-          ? event.users.map((u) => ({ userId: u.id, multiplier: 1 }))
-          : Object.entries(consumers).map(([userId, multiplier]) => ({ userId, multiplier }))
-        if (purchase) {
-          const handler = container.resolve<EditPurchaseHandler>('editPurchase')
-          const result = await handler.execute({
-            eventId: event.id,
-            purchaseId: purchase.id,
-            editedBy: me.id,
-            item,
-            quantity: buyQuantity,
-            unit,
-            dailyConsumption: buyDaily,
-            consumers: list,
-            days: buyDays,
-            assignedTo: purchase.assignedTo ?? null,
-            group: group.trim() || null,
-            subgroup: group.trim() ? subgroup.trim() || null : null,
-          })
-          setEvent(result.event, result.version)
-        } else {
-          const handler = container.resolve<AddPurchaseHandler>('addPurchase')
-          const result = await handler.execute({
-            eventId: event.id,
-            createdBy: me.id,
-            item,
-            quantity: buyQuantity,
-            unit,
-            dailyConsumption: buyDaily,
-            consumers: list,
-            days: buyDays,
-            assignedTo,
-            group: group.trim() || null,
-            subgroup: group.trim() ? subgroup.trim() || null : null,
-          })
-          setEvent(result.event, result.version)
-        }
-        setPendingMatches(null)
-        onDone()
-      } catch (err) {
+      },
+      (err) => {
         reportError('PurchaseForm', err)
         setError(err instanceof Error ? err.message : 'Error')
-      } finally {
         setBusy(false)
-      }
-    }, (err) => {
-      reportError('PurchaseForm', err)
-      setError(err instanceof Error ? err.message : 'Error')
-      setBusy(false)
-    })
+      },
+    )
   }
 
   function submit(e: FormEvent) {
@@ -301,17 +314,28 @@ export function PurchaseForm({
         <AllergyAlertModal
           item={item}
           matches={pendingMatches}
-          onContinue={() => { doSave() }}
-          onCancel={() => { setPendingMatches(null); setItem('') }}
+          onContinue={() => {
+            doSave()
+          }}
+          onCancel={() => {
+            setPendingMatches(null)
+            setItem('')
+          }}
         />
       )}
-      <form ref={rootRef} onSubmit={submit} className="space-y-3 rounded-lg border border-slate-800 bg-slate-900 p-4">
+      <form
+        ref={rootRef}
+        onSubmit={submit}
+        className="space-y-3 rounded-lg border border-slate-800 bg-slate-900 p-4"
+      >
         <div className="flex gap-1 rounded-lg bg-slate-800 p-1">
           <button
             type="button"
             onClick={() => switchMode('buy')}
             className={`flex-1 rounded-md px-3 py-2 text-sm font-medium transition ${
-              mode === 'buy' ? 'bg-violet-600 text-white' : 'bg-slate-800 text-slate-300 hover:text-slate-100'
+              mode === 'buy'
+                ? 'bg-violet-600 text-white'
+                : 'bg-slate-800 text-slate-300 hover:text-slate-100'
             }`}
           >
             {t('purchases.form.modeBuy')}
@@ -320,14 +344,18 @@ export function PurchaseForm({
             type="button"
             onClick={() => switchMode('bring')}
             className={`flex-1 rounded-md px-3 py-2 text-sm font-medium transition ${
-              mode === 'bring' ? 'bg-violet-600 text-white' : 'bg-slate-800 text-slate-300 hover:text-slate-100'
+              mode === 'bring'
+                ? 'bg-violet-600 text-white'
+                : 'bg-slate-800 text-slate-300 hover:text-slate-100'
             }`}
           >
             {t('purchases.form.modeBring')}
           </button>
         </div>
         {purchase && (
-          <p className="text-sm font-medium text-slate-300">{t('purchases.form.editTitle')}: <span className="text-slate-100">{purchase.item}</span></p>
+          <p className="text-sm font-medium text-slate-300">
+            {t('purchases.form.editTitle')}: <span className="text-slate-100">{purchase.item}</span>
+          </p>
         )}
         <label className="block text-sm text-slate-300">
           {t('purchases.form.item')}
@@ -399,7 +427,9 @@ export function PurchaseForm({
                     <option value={unit}>{unit}</option>
                   )}
                   {UNITS.map((u) => (
-                    <option key={u} value={u}>{t(`purchases.form.units.${u}`)}</option>
+                    <option key={u} value={u}>
+                      {t(`purchases.form.units.${u}`)}
+                    </option>
                   ))}
                 </select>
               </label>
@@ -413,170 +443,204 @@ export function PurchaseForm({
               >
                 <option value="">{t('purchases.form.broughtByNobody')}</option>
                 {event.users.map((u) => (
-                  <option key={u.id} value={u.id}>{u.alias ? `${u.name} (${u.alias})` : u.name}</option>
+                  <option key={u.id} value={u.id}>
+                    {u.alias ? `${u.name} (${u.alias})` : u.name}
+                  </option>
                 ))}
               </select>
             </label>
           </>
         )}
         {mode === 'buy' && (
-        <>
-        <div className="grid grid-cols-2 gap-3">
-          <label className="block text-sm text-slate-300">
-            {isSingle ? t('purchases.form.quantity') : t('purchases.form.dailyConsumption')}
-            <Input
-              className="mt-1"
-              type="text"
-              inputMode="decimal"
-              value={isSingle ? singleQtyStr : dailyStr}
-              onChange={(e) => (isSingle ? setSingleQtyStr(e.target.value) : setDailyStr(e.target.value))}
-            />
-          </label>
-          <label className="block text-sm text-slate-300">
-            {t('purchases.form.unit')}
-            <select
-              className="mt-1 block w-full rounded-lg border border-slate-700 bg-slate-900 p-2 text-sm text-slate-100"
-              value={unit}
-              onChange={(e) => setUnit(e.target.value)}
-            >
-              {!UNITS.includes(unit as (typeof UNITS)[number]) && unit && (
-                <option value={unit}>{unit}</option>
-              )}
-              {UNITS.map((u) => (
-                <option key={u} value={u}>{t(`purchases.form.units.${u}`)}</option>
-              ))}
-            </select>
-          </label>
-        </div>
-        {isSingle && (
-          <p className="-mt-1 text-xs text-slate-500">{t('purchases.form.singleHelp')}</p>
-        )}
-        {!isSingle && (
-        <>
-        <p className="-mt-1 text-xs text-slate-500">{t('purchases.form.dailyConsumptionHelp')}</p>
-        <label className="block text-sm text-slate-300">
-          {t('purchases.form.days')}
-          <Input
-            className="mt-1"
-            type="number"
-            min="1"
-            step="1"
-            value={days}
-            onChange={(e) => setDays(parseInt(e.target.value, 10))}
-          />
-        </label>
-        <p className="-mt-1 text-xs text-slate-500">{t('purchases.form.daysHelp')}</p>
-        <div>
-          <div className="mb-2 flex items-center justify-between">
-            <p className="text-sm font-medium text-slate-300">{t('purchases.form.consumers')}</p>
-            <div className="flex gap-2 text-xs">
-              <button type="button" onClick={selectAllConsumers} className="rounded px-2 py-1 text-slate-400 hover:bg-slate-800 hover:text-slate-200">
-                {t('purchases.form.selectAll')}
-              </button>
-              <button type="button" onClick={selectNoConsumers} className="rounded px-2 py-1 text-slate-400 hover:bg-slate-800 hover:text-slate-200">
-                {t('purchases.form.selectNone')}
-              </button>
+          <>
+            <div className="grid grid-cols-2 gap-3">
+              <label className="block text-sm text-slate-300">
+                {isSingle ? t('purchases.form.quantity') : t('purchases.form.dailyConsumption')}
+                <Input
+                  className="mt-1"
+                  type="text"
+                  inputMode="decimal"
+                  value={isSingle ? singleQtyStr : dailyStr}
+                  onChange={(e) =>
+                    isSingle ? setSingleQtyStr(e.target.value) : setDailyStr(e.target.value)
+                  }
+                />
+              </label>
+              <label className="block text-sm text-slate-300">
+                {t('purchases.form.unit')}
+                <select
+                  className="mt-1 block w-full rounded-lg border border-slate-700 bg-slate-900 p-2 text-sm text-slate-100"
+                  value={unit}
+                  onChange={(e) => setUnit(e.target.value)}
+                >
+                  {!UNITS.includes(unit as (typeof UNITS)[number]) && unit && (
+                    <option value={unit}>{unit}</option>
+                  )}
+                  {UNITS.map((u) => (
+                    <option key={u} value={u}>
+                      {t(`purchases.form.units.${u}`)}
+                    </option>
+                  ))}
+                </select>
+              </label>
             </div>
-          </div>
-          <ul className="space-y-1">
-            {event.users.map((u) => {
-              const selected = consumers[u.id] !== undefined
-              const m = consumers[u.id] ?? 1
-              const allergens = u.allergies ?? []
-              const allergyMatchesItem =
-                allergens.length > 0 &&
-                AllergyChecker.findMatches({
-                  item,
-                  users: [{ userId: u.id, displayName: '', allergies: allergens }],
-                }).length > 0
-              return (
-                <li key={u.id} className="flex items-center gap-2 text-sm">
-                  <input
-                    type="checkbox"
-                    checked={selected}
-                    onChange={() => toggleConsumer(u.id)}
+            {isSingle && (
+              <p className="-mt-1 text-xs text-slate-500">{t('purchases.form.singleHelp')}</p>
+            )}
+            {!isSingle && (
+              <>
+                <p className="-mt-1 text-xs text-slate-500">
+                  {t('purchases.form.dailyConsumptionHelp')}
+                </p>
+                <label className="block text-sm text-slate-300">
+                  {t('purchases.form.days')}
+                  <Input
+                    className="mt-1"
+                    type="number"
+                    min="1"
+                    step="1"
+                    value={days}
+                    onChange={(e) => setDays(parseInt(e.target.value, 10))}
                   />
-                  <span>{u.alias ? `${u.name} (${u.alias})` : u.name}</span>
-                  <YouLabel userId={u.id} />
-                  {allergens.length > 0 && (
-                    <InfoChip
-                      icon="⚠️"
-                      tone={allergyMatchesItem ? 'rose' : 'amber'}
-                      label={t('purchases.form.allergyChip', {
-                        list: allergens.map((a) => allergenLabel(a)).join(', '),
-                      })}
-                    />
-                  )}
-                  {u.dietary && (
-                    <InfoChip
-                      icon="🥗"
-                      tone="slate"
-                      label={t('purchases.form.dietaryChip', { text: u.dietary })}
-                    />
-                  )}
-                  {selected && (
-                    <select
-                      className="ml-auto rounded border border-slate-700 bg-slate-900 p-1 text-slate-200"
-                      value={m}
-                      onChange={(e) => setMultiplier(u.id, parseFloat(e.target.value))}
-                    >
-                      {[0.25, 0.5, 0.75, 1, 1.25, 1.5, 1.75, 2, 3, 4, 5].map((v) => (
-                        <option key={v} value={v}>×{v}</option>
-                      ))}
-                    </select>
-                  )}
-                </li>
-              )
-            })}
-          </ul>
-        </div>
-        </>
-        )}
-        <label className="block text-sm text-slate-300">
-          {t('purchases.form.assignedTo')}
-          <select
-            className="mt-1 block w-full rounded-lg border border-slate-700 bg-slate-900 p-2 text-sm text-slate-100"
-            value={assignedTo ?? ''}
-            onChange={(e) => setAssignedTo(e.target.value || null)}
-          >
-            <option value="">{t('purchases.form.assignedNobody')}</option>
-            {event.users
-              .filter((u) => u.kind === 'adult')
-              .map((u) => (
-                <option key={u.id} value={u.id}>{u.alias ? `${u.name} (${u.alias})` : u.name}</option>
-              ))}
-          </select>
-        </label>
-        {!isSingle && (() => {
-          const totalDaily = Object.values(consumers).reduce(
-            (sum, mul) => sum + dailyConsumption * mul,
-            0,
-          )
-          const total = totalDaily * days
-          if (!Number.isFinite(total) || total <= 0) return null
-          return (
-            <div className="rounded-lg bg-violet-900/30 px-3 py-2 text-sm text-violet-100">
-              {t('purchases.form.totalPreview', {
-                n: Math.round(total * 100) / 100,
-                unit: UNITS.includes(unit as (typeof UNITS)[number])
-                  ? t(`purchases.form.units.${unit}`)
-                  : unit,
-              })}
-            </div>
-          )
-        })()}
-        </>
+                </label>
+                <p className="-mt-1 text-xs text-slate-500">{t('purchases.form.daysHelp')}</p>
+                <div>
+                  <div className="mb-2 flex items-center justify-between">
+                    <p className="text-sm font-medium text-slate-300">
+                      {t('purchases.form.consumers')}
+                    </p>
+                    <div className="flex gap-2 text-xs">
+                      <button
+                        type="button"
+                        onClick={selectAllConsumers}
+                        className="rounded px-2 py-1 text-slate-400 hover:bg-slate-800 hover:text-slate-200"
+                      >
+                        {t('purchases.form.selectAll')}
+                      </button>
+                      <button
+                        type="button"
+                        onClick={selectNoConsumers}
+                        className="rounded px-2 py-1 text-slate-400 hover:bg-slate-800 hover:text-slate-200"
+                      >
+                        {t('purchases.form.selectNone')}
+                      </button>
+                    </div>
+                  </div>
+                  <ul className="space-y-1">
+                    {event.users.map((u) => {
+                      const selected = consumers[u.id] !== undefined
+                      const m = consumers[u.id] ?? 1
+                      const allergens = u.allergies ?? []
+                      const allergyMatchesItem =
+                        allergens.length > 0 &&
+                        AllergyChecker.findMatches({
+                          item,
+                          users: [{ userId: u.id, displayName: '', allergies: allergens }],
+                        }).length > 0
+                      return (
+                        <li key={u.id} className="flex items-center gap-2 text-sm">
+                          <input
+                            type="checkbox"
+                            checked={selected}
+                            onChange={() => toggleConsumer(u.id)}
+                          />
+                          <span>{u.alias ? `${u.name} (${u.alias})` : u.name}</span>
+                          <YouLabel userId={u.id} />
+                          {allergens.length > 0 && (
+                            <InfoChip
+                              icon="⚠️"
+                              tone={allergyMatchesItem ? 'rose' : 'amber'}
+                              label={t('purchases.form.allergyChip', {
+                                list: allergens.map((a) => allergenLabel(a)).join(', '),
+                              })}
+                            />
+                          )}
+                          {u.dietary && (
+                            <InfoChip
+                              icon="🥗"
+                              tone="slate"
+                              label={t('purchases.form.dietaryChip', { text: u.dietary })}
+                            />
+                          )}
+                          {selected && (
+                            <select
+                              className="ml-auto rounded border border-slate-700 bg-slate-900 p-1 text-slate-200"
+                              value={m}
+                              onChange={(e) => setMultiplier(u.id, parseFloat(e.target.value))}
+                            >
+                              {[0.25, 0.5, 0.75, 1, 1.25, 1.5, 1.75, 2, 3, 4, 5].map((v) => (
+                                <option key={v} value={v}>
+                                  ×{v}
+                                </option>
+                              ))}
+                            </select>
+                          )}
+                        </li>
+                      )
+                    })}
+                  </ul>
+                </div>
+              </>
+            )}
+            <label className="block text-sm text-slate-300">
+              {t('purchases.form.assignedTo')}
+              <select
+                className="mt-1 block w-full rounded-lg border border-slate-700 bg-slate-900 p-2 text-sm text-slate-100"
+                value={assignedTo ?? ''}
+                onChange={(e) => setAssignedTo(e.target.value || null)}
+              >
+                <option value="">{t('purchases.form.assignedNobody')}</option>
+                {event.users
+                  .filter((u) => u.kind === 'adult')
+                  .map((u) => (
+                    <option key={u.id} value={u.id}>
+                      {u.alias ? `${u.name} (${u.alias})` : u.name}
+                    </option>
+                  ))}
+              </select>
+            </label>
+            {!isSingle &&
+              (() => {
+                const totalDaily = Object.values(consumers).reduce(
+                  (sum, mul) => sum + dailyConsumption * mul,
+                  0,
+                )
+                const total = totalDaily * days
+                if (!Number.isFinite(total) || total <= 0) return null
+                return (
+                  <div className="rounded-lg bg-violet-900/30 px-3 py-2 text-sm text-violet-100">
+                    {t('purchases.form.totalPreview', {
+                      n: Math.round(total * 100) / 100,
+                      unit: UNITS.includes(unit as (typeof UNITS)[number])
+                        ? t(`purchases.form.units.${unit}`)
+                        : unit,
+                    })}
+                  </div>
+                )
+              })()}
+          </>
         )}
         {error && <p className="text-sm text-rose-400">{error}</p>}
         {confirmCancel && (
-          <Modal open title={t('common.unsavedTitle')} dismissable onClose={() => setConfirmCancel(false)}>
+          <Modal
+            open
+            title={t('common.unsavedTitle')}
+            dismissable
+            onClose={() => setConfirmCancel(false)}
+          >
             <div className="space-y-3">
               <p className="text-sm text-slate-300">{t('common.unsavedBody')}</p>
               <div className="flex gap-2">
                 <Button type="button" variant="secondary" onClick={() => setConfirmCancel(false)}>
                   {t('common.keepEditing')}
                 </Button>
-                <Button type="button" onClick={() => { setConfirmCancel(false); onDone() }}>
+                <Button
+                  type="button"
+                  onClick={() => {
+                    setConfirmCancel(false)
+                    onDone()
+                  }}
+                >
                   {t('common.discard')}
                 </Button>
               </div>
@@ -592,7 +656,16 @@ export function PurchaseForm({
           >
             {t('common.cancel')}
           </Button>
-          <Button type="submit" loading={busy} disabled={busy || !online || (!purchase && !item) || (mode === 'buy' && !isSingle && Object.keys(consumers).length === 0)}>
+          <Button
+            type="submit"
+            loading={busy}
+            disabled={
+              busy ||
+              !online ||
+              (!purchase && !item) ||
+              (mode === 'buy' && !isSingle && Object.keys(consumers).length === 0)
+            }
+          >
             {purchase ? t('purchases.form.update') : t('purchases.form.submit')}
           </Button>
         </div>

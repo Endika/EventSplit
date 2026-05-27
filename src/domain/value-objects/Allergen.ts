@@ -1,6 +1,18 @@
 export const COMMON_ALLERGENS = [
-  'gluten', 'lactose', 'egg', 'peanut', 'nuts', 'shellfish', 'fish',
-  'soy', 'mustard', 'celery', 'sesame', 'sulfites', 'mollusks', 'other',
+  'gluten',
+  'lactose',
+  'egg',
+  'peanut',
+  'nuts',
+  'shellfish',
+  'fish',
+  'soy',
+  'mustard',
+  'celery',
+  'sesame',
+  'sulfites',
+  'mollusks',
+  'other',
 ] as const
 
 export type AllergenName = (typeof COMMON_ALLERGENS)[number]

@@ -1,11 +1,4 @@
-import {
-  createContext,
-  type ReactNode,
-  useCallback,
-  useContext,
-  useMemo,
-  useState,
-} from 'react'
+import { createContext, type ReactNode, useCallback, useContext, useMemo, useState } from 'react'
 import type { EventSnapshot } from '@/domain/entities/Event'
 import { useContainer } from '@/presentation/context/ContainerProvider'
 import type { LocalStorageCache } from '@/infrastructure/persistence/LocalStorageCache'

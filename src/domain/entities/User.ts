@@ -52,15 +52,30 @@ export class User {
     const kind = input.kind ?? 'adult'
     if (!USER_KINDS.includes(kind)) throw new Error(`User: invalid kind "${kind}"`)
     return new User(
-      UserId.generate(), name, alias, new Date().toISOString(),
-      null, null, [], null, null, kind,
+      UserId.generate(),
+      name,
+      alias,
+      new Date().toISOString(),
+      null,
+      null,
+      [],
+      null,
+      null,
+      kind,
     )
   }
 
-  static restore(s: UserSnapshot | (Omit<UserSnapshot, 'email' | 'phone' | 'allergies' | 'dietary' | 'notes' | 'kind'>)): User {
+  static restore(
+    s:
+      | UserSnapshot
+      | Omit<UserSnapshot, 'email' | 'phone' | 'allergies' | 'dietary' | 'notes' | 'kind'>,
+  ): User {
     const full = s as UserSnapshot
     return new User(
-      UserId.of(s.id), s.name, s.alias, s.joinedAt,
+      UserId.of(s.id),
+      s.name,
+      s.alias,
+      s.joinedAt,
       full.email ?? null,
       full.phone ?? null,
       full.allergies ?? [],
@@ -74,31 +89,44 @@ export class User {
     const name = update.name === undefined ? this.name : update.name.trim()
     if (name.length < 2 || name.length > 50) throw new Error('User: name must be 2..50 chars')
 
-    const aliasRaw = update.alias === undefined ? this.alias : update.alias?.trim() ?? null
+    const aliasRaw = update.alias === undefined ? this.alias : (update.alias?.trim() ?? null)
     if (aliasRaw && aliasRaw.length > 50) throw new Error('User: alias must be ≤ 50 chars')
     const alias = aliasRaw === '' ? null : aliasRaw
 
-    const email = update.email === undefined ? this.email : (update.email?.trim() || null)
+    const email = update.email === undefined ? this.email : update.email?.trim() || null
     if (email && email.length > 100) throw new Error('User: email must be ≤ 100 chars')
 
-    const phone = update.phone === undefined ? this.phone : (update.phone?.trim() || null)
+    const phone = update.phone === undefined ? this.phone : update.phone?.trim() || null
     if (phone && phone.length > 30) throw new Error('User: phone must be ≤ 30 chars')
 
-    const dietary = update.dietary === undefined ? this.dietary : (update.dietary?.trim() || null)
+    const dietary = update.dietary === undefined ? this.dietary : update.dietary?.trim() || null
     if (dietary && dietary.length > 200) throw new Error('User: dietary must be ≤ 200 chars')
 
-    const notes = update.notes === undefined ? this.notes : (update.notes?.trim() || null)
+    const notes = update.notes === undefined ? this.notes : update.notes?.trim() || null
     if (notes && notes.length > 500) throw new Error('User: notes must be ≤ 500 chars')
 
     const allergies = update.allergies === undefined ? this.allergies : update.allergies
     if (allergies.length > 20) throw new Error('User: at most 20 allergies')
     // Re-validate each allergen for safety
-    allergies.forEach((a) => Allergen.of({ name: a.name, severity: a.severity, notes: a.notes ?? null }))
+    allergies.forEach((a) =>
+      Allergen.of({ name: a.name, severity: a.severity, notes: a.notes ?? null }),
+    )
 
     const kind = update.kind === undefined ? this.kind : update.kind
     if (!USER_KINDS.includes(kind)) throw new Error(`User: invalid kind "${kind}"`)
 
-    return new User(this.id, name, alias, this.joinedAt, email, phone, allergies, dietary, notes, kind)
+    return new User(
+      this.id,
+      name,
+      alias,
+      this.joinedAt,
+      email,
+      phone,
+      allergies,
+      dietary,
+      notes,
+      kind,
+    )
   }
 
   get displayName(): string {

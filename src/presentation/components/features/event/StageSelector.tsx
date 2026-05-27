@@ -41,7 +41,11 @@ export function StageSelector() {
   }
 
   return (
-    <div className="flex gap-1 rounded-lg bg-slate-900 p-1" role="group" aria-label={t('stage.title')}>
+    <div
+      className="flex gap-1 rounded-lg bg-slate-900 p-1"
+      role="group"
+      aria-label={t('stage.title')}
+    >
       {STAGES.map((s) => {
         const active = current === s
         return (

@@ -9,18 +9,10 @@ const ParticipantsTab = lazy(() =>
 const AvailabilityTab = lazy(() =>
   import('./AvailabilityTab').then((m) => ({ default: m.AvailabilityTab })),
 )
-const LocationTab = lazy(() =>
-  import('./LocationTab').then((m) => ({ default: m.LocationTab })),
-)
-const PurchasesTab = lazy(() =>
-  import('./PurchasesTab').then((m) => ({ default: m.PurchasesTab })),
-)
-const ExpensesTab = lazy(() =>
-  import('./ExpensesTab').then((m) => ({ default: m.ExpensesTab })),
-)
-const HistoryTab = lazy(() =>
-  import('./HistoryTab').then((m) => ({ default: m.HistoryTab })),
-)
+const LocationTab = lazy(() => import('./LocationTab').then((m) => ({ default: m.LocationTab })))
+const PurchasesTab = lazy(() => import('./PurchasesTab').then((m) => ({ default: m.PurchasesTab })))
+const ExpensesTab = lazy(() => import('./ExpensesTab').then((m) => ({ default: m.ExpensesTab })))
+const HistoryTab = lazy(() => import('./HistoryTab').then((m) => ({ default: m.HistoryTab })))
 
 type Tab = 'participants' | 'availability' | 'location' | 'purchases' | 'expenses' | 'history'
 
@@ -92,7 +84,8 @@ export function EventTabs() {
     const dy = point.clientY - start.y
     if (Math.abs(dx) < 70) return // not far enough
     if (Math.abs(dx) < Math.abs(dy) * 1.8) return // mostly vertical → ignore
-    if (dx < 0) goToIndex(activeIndex + 1) // swipe left → next tab
+    if (dx < 0)
+      goToIndex(activeIndex + 1) // swipe left → next tab
     else goToIndex(activeIndex - 1) // swipe right → previous tab
   }
 
@@ -129,16 +122,24 @@ export function EventTabs() {
           aria-label={t('tabs.openMenu')}
           className="rounded-lg p-2 text-slate-200 hover:bg-slate-800"
         >
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-            <line x1="3" y1="6" x2="21" y2="6"/>
-            <line x1="3" y1="12" x2="21" y2="12"/>
-            <line x1="3" y1="18" x2="21" y2="18"/>
+          <svg
+            width="20"
+            height="20"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            aria-hidden="true"
+          >
+            <line x1="3" y1="6" x2="21" y2="6" />
+            <line x1="3" y1="12" x2="21" y2="12" />
+            <line x1="3" y1="18" x2="21" y2="18" />
           </svg>
         </button>
         <div className="flex flex-1 flex-col truncate">
-          <h1 className="truncate text-base font-semibold text-slate-100">
-            {event?.name ?? ''}
-          </h1>
+          <h1 className="truncate text-base font-semibold text-slate-100">{event?.name ?? ''}</h1>
           {event?.stage && (
             <span className="text-[10px] uppercase tracking-wide text-violet-300">
               {t(`stage.${event.stage}`)}
@@ -152,12 +153,22 @@ export function EventTabs() {
           title={t('event.share')}
           className="rounded-lg p-2 text-slate-200 hover:bg-slate-800"
         >
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-            <circle cx="18" cy="5" r="3"/>
-            <circle cx="6" cy="12" r="3"/>
-            <circle cx="18" cy="19" r="3"/>
-            <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/>
-            <line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/>
+          <svg
+            width="20"
+            height="20"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            aria-hidden="true"
+          >
+            <circle cx="18" cy="5" r="3" />
+            <circle cx="6" cy="12" r="3" />
+            <circle cx="18" cy="19" r="3" />
+            <line x1="8.59" y1="13.51" x2="15.42" y2="17.49" />
+            <line x1="15.41" y1="6.51" x2="8.59" y2="10.49" />
           </svg>
         </button>
         <button
@@ -167,8 +178,18 @@ export function EventTabs() {
           title={t('tabs.home')}
           className="rounded-lg p-2 text-slate-200 hover:bg-slate-800"
         >
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-            <path d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/>
+          <svg
+            width="20"
+            height="20"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            aria-hidden="true"
+          >
+            <path d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
           </svg>
         </button>
       </header>
@@ -196,9 +217,19 @@ export function EventTabs() {
                 aria-label={t('tabs.closeMenu')}
                 className="rounded-lg p-1.5 text-slate-400 hover:bg-slate-800 hover:text-slate-100"
               >
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-                  <line x1="18" y1="6" x2="6" y2="18"/>
-                  <line x1="6" y1="6" x2="18" y2="18"/>
+                <svg
+                  width="18"
+                  height="18"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  aria-hidden="true"
+                >
+                  <line x1="18" y1="6" x2="6" y2="18" />
+                  <line x1="6" y1="6" x2="18" y2="18" />
                 </svg>
               </button>
             </div>
@@ -219,7 +250,9 @@ export function EventTabs() {
                         : 'text-slate-200 hover:bg-slate-800'
                     }`}
                   >
-                    <span className="text-lg" aria-hidden="true">{TAB_ICONS[tab.key]}</span>
+                    <span className="text-lg" aria-hidden="true">
+                      {TAB_ICONS[tab.key]}
+                    </span>
                     <span className="flex-1">{tab.label}</span>
                     {isActive && <span aria-hidden="true">›</span>}
                   </button>
@@ -231,7 +264,9 @@ export function EventTabs() {
                 onClick={goHome}
                 className="flex w-full items-center gap-3 px-4 py-3 text-left text-sm text-slate-300 hover:bg-slate-800"
               >
-                <span className="text-lg" aria-hidden="true">🏠</span>
+                <span className="text-lg" aria-hidden="true">
+                  🏠
+                </span>
                 <span>{t('tabs.home')}</span>
               </button>
             </nav>

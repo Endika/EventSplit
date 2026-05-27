@@ -79,7 +79,8 @@ export function ExpenseForm({
     return event!.expenses
       .filter((e) => !e.deleted && e.id !== expense?.id)
       .reduce(
-        (s, e) => s + ((e.purchaseLinks ?? []).find((l) => l.purchaseId === purchaseId)?.quantity ?? 0),
+        (s, e) =>
+          s + ((e.purchaseLinks ?? []).find((l) => l.purchaseId === purchaseId)?.quantity ?? 0),
         0,
       )
   }
@@ -164,174 +165,194 @@ export function ExpenseForm({
   return (
     <>
       {confirmCancel && (
-        <Modal open title={t('common.unsavedTitle')} dismissable onClose={() => setConfirmCancel(false)}>
+        <Modal
+          open
+          title={t('common.unsavedTitle')}
+          dismissable
+          onClose={() => setConfirmCancel(false)}
+        >
           <div className="space-y-3">
             <p className="text-sm text-slate-300">{t('common.unsavedBody')}</p>
             <div className="flex gap-2">
               <Button type="button" variant="secondary" onClick={() => setConfirmCancel(false)}>
                 {t('common.keepEditing')}
               </Button>
-              <Button type="button" onClick={() => { setConfirmCancel(false); onDone() }}>
+              <Button
+                type="button"
+                onClick={() => {
+                  setConfirmCancel(false)
+                  onDone()
+                }}
+              >
                 {t('common.discard')}
               </Button>
             </div>
           </div>
         </Modal>
       )}
-      <form ref={rootRef} onSubmit={submit} className="space-y-3 rounded-lg border border-slate-800 bg-slate-900 p-4">
-      <label className="block text-sm text-slate-300">
-        {t('expenses.form.paidBy')}
-        <select
-          className="mt-1 block w-full rounded-lg border border-slate-700 bg-slate-900 p-2 text-sm text-slate-100"
-          required
-          value={paidBy}
-          onChange={(e) => setPaidBy(e.target.value)}
-        >
-          <option value="" disabled>—</option>
-          {event.users.map((u) => (
-            <option key={u.id} value={u.id}>
-              {u.alias ? `${u.name} (${u.alias})` : u.name}
+      <form
+        ref={rootRef}
+        onSubmit={submit}
+        className="space-y-3 rounded-lg border border-slate-800 bg-slate-900 p-4"
+      >
+        <label className="block text-sm text-slate-300">
+          {t('expenses.form.paidBy')}
+          <select
+            className="mt-1 block w-full rounded-lg border border-slate-700 bg-slate-900 p-2 text-sm text-slate-100"
+            required
+            value={paidBy}
+            onChange={(e) => setPaidBy(e.target.value)}
+          >
+            <option value="" disabled>
+              —
             </option>
-          ))}
-        </select>
-      </label>
-      <Input
-        type="text"
-        inputMode="decimal"
-        placeholder={t('expenses.form.amount')}
-        value={amount}
-        onChange={(e) => setAmount(e.target.value)}
-        required
-      />
-      <Input
-        placeholder={t('expenses.form.description')}
-        value={description}
-        onChange={(e) => setDescription(e.target.value)}
-        required
-        minLength={3}
-        maxLength={100}
-      />
-      <fieldset className="rounded-lg border border-slate-800 p-3">
-        <legend className="px-2 text-xs uppercase tracking-wide text-slate-500">
-          {t('expenses.form.splitBetween')}
-        </legend>
-        <div className="mb-2 flex gap-2 text-xs">
-          <button
-            type="button"
-            onClick={selectAll}
-            className="rounded px-2 py-1 text-slate-400 hover:bg-slate-800 hover:text-slate-200"
-          >
-            {t('expenses.form.selectAll')}
-          </button>
-          <button
-            type="button"
-            onClick={selectNone}
-            className="rounded px-2 py-1 text-slate-400 hover:bg-slate-800 hover:text-slate-200"
-          >
-            {t('expenses.form.selectNone')}
-          </button>
-        </div>
-        <ul className="space-y-1">
-          {event.users.map((u) => (
-            <li key={u.id} className="flex items-center gap-2 text-sm">
-              <input
-                type="checkbox"
-                checked={splitAmong.has(u.id)}
-                onChange={() => toggleSplit(u.id)}
-                disabled={busy}
-                className="size-4 rounded border-slate-600 bg-slate-800 accent-violet-500"
-              />
-              <span className="text-slate-200">
+            {event.users.map((u) => (
+              <option key={u.id} value={u.id}>
                 {u.alias ? `${u.name} (${u.alias})` : u.name}
-              </span>
-            </li>
-          ))}
-        </ul>
-      </fieldset>
-      {listItems.length > 0 && (
+              </option>
+            ))}
+          </select>
+        </label>
+        <Input
+          type="text"
+          inputMode="decimal"
+          placeholder={t('expenses.form.amount')}
+          value={amount}
+          onChange={(e) => setAmount(e.target.value)}
+          required
+        />
+        <Input
+          placeholder={t('expenses.form.description')}
+          value={description}
+          onChange={(e) => setDescription(e.target.value)}
+          required
+          minLength={3}
+          maxLength={100}
+        />
         <fieldset className="rounded-lg border border-slate-800 p-3">
           <legend className="px-2 text-xs uppercase tracking-wide text-slate-500">
-            {t('expenses.form.markBought')}
+            {t('expenses.form.splitBetween')}
           </legend>
-          <ul className="space-y-2">
-            {listItems.map((p) => {
-              const checked = p.id in links
-              const remaining = Math.max(1, p.totalQuantity - boughtByOthers(p.id))
-              const unit = displayUnit(p.unit, t)
-              const assignee = p.assignedTo
-                ? (event.users.find((u) => u.id === p.assignedTo) ?? null)
-                : null
-              return (
-                <li key={p.id} className="flex flex-wrap items-center gap-2 text-sm">
-                  <label className="flex flex-1 items-center gap-2">
-                    <input
-                      type="checkbox"
-                      checked={checked}
-                      onChange={() =>
-                        setLinks((prev) => {
-                          const next = { ...prev }
-                          if (p.id in next) delete next[p.id]
-                          else next[p.id] = String(remaining)
-                          return next
-                        })
-                      }
-                      className="size-4 rounded border-slate-600 bg-slate-800 accent-violet-500"
-                    />
-                    <span className="text-slate-200">
-                      {p.item}{' '}
-                      <span className="text-slate-500">
-                        — {Math.round(p.totalQuantity * 100) / 100} {unit}
-                      </span>
-                      {assignee && (
-                        <span
-                          className="ml-1 whitespace-nowrap text-xs text-violet-300"
-                          title={t('purchases.form.assignedTo')}
-                        >
-                          🛒 {assignee.alias ? `${assignee.name} (${assignee.alias})` : assignee.name}
-                        </span>
-                      )}
-                    </span>
-                  </label>
-                  {checked && (
-                    <div className="flex items-center gap-2">
-                      <input
-                        type="text"
-                        inputMode="decimal"
-                        value={links[p.id] ?? ''}
-                        onChange={(e) =>
-                          setLinks((prev) => ({ ...prev, [p.id]: e.target.value }))
-                        }
-                        className="w-20 rounded-lg border border-slate-700 bg-slate-900 px-2 py-1 text-sm text-slate-100 focus:border-violet-500 focus:outline-none focus:ring-1 focus:ring-violet-500"
-                      />
-                      <span className="text-xs text-slate-500">
-                        {t('expenses.form.remainingHint', {
-                          n: Math.round(remaining * 100) / 100,
-                          total: Math.round(p.totalQuantity * 100) / 100,
-                          unit,
-                        })}
-                      </span>
-                    </div>
-                  )}
-                </li>
-              )
-            })}
+          <div className="mb-2 flex gap-2 text-xs">
+            <button
+              type="button"
+              onClick={selectAll}
+              className="rounded px-2 py-1 text-slate-400 hover:bg-slate-800 hover:text-slate-200"
+            >
+              {t('expenses.form.selectAll')}
+            </button>
+            <button
+              type="button"
+              onClick={selectNone}
+              className="rounded px-2 py-1 text-slate-400 hover:bg-slate-800 hover:text-slate-200"
+            >
+              {t('expenses.form.selectNone')}
+            </button>
+          </div>
+          <ul className="space-y-1">
+            {event.users.map((u) => (
+              <li key={u.id} className="flex items-center gap-2 text-sm">
+                <input
+                  type="checkbox"
+                  checked={splitAmong.has(u.id)}
+                  onChange={() => toggleSplit(u.id)}
+                  disabled={busy}
+                  className="size-4 rounded border-slate-600 bg-slate-800 accent-violet-500"
+                />
+                <span className="text-slate-200">
+                  {u.alias ? `${u.name} (${u.alias})` : u.name}
+                </span>
+              </li>
+            ))}
           </ul>
         </fieldset>
-      )}
-      {error && <p className="text-sm text-rose-400">{error}</p>}
-      <div className="flex gap-2">
-        <Button
-          type="button"
-          variant="secondary"
-          onClick={() => (isDirty ? setConfirmCancel(true) : onDone())}
-          disabled={busy}
-        >
-          {t('common.cancel')}
-        </Button>
-        <Button type="submit" loading={busy} disabled={busy || !online || !paidBy || !amount}>
-          {expense ? t('expenses.form.update') : t('expenses.form.submit')}
-        </Button>
-      </div>
+        {listItems.length > 0 && (
+          <fieldset className="rounded-lg border border-slate-800 p-3">
+            <legend className="px-2 text-xs uppercase tracking-wide text-slate-500">
+              {t('expenses.form.markBought')}
+            </legend>
+            <ul className="space-y-2">
+              {listItems.map((p) => {
+                const checked = p.id in links
+                const remaining = Math.max(1, p.totalQuantity - boughtByOthers(p.id))
+                const unit = displayUnit(p.unit, t)
+                const assignee = p.assignedTo
+                  ? (event.users.find((u) => u.id === p.assignedTo) ?? null)
+                  : null
+                return (
+                  <li key={p.id} className="flex flex-wrap items-center gap-2 text-sm">
+                    <label className="flex flex-1 items-center gap-2">
+                      <input
+                        type="checkbox"
+                        checked={checked}
+                        onChange={() =>
+                          setLinks((prev) => {
+                            const next = { ...prev }
+                            if (p.id in next) delete next[p.id]
+                            else next[p.id] = String(remaining)
+                            return next
+                          })
+                        }
+                        className="size-4 rounded border-slate-600 bg-slate-800 accent-violet-500"
+                      />
+                      <span className="text-slate-200">
+                        {p.item}{' '}
+                        <span className="text-slate-500">
+                          — {Math.round(p.totalQuantity * 100) / 100} {unit}
+                        </span>
+                        {assignee && (
+                          <span
+                            className="ml-1 whitespace-nowrap text-xs text-violet-300"
+                            title={t('purchases.form.assignedTo')}
+                          >
+                            🛒{' '}
+                            {assignee.alias
+                              ? `${assignee.name} (${assignee.alias})`
+                              : assignee.name}
+                          </span>
+                        )}
+                      </span>
+                    </label>
+                    {checked && (
+                      <div className="flex items-center gap-2">
+                        <input
+                          type="text"
+                          inputMode="decimal"
+                          value={links[p.id] ?? ''}
+                          onChange={(e) =>
+                            setLinks((prev) => ({ ...prev, [p.id]: e.target.value }))
+                          }
+                          className="w-20 rounded-lg border border-slate-700 bg-slate-900 px-2 py-1 text-sm text-slate-100 focus:border-violet-500 focus:outline-none focus:ring-1 focus:ring-violet-500"
+                        />
+                        <span className="text-xs text-slate-500">
+                          {t('expenses.form.remainingHint', {
+                            n: Math.round(remaining * 100) / 100,
+                            total: Math.round(p.totalQuantity * 100) / 100,
+                            unit,
+                          })}
+                        </span>
+                      </div>
+                    )}
+                  </li>
+                )
+              })}
+            </ul>
+          </fieldset>
+        )}
+        {error && <p className="text-sm text-rose-400">{error}</p>}
+        <div className="flex gap-2">
+          <Button
+            type="button"
+            variant="secondary"
+            onClick={() => (isDirty ? setConfirmCancel(true) : onDone())}
+            disabled={busy}
+          >
+            {t('common.cancel')}
+          </Button>
+          <Button type="submit" loading={busy} disabled={busy || !online || !paidBy || !amount}>
+            {expense ? t('expenses.form.update') : t('expenses.form.submit')}
+          </Button>
+        </div>
       </form>
     </>
   )

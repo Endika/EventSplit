@@ -5,13 +5,7 @@ import { EditPin } from '@/domain/value-objects/EditPin'
 import { Button } from '@/presentation/components/common/Button'
 import { Input } from '@/presentation/components/common/Input'
 
-export function EventPinGate({
-  event,
-  onUnlock,
-}: {
-  event: EventSnapshot
-  onUnlock: () => void
-}) {
+export function EventPinGate({ event, onUnlock }: { event: EventSnapshot; onUnlock: () => void }) {
   const { t } = useTranslation()
   const [pin, setPin] = useState('')
   const [error, setError] = useState<string | null>(null)

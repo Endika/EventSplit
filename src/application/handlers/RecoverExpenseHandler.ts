@@ -1,4 +1,7 @@
-import { RecoverExpenseSchema, type RecoverExpenseInput } from '@/application/dtos/RecoverExpenseDTO'
+import {
+  RecoverExpenseSchema,
+  type RecoverExpenseInput,
+} from '@/application/dtos/RecoverExpenseDTO'
 import type { EventSnapshot } from '@/domain/entities/Event'
 import { Expense } from '@/domain/entities/Expense'
 import { HistoryAppender } from '@/domain/services/HistoryAppender'
@@ -19,7 +22,8 @@ export class RecoverExpenseHandler {
         throw new Error('Cannot recover an expense whose payer is no longer in the event')
 
       const recovered = Expense.restore(existing).recover()
-      const editorName = row.snapshot.users.find((u) => u.id === parsed.recoveredBy)?.name ?? 'Someone'
+      const editorName =
+        row.snapshot.users.find((u) => u.id === parsed.recoveredBy)?.name ?? 'Someone'
       const nextSnapshot: EventSnapshot = HistoryAppender.append(
         {
           ...row.snapshot,

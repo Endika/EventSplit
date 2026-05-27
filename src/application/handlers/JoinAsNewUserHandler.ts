@@ -15,7 +15,11 @@ export class JoinAsNewUserHandler {
 
   async execute(input: JoinAsNewUserInput): Promise<JoinResult> {
     const parsed = JoinAsNewUserSchema.parse(input)
-    const newUser = User.create({ name: parsed.name, alias: parsed.alias ?? null, kind: parsed.kind })
+    const newUser = User.create({
+      name: parsed.name,
+      alias: parsed.alias ?? null,
+      kind: parsed.kind,
+    })
 
     const saved = await withOptimisticRetry(this.repo, parsed.eventId, (row) => {
       return Event.restore(row.snapshot).addUser(newUser).toSnapshot()

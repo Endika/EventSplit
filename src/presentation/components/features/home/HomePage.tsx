@@ -4,7 +4,10 @@ import { useContainer } from '@/presentation/context/ContainerProvider'
 import { useOnlineStatus } from '@/presentation/context/SyncContext'
 import type { CreateEventHandler } from '@/application/handlers/CreateEventHandler'
 import type { SetEditPinHandler } from '@/application/handlers/SetEditPinHandler'
-import type { LocalStorageCache, CachedEventSummary } from '@/infrastructure/persistence/LocalStorageCache'
+import type {
+  LocalStorageCache,
+  CachedEventSummary,
+} from '@/infrastructure/persistence/LocalStorageCache'
 import { Button } from '@/presentation/components/common/Button'
 import { Input } from '@/presentation/components/common/Input'
 import { RecentEventsList } from './RecentEventsList'
@@ -74,14 +77,14 @@ export function HomePage() {
       <p className="mb-6 text-gray-600">{t('home.tagline')}</p>
 
       {!creating ? (
-        <Button
-          onClick={() => setCreating(true)}
-          className="mb-6 w-full"
-        >
+        <Button onClick={() => setCreating(true)} className="mb-6 w-full">
           + {t('home.newEvent')}
         </Button>
       ) : (
-        <form onSubmit={onSubmit} className="mb-6 space-y-3 rounded-lg border border-slate-800 bg-slate-900 p-4">
+        <form
+          onSubmit={onSubmit}
+          className="mb-6 space-y-3 rounded-lg border border-slate-800 bg-slate-900 p-4"
+        >
           <Input
             placeholder={t('home.eventName')}
             value={name}

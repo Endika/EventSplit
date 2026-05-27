@@ -168,9 +168,7 @@ export function LocationTab() {
                 <>
                   <div className="font-medium text-slate-100">{loc.name}</div>
                   {loc.address && <div className="text-sm text-slate-300">{loc.address}</div>}
-                  {loc.postalCode && (
-                    <div className="text-sm text-slate-400">{loc.postalCode}</div>
-                  )}
+                  {loc.postalCode && <div className="text-sm text-slate-400">{loc.postalCode}</div>}
                   {loc.googleMapsUrl && (
                     <a
                       href={loc.googleMapsUrl}
@@ -199,9 +197,7 @@ export function LocationTab() {
               )}
               {event.emergencyContact && (
                 <div>
-                  <div className="text-xs uppercase text-slate-500">
-                    {t('location.emergency')}
-                  </div>
+                  <div className="text-xs uppercase text-slate-500">{t('location.emergency')}</div>
                   <div className="text-sm text-slate-200">{event.emergencyContact}</div>
                 </div>
               )}

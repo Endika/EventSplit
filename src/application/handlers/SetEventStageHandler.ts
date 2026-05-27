@@ -1,7 +1,4 @@
-import {
-  SetEventStageSchema,
-  type SetEventStageInput,
-} from '@/application/dtos/SetEventStageDTO'
+import { SetEventStageSchema, type SetEventStageInput } from '@/application/dtos/SetEventStageDTO'
 import { Event, type EventSnapshot } from '@/domain/entities/Event'
 import { type IEventRepository, VersionConflictError } from '@/domain/repositories/IEventRepository'
 
