@@ -1,5 +1,17 @@
 # Changelog
 
+## [2.5.0](https://github.com/Endika/EventSplit/compare/v2.4.0...v2.5.0) (2026-05-27)
+
+
+### Features
+
+* **expenses:** show who is assigned to buy each item ([4216ecd](https://github.com/Endika/EventSplit/commit/4216ecdadeae3fb2954288e3963de2322c53c0eb))
+
+
+### Bug Fixes
+
+* **purchases:** name field first; subgroup requires a group ([d45797b](https://github.com/Endika/EventSplit/commit/d45797b494dc08c20aaef1b9098aa09c1bf03e52))
+
 ## [2.4.0](https://github.com/Endika/EventSplit/compare/v2.3.0...v2.4.0) (2026-05-27)
 
 
