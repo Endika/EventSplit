@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.2.0](https://github.com/Endika/EventSplit/compare/v2.1.1...v2.2.0) (2026-05-27)
+
+
+### Features
+
+* **purchases:** allow 0.25-step consumer multipliers ([0f88e21](https://github.com/Endika/EventSplit/commit/0f88e21e3495fa1fdc1060d2f6d15f52b64ea886))
+
 ## [2.1.1](https://github.com/Endika/EventSplit/compare/v2.1.0...v2.1.1) (2026-05-27)
 
 
