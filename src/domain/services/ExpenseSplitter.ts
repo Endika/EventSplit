@@ -23,7 +23,6 @@ export interface Transfer {
 
 export interface SplitterResult {
   totalCents: number
-  perPersonCents: number
   balances: UserBalance[]
   transfers: Transfer[]
 }
@@ -31,7 +30,7 @@ export interface SplitterResult {
 export const ExpenseSplitter = {
   compute(input: SplitterInput): SplitterResult {
     const n = input.participantIds.length
-    if (n === 0) return { totalCents: 0, perPersonCents: 0, balances: [], transfers: [] }
+    if (n === 0) return { totalCents: 0, balances: [], transfers: [] }
 
     const spent = new Map<string, number>(input.participantIds.map((id) => [id, 0]))
     const owed = new Map<string, number>(input.participantIds.map((id) => [id, 0]))
@@ -64,9 +63,6 @@ export const ExpenseSplitter = {
       balanceCents: (spent.get(id) ?? 0) - (owed.get(id) ?? 0),
     }))
 
-    // perPersonCents is now an approximation — keep it for backward compat with the UI summary
-    const perPersonCents = Math.floor(totalCents / n)
-
     // Greedy settlement: largest debtor pays largest creditor
     const debtors = balances
       .filter((b) => b.balanceCents < 0)
@@ -91,6 +87,6 @@ export const ExpenseSplitter = {
       if (c.get === 0) j++
     }
 
-    return { totalCents, perPersonCents, balances, transfers }
+    return { totalCents, balances, transfers }
   },
 }
