@@ -219,6 +219,9 @@
         "cans": "llaunes",
         "kg": "kg",
         "liters": "litres",
+        "grams": "grams",
+        "bag": "bosses",
+        "tray": "safates",
         "single": "Unitat única"
       },
       "unitPlaceholder": "ex. ampolles, garrafa 8L",

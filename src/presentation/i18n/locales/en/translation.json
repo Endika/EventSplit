@@ -219,6 +219,9 @@
         "cans": "cans",
         "kg": "kg",
         "liters": "liters",
+        "grams": "grams",
+        "bag": "bags",
+        "tray": "trays",
         "single": "Single unit"
       },
       "unitPlaceholder": "e.g. bottles, garrafa 8L",

@@ -27,7 +27,7 @@ export interface PurchaseSnapshot {
   group: string | null
 }
 
-export const VALID_UNITS = ['units', 'bottles', 'cans', 'kg', 'liters'] as const
+export const VALID_UNITS = ['units', 'bottles', 'cans', 'bag', 'tray', 'kg', 'grams', 'liters'] as const
 
 /**
  * Sentinel unit for shared staples (salt, sugar, oil): the quantity is FIXED
