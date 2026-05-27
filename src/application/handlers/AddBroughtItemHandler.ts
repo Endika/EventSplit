@@ -2,14 +2,13 @@ import { AddBroughtItemSchema, type AddBroughtItemInput } from '@/application/dt
 import { type EventSnapshot } from '@/domain/entities/Event'
 import { Purchase } from '@/domain/entities/Purchase'
 import { HistoryAppender } from '@/domain/services/HistoryAppender'
-import { type IEventRepository, VersionConflictError } from '@/domain/repositories/IEventRepository'
+import type { IEventRepository } from '@/domain/repositories/IEventRepository'
+import { withOptimisticRetry } from '@/application/support/withOptimisticRetry'
 
 export interface AddBroughtItemResult {
   event: EventSnapshot
   version: number
 }
-
-const MAX_RETRIES = 3
 
 export class AddBroughtItemHandler {
   constructor(private readonly repo: IEventRepository) {}
@@ -17,10 +16,7 @@ export class AddBroughtItemHandler {
   async execute(input: AddBroughtItemInput): Promise<AddBroughtItemResult> {
     const parsed = AddBroughtItemSchema.parse(input)
 
-    for (let attempt = 0; attempt < MAX_RETRIES; attempt++) {
-      const row = await this.repo.findById(parsed.eventId)
-      if (!row) throw new Error('Event not found')
-
+    const saved = await withOptimisticRetry(this.repo, parsed.eventId, (row) => {
       const knownIds = new Set(row.snapshot.users.map((u) => u.id))
       if (!knownIds.has(parsed.createdBy))
         throw new Error(`createdBy ${parsed.createdBy} not in event`)
@@ -50,13 +46,8 @@ export class AddBroughtItemHandler {
         },
       )
 
-      try {
-        const saved = await this.repo.update(parsed.eventId, nextSnapshot, row.version)
-        return { event: saved.snapshot, version: saved.version }
-      } catch (err) {
-        if (!(err instanceof VersionConflictError)) throw err
-      }
-    }
-    throw new Error('Could not save: too many concurrent writes')
+      return nextSnapshot
+    })
+    return { event: saved.snapshot, version: saved.version }
   }
 }
