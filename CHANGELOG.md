@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.6.4](https://github.com/Endika/EventSplit/compare/v2.6.3...v2.6.4) (2026-05-28)
+
+
+### Bug Fixes
+
+* **profile:** credit actual editor in profile-update history ([1cf2e7a](https://github.com/Endika/EventSplit/commit/1cf2e7a27b55ebbd7b373bb9f4a8b1c7ee12eae5))
+
 ## [2.6.3](https://github.com/Endika/EventSplit/compare/v2.6.2...v2.6.3) (2026-05-28)
 
 
