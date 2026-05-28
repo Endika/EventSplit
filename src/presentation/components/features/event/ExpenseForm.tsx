@@ -275,7 +275,7 @@ export function ExpenseForm({
               {listItems.map((p) => {
                 const checked = p.id in links
                 const remaining = Math.max(1, p.totalQuantity - boughtByOthers(p.id))
-                const unit = displayUnit(p.unit, t)
+                const unit = displayUnit(p.unit, t, p.totalQuantity)
                 const assignee = p.assignedTo
                   ? (event.users.find((u) => u.id === p.assignedTo) ?? null)
                   : null

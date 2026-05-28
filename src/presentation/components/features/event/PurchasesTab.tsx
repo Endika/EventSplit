@@ -342,7 +342,7 @@ export function PurchasesTab() {
                   <div className="text-sm text-slate-400">
                     {t(p.kind === 'bring' ? 'purchases.totalToBring' : 'purchases.totalQuantity', {
                       n: Math.round(p.totalQuantity * 100) / 100,
-                      unit: displayUnit(p.unit, t),
+                      unit: displayUnit(p.unit, t, p.totalQuantity),
                     })}
                   </div>
                   <div className="text-xs text-slate-500">
@@ -384,7 +384,7 @@ export function PurchasesTab() {
                         {t('purchases.boughtProgress', {
                           n: round2(bought),
                           total: round2(total),
-                          unit: displayUnit(p.unit, t),
+                          unit: displayUnit(p.unit, t, total),
                         })}
                       </span>
                     </div>
