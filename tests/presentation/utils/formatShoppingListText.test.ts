@@ -2,12 +2,25 @@ import { describe, it, expect } from 'vitest'
 import { formatShoppingListText } from '@/presentation/utils/formatShoppingListText'
 import type { EventSnapshot } from '@/domain/entities/Event'
 
+const STUB_TRANSLATIONS: Record<string, string> = {
+  'share.format.header': '🛒 {{eventName}} — Shopping list',
+  'share.format.unassigned': 'unassigned',
+  'share.format.noGroup': 'No group',
+  'share.format.broughtSection': '📦 What people are bringing',
+  'purchases.form.units.bottles': 'bottles',
+  'purchases.form.units.units': 'units',
+  'purchases.form.units.kg': 'kg',
+  'purchases.form.units.single': 'single',
+}
+
 const t = (key: string, vars?: Record<string, string>): string => {
-  if (!vars) return key
-  return Object.entries(vars).reduce(
-    (s, [k, v]) => s.replace(`{{${k}}}`, v),
-    key,
-  )
+  let value = STUB_TRANSLATIONS[key] ?? key
+  if (vars) {
+    for (const [k, v] of Object.entries(vars)) {
+      value = value.replace(`{{${k}}}`, v)
+    }
+  }
+  return value
 }
 
 function makeEvent(overrides: Partial<EventSnapshot>): EventSnapshot {
@@ -40,8 +53,7 @@ describe('formatShoppingListText', () => {
   it('renders header with event name', () => {
     const event = makeEvent({ users: [ikerUser], purchases: [baseBuy] })
     const text = formatShoppingListText(event, t)
-    expect(text).toContain('share.format.header')
-    expect(text).toContain('Iker BDay')
+    expect(text).toContain('🛒 Iker BDay — Shopping list')
   })
 
   it('renders group and item line with assignedTo name and qty/total/unit', () => {
@@ -59,10 +71,10 @@ describe('formatShoppingListText', () => {
     expect(text).toContain('✅')
   })
 
-  it('renders "share.format.unassigned" when assignedTo is null', () => {
+  it('renders "unassigned" when assignedTo is null', () => {
     const event = makeEvent({ users: [], purchases: [{ ...baseBuy, assignedTo: null }] })
     const text = formatShoppingListText(event, t)
-    expect(text).toContain('— share.format.unassigned')
+    expect(text).toContain('— unassigned')
   })
 
   it('renders subgroup as "└ {name}" under its group', () => {
@@ -73,7 +85,7 @@ describe('formatShoppingListText', () => {
     expect(text).toContain('└ Beer')
   })
 
-  it('puts ungrouped items under "share.format.noGroup" at the end', () => {
+  it('puts ungrouped items under "No group" at the end', () => {
     const event = makeEvent({
       users: [ikerUser],
       purchases: [
@@ -83,7 +95,7 @@ describe('formatShoppingListText', () => {
     })
     const text = formatShoppingListText(event, t)
     const drinksIdx = text.indexOf('📌 Drinks')
-    const noGroupIdx = text.indexOf('share.format.noGroup')
+    const noGroupIdx = text.indexOf('📌 No group')
     expect(drinksIdx).toBeLessThan(noGroupIdx)
   })
 
@@ -97,7 +109,7 @@ describe('formatShoppingListText', () => {
       ],
     })
     const text = formatShoppingListText(event, t)
-    expect(text).toContain('share.format.broughtSection')
+    expect(text).toContain('📦 What people are bringing')
     expect(text).toContain('• Tablecloth — Luis')
   })
 
