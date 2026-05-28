@@ -375,7 +375,6 @@
     },
     "format": {
       "header": "🛒 {{eventName}} — Shopping list",
-      "unassigned": "unassigned",
       "noGroup": "No group",
       "broughtSection": "📦 What people are bringing"
     }

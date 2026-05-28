@@ -4,7 +4,6 @@ import type { EventSnapshot } from '@/domain/entities/Event'
 
 const STUB_TRANSLATIONS: Record<string, string> = {
   'share.format.header': '🛒 {{eventName}} — Shopping list',
-  'share.format.unassigned': 'unassigned',
   'share.format.noGroup': 'No group',
   'share.format.broughtSection': '📦 What people are bringing',
   'purchases.form.units.bottles': 'bottles',
@@ -71,10 +70,30 @@ describe('formatShoppingListText', () => {
     expect(text).toContain('✅')
   })
 
-  it('renders "unassigned" when assignedTo is null', () => {
+  it('omits the assignee segment for buy items when assignedTo is null', () => {
     const event = makeEvent({ users: [], purchases: [{ ...baseBuy, assignedTo: null }] })
     const text = formatShoppingListText(event, t)
-    expect(text).toContain('— unassigned')
+    expect(text).toContain('• Wine · 0/10 bottles')
+    expect(text).not.toMatch(/Wine\s*—/)
+  })
+
+  it('omits the assignee segment for bring items when assignedTo is null', () => {
+    const event = makeEvent({
+      users: [],
+      purchases: [
+        {
+          ...baseBuy,
+          id: 'pBring',
+          kind: 'bring',
+          item: 'Ice',
+          unit: 'kg',
+          assignedTo: null,
+        },
+      ],
+    })
+    const text = formatShoppingListText(event, t)
+    expect(text).toContain('• Ice')
+    expect(text).not.toMatch(/Ice\s*—/)
   })
 
   it('renders subgroup as "└ {name}" under its group', () => {
@@ -122,12 +141,22 @@ describe('formatShoppingListText', () => {
     expect(formatShoppingListText(eventB, t)).toContain('0/4 bottles')
   })
 
-  it('omits quantity/unit block for SHARED_UNIT items', () => {
-    const event = makeEvent({ users: [],
-      purchases: [{ ...baseBuy, unit: 'single', item: 'Olive oil', assignedTo: null }] })
+  it('shows quantity and unit for SHARED_UNIT items', () => {
+    const event = makeEvent({
+      users: [],
+      purchases: [
+        {
+          ...baseBuy,
+          unit: 'single',
+          item: 'Olive oil',
+          quantity: 3,
+          totalQuantity: 3,
+          assignedTo: null,
+        },
+      ],
+    })
     const text = formatShoppingListText(event, t)
-    expect(text).toContain('• Olive oil')
-    expect(text).not.toMatch(/Olive oil[^\n]*\d+\/\d+/)
+    expect(text).toContain('• Olive oil · 0/3 single')
   })
 
   it('excludes soft-deleted purchases', () => {
