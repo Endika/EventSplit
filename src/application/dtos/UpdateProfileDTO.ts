@@ -5,6 +5,7 @@ import { USER_KINDS } from '@/domain/entities/User'
 export const UpdateProfileSchema = z.object({
   eventId: z.string().regex(/^[a-z0-9]{7}$/),
   userId: z.string().uuid(),
+  actorId: z.string().uuid(),
   name: z.string().trim().min(2).max(50).optional(),
   alias: z.string().trim().max(50).nullable().optional(),
   email: z.string().trim().max(100).nullable().optional(),
