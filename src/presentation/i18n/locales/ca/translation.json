@@ -381,13 +381,6 @@
   },
   "consumption": {
     "title": "🎉 El que et toca en aquest esdeveniment",
-    "families": {
-      "liquids": "🍶 Líquids",
-      "bottled": "🍺 Embotellat",
-      "solids": "🍖 Sòlids",
-      "other": "🔢 Altres"
-    },
-    "detail": "Detall",
     "youBring": "I tu portes",
     "groupShared": "Compartits del grup",
     "closingPhrase": "✨ Si et semblen massa, potser cal retallar la llista",

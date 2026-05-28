@@ -39,29 +39,14 @@ export function ConsumptionSummary({ userId }: { userId: string }) {
         <>
           <h3 className="mb-2 text-sm font-semibold text-slate-100">{t('consumption.title')}</h3>
           <hr className="mb-3 border-slate-700" />
-          {blocks.headlineLines.length > 0 && (
+          {blocks.detail.length > 0 && (
             <ul className="mb-3 space-y-1 text-sm text-slate-200">
-              {blocks.headlineLines.map((line) => (
-                <li key={line.label}>
-                  {line.label}: {line.quantity}
-                  {line.unit ? ` ${line.unit}` : ''}
+              {blocks.detail.map((d, idx) => (
+                <li key={`${d.item}-${idx}`}>
+                  • {d.item} · {d.quantity} {displayUnit(d.unit, t)}
                 </li>
               ))}
             </ul>
-          )}
-          {blocks.detail.length > 0 && (
-            <>
-              <p className="mb-1 text-xs uppercase tracking-wide text-slate-400">
-                {t('consumption.detail')}
-              </p>
-              <ul className="mb-3 space-y-1 text-sm text-slate-200">
-                {blocks.detail.map((d, idx) => (
-                  <li key={`${d.item}-${idx}`}>
-                    • {d.item} · {d.quantity} {displayUnit(d.unit, t)}
-                  </li>
-                ))}
-              </ul>
-            </>
           )}
         </>
       )}

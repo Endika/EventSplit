@@ -381,13 +381,6 @@
   },
   "consumption": {
     "title": "🎉 Ekitaldi honetan dagokizuna",
-    "families": {
-      "liquids": "🍶 Likidoak",
-      "bottled": "🍺 Botilatua",
-      "solids": "🍖 Solidoak",
-      "other": "🔢 Bestelakoak"
-    },
-    "detail": "Xehetasunak",
     "youBring": "Eta zuk eramango duzu",
     "groupShared": "Taldearen artean banatuak",
     "closingPhrase": "✨ Gehiegi iruditzen bazaizu, agian zerrenda murriztu behar da",

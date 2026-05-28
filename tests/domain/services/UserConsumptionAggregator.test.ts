@@ -60,27 +60,23 @@ describe('UserConsumptionAggregator', () => {
     expect(u2.detail).toEqual([{ item: 'Wine', quantity: 2, unit: 'bottles' }])
   })
 
-  it('aggregates totals by unit family', () => {
+  it('produces one detail entry per buy purchase with shares', () => {
     const event = makeEvent({
       purchases: [
         { ...basePurchase, id: 'p1', item: 'Wine', unit: 'bottles', totalQuantity: 6,
           consumers: [{ userId: 'u1', multiplier: 1 }] },
         { ...basePurchase, id: 'p2', item: 'Water', unit: 'liters', totalQuantity: 4,
           consumers: [{ userId: 'u1', multiplier: 1 }] },
-        { ...basePurchase, id: 'p3', item: 'Bread', unit: 'kg', totalQuantity: 0.5,
-          consumers: [{ userId: 'u1', multiplier: 1 }] },
-        { ...basePurchase, id: 'p4', item: 'Salt', unit: 'grams', totalQuantity: 250,
-          consumers: [{ userId: 'u1', multiplier: 1 }] },
       ],
     })
     const r = UserConsumptionAggregator.compute(event, 'u1')
-    expect(r.byFamily.bottled).toBe(6)
-    expect(r.byFamily.liquids).toBe(4)
-    expect(r.byFamily.solids).toBeCloseTo(0.75)
-    expect(r.byFamily.other).toBe(0)
+    expect(r.detail).toEqual([
+      { item: 'Wine', quantity: 6, unit: 'bottles' },
+      { item: 'Water', quantity: 4, unit: 'liters' },
+    ])
   })
 
-  it('puts SHARED_UNIT items into shared bucket, not detail or byFamily', () => {
+  it('puts SHARED_UNIT items into shared bucket, not detail', () => {
     const event = makeEvent({
       purchases: [
         { ...basePurchase, id: 'p1', item: 'Olive oil', unit: 'single', totalQuantity: 1,
@@ -90,7 +86,6 @@ describe('UserConsumptionAggregator', () => {
     const r = UserConsumptionAggregator.compute(event, 'u1')
     expect(r.detail).toEqual([])
     expect(r.shared).toEqual([{ item: 'Olive oil' }])
-    expect(r.byFamily.other).toBe(0)
   })
 
   it('puts bring items where assignedTo === userId into brought', () => {
