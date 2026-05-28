@@ -12,11 +12,11 @@ const STUB_TRANSLATIONS: Record<string, string> = {
   'purchases.form.units.single': 'single',
 }
 
-const t = (key: string, vars?: Record<string, string>): string => {
+const t = (key: string, vars?: Record<string, unknown>): string => {
   let value = STUB_TRANSLATIONS[key] ?? key
   if (vars) {
     for (const [k, v] of Object.entries(vars)) {
-      value = value.replace(`{{${k}}}`, v)
+      value = value.replace(`{{${k}}}`, String(v))
     }
   }
   return value

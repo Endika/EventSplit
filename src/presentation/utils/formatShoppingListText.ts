@@ -1,7 +1,7 @@
 import type { EventSnapshot } from '@/domain/entities/Event'
 import type { PurchaseSnapshot } from '@/domain/entities/Purchase'
 import { displayUnit } from '@/presentation/utils/units'
-type T = (key: string, vars?: Record<string, string>) => string
+type T = (key: string, vars?: Record<string, unknown>) => string
 
 function formatQty(n: number): string {
   return Number.isInteger(n) ? String(n) : String(Math.round(n * 10) / 10)
@@ -33,7 +33,7 @@ function renderBuyLine(event: EventSnapshot, p: PurchaseSnapshot, t: T): string 
   const checkmark = p.purchased ? ' ✅' : ''
   const bought = boughtQtyFor(event, p.id)
   const total = p.totalQuantity
-  const unit = displayUnit(p.unit, t)
+  const unit = displayUnit(p.unit, t, total)
   return `     • ${name}${assigneePart} · ${formatQty(bought)}/${formatQty(total)} ${unit}${checkmark}`
 }
 

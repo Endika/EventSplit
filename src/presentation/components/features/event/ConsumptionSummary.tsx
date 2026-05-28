@@ -43,7 +43,7 @@ export function ConsumptionSummary({ userId }: { userId: string }) {
             <ul className="mb-3 space-y-1 text-sm text-slate-200">
               {blocks.detail.map((d, idx) => (
                 <li key={`${d.item}-${idx}`}>
-                  • {d.item} · {d.quantity} {displayUnit(d.unit, t)}
+                  • {d.item} · {d.quantity} {displayUnit(d.unit, t, d.quantity)}
                 </li>
               ))}
             </ul>
