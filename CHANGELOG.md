@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.6.1](https://github.com/Endika/EventSplit/compare/v2.6.0...v2.6.1) (2026-05-28)
+
+
+### Bug Fixes
+
+* **shopping:** clean assignee and show qty for shared units ([c898afb](https://github.com/Endika/EventSplit/commit/c898afb6e889e46c07715d59aa0f1aeec2e3f799))
+
 ## [2.6.0](https://github.com/Endika/EventSplit/compare/v2.5.4...v2.6.0) (2026-05-28)
 
 
