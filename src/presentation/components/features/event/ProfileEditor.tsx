@@ -70,7 +70,7 @@ export function ProfileEditor({ userId, onClose }: { userId?: string; onClose: (
 
   function save(e: FormEvent) {
     e.preventDefault()
-    if (!event || !targetUserId) return
+    if (!event || !targetUserId || !me?.id) return
     guardedExecute(async () => {
       setBusy(true)
       setError(null)
@@ -79,6 +79,7 @@ export function ProfileEditor({ userId, onClose }: { userId?: string; onClose: (
         const result = await handler.execute({
           eventId: event.id,
           userId: targetUserId,
+          actorId: me.id,
           name: name.trim(),
           alias: alias.trim() || null,
           email: email.trim() || null,
