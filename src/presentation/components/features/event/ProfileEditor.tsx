@@ -18,6 +18,7 @@ import { reportError } from '@/shared/utils/reportError'
 import { Modal } from '@/presentation/components/common/Modal'
 import { Button } from '@/presentation/components/common/Button'
 import { Input } from '@/presentation/components/common/Input'
+import { ConsumptionSummary } from './ConsumptionSummary'
 
 export function ProfileEditor({ userId, onClose }: { userId?: string; onClose: () => void }) {
   const { t } = useTranslation()
@@ -309,6 +310,8 @@ export function ProfileEditor({ userId, onClose }: { userId?: string; onClose: (
             </div>
           )}
         </div>
+
+        <ConsumptionSummary userId={targetUserId} />
 
         {error && <p className="text-sm text-rose-400">{error}</p>}
 
