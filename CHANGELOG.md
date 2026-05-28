@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.6.2](https://github.com/Endika/EventSplit/compare/v2.6.1...v2.6.2) (2026-05-28)
+
+
+### Bug Fixes
+
+* **profile:** drop misleading unit-family totals from summary ([8b35a1c](https://github.com/Endika/EventSplit/commit/8b35a1cdf5b46795a1dd3d3070044fb122118c23))
+
 ## [2.6.1](https://github.com/Endika/EventSplit/compare/v2.6.0...v2.6.1) (2026-05-28)
 
 
