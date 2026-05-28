@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.6.3](https://github.com/Endika/EventSplit/compare/v2.6.2...v2.6.3) (2026-05-28)
+
+
+### Bug Fixes
+
+* **shopping:** respect group and subgroup order in share text ([8731e07](https://github.com/Endika/EventSplit/commit/8731e0737b39e0333f2902872022b8b5bdddf688))
+
 ## [2.6.2](https://github.com/Endika/EventSplit/compare/v2.6.1...v2.6.2) (2026-05-28)
 
 
