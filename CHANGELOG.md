@@ -1,5 +1,25 @@
 # Changelog
 
+## [2.6.0](https://github.com/Endika/EventSplit/compare/v2.5.4...v2.6.0) (2026-05-28)
+
+
+### Features
+
+* **i18n:** add share and consumption keys in 6 locales ([d755564](https://github.com/Endika/EventSplit/commit/d755564706d0777b57fb6bbbf05902b476e11c83))
+* **profile:** add consumption summary formatter ([c52ed9b](https://github.com/Endika/EventSplit/commit/c52ed9b744cf669e4cc35e743ff69dba6a3d8352))
+* **profile:** add ConsumptionSummary section ([20b488a](https://github.com/Endika/EventSplit/commit/20b488a5d9551a295656f8d72ef139d017b643a0))
+* **profile:** show consumption summary in profile editor ([3966be7](https://github.com/Endika/EventSplit/commit/3966be73405d06a6f8644b02048bc749d638bf7f))
+* **shopping:** add per-user consumption aggregator ([f9f8e3c](https://github.com/Endika/EventSplit/commit/f9f8e3c3d2a9bfaa0a16273806d12199ad1cd502))
+* **shopping:** add ShareListModal component ([43ea16f](https://github.com/Endika/EventSplit/commit/43ea16fd41db5c43c32ea05d2d1bf4f3586a18de))
+* **shopping:** add shopping list text formatter ([1d062d8](https://github.com/Endika/EventSplit/commit/1d062d8f41c0e6cb17daa0f33fb5f5bc9a066e25))
+* **shopping:** add unit family classifier ([0f0fd44](https://github.com/Endika/EventSplit/commit/0f0fd4462e5d9afd7a66ed7f4931d2ad7dcfe25b))
+* **shopping:** wire share button into purchases tab ([3a7f580](https://github.com/Endika/EventSplit/commit/3a7f580ed3358fa6a272d0ef0162e7277ad3dc00))
+
+
+### Bug Fixes
+
+* **shopping:** use i18next interpolation and displayUnit in formatter ([bba3199](https://github.com/Endika/EventSplit/commit/bba319934ae6f49acaa658fce53e714e375be31c))
+
 ## [2.5.4](https://github.com/Endika/EventSplit/compare/v2.5.3...v2.5.4) (2026-05-27)
 
 
