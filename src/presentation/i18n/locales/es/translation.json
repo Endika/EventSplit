@@ -381,13 +381,6 @@
   },
   "consumption": {
     "title": "🎉 Lo que te toca en este evento",
-    "families": {
-      "liquids": "🍶 Líquidos",
-      "bottled": "🍺 Embotellado",
-      "solids": "🍖 Sólidos",
-      "other": "🔢 Otros"
-    },
-    "detail": "Detalle",
     "youBring": "Y tú traes",
     "groupShared": "Compartidos del grupo",
     "closingPhrase": "✨ Si te parecen demasiados, igual hay que recortar la lista",

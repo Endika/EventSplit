@@ -381,13 +381,6 @@
   },
   "consumption": {
     "title": "🎉 What's on your tab for this event",
-    "families": {
-      "liquids": "🍶 Liquids",
-      "bottled": "🍺 Bottled",
-      "solids": "🍖 Solids",
-      "other": "🔢 Other"
-    },
-    "detail": "Detail",
     "youBring": "You bring",
     "groupShared": "Shared by the group",
     "closingPhrase": "✨ If that sounds like too much, maybe trim the list",

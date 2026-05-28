@@ -1,6 +1,5 @@
 import { SHARED_UNIT, type PurchaseSnapshot } from '@/domain/entities/Purchase'
 import type { EventSnapshot } from '@/domain/entities/Event'
-import { unitFamily, type UnitFamily } from '@/domain/services/unitFamily'
 
 export interface DetailLine {
   item: string
@@ -17,25 +16,10 @@ export interface SharedLine {
 }
 
 export interface ConsumptionResult {
-  byFamily: Record<UnitFamily, number>
   detail: DetailLine[]
   brought: BroughtLine[]
   shared: SharedLine[]
   isEmpty: boolean
-}
-
-function emptyByFamily(): Record<UnitFamily, number> {
-  return { liquids: 0, bottled: 0, solids: 0, other: 0, shared: 0 }
-}
-
-function addToFamily(byFamily: Record<UnitFamily, number>, unit: string, quantity: number): void {
-  const fam = unitFamily(unit)
-  if (fam === 'shared') return
-  if (unit === 'grams') {
-    byFamily.solids += quantity / 1000
-  } else {
-    byFamily[fam] += quantity
-  }
 }
 
 function userShareOf(purchase: PurchaseSnapshot, userId: string): number | null {
@@ -47,7 +31,6 @@ function userShareOf(purchase: PurchaseSnapshot, userId: string): number | null 
 }
 
 function compute(event: EventSnapshot, userId: string): ConsumptionResult {
-  const byFamily = emptyByFamily()
   const detail: DetailLine[] = []
   const brought: BroughtLine[] = []
   const shared: SharedLine[] = []
@@ -70,11 +53,10 @@ function compute(event: EventSnapshot, userId: string): ConsumptionResult {
     const share = userShareOf(p, userId)
     if (share === null) continue
     detail.push({ item: p.item, quantity: share, unit: p.unit })
-    addToFamily(byFamily, p.unit, share)
   }
 
   const isEmpty = detail.length === 0 && brought.length === 0 && shared.length === 0
-  return { byFamily, detail, brought, shared, isEmpty }
+  return { detail, brought, shared, isEmpty }
 }
 
 export const UserConsumptionAggregator = { compute }
