@@ -363,5 +363,36 @@
   "sync": {
     "remoteUpdate": "Beste norbaitek aldaketa bat egin du — zure ikuspegia eguneratu da.",
     "rateLimited": "Aldaketa gehiegi azkarregi — itxaron une bat eta saiatu berriro."
+  },
+  "share": {
+    "button": "Zerrenda partekatu",
+    "modal": {
+      "title": "Erosketa-zerrenda partekatu",
+      "share": "Partekatu...",
+      "copy": "Kopiatu",
+      "copied": "Kopiatuta",
+      "close": "Itxi"
+    },
+    "format": {
+      "header": "🛒 {{eventName}} — Erosketa-zerrenda",
+      "unassigned": "esleitu gabe",
+      "noGroup": "Talderik gabe",
+      "broughtSection": "📦 Eramaten dutena"
+    }
+  },
+  "consumption": {
+    "title": "🎉 Ekitaldi honetan dagokizuna",
+    "families": {
+      "liquids": "🍶 Likidoak",
+      "bottled": "🍺 Botilatua",
+      "solids": "🍖 Solidoak",
+      "other": "🔢 Bestelakoak"
+    },
+    "detail": "Xehetasunak",
+    "youBring": "Eta zuk eramango duzu",
+    "groupShared": "Taldearen artean banatuak",
+    "closingPhrase": "✨ Gehiegi iruditzen bazaizu, agian zerrenda murriztu behar da",
+    "empty": "Ez dago ezer esleituta — ondo pasa ekitaldian 😉",
+    "noPurchases": "Oraindik ez dago produkturik zerrendan"
   }
 }
