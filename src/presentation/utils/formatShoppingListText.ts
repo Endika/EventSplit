@@ -48,35 +48,46 @@ interface GroupedItems {
   subgroups: { subgroup: string | null; items: PurchaseSnapshot[] }[]
 }
 
-function groupBuys(buys: PurchaseSnapshot[]): GroupedItems[] {
+// Mirrors PurchasesTab.sortByOrder: explicit `order` first (in that order),
+// then the rest alphabetically, with the empty bucket ('') always last.
+function sortByOrder(keys: string[], order: string[]): string[] {
+  return [...keys].sort((a, b) => {
+    if (a === '') return 1
+    if (b === '') return -1
+    const ia = order.indexOf(a)
+    const ib = order.indexOf(b)
+    if (ia !== -1 && ib !== -1) return ia - ib
+    if (ia !== -1) return -1
+    if (ib !== -1) return 1
+    return a.localeCompare(b)
+  })
+}
+
+function groupBuys(event: EventSnapshot, buys: PurchaseSnapshot[]): GroupedItems[] {
   const map = new Map<string, PurchaseSnapshot[]>()
   for (const p of buys) {
     const key = p.group ?? ''
     if (!map.has(key)) map.set(key, [])
     map.get(key)!.push(p)
   }
-  const realGroups: string[] = []
-  let hasUngrouped = false
-  for (const key of map.keys()) {
-    if (key === '') hasUngrouped = true
-    else realGroups.push(key)
-  }
-  const order: (string | null)[] = [...realGroups]
-  if (hasUngrouped) order.push(null)
+  const groupOrder = event.groupOrder ?? []
+  const subgroupOrder = event.subgroupOrder ?? {}
+  const sortedGroupKeys = sortByOrder([...map.keys()], groupOrder)
 
-  return order.map((group) => {
-    const items = map.get(group ?? '')!
+  return sortedGroupKeys.map((groupKey) => {
+    const items = map.get(groupKey)!
     const subMap = new Map<string, PurchaseSnapshot[]>()
     for (const p of items) {
       const sk = p.subgroup ?? ''
       if (!subMap.has(sk)) subMap.set(sk, [])
       subMap.get(sk)!.push(p)
     }
-    const subgroups: { subgroup: string | null; items: PurchaseSnapshot[] }[] = []
-    for (const [sk, list] of subMap.entries()) {
-      subgroups.push({ subgroup: sk === '' ? null : sk, items: list })
-    }
-    return { group, subgroups }
+    const sortedSubKeys = sortByOrder([...subMap.keys()], subgroupOrder[groupKey] ?? [])
+    const subgroups = sortedSubKeys.map((sk) => ({
+      subgroup: sk === '' ? null : sk,
+      items: subMap.get(sk)!,
+    }))
+    return { group: groupKey === '' ? null : groupKey, subgroups }
   })
 }
 
@@ -91,7 +102,7 @@ export function formatShoppingListText(event: EventSnapshot, t: T): string {
   lines.push(t('share.format.header', { eventName: event.name }))
   lines.push('')
 
-  for (const g of groupBuys(buys)) {
+  for (const g of groupBuys(event, buys)) {
     const groupLabel = g.group ?? t('share.format.noGroup')
     lines.push(`📌 ${groupLabel}`)
     for (const sg of g.subgroups) {
