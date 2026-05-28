@@ -375,7 +375,6 @@
     },
     "format": {
       "header": "🛒 {{eventName}} — Erosketa-zerrenda",
-      "unassigned": "esleitu gabe",
       "noGroup": "Talderik gabe",
       "broughtSection": "📦 Eramaten dutena"
     }

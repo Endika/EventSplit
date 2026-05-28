@@ -375,7 +375,6 @@
     },
     "format": {
       "header": "🛒 {{eventName}} — Lista da compra",
-      "unassigned": "sen asignar",
       "noGroup": "Sen grupo",
       "broughtSection": "📦 O que levan"
     }

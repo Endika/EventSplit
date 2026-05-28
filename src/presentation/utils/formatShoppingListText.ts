@@ -1,6 +1,5 @@
 import type { EventSnapshot } from '@/domain/entities/Event'
 import type { PurchaseSnapshot } from '@/domain/entities/Purchase'
-import { SHARED_UNIT } from '@/domain/entities/Purchase'
 import { displayUnit } from '@/presentation/utils/units'
 type T = (key: string, vars?: Record<string, string>) => string
 
@@ -28,21 +27,20 @@ function nameOf(event: EventSnapshot, userId: string | null): string | null {
 }
 
 function renderBuyLine(event: EventSnapshot, p: PurchaseSnapshot, t: T): string {
-  const assigned = nameOf(event, p.assignedTo) ?? t('share.format.unassigned')
+  const assigned = nameOf(event, p.assignedTo)
+  const assigneePart = assigned ? ` — ${assigned}` : ''
   const name = p.purchased ? strike(p.item) : p.item
   const checkmark = p.purchased ? ' ✅' : ''
-  if (p.unit === SHARED_UNIT) {
-    return `     • ${name} — ${assigned}${checkmark}`
-  }
   const bought = boughtQtyFor(event, p.id)
   const total = p.totalQuantity
   const unit = displayUnit(p.unit, t)
-  return `     • ${name} — ${assigned} · ${formatQty(bought)}/${formatQty(total)} ${unit}${checkmark}`
+  return `     • ${name}${assigneePart} · ${formatQty(bought)}/${formatQty(total)} ${unit}${checkmark}`
 }
 
-function renderBringLine(event: EventSnapshot, p: PurchaseSnapshot, t: T): string {
-  const assigned = nameOf(event, p.assignedTo) ?? t('share.format.unassigned')
-  return `  • ${p.item} — ${assigned}`
+function renderBringLine(event: EventSnapshot, p: PurchaseSnapshot): string {
+  const assigned = nameOf(event, p.assignedTo)
+  const assigneePart = assigned ? ` — ${assigned}` : ''
+  return `  • ${p.item}${assigneePart}`
 }
 
 interface GroupedItems {
@@ -110,7 +108,7 @@ export function formatShoppingListText(event: EventSnapshot, t: T): string {
   if (brings.length > 0) {
     lines.push(t('share.format.broughtSection'))
     for (const item of brings) {
-      lines.push(renderBringLine(event, item, t))
+      lines.push(renderBringLine(event, item))
     }
   }
 

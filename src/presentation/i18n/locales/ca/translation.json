@@ -375,7 +375,6 @@
     },
     "format": {
       "header": "🛒 {{eventName}} — Llista de la compra",
-      "unassigned": "sense assignar",
       "noGroup": "Sense grup",
       "broughtSection": "📦 El que porten"
     }
