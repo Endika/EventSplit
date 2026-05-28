@@ -1,6 +1,7 @@
 import type { EventSnapshot } from '@/domain/entities/Event'
 import type { PurchaseSnapshot } from '@/domain/entities/Purchase'
 import { SHARED_UNIT } from '@/domain/entities/Purchase'
+import { displayUnit } from '@/presentation/utils/units'
 type T = (key: string, vars?: Record<string, string>) => string
 
 function formatQty(n: number): string {
@@ -35,7 +36,7 @@ function renderBuyLine(event: EventSnapshot, p: PurchaseSnapshot, t: T): string 
   }
   const bought = boughtQtyFor(event, p.id)
   const total = p.totalQuantity
-  const unit = p.unit
+  const unit = displayUnit(p.unit, t)
   return `     • ${name} — ${assigned} · ${formatQty(bought)}/${formatQty(total)} ${unit}${checkmark}`
 }
 
@@ -89,7 +90,7 @@ export function formatShoppingListText(event: EventSnapshot, t: T): string {
   const brings = visible.filter((p) => p.kind === 'bring')
 
   const lines: string[] = []
-  lines.push(`${t('share.format.header')} ${event.name}`)
+  lines.push(t('share.format.header', { eventName: event.name }))
   lines.push('')
 
   for (const g of groupBuys(buys)) {
