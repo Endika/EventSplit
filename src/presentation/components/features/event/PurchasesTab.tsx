@@ -19,6 +19,7 @@ import type { SetSubgroupOrderHandler } from '@/application/handlers/SetSubgroup
 import { reportError } from '@/shared/utils/reportError'
 import { displayUnit } from '@/presentation/utils/units'
 import { PurchaseForm } from './PurchaseForm'
+import { ShareListModal } from './ShareListModal'
 
 export function PurchasesTab() {
   const { t } = useTranslation()
@@ -41,6 +42,7 @@ export function PurchasesTab() {
   const [subgroupNewName, setSubgroupNewName] = useState('')
   const [collapsed, setCollapsed] = useState<Set<string>>(new Set())
   const [deleteBusy, setDeleteBusy] = useState(false)
+  const [sharing, setSharing] = useState(false)
   if (!event) return null
 
   function toggleCollapse(group: string) {
@@ -438,7 +440,16 @@ export function PurchasesTab() {
 
   return (
     <div className="space-y-3">
-      {!adding && !editing && <Button onClick={() => setAdding(true)}>{t('purchases.add')}</Button>}
+      {!adding && !editing && (
+        <div className="flex flex-wrap gap-2">
+          <Button onClick={() => setAdding(true)}>{t('purchases.add')}</Button>
+          {visible.length > 0 && (
+            <Button variant="secondary" onClick={() => setSharing(true)}>
+              📤 {t('share.button')}
+            </Button>
+          )}
+        </div>
+      )}
       {adding && (
         <PurchaseForm
           key="new"
@@ -707,6 +718,7 @@ export function PurchasesTab() {
           </div>
         </Modal>
       )}
+      <ShareListModal open={sharing} event={event} onClose={() => setSharing(false)} />
     </div>
   )
 }
