@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.6.5](https://github.com/Endika/EventSplit/compare/v2.6.4...v2.6.5) (2026-05-28)
+
+
+### Bug Fixes
+
+* **i18n:** pluralize units (1 lata vs 3 latas) ([fbde331](https://github.com/Endika/EventSplit/commit/fbde331966e0e4343694f1e78758c166d109d4e4))
+
 ## [2.6.4](https://github.com/Endika/EventSplit/compare/v2.6.3...v2.6.4) (2026-05-28)
 
 
