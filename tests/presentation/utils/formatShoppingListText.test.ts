@@ -104,6 +104,45 @@ describe('formatShoppingListText', () => {
     expect(text).toContain('└ Beer')
   })
 
+  it('respects event.groupOrder for groups', () => {
+    const event = makeEvent({
+      users: [ikerUser],
+      groupOrder: ['Food', 'Drinks'],
+      purchases: [
+        { ...baseBuy, id: 'p1', group: 'Drinks', item: 'Wine' },
+        { ...baseBuy, id: 'p2', group: 'Food', item: 'Bread', unit: 'units' },
+      ],
+    })
+    const text = formatShoppingListText(event, t)
+    const foodIdx = text.indexOf('📌 Food')
+    const drinksIdx = text.indexOf('📌 Drinks')
+    expect(foodIdx).toBeGreaterThanOrEqual(0)
+    expect(drinksIdx).toBeGreaterThanOrEqual(0)
+    expect(foodIdx).toBeLessThan(drinksIdx)
+  })
+
+  it('respects event.subgroupOrder within a group', () => {
+    const event = makeEvent({
+      users: [ikerUser],
+      groupOrder: ['Drinks'],
+      subgroupOrder: { Drinks: ['Wines', 'Beer'] },
+      purchases: [
+        { ...baseBuy, id: 'p1', group: 'Drinks', subgroup: 'Beer', item: 'Mahou' },
+        {
+          ...baseBuy,
+          id: 'p2',
+          group: 'Drinks',
+          subgroup: 'Wines',
+          item: 'Rioja',
+        },
+      ],
+    })
+    const text = formatShoppingListText(event, t)
+    const winesIdx = text.indexOf('└ Wines')
+    const beerIdx = text.indexOf('└ Beer')
+    expect(winesIdx).toBeLessThan(beerIdx)
+  })
+
   it('puts ungrouped items under "No group" at the end', () => {
     const event = makeEvent({
       users: [ikerUser],
