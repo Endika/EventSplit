@@ -363,5 +363,36 @@
   "sync": {
     "remoteUpdate": "Outra persoa acaba de facer un cambio — a túa vista actualizouse.",
     "rateLimited": "Demasiados cambios moi rápido — agarda un momento e téntao de novo."
+  },
+  "share": {
+    "button": "Compartir lista",
+    "modal": {
+      "title": "Compartir lista da compra",
+      "share": "Compartir...",
+      "copy": "Copiar",
+      "copied": "Copiado",
+      "close": "Pechar"
+    },
+    "format": {
+      "header": "🛒 {{eventName}} — Lista da compra",
+      "unassigned": "sen asignar",
+      "noGroup": "Sen grupo",
+      "broughtSection": "📦 O que levan"
+    }
+  },
+  "consumption": {
+    "title": "🎉 O que che toca neste evento",
+    "families": {
+      "liquids": "🍶 Líquidos",
+      "bottled": "🍺 Embotellado",
+      "solids": "🍖 Sólidos",
+      "other": "🔢 Outros"
+    },
+    "detail": "Detalle",
+    "youBring": "E ti levas",
+    "groupShared": "Compartidos do grupo",
+    "closingPhrase": "✨ Se che parecen demasiados, quizais hai que recortar a lista",
+    "empty": "Sen produtos asignados — disfruta do evento 😉",
+    "noPurchases": "Aínda non hai produtos na lista"
   }
 }

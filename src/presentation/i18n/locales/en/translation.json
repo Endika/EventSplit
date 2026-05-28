@@ -363,5 +363,36 @@
   "sync": {
     "remoteUpdate": "Someone else just made a change — your view was updated.",
     "rateLimited": "Too many changes too fast — wait a moment and try again."
+  },
+  "share": {
+    "button": "Share list",
+    "modal": {
+      "title": "Share shopping list",
+      "share": "Share...",
+      "copy": "Copy",
+      "copied": "Copied",
+      "close": "Close"
+    },
+    "format": {
+      "header": "🛒 {{eventName}} — Shopping list",
+      "unassigned": "unassigned",
+      "noGroup": "No group",
+      "broughtSection": "📦 What people are bringing"
+    }
+  },
+  "consumption": {
+    "title": "🎉 What's on your tab for this event",
+    "families": {
+      "liquids": "🍶 Liquids",
+      "bottled": "🍺 Bottled",
+      "solids": "🍖 Solids",
+      "other": "🔢 Other"
+    },
+    "detail": "Detail",
+    "youBring": "You bring",
+    "groupShared": "Shared by the group",
+    "closingPhrase": "✨ If that sounds like too much, maybe trim the list",
+    "empty": "Nothing assigned to you — enjoy the event 😉",
+    "noPurchases": "No items in the list yet"
   }
 }
