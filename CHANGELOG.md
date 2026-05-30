@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.7.0](https://github.com/Endika/EventSplit/compare/v2.6.5...v2.7.0) (2026-05-30)
+
+
+### Features
+
+* **ui:** light/dark coral theme with toggle and new icon ([9d21fa9](https://github.com/Endika/EventSplit/commit/9d21fa9f5ed7d3dc6c630d9d4a3fbc6f14a7ce93))
+
 ## [2.6.5](https://github.com/Endika/EventSplit/compare/v2.6.4...v2.6.5) (2026-05-28)
 
 
