@@ -173,7 +173,8 @@
     "openInMaps": "Abrir en Google Maps",
     "notes": "Notas generales",
     "wifi": "Contraseña WiFi",
-    "emergency": "Contacto de emergencia"
+    "emergency": "Contacto de emergencia",
+    "searchHint": "Busca el sitio para autocompletar el nombre, la dirección y el mapa."
   },
   "purchases": {
     "add": "Añadir a la lista",

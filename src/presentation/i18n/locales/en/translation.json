@@ -173,7 +173,8 @@
     "openInMaps": "Open in Google Maps",
     "notes": "General notes",
     "wifi": "WiFi password",
-    "emergency": "Emergency contact"
+    "emergency": "Emergency contact",
+    "searchHint": "Search the place to autofill its name, address and map."
   },
   "purchases": {
     "add": "Add to list",

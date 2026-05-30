@@ -9,6 +9,8 @@ import { useWriteGuard } from '@/presentation/context/WriteGuardContext'
 import { Button } from '@/presentation/components/common/Button'
 import { reportError } from '@/shared/utils/reportError'
 import { Input } from '@/presentation/components/common/Input'
+import { AddressAutocomplete } from './AddressAutocomplete'
+import { MapEmbed } from './MapEmbed'
 
 export function LocationTab() {
   const { t } = useTranslation()
@@ -179,6 +181,7 @@ export function LocationTab() {
                       {t('location.openInMaps')} ↗
                     </a>
                   )}
+                  <MapEmbed address={loc.address} lat={loc.lat} lng={loc.lng} />
                 </>
               )}
               {event.generalNotes && (
@@ -212,30 +215,24 @@ export function LocationTab() {
             onChange={(e) => setName(e.target.value)}
             maxLength={100}
           />
-          <Input
-            placeholder={t('location.address')}
+          <AddressAutocomplete
             value={address}
-            onChange={(e) => setAddress(e.target.value)}
-            maxLength={200}
+            placeholder={t('location.address')}
+            onChange={({ address: a, lat: la, lng: ln, name: placeName }) => {
+              setAddress(a)
+              setLat(la != null ? String(la) : '')
+              setLng(ln != null ? String(ln) : '')
+              if (placeName && !name.trim()) setName(placeName)
+            }}
           />
-          <div className="grid grid-cols-2 gap-3">
-            <Input
-              type="number"
-              inputMode="decimal"
-              step="any"
-              placeholder={t('location.lat')}
-              value={lat}
-              onChange={(e) => setLat(e.target.value)}
+          <p className="text-xs text-muted">{t('location.searchHint')}</p>
+          {(address.trim() || (lat.trim() && lng.trim())) && (
+            <MapEmbed
+              address={address.trim() || null}
+              lat={lat.trim() ? Number(lat) : null}
+              lng={lng.trim() ? Number(lng) : null}
             />
-            <Input
-              type="number"
-              inputMode="decimal"
-              step="any"
-              placeholder={t('location.lng')}
-              value={lng}
-              onChange={(e) => setLng(e.target.value)}
-            />
-          </div>
+          )}
           <Input
             placeholder={t('location.postalCode')}
             value={postalCode}

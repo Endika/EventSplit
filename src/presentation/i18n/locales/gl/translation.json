@@ -173,7 +173,8 @@
     "openInMaps": "Abrir en Google Maps",
     "notes": "Notas xerais",
     "wifi": "Contrasinal WiFi",
-    "emergency": "Contacto de emerxencia"
+    "emergency": "Contacto de emerxencia",
+    "searchHint": "Busca o lugar para autocompletar o nome, o enderezo e o mapa."
   },
   "purchases": {
     "add": "Engadir á lista",

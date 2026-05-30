@@ -173,7 +173,8 @@
     "openInMaps": "Obre a Google Maps",
     "notes": "Notes generals",
     "wifi": "Contrasenya WiFi",
-    "emergency": "Contacte d'emergència"
+    "emergency": "Contacte d'emergència",
+    "searchHint": "Cerca el lloc per emplenar el nom, l’adreça i el mapa."
   },
   "purchases": {
     "add": "Afegeix a la llista",

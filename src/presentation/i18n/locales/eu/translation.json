@@ -173,7 +173,8 @@
     "openInMaps": "Google Maps-en ireki",
     "notes": "Ohar orokorrak",
     "wifi": "WiFi pasahitza",
-    "emergency": "Larrialdiko kontaktua"
+    "emergency": "Larrialdiko kontaktua",
+    "searchHint": "Bilatu lekua izena, helbidea eta mapa automatikoki betetzeko."
   },
   "purchases": {
     "add": "Zerrendara gehitu",
