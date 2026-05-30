@@ -23,8 +23,8 @@ export function AllergyAlertModal({
   return (
     <Modal open title={`⚠️ ${t('allergyAlert.title')}`} dismissable={false}>
       <div className="space-y-3">
-        <p className="text-sm text-slate-400">{t('allergyAlert.item', { item })}</p>
-        <ul className="space-y-2 rounded-lg border border-rose-700/50 bg-rose-900/30 p-3 text-sm text-rose-100">
+        <p className="text-sm text-muted">{t('allergyAlert.item', { item })}</p>
+        <ul className="space-y-2 rounded-lg border border-danger bg-danger-soft p-3 text-sm text-danger-soft-fg">
           {matches.map((m, i) => (
             <li key={`${m.userId}-${m.allergen}-${i}`} className="flex gap-2">
               <span>{severityIcon(m.severity)}</span>

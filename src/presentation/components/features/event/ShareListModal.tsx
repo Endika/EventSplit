@@ -42,7 +42,7 @@ export function ShareListModal({
 
   return (
     <Modal open={open} title={t('share.modal.title')} onClose={onClose}>
-      <pre className="mb-4 max-h-[50vh] overflow-auto whitespace-pre-wrap rounded-lg bg-slate-950 p-3 text-sm text-slate-200 ring-1 ring-slate-800">
+      <pre className="mb-4 max-h-[50vh] overflow-auto whitespace-pre-wrap rounded-lg bg-bg p-3 text-sm text-ink ring-1 ring-border">
         {text}
       </pre>
       <div className="flex flex-wrap gap-2 justify-end">

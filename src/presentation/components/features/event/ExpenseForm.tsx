@@ -172,7 +172,7 @@ export function ExpenseForm({
           onClose={() => setConfirmCancel(false)}
         >
           <div className="space-y-3">
-            <p className="text-sm text-slate-300">{t('common.unsavedBody')}</p>
+            <p className="text-sm text-muted">{t('common.unsavedBody')}</p>
             <div className="flex gap-2">
               <Button type="button" variant="secondary" onClick={() => setConfirmCancel(false)}>
                 {t('common.keepEditing')}
@@ -193,12 +193,12 @@ export function ExpenseForm({
       <form
         ref={rootRef}
         onSubmit={submit}
-        className="space-y-3 rounded-lg border border-slate-800 bg-slate-900 p-4"
+        className="space-y-3 rounded-xl border border-border bg-surface p-4"
       >
-        <label className="block text-sm text-slate-300">
+        <label className="block text-sm text-muted">
           {t('expenses.form.paidBy')}
           <select
-            className="mt-1 block w-full rounded-lg border border-slate-700 bg-slate-900 p-2 text-sm text-slate-100"
+            className="mt-1 block w-full rounded-xl border border-border bg-surface p-2 text-sm text-ink"
             required
             value={paidBy}
             onChange={(e) => setPaidBy(e.target.value)}
@@ -229,22 +229,22 @@ export function ExpenseForm({
           minLength={3}
           maxLength={100}
         />
-        <fieldset className="rounded-lg border border-slate-800 p-3">
-          <legend className="px-2 text-xs uppercase tracking-wide text-slate-500">
+        <fieldset className="rounded-xl border border-border p-3">
+          <legend className="px-2 text-xs uppercase tracking-wide text-muted">
             {t('expenses.form.splitBetween')}
           </legend>
           <div className="mb-2 flex gap-2 text-xs">
             <button
               type="button"
               onClick={selectAll}
-              className="rounded px-2 py-1 text-slate-400 hover:bg-slate-800 hover:text-slate-200"
+              className="rounded px-2 py-1 text-muted hover:bg-elevated hover:text-ink"
             >
               {t('expenses.form.selectAll')}
             </button>
             <button
               type="button"
               onClick={selectNone}
-              className="rounded px-2 py-1 text-slate-400 hover:bg-slate-800 hover:text-slate-200"
+              className="rounded px-2 py-1 text-muted hover:bg-elevated hover:text-ink"
             >
               {t('expenses.form.selectNone')}
             </button>
@@ -257,18 +257,16 @@ export function ExpenseForm({
                   checked={splitAmong.has(u.id)}
                   onChange={() => toggleSplit(u.id)}
                   disabled={busy}
-                  className="size-4 rounded border-slate-600 bg-slate-800 accent-violet-500"
+                  className="size-4 rounded border-border bg-elevated accent-brand"
                 />
-                <span className="text-slate-200">
-                  {u.alias ? `${u.name} (${u.alias})` : u.name}
-                </span>
+                <span className="text-ink">{u.alias ? `${u.name} (${u.alias})` : u.name}</span>
               </li>
             ))}
           </ul>
         </fieldset>
         {listItems.length > 0 && (
-          <fieldset className="rounded-lg border border-slate-800 p-3">
-            <legend className="px-2 text-xs uppercase tracking-wide text-slate-500">
+          <fieldset className="rounded-xl border border-border p-3">
+            <legend className="px-2 text-xs uppercase tracking-wide text-muted">
               {t('expenses.form.markBought')}
             </legend>
             <ul className="space-y-2">
@@ -293,16 +291,16 @@ export function ExpenseForm({
                             return next
                           })
                         }
-                        className="size-4 rounded border-slate-600 bg-slate-800 accent-violet-500"
+                        className="size-4 rounded border-border bg-elevated accent-brand"
                       />
-                      <span className="text-slate-200">
+                      <span className="text-ink">
                         {p.item}{' '}
-                        <span className="text-slate-500">
+                        <span className="text-muted">
                           — {Math.round(p.totalQuantity * 100) / 100} {unit}
                         </span>
                         {assignee && (
                           <span
-                            className="ml-1 whitespace-nowrap text-xs text-violet-300"
+                            className="ml-1 whitespace-nowrap text-xs text-brand"
                             title={t('purchases.form.assignedTo')}
                           >
                             🛒{' '}
@@ -322,9 +320,9 @@ export function ExpenseForm({
                           onChange={(e) =>
                             setLinks((prev) => ({ ...prev, [p.id]: e.target.value }))
                           }
-                          className="w-20 rounded-lg border border-slate-700 bg-slate-900 px-2 py-1 text-sm text-slate-100 focus:border-violet-500 focus:outline-none focus:ring-1 focus:ring-violet-500"
+                          className="w-20 rounded-xl border border-border bg-surface px-2 py-1 text-sm text-ink focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand"
                         />
-                        <span className="text-xs text-slate-500">
+                        <span className="text-xs text-muted">
                           {t('expenses.form.remainingHint', {
                             n: Math.round(remaining * 100) / 100,
                             total: Math.round(p.totalQuantity * 100) / 100,
@@ -339,7 +337,7 @@ export function ExpenseForm({
             </ul>
           </fieldset>
         )}
-        {error && <p className="text-sm text-rose-400">{error}</p>}
+        {error && <p className="text-sm text-danger">{error}</p>}
         <div className="flex gap-2">
           <Button
             type="button"

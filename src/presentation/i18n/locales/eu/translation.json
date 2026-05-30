@@ -400,5 +400,11 @@
     "closingPhrase": "✨ Gehiegi iruditzen bazaizu, agian zerrenda murriztu behar da",
     "empty": "Ez dago ezer esleituta — ondo pasa ekitaldian 😉",
     "noPurchases": "Oraindik ez dago produkturik zerrendan"
+  },
+  "theme": {
+    "light": "Argia",
+    "dark": "Iluna",
+    "system": "Sistema",
+    "switch": "Gaia: {{mode}}"
   }
 }

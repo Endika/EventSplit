@@ -33,18 +33,18 @@ export function RecentEventsList({
 
   return (
     <section className="space-y-2">
-      <h2 className="text-xs font-semibold uppercase tracking-wide text-slate-500">
+      <h2 className="text-xs font-semibold uppercase tracking-wide text-muted">
         {t('home.yourEvents')}
       </h2>
       <ul className="space-y-2">
         {items.map((e) => (
           <li
             key={e.id}
-            className="group flex items-center gap-2 rounded-lg border border-slate-800 bg-slate-900 transition hover:border-slate-700 hover:bg-slate-800"
+            className="group flex items-center gap-2 rounded-xl border border-border bg-surface transition hover:border-border hover:bg-elevated"
           >
             <button type="button" onClick={() => openEvent(e.id)} className="flex-1 p-3 text-left">
-              <div className="font-medium text-slate-100">{e.name}</div>
-              <div className="text-xs text-slate-400">
+              <div className="font-medium text-ink">{e.name}</div>
+              <div className="text-xs text-muted">
                 {t('home.lastActivity', { when: formatRelative(e.updatedAt, i18n.language) })}
                 {' · '}
                 {t('home.participants', { count: e.participantCount })}
@@ -53,7 +53,7 @@ export function RecentEventsList({
             <button
               type="button"
               onClick={() => onForget(e.id)}
-              className="px-3 py-3 text-sm text-slate-500 hover:text-rose-400"
+              className="px-3 py-3 text-sm text-muted hover:text-danger"
               aria-label={t('home.forget')}
               title={t('home.forget')}
             >

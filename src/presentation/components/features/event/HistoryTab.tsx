@@ -55,31 +55,31 @@ export function HistoryTab() {
 
   return (
     <div className="space-y-3">
-      <h2 className="text-sm font-semibold uppercase tracking-wide text-slate-400">
+      <h2 className="text-sm font-semibold uppercase tracking-wide text-muted">
         {t('history.title')}
       </h2>
-      {entries.length === 0 && <p className="text-sm text-slate-400">{t('history.empty')}</p>}
+      {entries.length === 0 && <p className="text-sm text-muted">{t('history.empty')}</p>}
       <ul className="space-y-2">
         {entries.map((h) => (
           <li
             key={h.id}
-            className="flex items-start gap-3 rounded-lg border border-slate-800 bg-slate-900 p-3"
+            className="flex items-start gap-3 rounded-xl border border-border bg-surface p-3"
           >
             <span className="text-xl" aria-hidden="true">
               {ICONS[h.type] ?? '•'}
             </span>
             <div className="flex-1">
-              <div className="text-sm text-slate-200">
+              <div className="text-sm text-ink">
                 <span className="font-medium">{t(`history.types.${h.type}`)}</span>
-                <span className="text-slate-500"> · v{h.version}</span>
+                <span className="text-muted"> · v{h.version}</span>
               </div>
-              <div className="text-xs text-slate-400">
+              <div className="text-xs text-muted">
                 {t('history.by', { name: nameOf(h.userId) })}
                 <YouLabel userId={h.userId} />
                 {' · '}
                 <span title={h.timestamp}>{formatRelative(h.timestamp, i18n.language)}</span>
               </div>
-              <div className="mt-1 text-xs text-slate-500">{h.description}</div>
+              <div className="mt-1 text-xs text-muted">{h.description}</div>
             </div>
           </li>
         ))}

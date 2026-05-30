@@ -326,16 +326,14 @@ export function PurchaseForm({
       <form
         ref={rootRef}
         onSubmit={submit}
-        className="space-y-3 rounded-lg border border-slate-800 bg-slate-900 p-4"
+        className="space-y-3 rounded-xl border border-border bg-surface p-4"
       >
-        <div className="flex gap-1 rounded-lg bg-slate-800 p-1">
+        <div className="flex gap-1 rounded-lg bg-elevated p-1">
           <button
             type="button"
             onClick={() => switchMode('buy')}
             className={`flex-1 rounded-md px-3 py-2 text-sm font-medium transition ${
-              mode === 'buy'
-                ? 'bg-violet-600 text-white'
-                : 'bg-slate-800 text-slate-300 hover:text-slate-100'
+              mode === 'buy' ? 'bg-brand text-white' : 'bg-elevated text-ink hover:text-ink'
             }`}
           >
             {t('purchases.form.modeBuy')}
@@ -344,20 +342,18 @@ export function PurchaseForm({
             type="button"
             onClick={() => switchMode('bring')}
             className={`flex-1 rounded-md px-3 py-2 text-sm font-medium transition ${
-              mode === 'bring'
-                ? 'bg-violet-600 text-white'
-                : 'bg-slate-800 text-slate-300 hover:text-slate-100'
+              mode === 'bring' ? 'bg-brand text-white' : 'bg-elevated text-ink hover:text-ink'
             }`}
           >
             {t('purchases.form.modeBring')}
           </button>
         </div>
         {purchase && (
-          <p className="text-sm font-medium text-slate-300">
-            {t('purchases.form.editTitle')}: <span className="text-slate-100">{purchase.item}</span>
+          <p className="text-sm font-medium text-ink">
+            {t('purchases.form.editTitle')}: <span className="text-ink">{purchase.item}</span>
           </p>
         )}
-        <label className="block text-sm text-slate-300">
+        <label className="block text-sm text-ink">
           {t('purchases.form.item')}
           <Input
             className="mt-1"
@@ -369,10 +365,10 @@ export function PurchaseForm({
             maxLength={50}
           />
         </label>
-        <label className="block text-sm text-slate-300">
+        <label className="block text-sm text-ink">
           {t('purchases.form.group')}
           <input
-            className="mt-1 block w-full rounded-lg border border-slate-700 bg-slate-900 px-3 py-2 text-sm text-slate-100 placeholder-slate-500 focus:border-violet-500 focus:outline-none focus:ring-1 focus:ring-violet-500"
+            className="mt-1 block w-full rounded-lg border border-border bg-surface px-3 py-2 text-sm text-ink placeholder-muted focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand"
             list="group-suggestions"
             value={group}
             onChange={(e) => setGroup(e.target.value)}
@@ -386,10 +382,10 @@ export function PurchaseForm({
           </datalist>
         </label>
         {group.trim() !== '' && (
-          <label className="block text-sm text-slate-300">
+          <label className="block text-sm text-ink">
             {t('purchases.form.subgroup')}
             <input
-              className="mt-1 block w-full rounded-lg border border-slate-700 bg-slate-900 px-3 py-2 text-sm text-slate-100 placeholder-slate-500 focus:border-violet-500 focus:outline-none focus:ring-1 focus:ring-violet-500"
+              className="mt-1 block w-full rounded-lg border border-border bg-surface px-3 py-2 text-sm text-ink placeholder-muted focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand"
               list="subgroup-suggestions"
               value={subgroup}
               onChange={(e) => setSubgroup(e.target.value)}
@@ -406,7 +402,7 @@ export function PurchaseForm({
         {mode === 'bring' && (
           <>
             <div className="grid grid-cols-2 gap-3">
-              <label className="block text-sm text-slate-300">
+              <label className="block text-sm text-ink">
                 {t('purchases.form.quantity')}
                 <Input
                   className="mt-1"
@@ -416,10 +412,10 @@ export function PurchaseForm({
                   onChange={(e) => setBringQtyStr(e.target.value)}
                 />
               </label>
-              <label className="block text-sm text-slate-300">
+              <label className="block text-sm text-ink">
                 {t('purchases.form.unit')}
                 <select
-                  className="mt-1 block w-full rounded-lg border border-slate-700 bg-slate-900 p-2 text-sm text-slate-100"
+                  className="mt-1 block w-full rounded-lg border border-border bg-surface p-2 text-sm text-ink"
                   value={unit}
                   onChange={(e) => setUnit(e.target.value)}
                 >
@@ -434,10 +430,10 @@ export function PurchaseForm({
                 </select>
               </label>
             </div>
-            <label className="block text-sm text-slate-300">
+            <label className="block text-sm text-ink">
               {t('purchases.form.broughtBy')}
               <select
-                className="mt-1 block w-full rounded-lg border border-slate-700 bg-slate-900 p-2 text-sm text-slate-100"
+                className="mt-1 block w-full rounded-lg border border-border bg-surface p-2 text-sm text-ink"
                 value={broughtBy ?? ''}
                 onChange={(e) => setBroughtBy(e.target.value || null)}
               >
@@ -454,7 +450,7 @@ export function PurchaseForm({
         {mode === 'buy' && (
           <>
             <div className="grid grid-cols-2 gap-3">
-              <label className="block text-sm text-slate-300">
+              <label className="block text-sm text-ink">
                 {isSingle ? t('purchases.form.quantity') : t('purchases.form.dailyConsumption')}
                 <Input
                   className="mt-1"
@@ -466,10 +462,10 @@ export function PurchaseForm({
                   }
                 />
               </label>
-              <label className="block text-sm text-slate-300">
+              <label className="block text-sm text-ink">
                 {t('purchases.form.unit')}
                 <select
-                  className="mt-1 block w-full rounded-lg border border-slate-700 bg-slate-900 p-2 text-sm text-slate-100"
+                  className="mt-1 block w-full rounded-lg border border-border bg-surface p-2 text-sm text-ink"
                   value={unit}
                   onChange={(e) => setUnit(e.target.value)}
                 >
@@ -485,14 +481,14 @@ export function PurchaseForm({
               </label>
             </div>
             {isSingle && (
-              <p className="-mt-1 text-xs text-slate-500">{t('purchases.form.singleHelp')}</p>
+              <p className="-mt-1 text-xs text-muted">{t('purchases.form.singleHelp')}</p>
             )}
             {!isSingle && (
               <>
-                <p className="-mt-1 text-xs text-slate-500">
+                <p className="-mt-1 text-xs text-muted">
                   {t('purchases.form.dailyConsumptionHelp')}
                 </p>
-                <label className="block text-sm text-slate-300">
+                <label className="block text-sm text-ink">
                   {t('purchases.form.days')}
                   <Input
                     className="mt-1"
@@ -503,24 +499,22 @@ export function PurchaseForm({
                     onChange={(e) => setDays(parseInt(e.target.value, 10))}
                   />
                 </label>
-                <p className="-mt-1 text-xs text-slate-500">{t('purchases.form.daysHelp')}</p>
+                <p className="-mt-1 text-xs text-muted">{t('purchases.form.daysHelp')}</p>
                 <div>
                   <div className="mb-2 flex items-center justify-between">
-                    <p className="text-sm font-medium text-slate-300">
-                      {t('purchases.form.consumers')}
-                    </p>
+                    <p className="text-sm font-medium text-ink">{t('purchases.form.consumers')}</p>
                     <div className="flex gap-2 text-xs">
                       <button
                         type="button"
                         onClick={selectAllConsumers}
-                        className="rounded px-2 py-1 text-slate-400 hover:bg-slate-800 hover:text-slate-200"
+                        className="rounded px-2 py-1 text-muted hover:bg-elevated hover:text-ink"
                       >
                         {t('purchases.form.selectAll')}
                       </button>
                       <button
                         type="button"
                         onClick={selectNoConsumers}
-                        className="rounded px-2 py-1 text-slate-400 hover:bg-slate-800 hover:text-slate-200"
+                        className="rounded px-2 py-1 text-muted hover:bg-elevated hover:text-ink"
                       >
                         {t('purchases.form.selectNone')}
                       </button>
@@ -564,7 +558,7 @@ export function PurchaseForm({
                           )}
                           {selected && (
                             <select
-                              className="ml-auto rounded border border-slate-700 bg-slate-900 p-1 text-slate-200"
+                              className="ml-auto rounded border border-border bg-surface p-1 text-ink"
                               value={m}
                               onChange={(e) => setMultiplier(u.id, parseFloat(e.target.value))}
                             >
@@ -582,10 +576,10 @@ export function PurchaseForm({
                 </div>
               </>
             )}
-            <label className="block text-sm text-slate-300">
+            <label className="block text-sm text-ink">
               {t('purchases.form.assignedTo')}
               <select
-                className="mt-1 block w-full rounded-lg border border-slate-700 bg-slate-900 p-2 text-sm text-slate-100"
+                className="mt-1 block w-full rounded-lg border border-border bg-surface p-2 text-sm text-ink"
                 value={assignedTo ?? ''}
                 onChange={(e) => setAssignedTo(e.target.value || null)}
               >
@@ -608,7 +602,7 @@ export function PurchaseForm({
                 const total = totalDaily * days
                 if (!Number.isFinite(total) || total <= 0) return null
                 return (
-                  <div className="rounded-lg bg-violet-900/30 px-3 py-2 text-sm text-violet-100">
+                  <div className="rounded-lg bg-brand-soft px-3 py-2 text-sm text-brand-soft-fg">
                     {t('purchases.form.totalPreview', {
                       n: Math.round(total * 100) / 100,
                       unit: UNITS.includes(unit as (typeof UNITS)[number])
@@ -620,7 +614,7 @@ export function PurchaseForm({
               })()}
           </>
         )}
-        {error && <p className="text-sm text-rose-400">{error}</p>}
+        {error && <p className="text-sm text-danger">{error}</p>}
         {confirmCancel && (
           <Modal
             open
@@ -629,7 +623,7 @@ export function PurchaseForm({
             onClose={() => setConfirmCancel(false)}
           >
             <div className="space-y-3">
-              <p className="text-sm text-slate-300">{t('common.unsavedBody')}</p>
+              <p className="text-sm text-ink">{t('common.unsavedBody')}</p>
               <div className="flex gap-2">
                 <Button type="button" variant="secondary" onClick={() => setConfirmCancel(false)}>
                   {t('common.keepEditing')}

@@ -115,12 +115,12 @@ export function EventTabs() {
   return (
     <>
       {/* MOBILE — sticky top bar with hamburger */}
-      <header className="sticky top-0 z-30 -mx-4 mb-4 flex items-center gap-2 border-b border-slate-800 bg-slate-950/95 px-4 py-3 backdrop-blur md:hidden">
+      <header className="sticky top-0 z-30 -mx-4 mb-4 flex items-center gap-2 border-b border-border bg-bg/95 px-4 py-3 backdrop-blur md:hidden">
         <button
           type="button"
           onClick={() => setDrawerOpen(true)}
           aria-label={t('tabs.openMenu')}
-          className="rounded-lg p-2 text-slate-200 hover:bg-slate-800"
+          className="rounded-xl p-2 text-ink hover:bg-elevated"
         >
           <svg
             width="20"
@@ -139,9 +139,9 @@ export function EventTabs() {
           </svg>
         </button>
         <div className="flex flex-1 flex-col truncate">
-          <h1 className="truncate text-base font-semibold text-slate-100">{event?.name ?? ''}</h1>
+          <h1 className="truncate text-base font-semibold text-ink">{event?.name ?? ''}</h1>
           {event?.stage && (
-            <span className="text-[10px] uppercase tracking-wide text-violet-300">
+            <span className="text-[10px] uppercase tracking-wide text-brand">
               {t(`stage.${event.stage}`)}
             </span>
           )}
@@ -151,7 +151,7 @@ export function EventTabs() {
           onClick={shareEvent}
           aria-label={t('event.share')}
           title={t('event.share')}
-          className="rounded-lg p-2 text-slate-200 hover:bg-slate-800"
+          className="rounded-xl p-2 text-ink hover:bg-elevated"
         >
           <svg
             width="20"
@@ -176,7 +176,7 @@ export function EventTabs() {
           onClick={goHome}
           aria-label={t('tabs.home')}
           title={t('tabs.home')}
-          className="rounded-lg p-2 text-slate-200 hover:bg-slate-800"
+          className="rounded-xl p-2 text-ink hover:bg-elevated"
         >
           <svg
             width="20"
@@ -206,16 +206,14 @@ export function EventTabs() {
             className="absolute inset-0 bg-black/60 backdrop-blur-sm"
             onClick={() => setDrawerOpen(false)}
           />
-          <aside className="absolute inset-y-0 left-0 w-72 max-w-[85%] overflow-y-auto bg-slate-900 shadow-2xl">
-            <div className="flex items-center justify-between border-b border-slate-800 p-4">
-              <div className="truncate text-sm font-semibold text-slate-100">
-                {event?.name ?? ''}
-              </div>
+          <aside className="absolute inset-y-0 left-0 w-72 max-w-[85%] overflow-y-auto bg-surface shadow-2xl">
+            <div className="flex items-center justify-between border-b border-border p-4">
+              <div className="truncate text-sm font-semibold text-ink">{event?.name ?? ''}</div>
               <button
                 type="button"
                 onClick={() => setDrawerOpen(false)}
                 aria-label={t('tabs.closeMenu')}
-                className="rounded-lg p-1.5 text-slate-400 hover:bg-slate-800 hover:text-slate-100"
+                className="rounded-xl p-1.5 text-muted hover:bg-elevated hover:text-ink"
               >
                 <svg
                   width="18"
@@ -233,7 +231,7 @@ export function EventTabs() {
                 </svg>
               </button>
             </div>
-            <div className="border-b border-slate-800 px-4 py-3">
+            <div className="border-b border-border px-4 py-3">
               <StageSelector />
             </div>
             <nav className="py-2">
@@ -245,9 +243,7 @@ export function EventTabs() {
                     type="button"
                     onClick={() => selectTab(tab.key)}
                     className={`flex w-full items-center gap-3 px-4 py-3 text-left text-sm ${
-                      isActive
-                        ? 'bg-violet-900/30 text-violet-200'
-                        : 'text-slate-200 hover:bg-slate-800'
+                      isActive ? 'bg-brand-soft text-brand-soft-fg' : 'text-ink hover:bg-elevated'
                     }`}
                   >
                     <span className="text-lg" aria-hidden="true">
@@ -258,11 +254,11 @@ export function EventTabs() {
                   </button>
                 )
               })}
-              <div className="my-2 border-t border-slate-800" />
+              <div className="my-2 border-t border-border" />
               <button
                 type="button"
                 onClick={goHome}
-                className="flex w-full items-center gap-3 px-4 py-3 text-left text-sm text-slate-300 hover:bg-slate-800"
+                className="flex w-full items-center gap-3 px-4 py-3 text-left text-sm text-muted hover:bg-elevated"
               >
                 <span className="text-lg" aria-hidden="true">
                   🏠
@@ -280,7 +276,7 @@ export function EventTabs() {
       </div>
 
       {/* DESKTOP — horizontal nav */}
-      <nav className="mb-4 hidden gap-2 overflow-x-auto border-b border-slate-800 md:flex">
+      <nav className="mb-4 hidden gap-2 overflow-x-auto border-b border-border md:flex">
         {tabs.map((tab) => (
           <button
             key={tab.key}
@@ -288,8 +284,8 @@ export function EventTabs() {
             onClick={() => setActive(tab.key)}
             className={`whitespace-nowrap px-4 py-2.5 text-sm font-medium ${
               active === tab.key
-                ? 'border-b-2 border-violet-400 text-violet-300'
-                : 'text-slate-400 hover:text-slate-200'
+                ? 'border-b-2 border-brand text-brand'
+                : 'text-muted hover:text-ink'
             }`}
           >
             {tab.label}
@@ -304,7 +300,7 @@ export function EventTabs() {
             key={tab.key}
             aria-hidden="true"
             className={`h-1.5 rounded-full transition-all ${
-              i === activeIndex ? 'w-4 bg-violet-400' : 'w-1.5 bg-slate-700'
+              i === activeIndex ? 'w-4 bg-brand' : 'w-1.5 bg-elevated'
             }`}
           />
         ))}
@@ -312,7 +308,7 @@ export function EventTabs() {
 
       {/* Tab content (swipe left/right to change tab on touch devices) */}
       <div onTouchStart={onTouchStart} onTouchEnd={onTouchEnd}>
-        <Suspense fallback={<div className="p-6 text-center text-slate-400">…</div>}>
+        <Suspense fallback={<div className="p-6 text-center text-muted">…</div>}>
           {active === 'participants' && <ParticipantsTab />}
           {active === 'availability' && <AvailabilityTab />}
           {active === 'location' && <LocationTab />}

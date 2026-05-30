@@ -400,5 +400,11 @@
     "closingPhrase": "✨ Si et pareixen massa, potser cal retallar la llista",
     "empty": "Sense productes assignats — gaudix de l'esdeveniment 😉",
     "noPurchases": "Encara no hi ha productes en la llista"
+  },
+  "theme": {
+    "light": "Clar",
+    "dark": "Fosc",
+    "system": "Sistema",
+    "switch": "Tema: {{mode}}"
   }
 }

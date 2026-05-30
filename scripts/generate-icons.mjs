@@ -4,9 +4,9 @@ import { resolve } from 'node:path'
 
 const OUT = resolve('public')
 
-const BG_DARK = '#0f172a' // slate-900
-const GRAD_FROM = '#a78bfa' // violet-400
-const GRAD_TO = '#5eead4' // teal-300
+const GRAD_FROM = '#ff5a47' // coral
+const GRAD_TO = '#ffb37a' // peach
+const LETTERS = '#ffffff' // white monogram on the coral→peach gradient
 
 function monogramSvg({ size, padding = 0, rounded = true }) {
   const radius = rounded ? size * 0.22 : 0
@@ -21,12 +21,12 @@ function monogramSvg({ size, padding = 0, rounded = true }) {
 
   return `<svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}" viewBox="0 0 ${size} ${size}">
   <defs>
-    <linearGradient id="letters" x1="0" y1="0" x2="1" y2="1">
+    <linearGradient id="brand" x1="0" y1="0" x2="1" y2="1">
       <stop offset="0%" stop-color="${GRAD_FROM}"/>
       <stop offset="100%" stop-color="${GRAD_TO}"/>
     </linearGradient>
   </defs>
-  <rect x="0" y="0" width="${size}" height="${size}" rx="${radius}" ry="${radius}" fill="${BG_DARK}"/>
+  <rect x="0" y="0" width="${size}" height="${size}" rx="${radius}" ry="${radius}" fill="url(#brand)"/>
   <text
     x="${cx}"
     y="${cy + baselineOffset}"
@@ -35,7 +35,7 @@ function monogramSvg({ size, padding = 0, rounded = true }) {
     font-weight="900"
     font-size="${fontSize}"
     letter-spacing="${-12 * scale}"
-    fill="url(#letters)">ES</text>
+    fill="${LETTERS}">ES</text>
 </svg>`
 }
 

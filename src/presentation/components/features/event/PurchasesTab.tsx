@@ -320,10 +320,8 @@ export function PurchasesTab() {
           return (
             <li
               key={p.id}
-              className={`rounded-lg border bg-slate-900 p-3 ${
-                editing?.id === p.id
-                  ? 'border-violet-500 ring-1 ring-violet-500'
-                  : 'border-slate-800'
+              className={`rounded-xl border bg-surface p-3 ${
+                editing?.id === p.id ? 'border-brand ring-1 ring-brand' : 'border-border'
               }`}
             >
               <div className="flex items-start justify-between gap-2">
@@ -333,19 +331,17 @@ export function PurchasesTab() {
                   className="flex-1 rounded text-left hover:opacity-80"
                   aria-label={t('purchases.edit')}
                 >
-                  <div
-                    className={`font-medium ${struck ? 'text-slate-500 line-through' : 'text-slate-100'}`}
-                  >
+                  <div className={`font-medium ${struck ? 'text-muted line-through' : 'text-ink'}`}>
                     {p.kind === 'bring' && <span title={t('purchases.form.modeBring')}>🏠 </span>}
-                    {p.item} <span className="text-xs text-slate-500">✎</span>
+                    {p.item} <span className="text-xs text-muted">✎</span>
                   </div>
-                  <div className="text-sm text-slate-400">
+                  <div className="text-sm text-muted">
                     {t(p.kind === 'bring' ? 'purchases.totalToBring' : 'purchases.totalQuantity', {
                       n: Math.round(p.totalQuantity * 100) / 100,
                       unit: displayUnit(p.unit, t, p.totalQuantity),
                     })}
                   </div>
-                  <div className="text-xs text-slate-500">
+                  <div className="text-xs text-muted">
                     {t('purchases.createdBy', { name: userName(p.createdBy) })}
                     <YouLabel userId={p.createdBy} />
                   </div>
@@ -353,21 +349,21 @@ export function PurchasesTab() {
                 <button
                   type="button"
                   onClick={() => askDelete(p)}
-                  className="rounded p-1.5 text-xs text-slate-400 hover:bg-slate-800 hover:text-rose-400"
+                  className="rounded p-1.5 text-xs text-muted hover:bg-elevated hover:text-danger"
                   aria-label={t('purchases.delete')}
                   title={t('purchases.delete')}
                 >
                   🗑️
                 </button>
               </div>
-              <div className="mt-2 flex flex-wrap items-center gap-2 border-t border-slate-800 pt-2 text-xs">
+              <div className="mt-2 flex flex-wrap items-center gap-2 border-t border-border pt-2 text-xs">
                 {p.kind === 'bring' ? (
-                  <label className="ml-auto flex items-center gap-1 text-slate-400">
+                  <label className="ml-auto flex items-center gap-1 text-muted">
                     {t('purchases.broughtByShort')}
                     <select
                       value={p.assignedTo ?? ''}
                       onChange={(e) => assignBringer(p, e.target.value || null)}
-                      className="rounded border border-slate-700 bg-slate-900 p-1 text-slate-200"
+                      className="rounded border border-border bg-surface p-1 text-ink"
                     >
                       <option value="">{t('purchases.unassigned')}</option>
                       {event!.users.map((u) => (
@@ -380,7 +376,7 @@ export function PurchasesTab() {
                 ) : hasLinks ? (
                   <div className="flex w-full flex-col gap-1.5">
                     <div className="flex items-center justify-between gap-2">
-                      <span className="text-slate-300">
+                      <span className="text-ink">
                         {t('purchases.boughtProgress', {
                           n: round2(bought),
                           total: round2(total),
@@ -388,35 +384,35 @@ export function PurchasesTab() {
                         })}
                       </span>
                     </div>
-                    <div className="h-1.5 w-full overflow-hidden rounded-full bg-slate-800">
+                    <div className="h-1.5 w-full overflow-hidden rounded-full bg-elevated">
                       <div
-                        className="h-full rounded-full bg-violet-500"
+                        className="h-full rounded-full bg-brand"
                         style={{
                           width: `${total > 0 ? Math.min(100, (bought / total) * 100) : 100}%`,
                         }}
                       />
                     </div>
-                    <span className="text-slate-400">
+                    <span className="text-muted">
                       {t('purchases.boughtByMany', { names: buyerNames })}
                     </span>
                   </div>
                 ) : (
                   <>
-                    <label className="flex items-center gap-1 text-slate-400">
+                    <label className="flex items-center gap-1 text-muted">
                       <input
                         type="checkbox"
                         checked={p.purchased}
                         onChange={(e) => toggleBought(p, e.target.checked)}
-                        className="size-4 rounded border-slate-600 bg-slate-800 accent-violet-500"
+                        className="size-4 rounded border-border bg-elevated accent-brand"
                       />
                       {t('purchases.bought')}
                     </label>
-                    <label className="ml-auto flex items-center gap-1 text-slate-400">
+                    <label className="ml-auto flex items-center gap-1 text-muted">
                       {t('purchases.assignedShort')}
                       <select
                         value={p.assignedTo ?? ''}
                         onChange={(e) => assignBuyer(p, e.target.value || null)}
-                        className="rounded border border-slate-700 bg-slate-900 p-1 text-slate-200"
+                        className="rounded border border-border bg-surface p-1 text-ink"
                       >
                         <option value="">{t('purchases.unassigned')}</option>
                         {event!.users
@@ -471,7 +467,7 @@ export function PurchasesTab() {
           onDirtyChange={setFormDirty}
         />
       )}
-      {visible.length === 0 && <p className="text-sm text-slate-400">{t('purchases.empty')}</p>}
+      {visible.length === 0 && <p className="text-sm text-muted">{t('purchases.empty')}</p>}
       {grouped.map(({ group, items, subgroups }) => (
         <div key={group || '__none__'} className="space-y-2">
           {group !== '' && (
@@ -479,16 +475,16 @@ export function PurchasesTab() {
               <button
                 type="button"
                 onClick={() => toggleCollapse(group)}
-                className="flex flex-1 items-center gap-1.5 rounded-lg py-2 text-left text-xs font-semibold uppercase tracking-wide text-violet-300 hover:bg-slate-800/50"
+                className="flex flex-1 items-center gap-1.5 rounded-lg py-2 text-left text-xs font-semibold uppercase tracking-wide text-brand hover:bg-elevated/50"
                 aria-label={t('purchases.toggleGroup')}
               >
-                <span className="text-sm text-slate-500">{collapsed.has(group) ? '▸' : '▾'}</span>
-                {group} <span className="text-slate-500">({items.length})</span>
+                <span className="text-sm text-muted">{collapsed.has(group) ? '▸' : '▾'}</span>
+                {group} <span className="text-muted">({items.length})</span>
               </button>
               <button
                 type="button"
                 onClick={() => moveGroup(group, -1)}
-                className="flex size-9 items-center justify-center rounded-lg text-base text-slate-400 hover:bg-slate-800 hover:text-slate-200"
+                className="flex size-9 items-center justify-center rounded-lg text-base text-muted hover:bg-elevated hover:text-ink"
                 aria-label={t('purchases.moveUp')}
               >
                 ↑
@@ -496,7 +492,7 @@ export function PurchasesTab() {
               <button
                 type="button"
                 onClick={() => moveGroup(group, 1)}
-                className="flex size-9 items-center justify-center rounded-lg text-base text-slate-400 hover:bg-slate-800 hover:text-slate-200"
+                className="flex size-9 items-center justify-center rounded-lg text-base text-muted hover:bg-elevated hover:text-ink"
                 aria-label={t('purchases.moveDown')}
               >
                 ↓
@@ -507,7 +503,7 @@ export function PurchasesTab() {
                   setRenamingGroup(group)
                   setGroupNewName(group)
                 }}
-                className="flex size-9 items-center justify-center rounded-lg text-base text-slate-400 hover:bg-slate-800 hover:text-slate-200"
+                className="flex size-9 items-center justify-center rounded-lg text-base text-muted hover:bg-elevated hover:text-ink"
                 aria-label={t('purchases.renameGroup')}
               >
                 ✎
@@ -518,11 +514,11 @@ export function PurchasesTab() {
             <button
               type="button"
               onClick={() => toggleCollapse(group)}
-              className="flex w-full items-center gap-1.5 rounded-lg px-1 py-2 text-left text-xs font-semibold uppercase tracking-wide text-violet-300 hover:bg-slate-800/50"
+              className="flex w-full items-center gap-1.5 rounded-lg px-1 py-2 text-left text-xs font-semibold uppercase tracking-wide text-brand hover:bg-elevated/50"
               aria-label={t('purchases.toggleGroup')}
             >
-              <span className="text-sm text-slate-500">{collapsed.has(group) ? '▸' : '▾'}</span>
-              {t('purchases.noGroup')} <span className="text-slate-500">({items.length})</span>
+              <span className="text-sm text-muted">{collapsed.has(group) ? '▸' : '▾'}</span>
+              {t('purchases.noGroup')} <span className="text-muted">({items.length})</span>
             </button>
           )}
           {!collapsed.has(group) && (
@@ -537,18 +533,18 @@ export function PurchasesTab() {
                       <button
                         type="button"
                         onClick={() => toggleCollapse(subCollapseKey(group, subgroup))}
-                        className="flex flex-1 items-center gap-1.5 rounded-lg py-1.5 text-left text-[0.7rem] font-semibold uppercase tracking-wide text-violet-400/80 hover:bg-slate-800/50"
+                        className="flex flex-1 items-center gap-1.5 rounded-lg py-1.5 text-left text-[0.7rem] font-semibold uppercase tracking-wide text-brand hover:bg-elevated/50"
                         aria-label={t('purchases.toggleSubgroup')}
                       >
-                        <span className="text-xs text-slate-500">
+                        <span className="text-xs text-muted">
                           {collapsed.has(subCollapseKey(group, subgroup)) ? '▸' : '▾'}
                         </span>
-                        {subgroup} <span className="text-slate-500">({subItems.length})</span>
+                        {subgroup} <span className="text-muted">({subItems.length})</span>
                       </button>
                       <button
                         type="button"
                         onClick={() => moveSubgroup(group, subgroup, -1)}
-                        className="flex size-8 items-center justify-center rounded-lg text-sm text-slate-400 hover:bg-slate-800 hover:text-slate-200"
+                        className="flex size-8 items-center justify-center rounded-lg text-sm text-muted hover:bg-elevated hover:text-ink"
                         aria-label={t('purchases.moveSubgroupUp')}
                       >
                         ↑
@@ -556,7 +552,7 @@ export function PurchasesTab() {
                       <button
                         type="button"
                         onClick={() => moveSubgroup(group, subgroup, 1)}
-                        className="flex size-8 items-center justify-center rounded-lg text-sm text-slate-400 hover:bg-slate-800 hover:text-slate-200"
+                        className="flex size-8 items-center justify-center rounded-lg text-sm text-muted hover:bg-elevated hover:text-ink"
                         aria-label={t('purchases.moveSubgroupDown')}
                       >
                         ↓
@@ -567,7 +563,7 @@ export function PurchasesTab() {
                           setRenamingSubgroup({ group, subgroup })
                           setSubgroupNewName(subgroup)
                         }}
-                        className="flex size-8 items-center justify-center rounded-lg text-sm text-slate-400 hover:bg-slate-800 hover:text-slate-200"
+                        className="flex size-8 items-center justify-center rounded-lg text-sm text-muted hover:bg-elevated hover:text-ink"
                         aria-label={t('purchases.renameSubgroup')}
                       >
                         ✎
@@ -588,7 +584,7 @@ export function PurchasesTab() {
           <button
             type="button"
             onClick={() => setShowDeleted((v) => !v)}
-            className="text-xs text-slate-500 hover:text-slate-300"
+            className="text-xs text-muted hover:text-ink"
           >
             {showDeleted ? '▾' : '▸'} {t('purchases.showDeleted', { count: deleted.length })}
           </button>
@@ -597,13 +593,13 @@ export function PurchasesTab() {
               {deleted.map((p) => (
                 <li
                   key={p.id}
-                  className="flex items-center justify-between rounded-lg border border-slate-800 bg-slate-900/50 p-3 text-sm"
+                  className="flex items-center justify-between rounded-xl border border-border bg-surface/50 p-3 text-sm"
                 >
-                  <span className="text-slate-500 line-through">{p.item}</span>
+                  <span className="text-muted line-through">{p.item}</span>
                   <button
                     type="button"
                     onClick={() => recover(p)}
-                    className="rounded px-2 py-1 text-xs text-teal-300 hover:bg-slate-800"
+                    className="rounded px-2 py-1 text-xs text-brand hover:bg-elevated"
                   >
                     ↺ {t('purchases.restore')}
                   </button>
@@ -621,7 +617,7 @@ export function PurchasesTab() {
           onClose={() => setPendingEdit(null)}
         >
           <div className="space-y-3">
-            <p className="text-sm text-slate-300">{t('common.unsavedBody')}</p>
+            <p className="text-sm text-ink">{t('common.unsavedBody')}</p>
             <div className="flex gap-2">
               <Button type="button" variant="secondary" onClick={() => setPendingEdit(null)}>
                 {t('common.keepEditing')}
@@ -657,7 +653,7 @@ export function PurchasesTab() {
               placeholder={t('purchases.form.groupPlaceholder')}
               autoFocus
             />
-            <p className="text-xs text-slate-500">{t('purchases.renameGroupHint')}</p>
+            <p className="text-xs text-muted">{t('purchases.renameGroupHint')}</p>
             <div className="flex gap-2">
               <Button type="button" variant="secondary" onClick={() => setRenamingGroup(null)}>
                 {t('common.cancel')}
@@ -684,7 +680,7 @@ export function PurchasesTab() {
               placeholder={t('purchases.form.subgroupPlaceholder')}
               autoFocus
             />
-            <p className="text-xs text-slate-500">{t('purchases.renameSubgroupHint')}</p>
+            <p className="text-xs text-muted">{t('purchases.renameSubgroupHint')}</p>
             <div className="flex gap-2">
               <Button type="button" variant="secondary" onClick={() => setRenamingSubgroup(null)}>
                 {t('common.cancel')}
@@ -704,7 +700,7 @@ export function PurchasesTab() {
           onClose={() => setDeleting(null)}
         >
           <div className="space-y-3">
-            <p className="text-sm text-slate-300">
+            <p className="text-sm text-ink">
               {t('purchases.deleteConfirm', { item: deleting.item })}
             </p>
             <div className="flex gap-2">

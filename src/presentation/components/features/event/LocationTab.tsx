@@ -135,10 +135,10 @@ export function LocationTab() {
 
   return (
     <div className="space-y-4">
-      <label className="block text-sm text-slate-300">
+      <label className="block text-sm text-ink">
         {t('location.eventName')}
         <input
-          className="mt-1 block w-full rounded-lg border border-slate-700 bg-slate-900 px-3 py-2 text-sm text-slate-100 focus:border-violet-500 focus:outline-none focus:ring-1 focus:ring-violet-500"
+          className="mt-1 block w-full rounded-lg border border-border bg-surface px-3 py-2 text-sm text-ink focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand"
           value={eventName}
           onChange={(e) => setEventName(e.target.value)}
           onBlur={saveName}
@@ -148,7 +148,7 @@ export function LocationTab() {
       </label>
 
       <div className="flex items-center justify-between">
-        <h2 className="text-sm font-semibold uppercase tracking-wide text-slate-400">
+        <h2 className="text-sm font-semibold uppercase tracking-wide text-muted">
           {t('location.title')}
         </h2>
         {!editing && (
@@ -161,20 +161,20 @@ export function LocationTab() {
       {!editing && (
         <>
           {!loc && !event.generalNotes && !event.wifiPassword && !event.emergencyContact ? (
-            <p className="text-sm text-slate-400">{t('location.noLocation')}</p>
+            <p className="text-sm text-muted">{t('location.noLocation')}</p>
           ) : (
-            <div className="space-y-3 rounded-lg border border-slate-800 bg-slate-900 p-4">
+            <div className="space-y-3 rounded-xl border border-border bg-surface p-4">
               {loc && (
                 <>
-                  <div className="font-medium text-slate-100">{loc.name}</div>
-                  {loc.address && <div className="text-sm text-slate-300">{loc.address}</div>}
-                  {loc.postalCode && <div className="text-sm text-slate-400">{loc.postalCode}</div>}
+                  <div className="font-medium text-ink">{loc.name}</div>
+                  {loc.address && <div className="text-sm text-ink">{loc.address}</div>}
+                  {loc.postalCode && <div className="text-sm text-muted">{loc.postalCode}</div>}
                   {loc.googleMapsUrl && (
                     <a
                       href={loc.googleMapsUrl}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="inline-block text-sm text-violet-300 underline hover:text-violet-200"
+                      className="inline-block text-sm text-brand underline hover:text-brand-hover"
                     >
                       {t('location.openInMaps')} ↗
                     </a>
@@ -183,22 +183,20 @@ export function LocationTab() {
               )}
               {event.generalNotes && (
                 <div>
-                  <div className="text-xs uppercase text-slate-500">{t('location.notes')}</div>
-                  <div className="whitespace-pre-wrap text-sm text-slate-200">
-                    {event.generalNotes}
-                  </div>
+                  <div className="text-xs uppercase text-muted">{t('location.notes')}</div>
+                  <div className="whitespace-pre-wrap text-sm text-ink">{event.generalNotes}</div>
                 </div>
               )}
               {event.wifiPassword && (
                 <div>
-                  <div className="text-xs uppercase text-slate-500">{t('location.wifi')}</div>
-                  <code className="text-sm text-slate-200">{event.wifiPassword}</code>
+                  <div className="text-xs uppercase text-muted">{t('location.wifi')}</div>
+                  <code className="text-sm text-ink">{event.wifiPassword}</code>
                 </div>
               )}
               {event.emergencyContact && (
                 <div>
-                  <div className="text-xs uppercase text-slate-500">{t('location.emergency')}</div>
-                  <div className="text-sm text-slate-200">{event.emergencyContact}</div>
+                  <div className="text-xs uppercase text-muted">{t('location.emergency')}</div>
+                  <div className="text-sm text-ink">{event.emergencyContact}</div>
                 </div>
               )}
             </div>
@@ -207,10 +205,7 @@ export function LocationTab() {
       )}
 
       {editing && (
-        <form
-          onSubmit={save}
-          className="space-y-3 rounded-lg border border-slate-800 bg-slate-900 p-4"
-        >
+        <form onSubmit={save} className="space-y-3 rounded-xl border border-border bg-surface p-4">
           <Input
             placeholder={t('location.name')}
             value={name}
@@ -251,7 +246,7 @@ export function LocationTab() {
             onChange={(e) => setNotes(e.target.value)}
             maxLength={500}
             rows={3}
-            className="w-full rounded-lg border border-slate-700 bg-slate-900 px-3 py-2 text-sm text-slate-100 placeholder-slate-500 focus:border-violet-500 focus:outline-none focus:ring-1 focus:ring-violet-500"
+            className="w-full rounded-lg border border-border bg-surface px-3 py-2 text-sm text-ink placeholder-muted focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand"
           />
           <Input
             placeholder={t('location.wifi')}
@@ -266,7 +261,7 @@ export function LocationTab() {
             maxLength={100}
           />
 
-          {error && <p className="text-sm text-rose-400">{error}</p>}
+          {error && <p className="text-sm text-danger">{error}</p>}
 
           <div className="flex gap-2">
             <Button
@@ -284,13 +279,13 @@ export function LocationTab() {
         </form>
       )}
 
-      <div className="space-y-3 rounded-lg border border-slate-800 bg-slate-900 p-4">
-        <h2 className="text-sm font-semibold uppercase tracking-wide text-slate-400">
+      <div className="space-y-3 rounded-xl border border-border bg-surface p-4">
+        <h2 className="text-sm font-semibold uppercase tracking-wide text-muted">
           🔒 {t('pin.manageTitle')}
         </h2>
         {!hasPin ? (
           <>
-            <p className="text-xs text-slate-500">{t('pin.noPinYet')}</p>
+            <p className="text-xs text-muted">{t('pin.noPinYet')}</p>
             <div className="flex gap-2">
               <Input
                 type="password"
@@ -312,7 +307,7 @@ export function LocationTab() {
           </>
         ) : (
           <>
-            <p className="text-xs text-emerald-400">{t('pin.hasPin')}</p>
+            <p className="text-xs text-pos">{t('pin.hasPin')}</p>
             <div className="flex gap-2">
               <Input
                 type="password"
@@ -336,14 +331,14 @@ export function LocationTab() {
               <button
                 type="button"
                 onClick={() => setConfirmRemovePin(true)}
-                className="text-xs text-rose-400 hover:text-rose-300"
+                className="text-xs text-danger hover:text-danger"
                 disabled={pinBusy}
               >
                 {t('pin.removePin')}
               </button>
             ) : (
-              <div className="space-y-2 rounded border border-rose-900/50 bg-rose-950/30 p-2">
-                <p className="text-xs text-slate-300">{t('pin.removeConfirm')}</p>
+              <div className="space-y-2 rounded border border-danger bg-danger-soft p-2">
+                <p className="text-xs text-danger-soft-fg">{t('pin.removeConfirm')}</p>
                 <div className="flex gap-2">
                   <Button
                     type="button"
@@ -368,14 +363,14 @@ export function LocationTab() {
               localStorage.removeItem(`eventsplit.pin.${event.id}`)
               window.location.reload()
             }}
-            className="text-xs text-slate-400 hover:text-slate-200"
+            className="text-xs text-muted hover:text-ink"
           >
             {t('pin.lockDevice')}
           </button>
         )}
-        {pinError && <p className="text-xs text-rose-400">{pinError}</p>}
-        <p className="text-xs text-slate-600">{t('pin.manageHint')}</p>
-        <p className="text-xs text-slate-600">{t('pin.ownerVerifiedHint')}</p>
+        {pinError && <p className="text-xs text-danger">{pinError}</p>}
+        <p className="text-xs text-muted">{t('pin.manageHint')}</p>
+        <p className="text-xs text-muted">{t('pin.ownerVerifiedHint')}</p>
       </div>
     </div>
   )

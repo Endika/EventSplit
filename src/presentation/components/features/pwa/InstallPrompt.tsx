@@ -59,7 +59,7 @@ export function InstallPrompt() {
       <div
         role="region"
         aria-label={t('install.title')}
-        className="flex items-center gap-3 bg-violet-600 px-4 py-2 text-sm text-white"
+        className="flex items-center gap-3 bg-brand-soft px-4 py-2 text-sm text-brand-soft-fg"
       >
         <span className="flex-1">{t('install.title')}</span>
         <Button variant="secondary" onClick={install}>
@@ -69,7 +69,7 @@ export function InstallPrompt() {
           type="button"
           onClick={dismiss}
           aria-label={t('install.dismiss')}
-          className="rounded px-2 py-1 text-white/80 hover:bg-white/10"
+          className="rounded px-2 py-1 text-brand-soft-fg/70 hover:bg-brand/10"
         >
           ✕
         </button>
@@ -83,14 +83,14 @@ export function InstallPrompt() {
       <div
         role="region"
         aria-label={t('install.title')}
-        className="flex items-start gap-3 bg-slate-800 px-4 py-2 text-xs text-slate-200"
+        className="flex items-start gap-3 bg-elevated px-4 py-2 text-xs text-ink"
       >
         <span className="flex-1">{t('install.iosHint')}</span>
         <button
           type="button"
           onClick={dismiss}
           aria-label={t('install.dismiss')}
-          className="rounded px-2 py-1 text-slate-400 hover:bg-slate-700"
+          className="rounded px-2 py-1 text-muted hover:bg-surface"
         >
           ✕
         </button>

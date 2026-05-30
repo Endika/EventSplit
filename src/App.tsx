@@ -44,7 +44,7 @@ export default function App() {
               <InstallPrompt />
               <ErrorBanner />
               <NoticeBanner />
-              <Suspense fallback={<div className="p-6 text-slate-400">…</div>}>
+              <Suspense fallback={<div className="p-6 text-muted">…</div>}>
                 {eventId ? <EventPage eventId={eventId} /> : <HomePage />}
               </Suspense>
               <PinPromptModal />

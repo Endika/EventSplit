@@ -400,5 +400,11 @@
     "closingPhrase": "✨ Se che parecen demasiados, quizais hai que recortar a lista",
     "empty": "Sen produtos asignados — disfruta do evento 😉",
     "noPurchases": "Aínda non hai produtos na lista"
+  },
+  "theme": {
+    "light": "Claro",
+    "dark": "Escuro",
+    "system": "Sistema",
+    "switch": "Tema: {{mode}}"
   }
 }

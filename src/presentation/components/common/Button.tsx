@@ -1,5 +1,14 @@
 import type { ButtonHTMLAttributes } from 'react'
 
+type Variant = 'primary' | 'secondary' | 'ghost' | 'danger'
+
+const VARIANTS: Record<Variant, string> = {
+  primary: 'bg-brand text-white hover:bg-brand-hover shadow-sm shadow-brand/20',
+  secondary: 'bg-surface text-ink border border-border hover:bg-elevated',
+  ghost: 'text-brand hover:bg-brand-soft',
+  danger: 'bg-danger text-white hover:opacity-90',
+}
+
 export function Button({
   variant = 'primary',
   loading = false,
@@ -8,17 +17,17 @@ export function Button({
   disabled,
   ...rest
 }: ButtonHTMLAttributes<HTMLButtonElement> & {
-  variant?: 'primary' | 'secondary'
+  variant?: Variant
   loading?: boolean
 }) {
   const base =
-    'inline-flex items-center justify-center gap-2 rounded-lg px-4 py-2.5 text-sm font-medium transition disabled:opacity-50'
-  const styles =
-    variant === 'primary'
-      ? 'bg-gradient-to-br from-violet-500 to-teal-400 text-white hover:from-violet-400 hover:to-teal-300 shadow-lg shadow-violet-900/30'
-      : 'bg-slate-800 text-slate-100 hover:bg-slate-700 border border-slate-700'
+    'inline-flex items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold transition disabled:opacity-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2 focus-visible:ring-offset-bg'
   return (
-    <button className={`${base} ${styles} ${className}`} disabled={disabled || loading} {...rest}>
+    <button
+      className={`${base} ${VARIANTS[variant]} ${className}`}
+      disabled={disabled || loading}
+      {...rest}
+    >
       {loading && (
         <span
           aria-hidden

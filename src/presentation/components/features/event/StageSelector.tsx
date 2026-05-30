@@ -42,7 +42,7 @@ export function StageSelector() {
 
   return (
     <div
-      className="flex gap-1 rounded-lg bg-slate-900 p-1"
+      className="flex gap-1 rounded-xl bg-surface p-1"
       role="group"
       aria-label={t('stage.title')}
     >
@@ -54,9 +54,7 @@ export function StageSelector() {
             type="button"
             onClick={() => setInfo(s)}
             className={`flex-1 rounded px-2 py-1.5 text-xs font-medium transition ${
-              active
-                ? 'bg-violet-600 text-white shadow'
-                : 'text-slate-400 hover:bg-slate-800 hover:text-slate-200'
+              active ? 'bg-brand text-white shadow' : 'text-muted hover:bg-elevated hover:text-ink'
             }`}
             aria-pressed={active}
           >
@@ -67,7 +65,7 @@ export function StageSelector() {
       {info && (
         <Modal open title={t(`stage.${info}`)} dismissable onClose={() => setInfo(null)}>
           <div className="space-y-3">
-            <p className="text-sm text-slate-300">{t(`stage.${info}Desc`)}</p>
+            <p className="text-sm text-muted">{t(`stage.${info}Desc`)}</p>
             <div className="flex gap-2">
               <Button type="button" variant="secondary" onClick={() => setInfo(null)}>
                 {t('common.cancel')}

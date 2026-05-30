@@ -65,9 +65,9 @@ export function EventPage({ eventId }: { eventId: string }) {
     }
   }
 
-  if (loading) return <main className="p-6 text-slate-300">…</main>
-  if (error) return <main className="p-6 text-rose-400">{error}</main>
-  if (!event) return <main className="p-6 text-slate-300">…</main>
+  if (loading) return <main className="p-6 text-muted">…</main>
+  if (error) return <main className="p-6 text-danger">{error}</main>
+  if (!event) return <main className="p-6 text-muted">…</main>
 
   void pinTick
   const needsPin = !!event.editPin && localStorage.getItem(`eventsplit.pin.${eventId}`) !== 'true'
@@ -78,7 +78,7 @@ export function EventPage({ eventId }: { eventId: string }) {
   return (
     <main className="mx-auto max-w-3xl p-4 md:p-6">
       <div className="mb-2 hidden items-center justify-between md:flex">
-        <h1 className="text-2xl font-bold text-slate-100">{event.name}</h1>
+        <h1 className="text-2xl font-bold text-ink">{event.name}</h1>
         <button
           type="button"
           onClick={async () => {
@@ -95,7 +95,7 @@ export function EventPage({ eventId }: { eventId: string }) {
               console.error('[Share]', err)
             }
           }}
-          className="flex items-center gap-1 rounded-lg border border-slate-700 bg-slate-800 px-3 py-1.5 text-sm text-slate-200 hover:bg-slate-700"
+          className="flex items-center gap-1 rounded-xl border border-border bg-elevated px-3 py-1.5 text-sm text-ink hover:bg-elevated"
         >
           <svg
             width="14"

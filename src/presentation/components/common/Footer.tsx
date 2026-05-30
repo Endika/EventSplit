@@ -1,5 +1,6 @@
 import { type ReactNode } from 'react'
 import { useTranslation } from 'react-i18next'
+import { ThemeToggle } from '@/presentation/components/common/ThemeToggle'
 
 // Flag emoji (🇬🇧/🇪🇸) don't render as flags on Windows, so we draw these inline too.
 function UnionJack() {
@@ -108,7 +109,7 @@ export function Footer() {
   }
 
   return (
-    <footer className="mt-12 flex flex-col items-center gap-2 pb-4 text-xs text-slate-600">
+    <footer className="mt-12 flex flex-col items-center gap-2 pb-4 text-xs text-muted">
       <div className="flex flex-wrap justify-center gap-1" role="group" aria-label="Language">
         {LANGUAGES.map((lang) => {
           const active = current.startsWith(lang.code)
@@ -118,9 +119,7 @@ export function Footer() {
               type="button"
               onClick={() => changeTo(lang.code)}
               className={`flex items-center gap-1.5 rounded px-2 py-1 text-xs font-medium ${
-                active
-                  ? 'bg-slate-800 text-slate-200'
-                  : 'text-slate-500 hover:bg-slate-900 hover:text-slate-300'
+                active ? 'bg-elevated text-ink' : 'text-muted hover:bg-surface hover:text-ink'
               }`}
               aria-pressed={active}
               title={lang.label}
@@ -131,7 +130,10 @@ export function Footer() {
           )
         })}
       </div>
-      <div>v{__APP_VERSION__}</div>
+      <div className="flex items-center gap-2">
+        <span>v{__APP_VERSION__}</span>
+        <ThemeToggle />
+      </div>
     </footer>
   )
 }

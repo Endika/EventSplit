@@ -57,7 +57,7 @@ export function PinPromptModal() {
   return (
     <Modal open title={t('pin.promptTitle')} dismissable={!busy} onClose={cancel}>
       <form onSubmit={submit} className="space-y-3">
-        <p className="text-sm text-slate-400">{t('pin.promptHint')}</p>
+        <p className="text-sm text-muted">{t('pin.promptHint')}</p>
         <Input
           type="password"
           inputMode="numeric"
@@ -69,7 +69,7 @@ export function PinPromptModal() {
           onChange={(e) => setPin(e.target.value.replace(/\D/g, ''))}
           disabled={busy}
         />
-        {error && <p className="text-sm text-rose-400">{error}</p>}
+        {error && <p className="text-sm text-danger">{error}</p>}
         <div className="flex gap-2">
           <Button type="button" variant="secondary" onClick={cancel} disabled={busy}>
             {t('pin.promptCancel')}

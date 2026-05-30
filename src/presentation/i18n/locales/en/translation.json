@@ -400,5 +400,11 @@
     "closingPhrase": "✨ If that sounds like too much, maybe trim the list",
     "empty": "Nothing assigned to you — enjoy the event 😉",
     "noPurchases": "No items in the list yet"
+  },
+  "theme": {
+    "light": "Light",
+    "dark": "Dark",
+    "system": "System",
+    "switch": "Theme: {{mode}}"
   }
 }

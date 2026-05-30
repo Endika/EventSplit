@@ -35,10 +35,10 @@ export function EventPinGate({ event, onUnlock }: { event: EventSnapshot; onUnlo
 
   return (
     <main className="mx-auto max-w-sm p-6">
-      <div className="rounded-2xl border border-slate-800 bg-slate-900 p-6 text-center">
+      <div className="rounded-2xl border border-border bg-surface p-6 text-center">
         <div className="mb-2 text-3xl">🔒</div>
-        <h1 className="mb-1 text-lg font-semibold text-slate-100">{event.name}</h1>
-        <p className="mb-4 text-sm text-slate-400">{t('pin.gateBody')}</p>
+        <h1 className="mb-1 text-lg font-semibold text-ink">{event.name}</h1>
+        <p className="mb-4 text-sm text-muted">{t('pin.gateBody')}</p>
         <form onSubmit={submit} className="space-y-3">
           <Input
             type="password"
@@ -51,7 +51,7 @@ export function EventPinGate({ event, onUnlock }: { event: EventSnapshot; onUnlo
             onChange={(e) => setPin(e.target.value.replace(/\D/g, ''))}
             disabled={busy}
           />
-          {error && <p className="text-sm text-rose-400">{error}</p>}
+          {error && <p className="text-sm text-danger">{error}</p>}
           <Button type="submit" disabled={busy || pin.length < 4} className="w-full">
             {t('pin.gateUnlock')}
           </Button>

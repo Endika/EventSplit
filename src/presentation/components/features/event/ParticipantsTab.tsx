@@ -22,21 +22,21 @@ export function ParticipantsTab() {
           + {t('participants.add')}
         </Button>
       </div>
-      <ul className="divide-y divide-slate-800 rounded-lg border border-slate-800 bg-slate-900">
+      <ul className="divide-y divide-border rounded-xl border border-border bg-surface">
         {event.users.map((u) => {
           const isMe = me?.id === u.id
           const label = u.alias ? `${u.name} (${u.alias})` : u.name
           const kindBadge =
             u.kind === 'child' ? (
-              <span className="ml-2 inline-flex items-center rounded-full bg-teal-900/50 px-2 py-0.5 text-xs font-medium text-teal-200">
+              <span className="ml-2 inline-flex items-center rounded-full bg-brand-soft px-2 py-0.5 text-xs font-medium text-brand-soft-fg">
                 {t('participants.child')}
               </span>
             ) : null
           return (
-            <li key={u.id} className={`flex items-center ${isMe ? 'bg-violet-900/30' : ''}`}>
+            <li key={u.id} className={`flex items-center ${isMe ? 'bg-brand-soft' : ''}`}>
               <button
                 type="button"
-                className="flex w-full items-center justify-between p-3 text-left text-slate-200 hover:bg-slate-800"
+                className="flex w-full items-center justify-between p-3 text-left text-ink hover:bg-elevated"
                 onClick={() => setEditing(u.id)}
               >
                 <span className="flex items-center">
@@ -44,7 +44,7 @@ export function ParticipantsTab() {
                   <YouLabel userId={u.id} />
                   {kindBadge}
                 </span>
-                <span className="text-xs text-slate-400">✎</span>
+                <span className="text-xs text-muted">✎</span>
               </button>
             </li>
           )

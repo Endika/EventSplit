@@ -3,9 +3,9 @@ import { useState } from 'react'
 type Tone = 'slate' | 'amber' | 'rose'
 
 const TONES: Record<Tone, string> = {
-  slate: 'text-slate-400',
-  amber: 'text-amber-300',
-  rose: 'text-rose-400',
+  slate: 'text-muted',
+  amber: 'text-warn',
+  rose: 'text-danger',
 }
 
 /**
@@ -36,7 +36,7 @@ export function InfoChip({
       {open && (
         <span
           onClick={() => setOpen(false)}
-          className="absolute bottom-full left-1/2 z-30 mb-1 max-w-[14rem] -translate-x-1/2 whitespace-normal rounded-md border border-slate-700 bg-slate-800 px-2 py-1 text-xs text-slate-100 shadow-lg"
+          className="absolute bottom-full left-1/2 z-30 mb-1 max-w-[14rem] -translate-x-1/2 whitespace-normal rounded-md border border-border bg-elevated px-2 py-1 text-xs text-ink shadow-lg"
         >
           {label}
         </span>

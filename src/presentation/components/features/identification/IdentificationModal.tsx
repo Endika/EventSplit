@@ -62,7 +62,7 @@ export function IdentificationModal({
     <Modal open title={t('id.who', { eventName })} dismissable={false}>
       {mode === 'list' && (
         <div className="space-y-2">
-          <p className="text-sm text-slate-400">{t('id.pick')}</p>
+          <p className="text-sm text-muted">{t('id.pick')}</p>
           <div className="max-h-[40vh] space-y-2 overflow-y-auto">
             {users.map((u) => (
               <Button
@@ -76,11 +76,11 @@ export function IdentificationModal({
               </Button>
             ))}
           </div>
-          <hr className="my-3 border-slate-700" />
+          <hr className="my-3 border-border" />
           <Button onClick={() => setMode('new')} disabled={busy}>
             {t('id.imNew')}
           </Button>
-          {error && <p className="text-sm text-rose-400">{error}</p>}
+          {error && <p className="text-sm text-danger">{error}</p>}
         </div>
       )}
       {mode === 'new' && (
@@ -100,7 +100,7 @@ export function IdentificationModal({
             onChange={(e) => setAlias(e.target.value)}
             maxLength={50}
           />
-          {error && <p className="text-sm text-rose-400">{error}</p>}
+          {error && <p className="text-sm text-danger">{error}</p>}
           <div className="flex gap-2">
             <Button
               type="button"

@@ -108,13 +108,13 @@ export function ExpensesTab() {
           onDirtyChange={setFormDirty}
         />
       )}
-      {visible.length === 0 && <p className="text-sm text-slate-400">{t('expenses.empty')}</p>}
+      {visible.length === 0 && <p className="text-sm text-muted">{t('expenses.empty')}</p>}
       <ul className="space-y-2">
         {visible.map((e) => (
           <li
             key={e.id}
-            className={`rounded-lg border bg-slate-900 p-3 ${
-              editing?.id === e.id ? 'border-violet-500 ring-1 ring-violet-500' : 'border-slate-800'
+            className={`rounded-xl border bg-surface p-3 ${
+              editing?.id === e.id ? 'border-brand ring-1 ring-brand' : 'border-border'
             }`}
           >
             <div className="flex items-start justify-between gap-2">
@@ -125,17 +125,17 @@ export function ExpensesTab() {
                 aria-label={t('expenses.edit')}
               >
                 <div className="flex items-center justify-between gap-2">
-                  <span className="font-medium text-slate-100">
-                    {e.description} <span className="text-xs text-slate-500">✎</span>
+                  <span className="font-medium text-ink">
+                    {e.description} <span className="text-xs text-muted">✎</span>
                   </span>
-                  <span className="text-sm text-slate-200">€{fmt(e.cents)}</span>
+                  <span className="text-sm text-ink">€{fmt(e.cents)}</span>
                 </div>
-                <div className="text-xs text-slate-500">
+                <div className="text-xs text-muted">
                   {t('expenses.paidBy', { name: nameOf(e.paidBy) })}
                   <YouLabel userId={e.paidBy} />
                 </div>
                 {e.splitAmong.length > 0 && e.splitAmong.length < event.users.length && (
-                  <div className="mt-1 text-xs text-slate-500">
+                  <div className="mt-1 text-xs text-muted">
                     {t('expenses.splitBetween', {
                       list: e.splitAmong.map(nameOf).join(', '),
                     })}
@@ -145,7 +145,7 @@ export function ExpensesTab() {
               <button
                 type="button"
                 onClick={() => setDeleting(e)}
-                className="rounded p-1.5 text-xs text-slate-400 hover:bg-slate-800 hover:text-rose-400"
+                className="rounded p-1.5 text-xs text-muted hover:bg-elevated hover:text-danger"
                 aria-label={t('expenses.delete')}
                 title={t('expenses.delete')}
               >
@@ -161,7 +161,7 @@ export function ExpensesTab() {
           <button
             type="button"
             onClick={() => setShowDeleted((v) => !v)}
-            className="text-xs text-slate-500 hover:text-slate-300"
+            className="text-xs text-muted hover:text-ink"
           >
             {showDeleted ? '▾' : '▸'} {t('expenses.showDeleted', { count: deleted.length })}
           </button>
@@ -170,15 +170,15 @@ export function ExpensesTab() {
               {deleted.map((e) => (
                 <li
                   key={e.id}
-                  className="flex items-center justify-between gap-2 rounded-lg border border-slate-800 bg-slate-900/50 p-3 text-sm"
+                  className="flex items-center justify-between gap-2 rounded-xl border border-border bg-surface/50 p-3 text-sm"
                 >
-                  <span className="text-slate-500 line-through">{e.description}</span>
+                  <span className="text-muted line-through">{e.description}</span>
                   <span className="flex items-center gap-2">
-                    <span className="text-slate-500 line-through">€{fmt(e.cents)}</span>
+                    <span className="text-muted line-through">€{fmt(e.cents)}</span>
                     <button
                       type="button"
                       onClick={() => recover(e)}
-                      className="rounded px-2 py-1 text-xs text-teal-300 hover:bg-slate-800"
+                      className="rounded px-2 py-1 text-xs text-brand hover:bg-elevated"
                     >
                       ↺ {t('expenses.restore')}
                     </button>
@@ -197,7 +197,7 @@ export function ExpensesTab() {
           onClose={() => setPendingEdit(null)}
         >
           <div className="space-y-3">
-            <p className="text-sm text-slate-300">{t('common.unsavedBody')}</p>
+            <p className="text-sm text-muted">{t('common.unsavedBody')}</p>
             <div className="flex gap-2">
               <Button type="button" variant="secondary" onClick={() => setPendingEdit(null)}>
                 {t('common.keepEditing')}
@@ -221,7 +221,7 @@ export function ExpensesTab() {
       {deleting && (
         <Modal open title={t('expenses.deleteTitle')} dismissable onClose={() => setDeleting(null)}>
           <div className="space-y-3">
-            <p className="text-sm text-slate-300">
+            <p className="text-sm text-muted">
               {t('expenses.deleteConfirm', { desc: deleting.description })}
             </p>
             <div className="flex gap-2">

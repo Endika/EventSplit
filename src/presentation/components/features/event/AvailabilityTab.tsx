@@ -202,12 +202,12 @@ export function AvailabilityTab() {
 
   return (
     <div className="space-y-4">
-      <h2 className="text-sm font-semibold uppercase tracking-wide text-slate-400">
+      <h2 className="text-sm font-semibold uppercase tracking-wide text-muted">
         {t('availability.title')}
       </h2>
 
       <textarea
-        className="w-full rounded-lg border border-slate-700 bg-slate-900 px-3 py-2 text-sm text-slate-100 placeholder-slate-500 focus:border-violet-500 focus:outline-none focus:ring-1 focus:ring-violet-500"
+        className="w-full rounded-lg border border-border bg-surface px-3 py-2 text-sm text-ink placeholder-muted focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand"
         value={note}
         onChange={(e) => setNote(e.target.value)}
         onBlur={saveNote}
@@ -217,12 +217,12 @@ export function AvailabilityTab() {
       />
 
       {childCount > 0 && (
-        <label className="flex items-center gap-2 text-xs text-slate-400">
+        <label className="flex items-center gap-2 text-xs text-muted">
           <input
             type="checkbox"
             checked={showChildren}
             onChange={(e) => setShowChildren(e.target.checked)}
-            className="size-4 rounded border-slate-600 bg-slate-800 accent-violet-500"
+            className="size-4 rounded border-border bg-elevated accent-brand"
           />
           {t('availability.showChildren', { count: childCount })}
         </label>
@@ -240,21 +240,16 @@ export function AvailabilityTab() {
         </Button>
       </form>
 
-      {error && <p className="text-sm text-rose-400">{error}</p>}
+      {error && <p className="text-sm text-danger">{error}</p>}
 
-      {event.days.length === 0 && (
-        <p className="text-sm text-slate-400">{t('availability.noDays')}</p>
-      )}
+      {event.days.length === 0 && <p className="text-sm text-muted">{t('availability.noDays')}</p>}
 
       {event.days.length > 0 && (
         <>
-          <p className="text-xs text-slate-500">{t('availability.editAnyoneHint')}</p>
-          <div
-            data-no-swipe
-            className="overflow-x-auto rounded-lg border border-slate-800 bg-slate-900"
-          >
+          <p className="text-xs text-muted">{t('availability.editAnyoneHint')}</p>
+          <div data-no-swipe className="overflow-x-auto rounded-xl border border-border bg-surface">
             <table className="w-full text-sm">
-              <thead className="text-xs uppercase text-slate-500">
+              <thead className="text-xs uppercase text-muted">
                 <tr>
                   <th className="p-3 text-left">&nbsp;</th>
                   {event.days.map((d) => {
@@ -262,7 +257,7 @@ export function AvailabilityTab() {
                     return (
                       <th
                         key={d}
-                        className={`p-3 text-center font-medium ${isChosen ? 'bg-violet-900/40 text-violet-200' : 'text-slate-300'}`}
+                        className={`p-3 text-center font-medium ${isChosen ? 'bg-brand-soft text-brand-soft-fg' : 'text-ink'}`}
                       >
                         <div className="flex flex-col items-center gap-0.5">
                           <button
@@ -272,16 +267,14 @@ export function AvailabilityTab() {
                             title={t('availability.pickDay')}
                           >
                             <span>{formatDate(d, i18n.language)}</span>
-                            <span className={isChosen ? 'text-violet-300' : 'text-slate-600'}>
-                              📌
-                            </span>
+                            <span className={isChosen ? 'text-brand' : 'text-muted'}>📌</span>
                           </button>
                           {savedVotesForDay(d) === 0 && (
                             <button
                               type="button"
                               onClick={() => setDayToRemove(d)}
                               disabled={busy}
-                              className="mt-1 text-[10px] text-slate-600 hover:text-rose-400"
+                              className="mt-1 text-[10px] text-muted hover:text-danger"
                               title={t('availability.removeDay')}
                               aria-label={t('availability.removeDay')}
                             >
@@ -298,8 +291,8 @@ export function AvailabilityTab() {
                 {matrixUsers.map((u) => {
                   const isMe = me?.id === u.id
                   return (
-                    <tr key={u.id} className={isMe ? 'bg-violet-900/30' : ''}>
-                      <td className="p-3 text-slate-200">
+                    <tr key={u.id} className={isMe ? 'bg-brand-soft/30' : ''}>
+                      <td className="p-3 text-ink">
                         {u.alias ? `${u.name} (${u.alias})` : u.name}
                         <YouLabel userId={u.id} />
                       </td>
@@ -308,14 +301,14 @@ export function AvailabilityTab() {
                         return (
                           <td
                             key={d}
-                            className={`p-3 text-center ${event.chosenDay === d ? 'bg-violet-900/20' : ''}`}
+                            className={`p-3 text-center ${event.chosenDay === d ? 'bg-brand-soft/20' : ''}`}
                           >
                             <input
                               type="checkbox"
                               checked={checked}
                               onChange={(e) => toggleVote(u.id, d, e.target.checked)}
                               disabled={busy}
-                              className="size-4 rounded border-slate-600 bg-slate-800 accent-violet-500"
+                              className="size-4 rounded border-border bg-elevated accent-brand"
                               aria-label={`${u.name} ${formatDate(d, i18n.language)}`}
                             />
                           </td>
@@ -326,17 +319,17 @@ export function AvailabilityTab() {
                 })}
               </tbody>
               <tfoot>
-                <tr className="border-t border-slate-700 text-xs text-slate-400">
+                <tr className="border-t border-border text-xs text-muted">
                   <td className="p-3 font-medium">{t('availability.votes')}</td>
                   {event.days.map((d) => {
                     const count = matrixUsers.reduce((n, u) => n + (drafts[u.id]?.[d] ? 1 : 0), 0)
                     return (
                       <td
                         key={d}
-                        className={`p-3 text-center ${event.chosenDay === d ? 'bg-violet-900/20' : ''}`}
+                        className={`p-3 text-center ${event.chosenDay === d ? 'bg-brand-soft/20' : ''}`}
                       >
-                        <span className="font-semibold text-teal-300">{count}</span>
-                        <span className="text-slate-500">/{matrixUsers.length}</span>
+                        <span className="font-semibold text-pos">{count}</span>
+                        <span className="text-muted">/{matrixUsers.length}</span>
                       </td>
                     )
                   })}
@@ -361,7 +354,7 @@ export function AvailabilityTab() {
           onClose={() => setDayToRemove(null)}
         >
           <div className="space-y-3">
-            <p className="text-sm text-slate-300">
+            <p className="text-sm text-ink">
               {t('availability.removeDayConfirm', {
                 date: formatDate(dayToRemove, i18n.language),
               })}

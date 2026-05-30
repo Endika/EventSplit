@@ -73,8 +73,8 @@ export function HomePage() {
 
   return (
     <main className="mx-auto max-w-md p-4 md:p-6">
-      <h1 className="mb-2 text-3xl font-bold text-slate-100">{t('app.title')}</h1>
-      <p className="mb-6 text-gray-600">{t('home.tagline')}</p>
+      <h1 className="mb-2 text-3xl font-bold text-ink">{t('app.title')}</h1>
+      <p className="mb-6 text-muted">{t('home.tagline')}</p>
 
       {!creating ? (
         <Button onClick={() => setCreating(true)} className="mb-6 w-full">
@@ -83,7 +83,7 @@ export function HomePage() {
       ) : (
         <form
           onSubmit={onSubmit}
-          className="mb-6 space-y-3 rounded-lg border border-slate-800 bg-slate-900 p-4"
+          className="mb-6 space-y-3 rounded-xl border border-border bg-surface p-4"
         >
           <Input
             placeholder={t('home.eventName')}
@@ -116,8 +116,8 @@ export function HomePage() {
             value={pin}
             onChange={(e) => setPin(e.target.value.replace(/\D/g, ''))}
           />
-          <p className="-mt-1 text-xs text-slate-500">{t('pin.createHint')}</p>
-          {error && <p className="text-sm text-rose-400">{error}</p>}
+          <p className="-mt-1 text-xs text-muted">{t('pin.createHint')}</p>
+          {error && <p className="text-sm text-danger">{error}</p>}
           <div className="flex gap-2">
             {items.length > 0 && (
               <Button

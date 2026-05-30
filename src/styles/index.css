@@ -1,20 +1,118 @@
 @import 'tailwindcss';
 
+/* Dark mode driven by a `.dark` class on <html> (set before paint in index.html). */
+@custom-variant dark (&:where(.dark, .dark *));
+
+/* ── Brand palette: light (default) ─────────────────────────────── */
 :root {
-  color-scheme: dark;
+  color-scheme: light;
   --safe-bottom: env(safe-area-inset-bottom, 0px);
+
+  --c-bg: #fff8f5;
+  --c-surface: #ffffff;
+  --c-elevated: #fff1ec;
+  --c-border: #f0e2dc;
+  --c-ink: #1c1a17;
+  --c-muted: #8a7f79;
+
+  --c-brand: #ff5a47;
+  --c-brand-hover: #ed4733;
+  --c-brand-soft: #ffe3de;
+  --c-brand-soft-fg: #c73d2c;
+
+  --c-pos: #14b88a;
+  --c-pos-soft: #d8f3ea;
+  --c-pos-soft-fg: #0e7c70;
+
+  --c-warn: #e89611;
+  --c-warn-soft: #fcebcf;
+  --c-warn-soft-fg: #9a6708;
+
+  --c-danger: #dc2626;
+  --c-danger-soft: #fbe0e0;
+  --c-danger-soft-fg: #b11c1c;
+
+  --c-grad-from: #ff5a47;
+  --c-grad-to: #ffb37a;
+}
+
+/* ── Brand palette: dark ────────────────────────────────────────── */
+.dark {
+  color-scheme: dark;
+
+  --c-bg: #15110e;
+  --c-surface: #221a15;
+  --c-elevated: #2c221c;
+  --c-border: #38291f;
+  --c-ink: #f5ece7;
+  --c-muted: #a99b92;
+
+  --c-brand: #ff7a66;
+  --c-brand-hover: #ff8e7c;
+  --c-brand-soft: #3a211b;
+  --c-brand-soft-fg: #ff9e8c;
+
+  --c-pos: #34d9a0;
+  --c-pos-soft: #16352b;
+  --c-pos-soft-fg: #46e0a8;
+
+  --c-warn: #f0b43c;
+  --c-warn-soft: #3a2d14;
+  --c-warn-soft-fg: #f4c257;
+
+  --c-danger: #f87171;
+  --c-danger-soft: #3a1d1d;
+  --c-danger-soft-fg: #fb8c8c;
+
+  --c-grad-from: #ff7a66;
+  --c-grad-to: #ffc197;
+}
+
+/* ── Map palette → Tailwind theme tokens (flip with .dark) ──────── */
+@theme inline {
+  --font-sans: 'Plus Jakarta Sans', ui-sans-serif, system-ui, sans-serif;
+
+  --color-bg: var(--c-bg);
+  --color-surface: var(--c-surface);
+  --color-elevated: var(--c-elevated);
+  --color-border: var(--c-border);
+  --color-ink: var(--c-ink);
+  --color-muted: var(--c-muted);
+
+  --color-brand: var(--c-brand);
+  --color-brand-hover: var(--c-brand-hover);
+  --color-brand-soft: var(--c-brand-soft);
+  --color-brand-soft-fg: var(--c-brand-soft-fg);
+
+  --color-pos: var(--c-pos);
+  --color-pos-soft: var(--c-pos-soft);
+  --color-pos-soft-fg: var(--c-pos-soft-fg);
+
+  --color-warn: var(--c-warn);
+  --color-warn-soft: var(--c-warn-soft);
+  --color-warn-soft-fg: var(--c-warn-soft-fg);
+
+  --color-danger: var(--c-danger);
+  --color-danger-soft: var(--c-danger-soft);
+  --color-danger-soft-fg: var(--c-danger-soft-fg);
 }
 
 html,
 body {
-  /* Prevent the browser's pull-to-refresh gesture from reloading the page
-     (and wiping in-progress form state) when the user over-scrolls. */
+  /* Prevent pull-to-refresh from wiping in-progress form state. */
   overscroll-behavior-y: contain;
 }
 
 body {
-  background-color: #020617; /* slate-950 */
-  color: #f1f5f9; /* slate-100 */
+  background-color: var(--c-bg);
+  color: var(--c-ink);
+  font-family: var(--font-sans);
+  font-variant-numeric: tabular-nums;
+}
+
+/* Brand gradient — used sparingly (app icon, hero/primary CTA). */
+.bg-brand-gradient {
+  background-image: linear-gradient(135deg, var(--c-grad-from), var(--c-grad-to));
 }
 
 @supports (padding: env(safe-area-inset-top)) {

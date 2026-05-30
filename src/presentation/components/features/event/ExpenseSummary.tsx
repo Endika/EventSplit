@@ -49,13 +49,13 @@ export function ExpenseSummary() {
   const nameOf = (id: string) => event.users.find((u) => u.id === id)?.name ?? '?'
 
   return (
-    <div className="space-y-4 rounded-lg border border-slate-800 bg-slate-900 p-4">
-      <div className="text-sm text-slate-300">
+    <div className="space-y-4 rounded-xl border border-border bg-surface p-4">
+      <div className="text-sm text-muted">
         {t('expenses.summary.total')}:{' '}
-        <strong className="text-slate-100">€{fmt(result.totalCents)}</strong>
+        <strong className="text-ink">€{fmt(result.totalCents)}</strong>
       </div>
       <table className="w-full text-sm">
-        <thead className="text-left text-xs uppercase text-slate-500">
+        <thead className="text-left text-xs uppercase text-muted">
           <tr>
             <th className="py-1">{t('expenses.summary.person')}</th>
             <th className="py-1">{t('expenses.summary.spent')}</th>
@@ -66,7 +66,7 @@ export function ExpenseSummary() {
           {result.balances.map((b) => {
             const isMe = me?.id === b.userId
             return (
-              <tr key={b.userId} className={isMe ? 'bg-violet-900/30' : ''}>
+              <tr key={b.userId} className={isMe ? 'bg-brand-soft' : ''}>
                 <td className="py-1">
                   {nameOf(b.userId)}
                   <YouLabel userId={b.userId} />
@@ -74,7 +74,11 @@ export function ExpenseSummary() {
                 <td className="py-1">€{fmt(b.spentCents)}</td>
                 <td
                   className={`py-1 ${
-                    b.balanceCents > 0 ? 'text-teal-400' : b.balanceCents < 0 ? 'text-rose-400' : ''
+                    b.balanceCents > 0
+                      ? 'text-pos'
+                      : b.balanceCents < 0
+                        ? 'text-warn'
+                        : 'text-muted'
                   }`}
                 >
                   {b.balanceCents > 0 ? '+' : ''}€{fmt(b.balanceCents)}
@@ -86,7 +90,7 @@ export function ExpenseSummary() {
       </table>
       {result.transfers.length > 0 && (
         <div>
-          <p className="mb-1 text-xs font-medium uppercase text-slate-500">
+          <p className="mb-1 text-xs font-medium uppercase text-muted">
             {t('expenses.summary.transfers')}
           </p>
           <ul className="space-y-1 text-sm">
@@ -98,10 +102,10 @@ export function ExpenseSummary() {
                     type="checkbox"
                     checked={settled}
                     onChange={() => toggleSettled(tr.from, tr.to)}
-                    className="size-4 rounded border-slate-600 bg-slate-800 accent-teal-500"
+                    className="size-4 rounded border-border bg-elevated accent-pos"
                     aria-label={t('expenses.summary.markPaid')}
                   />
-                  <span className={settled ? 'text-slate-500 line-through' : 'text-slate-200'}>
+                  <span className={settled ? 'text-muted line-through' : 'text-ink'}>
                     {t('expenses.summary.transferLine', {
                       from: nameOf(tr.from),
                       euros: fmt(tr.cents),
@@ -109,7 +113,7 @@ export function ExpenseSummary() {
                     })}
                   </span>
                   {settled && (
-                    <span className="rounded-full bg-teal-900/50 px-2 py-0.5 text-xs text-teal-300">
+                    <span className="rounded-full bg-pos-soft px-2 py-0.5 text-xs text-pos-soft-fg">
                       {t('expenses.summary.paid')}
                     </span>
                   )}

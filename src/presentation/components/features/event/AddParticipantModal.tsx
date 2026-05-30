@@ -79,10 +79,10 @@ export function AddParticipantModal({ onClose }: { onClose: () => void }) {
           onChange={(e) => setAlias(e.target.value)}
           maxLength={50}
         />
-        <label className="block text-sm text-slate-300">
+        <label className="block text-sm text-muted">
           {t('participants.kind')}
           <select
-            className="mt-1 block w-full rounded-lg border border-slate-700 bg-slate-900 p-2 text-sm text-slate-100"
+            className="mt-1 block w-full rounded-xl border border-border bg-surface p-2 text-sm text-ink"
             value={kind}
             onChange={(e) => setKind(e.target.value as UserKind)}
             disabled={busy}
@@ -92,9 +92,9 @@ export function AddParticipantModal({ onClose }: { onClose: () => void }) {
           </select>
         </label>
         {error && (
-          <div className="space-y-1 rounded border border-rose-900/60 bg-rose-950/40 p-2 text-xs">
-            <div className="font-semibold text-rose-300">{error.name}</div>
-            <div className="break-all text-rose-200">{error.message}</div>
+          <div className="space-y-1 rounded border border-danger bg-danger-soft p-2 text-xs">
+            <div className="font-semibold text-danger-soft-fg">{error.name}</div>
+            <div className="break-all text-danger-soft-fg">{error.message}</div>
           </div>
         )}
         <div className="flex gap-2">
