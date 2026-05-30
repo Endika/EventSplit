@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.7.1](https://github.com/Endika/EventSplit/compare/v2.7.0...v2.7.1) (2026-05-30)
+
+
+### Bug Fixes
+
+* **ui:** mobile-friendly forms, tap targets and inputs ([b43dc48](https://github.com/Endika/EventSplit/commit/b43dc480f5d99d5cf0a2819dc88ed0331c35eef6))
+
 ## [2.7.0](https://github.com/Endika/EventSplit/compare/v2.6.5...v2.7.0) (2026-05-30)
 
 
