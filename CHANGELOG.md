@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.8.0](https://github.com/Endika/EventSplit/compare/v2.7.1...v2.8.0) (2026-05-30)
+
+
+### Features
+
+* **location:** address autocomplete, venue name and map ([a499fe2](https://github.com/Endika/EventSplit/commit/a499fe20326cca8f15b53298b49d5701883652cb))
+
 ## [2.7.1](https://github.com/Endika/EventSplit/compare/v2.7.0...v2.7.1) (2026-05-30)
 
 
