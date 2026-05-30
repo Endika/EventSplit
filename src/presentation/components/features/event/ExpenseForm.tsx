@@ -198,7 +198,7 @@ export function ExpenseForm({
         <label className="block text-sm text-muted">
           {t('expenses.form.paidBy')}
           <select
-            className="mt-1 block w-full rounded-xl border border-border bg-surface p-2 text-sm text-ink"
+            className="mt-1 block w-full rounded-xl border border-border bg-surface p-2 text-base text-ink sm:text-sm"
             required
             value={paidBy}
             onChange={(e) => setPaidBy(e.target.value)}
@@ -251,15 +251,17 @@ export function ExpenseForm({
           </div>
           <ul className="space-y-1">
             {event.users.map((u) => (
-              <li key={u.id} className="flex items-center gap-2 text-sm">
-                <input
-                  type="checkbox"
-                  checked={splitAmong.has(u.id)}
-                  onChange={() => toggleSplit(u.id)}
-                  disabled={busy}
-                  className="size-4 rounded border-border bg-elevated accent-brand"
-                />
-                <span className="text-ink">{u.alias ? `${u.name} (${u.alias})` : u.name}</span>
+              <li key={u.id} className="text-sm">
+                <label className="flex cursor-pointer items-center gap-2 py-2">
+                  <input
+                    type="checkbox"
+                    checked={splitAmong.has(u.id)}
+                    onChange={() => toggleSplit(u.id)}
+                    disabled={busy}
+                    className="size-4 rounded border-border bg-elevated accent-brand"
+                  />
+                  <span className="text-ink">{u.alias ? `${u.name} (${u.alias})` : u.name}</span>
+                </label>
               </li>
             ))}
           </ul>
@@ -320,7 +322,7 @@ export function ExpenseForm({
                           onChange={(e) =>
                             setLinks((prev) => ({ ...prev, [p.id]: e.target.value }))
                           }
-                          className="w-20 rounded-xl border border-border bg-surface px-2 py-1 text-sm text-ink focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand"
+                          className="w-20 rounded-xl border border-border bg-surface px-2 py-1 text-base text-ink focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand sm:text-sm"
                         />
                         <span className="text-xs text-muted">
                           {t('expenses.form.remainingHint', {
@@ -338,7 +340,7 @@ export function ExpenseForm({
           </fieldset>
         )}
         {error && <p className="text-sm text-danger">{error}</p>}
-        <div className="flex gap-2">
+        <div className="sticky bottom-0 z-10 -mx-4 -mb-4 flex gap-2 rounded-b-xl border-t border-border bg-surface px-4 py-3">
           <Button
             type="button"
             variant="secondary"

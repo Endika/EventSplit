@@ -368,7 +368,7 @@ export function PurchaseForm({
         <label className="block text-sm text-ink">
           {t('purchases.form.group')}
           <input
-            className="mt-1 block w-full rounded-lg border border-border bg-surface px-3 py-2 text-sm text-ink placeholder-muted focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand"
+            className="mt-1 block w-full rounded-lg border border-border bg-surface px-3 py-2 text-base text-ink placeholder-muted focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand sm:text-sm"
             list="group-suggestions"
             value={group}
             onChange={(e) => setGroup(e.target.value)}
@@ -385,7 +385,7 @@ export function PurchaseForm({
           <label className="block text-sm text-ink">
             {t('purchases.form.subgroup')}
             <input
-              className="mt-1 block w-full rounded-lg border border-border bg-surface px-3 py-2 text-sm text-ink placeholder-muted focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand"
+              className="mt-1 block w-full rounded-lg border border-border bg-surface px-3 py-2 text-base text-ink placeholder-muted focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand sm:text-sm"
               list="subgroup-suggestions"
               value={subgroup}
               onChange={(e) => setSubgroup(e.target.value)}
@@ -415,7 +415,7 @@ export function PurchaseForm({
               <label className="block text-sm text-ink">
                 {t('purchases.form.unit')}
                 <select
-                  className="mt-1 block w-full rounded-lg border border-border bg-surface p-2 text-sm text-ink"
+                  className="mt-1 block w-full rounded-lg border border-border bg-surface p-2 text-base text-ink sm:text-sm"
                   value={unit}
                   onChange={(e) => setUnit(e.target.value)}
                 >
@@ -433,7 +433,7 @@ export function PurchaseForm({
             <label className="block text-sm text-ink">
               {t('purchases.form.broughtBy')}
               <select
-                className="mt-1 block w-full rounded-lg border border-border bg-surface p-2 text-sm text-ink"
+                className="mt-1 block w-full rounded-lg border border-border bg-surface p-2 text-base text-ink sm:text-sm"
                 value={broughtBy ?? ''}
                 onChange={(e) => setBroughtBy(e.target.value || null)}
               >
@@ -465,7 +465,7 @@ export function PurchaseForm({
               <label className="block text-sm text-ink">
                 {t('purchases.form.unit')}
                 <select
-                  className="mt-1 block w-full rounded-lg border border-border bg-surface p-2 text-sm text-ink"
+                  className="mt-1 block w-full rounded-lg border border-border bg-surface p-2 text-base text-ink sm:text-sm"
                   value={unit}
                   onChange={(e) => setUnit(e.target.value)}
                 >
@@ -493,6 +493,7 @@ export function PurchaseForm({
                   <Input
                     className="mt-1"
                     type="number"
+                    inputMode="numeric"
                     min="1"
                     step="1"
                     value={days}
@@ -533,12 +534,14 @@ export function PurchaseForm({
                         }).length > 0
                       return (
                         <li key={u.id} className="flex items-center gap-2 text-sm">
-                          <input
-                            type="checkbox"
-                            checked={selected}
-                            onChange={() => toggleConsumer(u.id)}
-                          />
-                          <span>{u.alias ? `${u.name} (${u.alias})` : u.name}</span>
+                          <label className="flex cursor-pointer items-center gap-2 py-2">
+                            <input
+                              type="checkbox"
+                              checked={selected}
+                              onChange={() => toggleConsumer(u.id)}
+                            />
+                            <span>{u.alias ? `${u.name} (${u.alias})` : u.name}</span>
+                          </label>
                           <YouLabel userId={u.id} />
                           {allergens.length > 0 && (
                             <InfoChip
@@ -558,7 +561,7 @@ export function PurchaseForm({
                           )}
                           {selected && (
                             <select
-                              className="ml-auto rounded border border-border bg-surface p-1 text-ink"
+                              className="ml-auto min-h-11 rounded border border-border bg-surface p-1 text-base text-ink sm:text-sm"
                               value={m}
                               onChange={(e) => setMultiplier(u.id, parseFloat(e.target.value))}
                             >
@@ -579,7 +582,7 @@ export function PurchaseForm({
             <label className="block text-sm text-ink">
               {t('purchases.form.assignedTo')}
               <select
-                className="mt-1 block w-full rounded-lg border border-border bg-surface p-2 text-sm text-ink"
+                className="mt-1 block w-full rounded-lg border border-border bg-surface p-2 text-base text-ink sm:text-sm"
                 value={assignedTo ?? ''}
                 onChange={(e) => setAssignedTo(e.target.value || null)}
               >
@@ -641,7 +644,7 @@ export function PurchaseForm({
             </div>
           </Modal>
         )}
-        <div className="flex gap-2">
+        <div className="sticky bottom-0 z-10 -mx-4 -mb-4 flex gap-2 rounded-b-xl border-t border-border bg-surface px-4 py-3">
           <Button
             type="button"
             variant="secondary"

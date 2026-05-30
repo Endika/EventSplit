@@ -207,7 +207,7 @@ export function AvailabilityTab() {
       </h2>
 
       <textarea
-        className="w-full rounded-lg border border-border bg-surface px-3 py-2 text-sm text-ink placeholder-muted focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand"
+        className="w-full rounded-lg border border-border bg-surface px-3 py-2 text-base text-ink placeholder-muted focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand sm:text-sm"
         value={note}
         onChange={(e) => setNote(e.target.value)}
         onBlur={saveNote}
@@ -274,7 +274,7 @@ export function AvailabilityTab() {
                               type="button"
                               onClick={() => setDayToRemove(d)}
                               disabled={busy}
-                              className="mt-1 text-[10px] text-muted hover:text-danger"
+                              className="mt-1 inline-flex min-h-11 min-w-11 items-center justify-center text-[10px] text-muted hover:text-danger"
                               title={t('availability.removeDay')}
                               aria-label={t('availability.removeDay')}
                             >
@@ -301,16 +301,18 @@ export function AvailabilityTab() {
                         return (
                           <td
                             key={d}
-                            className={`p-3 text-center ${event.chosenDay === d ? 'bg-brand-soft/20' : ''}`}
+                            className={`p-0 text-center ${event.chosenDay === d ? 'bg-brand-soft/20' : ''}`}
                           >
-                            <input
-                              type="checkbox"
-                              checked={checked}
-                              onChange={(e) => toggleVote(u.id, d, e.target.checked)}
-                              disabled={busy}
-                              className="size-4 rounded border-border bg-elevated accent-brand"
-                              aria-label={`${u.name} ${formatDate(d, i18n.language)}`}
-                            />
+                            <label className="flex h-full w-full cursor-pointer items-center justify-center p-3">
+                              <input
+                                type="checkbox"
+                                checked={checked}
+                                onChange={(e) => toggleVote(u.id, d, e.target.checked)}
+                                disabled={busy}
+                                className="size-4 rounded border-border bg-elevated accent-brand"
+                                aria-label={`${u.name} ${formatDate(d, i18n.language)}`}
+                              />
+                            </label>
                           </td>
                         )
                       })}

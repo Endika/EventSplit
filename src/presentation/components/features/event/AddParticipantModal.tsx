@@ -82,7 +82,7 @@ export function AddParticipantModal({ onClose }: { onClose: () => void }) {
         <label className="block text-sm text-muted">
           {t('participants.kind')}
           <select
-            className="mt-1 block w-full rounded-xl border border-border bg-surface p-2 text-sm text-ink"
+            className="mt-1 block w-full rounded-xl border border-border bg-surface p-2 text-base text-ink sm:text-sm"
             value={kind}
             onChange={(e) => setKind(e.target.value as UserKind)}
             disabled={busy}

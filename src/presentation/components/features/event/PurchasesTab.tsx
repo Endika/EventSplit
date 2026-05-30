@@ -349,7 +349,7 @@ export function PurchasesTab() {
                 <button
                   type="button"
                   onClick={() => askDelete(p)}
-                  className="rounded p-1.5 text-xs text-muted hover:bg-elevated hover:text-danger"
+                  className="inline-flex min-h-11 min-w-11 items-center justify-center rounded text-xs text-muted hover:bg-elevated hover:text-danger"
                   aria-label={t('purchases.delete')}
                   title={t('purchases.delete')}
                 >
@@ -363,7 +363,7 @@ export function PurchasesTab() {
                     <select
                       value={p.assignedTo ?? ''}
                       onChange={(e) => assignBringer(p, e.target.value || null)}
-                      className="rounded border border-border bg-surface p-1 text-ink"
+                      className="min-h-11 rounded border border-border bg-surface p-1 text-base text-ink sm:text-sm"
                     >
                       <option value="">{t('purchases.unassigned')}</option>
                       {event!.users.map((u) => (
@@ -412,7 +412,7 @@ export function PurchasesTab() {
                       <select
                         value={p.assignedTo ?? ''}
                         onChange={(e) => assignBuyer(p, e.target.value || null)}
-                        className="rounded border border-border bg-surface p-1 text-ink"
+                        className="min-h-11 rounded border border-border bg-surface p-1 text-base text-ink sm:text-sm"
                       >
                         <option value="">{t('purchases.unassigned')}</option>
                         {event!.users
@@ -484,7 +484,7 @@ export function PurchasesTab() {
               <button
                 type="button"
                 onClick={() => moveGroup(group, -1)}
-                className="flex size-9 items-center justify-center rounded-lg text-base text-muted hover:bg-elevated hover:text-ink"
+                className="flex size-11 items-center justify-center rounded-lg text-base text-muted hover:bg-elevated hover:text-ink"
                 aria-label={t('purchases.moveUp')}
               >
                 ↑
@@ -492,7 +492,7 @@ export function PurchasesTab() {
               <button
                 type="button"
                 onClick={() => moveGroup(group, 1)}
-                className="flex size-9 items-center justify-center rounded-lg text-base text-muted hover:bg-elevated hover:text-ink"
+                className="flex size-11 items-center justify-center rounded-lg text-base text-muted hover:bg-elevated hover:text-ink"
                 aria-label={t('purchases.moveDown')}
               >
                 ↓
@@ -503,7 +503,7 @@ export function PurchasesTab() {
                   setRenamingGroup(group)
                   setGroupNewName(group)
                 }}
-                className="flex size-9 items-center justify-center rounded-lg text-base text-muted hover:bg-elevated hover:text-ink"
+                className="flex size-11 items-center justify-center rounded-lg text-base text-muted hover:bg-elevated hover:text-ink"
                 aria-label={t('purchases.renameGroup')}
               >
                 ✎
@@ -544,7 +544,7 @@ export function PurchasesTab() {
                       <button
                         type="button"
                         onClick={() => moveSubgroup(group, subgroup, -1)}
-                        className="flex size-8 items-center justify-center rounded-lg text-sm text-muted hover:bg-elevated hover:text-ink"
+                        className="flex size-11 items-center justify-center rounded-lg text-sm text-muted hover:bg-elevated hover:text-ink"
                         aria-label={t('purchases.moveSubgroupUp')}
                       >
                         ↑
@@ -552,7 +552,7 @@ export function PurchasesTab() {
                       <button
                         type="button"
                         onClick={() => moveSubgroup(group, subgroup, 1)}
-                        className="flex size-8 items-center justify-center rounded-lg text-sm text-muted hover:bg-elevated hover:text-ink"
+                        className="flex size-11 items-center justify-center rounded-lg text-sm text-muted hover:bg-elevated hover:text-ink"
                         aria-label={t('purchases.moveSubgroupDown')}
                       >
                         ↓
@@ -563,7 +563,7 @@ export function PurchasesTab() {
                           setRenamingSubgroup({ group, subgroup })
                           setSubgroupNewName(subgroup)
                         }}
-                        className="flex size-8 items-center justify-center rounded-lg text-sm text-muted hover:bg-elevated hover:text-ink"
+                        className="flex size-11 items-center justify-center rounded-lg text-sm text-muted hover:bg-elevated hover:text-ink"
                         aria-label={t('purchases.renameSubgroup')}
                       >
                         ✎
@@ -584,7 +584,7 @@ export function PurchasesTab() {
           <button
             type="button"
             onClick={() => setShowDeleted((v) => !v)}
-            className="text-xs text-muted hover:text-ink"
+            className="inline-flex min-h-11 items-center text-xs text-muted hover:text-ink"
           >
             {showDeleted ? '▾' : '▸'} {t('purchases.showDeleted', { count: deleted.length })}
           </button>
@@ -599,7 +599,7 @@ export function PurchasesTab() {
                   <button
                     type="button"
                     onClick={() => recover(p)}
-                    className="rounded px-2 py-1 text-xs text-brand hover:bg-elevated"
+                    className="inline-flex min-h-11 items-center rounded px-2 py-1 text-xs text-brand hover:bg-elevated"
                   >
                     ↺ {t('purchases.restore')}
                   </button>

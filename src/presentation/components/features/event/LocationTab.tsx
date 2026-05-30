@@ -138,7 +138,7 @@ export function LocationTab() {
       <label className="block text-sm text-ink">
         {t('location.eventName')}
         <input
-          className="mt-1 block w-full rounded-lg border border-border bg-surface px-3 py-2 text-sm text-ink focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand"
+          className="mt-1 block w-full rounded-lg border border-border bg-surface px-3 py-2 text-base text-ink focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand sm:text-sm"
           value={eventName}
           onChange={(e) => setEventName(e.target.value)}
           onBlur={saveName}
@@ -221,6 +221,7 @@ export function LocationTab() {
           <div className="grid grid-cols-2 gap-3">
             <Input
               type="number"
+              inputMode="decimal"
               step="any"
               placeholder={t('location.lat')}
               value={lat}
@@ -228,6 +229,7 @@ export function LocationTab() {
             />
             <Input
               type="number"
+              inputMode="decimal"
               step="any"
               placeholder={t('location.lng')}
               value={lng}
@@ -246,7 +248,7 @@ export function LocationTab() {
             onChange={(e) => setNotes(e.target.value)}
             maxLength={500}
             rows={3}
-            className="w-full rounded-lg border border-border bg-surface px-3 py-2 text-sm text-ink placeholder-muted focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand"
+            className="w-full rounded-lg border border-border bg-surface px-3 py-2 text-base text-ink placeholder-muted focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand sm:text-sm"
           />
           <Input
             placeholder={t('location.wifi')}

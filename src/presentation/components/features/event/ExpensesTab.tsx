@@ -145,7 +145,7 @@ export function ExpensesTab() {
               <button
                 type="button"
                 onClick={() => setDeleting(e)}
-                className="rounded p-1.5 text-xs text-muted hover:bg-elevated hover:text-danger"
+                className="inline-flex min-h-11 min-w-11 items-center justify-center rounded text-xs text-muted hover:bg-elevated hover:text-danger"
                 aria-label={t('expenses.delete')}
                 title={t('expenses.delete')}
               >
@@ -161,7 +161,7 @@ export function ExpensesTab() {
           <button
             type="button"
             onClick={() => setShowDeleted((v) => !v)}
-            className="text-xs text-muted hover:text-ink"
+            className="inline-flex min-h-11 items-center text-xs text-muted hover:text-ink"
           >
             {showDeleted ? '▾' : '▸'} {t('expenses.showDeleted', { count: deleted.length })}
           </button>
@@ -178,7 +178,7 @@ export function ExpensesTab() {
                     <button
                       type="button"
                       onClick={() => recover(e)}
-                      className="rounded px-2 py-1 text-xs text-brand hover:bg-elevated"
+                      className="inline-flex min-h-11 items-center rounded px-2 py-1 text-xs text-brand hover:bg-elevated"
                     >
                       ↺ {t('expenses.restore')}
                     </button>

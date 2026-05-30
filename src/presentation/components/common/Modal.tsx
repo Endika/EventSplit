@@ -23,13 +23,15 @@ export function Modal({
       onClick={dismissable ? onClose : undefined}
     >
       <div
-        className="w-full max-w-md max-h-[85vh] overflow-y-auto rounded-2xl bg-surface p-6 shadow-xl ring-1 ring-border"
+        className="flex w-full max-w-md max-h-[85vh] flex-col rounded-2xl bg-surface shadow-xl ring-1 ring-border"
         onClick={(e) => e.stopPropagation()}
       >
-        <h2 id="modal-title" className="mb-4 text-lg font-semibold text-ink">
-          {title}
-        </h2>
-        {children}
+        <div className="flex-1 overflow-y-auto p-6">
+          <h2 id="modal-title" className="mb-4 text-lg font-semibold text-ink">
+            {title}
+          </h2>
+          {children}
+        </div>
       </div>
     </div>
   )

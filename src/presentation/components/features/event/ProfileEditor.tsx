@@ -168,7 +168,7 @@ export function ProfileEditor({ userId, onClose }: { userId?: string; onClose: (
         <label className="block text-sm text-muted">
           {t('participants.kind')}
           <select
-            className="mt-1 block w-full rounded-xl border border-border bg-surface p-2 text-sm text-ink"
+            className="mt-1 block w-full rounded-xl border border-border bg-surface p-2 text-base text-ink sm:text-sm"
             value={kind}
             onChange={(e) => setKind(e.target.value as UserKind)}
             disabled={busy}
@@ -185,6 +185,8 @@ export function ProfileEditor({ userId, onClose }: { userId?: string; onClose: (
           maxLength={100}
         />
         <Input
+          type="tel"
+          inputMode="tel"
           placeholder={t('profile.phone')}
           value={phone}
           onChange={(e) => setPhone(e.target.value)}
@@ -202,7 +204,7 @@ export function ProfileEditor({ userId, onClose }: { userId?: string; onClose: (
           onChange={(e) => setNotes(e.target.value)}
           maxLength={500}
           rows={2}
-          className="w-full rounded-xl border border-border bg-surface px-3 py-2 text-sm text-ink placeholder-muted focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand"
+          className="w-full rounded-xl border border-border bg-surface px-3 py-2 text-base text-ink placeholder-muted focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand sm:text-sm"
         />
 
         <div>
@@ -243,7 +245,7 @@ export function ProfileEditor({ userId, onClose }: { userId?: string; onClose: (
             <div className="mt-2 space-y-2 rounded-xl border border-border bg-elevated/50 p-2">
               <div className="flex flex-wrap items-center gap-2">
                 <select
-                  className="rounded border border-border bg-surface px-2 py-1 text-sm text-ink"
+                  className="rounded border border-border bg-surface px-2 py-1 text-base text-ink sm:text-sm"
                   value={newAllergen}
                   onChange={(e) => setNewAllergen(e.target.value as AllergenName)}
                   disabled={busy}
@@ -263,7 +265,7 @@ export function ProfileEditor({ userId, onClose }: { userId?: string; onClose: (
                   })()}
                 </select>
                 <select
-                  className="rounded border border-border bg-surface px-2 py-1 text-sm text-ink"
+                  className="rounded border border-border bg-surface px-2 py-1 text-base text-ink sm:text-sm"
                   value={newSeverity}
                   onChange={(e) => setNewSeverity(e.target.value as AllergenSeverity)}
                   disabled={busy}
@@ -273,7 +275,7 @@ export function ProfileEditor({ userId, onClose }: { userId?: string; onClose: (
                   <option value="severe">{t('allergens.severity.severe')}</option>
                 </select>
                 <input
-                  className="rounded border border-border bg-surface px-2 py-1 text-sm text-ink placeholder-muted"
+                  className="rounded border border-border bg-surface px-2 py-1 text-base text-ink placeholder-muted sm:text-sm"
                   value={newAllergyNote}
                   onChange={(e) => setNewAllergyNote(e.target.value)}
                   maxLength={200}
@@ -316,7 +318,7 @@ export function ProfileEditor({ userId, onClose }: { userId?: string; onClose: (
 
         {error && <p className="text-sm text-danger">{error}</p>}
 
-        <div className="flex gap-2">
+        <div className="-mx-6 flex gap-2 border-t border-border bg-surface px-6 py-3">
           <Button type="button" variant="secondary" onClick={onClose} disabled={busy}>
             {t('common.cancel')}
           </Button>

@@ -54,40 +54,42 @@ export function ExpenseSummary() {
         {t('expenses.summary.total')}:{' '}
         <strong className="text-ink">€{fmt(result.totalCents)}</strong>
       </div>
-      <table className="w-full text-sm">
-        <thead className="text-left text-xs uppercase text-muted">
-          <tr>
-            <th className="py-1">{t('expenses.summary.person')}</th>
-            <th className="py-1">{t('expenses.summary.spent')}</th>
-            <th className="py-1">{t('expenses.summary.balance')}</th>
-          </tr>
-        </thead>
-        <tbody>
-          {result.balances.map((b) => {
-            const isMe = me?.id === b.userId
-            return (
-              <tr key={b.userId} className={isMe ? 'bg-brand-soft' : ''}>
-                <td className="py-1">
-                  {nameOf(b.userId)}
-                  <YouLabel userId={b.userId} />
-                </td>
-                <td className="py-1">€{fmt(b.spentCents)}</td>
-                <td
-                  className={`py-1 ${
-                    b.balanceCents > 0
-                      ? 'text-pos'
-                      : b.balanceCents < 0
-                        ? 'text-warn'
-                        : 'text-muted'
-                  }`}
-                >
-                  {b.balanceCents > 0 ? '+' : ''}€{fmt(b.balanceCents)}
-                </td>
-              </tr>
-            )
-          })}
-        </tbody>
-      </table>
+      <div className="overflow-x-auto" data-no-swipe>
+        <table className="w-full text-sm">
+          <thead className="text-left text-xs uppercase text-muted">
+            <tr>
+              <th className="py-1">{t('expenses.summary.person')}</th>
+              <th className="py-1">{t('expenses.summary.spent')}</th>
+              <th className="py-1">{t('expenses.summary.balance')}</th>
+            </tr>
+          </thead>
+          <tbody>
+            {result.balances.map((b) => {
+              const isMe = me?.id === b.userId
+              return (
+                <tr key={b.userId} className={isMe ? 'bg-brand-soft' : ''}>
+                  <td className="py-1 break-words">
+                    {nameOf(b.userId)}
+                    <YouLabel userId={b.userId} />
+                  </td>
+                  <td className="py-1">€{fmt(b.spentCents)}</td>
+                  <td
+                    className={`py-1 ${
+                      b.balanceCents > 0
+                        ? 'text-pos'
+                        : b.balanceCents < 0
+                          ? 'text-warn'
+                          : 'text-muted'
+                    }`}
+                  >
+                    {b.balanceCents > 0 ? '+' : ''}€{fmt(b.balanceCents)}
+                  </td>
+                </tr>
+              )
+            })}
+          </tbody>
+        </table>
+      </div>
       {result.transfers.length > 0 && (
         <div>
           <p className="mb-1 text-xs font-medium uppercase text-muted">
