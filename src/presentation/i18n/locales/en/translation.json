@@ -407,5 +407,22 @@
     "dark": "Dark",
     "system": "System",
     "switch": "Theme: {{mode}}"
+  },
+  "liquidations": {
+    "title": "Manual liquidations",
+    "add": "Add manual liquidation",
+    "concept": "Concept",
+    "amount": "Amount (€)",
+    "paidByLabel": "Who advanced it",
+    "noPayer": "Nobody yet (pending)",
+    "affects": "Split between",
+    "pendingBadge": "Pending",
+    "perPerson": "{{euros}} € / person",
+    "save": "Save",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "empty": "No manual liquidations yet.",
+    "showDeleted": "Show deleted ({{count}})",
+    "restore": "Restore"
   }
 }
