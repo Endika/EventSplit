@@ -3,6 +3,7 @@ import { User } from '@/domain/entities/User'
 import type { UserSnapshot } from '@/domain/entities/User'
 import type { PurchaseSnapshot } from '@/domain/entities/Purchase'
 import type { ExpenseSnapshot } from '@/domain/entities/Expense'
+import type { ManualLiquidationSnapshot } from '@/domain/entities/ManualLiquidation'
 
 export const EVENT_STAGES = ['doodle', 'shopping', 'expenses'] as const
 export type EventStage = (typeof EVENT_STAGES)[number]
@@ -28,6 +29,11 @@ export type HistoryType =
   | 'edit_pin_cleared'
   | 'stage_changed'
   | 'settlement_toggled'
+  | 'manual_liquidation_added'
+  | 'manual_liquidation_edited'
+  | 'manual_liquidation_deleted'
+  | 'manual_liquidation_recovered'
+  | 'manual_liquidation_share_toggled'
 
 export interface HistoryEntry {
   id: string
@@ -82,6 +88,7 @@ export interface EventSnapshot {
   editPin: string | null
   stage: EventStage
   settledTransfers: { from: string; to: string }[]
+  manualLiquidations: ManualLiquidationSnapshot[]
   history: HistoryEntry[]
   createdAt: string
   updatedAt: string
@@ -123,6 +130,7 @@ export class Event {
       editPin: null,
       stage: 'doodle',
       settledTransfers: [],
+      manualLiquidations: [],
       history: [
         {
           id: crypto.randomUUID(),
@@ -178,6 +186,15 @@ export class Event {
       editPin: s.editPin ?? null,
       stage: s.stage ?? 'doodle',
       settledTransfers: s.settledTransfers ?? [],
+      manualLiquidations: (s.manualLiquidations ?? []).map((l) => ({
+        ...l,
+        affects: l.affects ?? [],
+        paidShares: l.paidShares ?? [],
+        paidBy: l.paidBy ?? null,
+        deleted: l.deleted ?? false,
+        deletedBy: l.deletedBy ?? null,
+        deletedAt: l.deletedAt ?? null,
+      })),
       users: (s.users ?? []).map((u) => ({
         ...u,
         alias: u.alias ?? null,
@@ -233,6 +250,14 @@ export class Event {
         'Event: cannot remove user who created purchases (delete those purchases first)',
       )
 
+    const isLiquidationPayer = this.s.manualLiquidations.some(
+      (l) => l.paidBy === userId && !l.deleted,
+    )
+    if (isLiquidationPayer)
+      throw new Error(
+        'Event: cannot remove user who is the payer of a manual liquidation (delete it first)',
+      )
+
     const now = new Date().toISOString()
     const nextVersion = (this.s.history.at(-1)?.version ?? 0) + 1
 
@@ -266,6 +291,11 @@ export class Event {
       purchases: newPurchases,
       expenses: newExpenses,
       settledTransfers: this.s.settledTransfers.filter((s) => s.from !== userId && s.to !== userId),
+      manualLiquidations: this.s.manualLiquidations.map((l) => ({
+        ...l,
+        affects: l.affects.filter((id) => id !== userId),
+        paidShares: l.paidShares.filter((id) => id !== userId),
+      })),
       updatedAt: now,
       history: [
         ...this.s.history,
@@ -535,6 +565,11 @@ export class Event {
       ),
       expenses: this.s.expenses.map((e) => ({ ...e, splitAmong: [...e.splitAmong] })),
       settledTransfers: this.s.settledTransfers.map((s) => ({ ...s })),
+      manualLiquidations: this.s.manualLiquidations.map((l) => ({
+        ...l,
+        affects: [...l.affects],
+        paidShares: [...l.paidShares],
+      })),
       history: this.s.history.map((h) => ({ ...h })),
       days: [...this.s.days],
       availability: Object.fromEntries(
