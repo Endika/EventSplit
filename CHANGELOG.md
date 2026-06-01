@@ -1,5 +1,27 @@
 # Changelog
 
+## [2.9.0](https://github.com/Endika/EventSplit/compare/v2.8.0...v2.9.0) (2026-06-01)
+
+
+### Features
+
+* **app:** add AddManualLiquidationHandler ([24f2291](https://github.com/Endika/EventSplit/commit/24f229158dbae864f56cca02bc8a8b097cfc807c))
+* **app:** edit/delete/recover/toggle manual liquidations ([7bc5d38](https://github.com/Endika/EventSplit/commit/7bc5d382e6921b161d89cc2f9dee817a3127496c))
+* **app:** register manual liquidation handlers in DI ([2e36353](https://github.com/Endika/EventSplit/commit/2e36353d867591c0dd1c9111d86c02ff9a8fd1d9))
+* **domain:** add computeTripTotals ([c5b64ec](https://github.com/Endika/EventSplit/commit/c5b64ec17a96f7dc06fca8005c36c8f6d6773ab0))
+* **domain:** add ManualLiquidation entity ([b7e2277](https://github.com/Endika/EventSplit/commit/b7e227771b43bc7adb074ad33071c4db13f23d94))
+* **domain:** add ManualLiquidationSplitter ([478219d](https://github.com/Endika/EventSplit/commit/478219d0f0ae4ae9803d03a498a4b0bd38e7db32))
+* **domain:** wire manualLiquidations into Event snapshot ([dcae05a](https://github.com/Endika/EventSplit/commit/dcae05a1f68dac2e3b8eedb08e9bb4b7ab677495))
+* **persistence:** manualLiquidations schema + SCHEMA_VERSION 2 ([2713335](https://github.com/Endika/EventSplit/commit/2713335f41eabb546721b18608bd6811db7ebd12))
+* **ui:** add general trip-totals summary ([7e9f00e](https://github.com/Endika/EventSplit/commit/7e9f00e2fd73a1485710716c78680f3a81fd9a17))
+* **ui:** add manual liquidations section ([a8cab9c](https://github.com/Endika/EventSplit/commit/a8cab9c4eaa99f309d1ff9a0a029aa2164e2bee2))
+* **ui:** warn on expense touching a settled transfer ([eb0a2d4](https://github.com/Endika/EventSplit/commit/eb0a2d4f2ef7a22ecd1540d71c123f859cda8831))
+
+
+### Bug Fixes
+
+* **liquidations:** history i18n, edit UI, validation, shape guard ([ecc1316](https://github.com/Endika/EventSplit/commit/ecc131672181541e72f64ed19bc3048a9b019664))
+
 ## [2.8.0](https://github.com/Endika/EventSplit/compare/v2.7.1...v2.8.0) (2026-05-30)
 
 
