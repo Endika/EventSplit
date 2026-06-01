@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.9.1](https://github.com/Endika/EventSplit/compare/v2.9.0...v2.9.1) (2026-06-01)
+
+
+### Bug Fixes
+
+* **sync:** backoff on write contention + friendly save errors ([c8de0a8](https://github.com/Endika/EventSplit/commit/c8de0a8f2571c5149a46c5d98d1ccaeaeee8eb8c))
+
 ## [2.9.0](https://github.com/Endika/EventSplit/compare/v2.8.0...v2.9.0) (2026-06-01)
 
 
