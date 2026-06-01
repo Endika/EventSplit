@@ -75,7 +75,12 @@
       "revert": "Bertsioa itzuli",
       "edit_pin_set": "PIN ezarri",
       "edit_pin_cleared": "PIN kendu",
-      "settlement_toggled": "Ordainketa kitatu"
+      "settlement_toggled": "Ordainketa kitatu",
+      "manual_liquidation_added": "Eskuzko likidazioa gehituta",
+      "manual_liquidation_edited": "Eskuzko likidazioa editatuta",
+      "manual_liquidation_deleted": "Eskuzko likidazioa ezabatuta",
+      "manual_liquidation_recovered": "Eskuzko likidazioa berreskuratuta",
+      "manual_liquidation_share_toggled": "Likidazio-ordainketa eguneratuta"
     }
   },
   "allergens": {
@@ -435,6 +440,7 @@
     "delete": "Ezabatu",
     "empty": "Oraindik ez dago eskuzko likidaziorik.",
     "showDeleted": "Erakutsi ezabatutakoak ({{count}})",
-    "restore": "Berreskuratu"
+    "restore": "Berreskuratu",
+    "edit": "Editatu"
   }
 }

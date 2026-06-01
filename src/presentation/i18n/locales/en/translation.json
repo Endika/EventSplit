@@ -75,7 +75,12 @@
       "revert": "Reverted",
       "edit_pin_set": "PIN set",
       "edit_pin_cleared": "PIN cleared",
-      "settlement_toggled": "Payment settled"
+      "settlement_toggled": "Payment settled",
+      "manual_liquidation_added": "Manual liquidation added",
+      "manual_liquidation_edited": "Manual liquidation edited",
+      "manual_liquidation_deleted": "Manual liquidation deleted",
+      "manual_liquidation_recovered": "Manual liquidation restored",
+      "manual_liquidation_share_toggled": "Liquidation payment updated"
     }
   },
   "allergens": {
@@ -435,6 +440,7 @@
     "delete": "Delete",
     "empty": "No manual liquidations yet.",
     "showDeleted": "Show deleted ({{count}})",
-    "restore": "Restore"
+    "restore": "Restore",
+    "edit": "Edit"
   }
 }

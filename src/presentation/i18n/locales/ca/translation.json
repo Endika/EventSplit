@@ -75,7 +75,12 @@
       "revert": "Versió revertida",
       "edit_pin_set": "PIN configurat",
       "edit_pin_cleared": "PIN eliminat",
-      "settlement_toggled": "Pagament liquidat"
+      "settlement_toggled": "Pagament liquidat",
+      "manual_liquidation_added": "Liquidació manual afegida",
+      "manual_liquidation_edited": "Liquidació manual editada",
+      "manual_liquidation_deleted": "Liquidació manual eliminada",
+      "manual_liquidation_recovered": "Liquidació manual restaurada",
+      "manual_liquidation_share_toggled": "Pagament de liquidació actualitzat"
     }
   },
   "allergens": {
@@ -435,6 +440,7 @@
     "delete": "Elimina",
     "empty": "Encara no hi ha liquidacions manuals.",
     "showDeleted": "Mostra les eliminades ({{count}})",
-    "restore": "Restaura"
+    "restore": "Restaura",
+    "edit": "Edita"
   }
 }
