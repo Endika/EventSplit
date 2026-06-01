@@ -14,6 +14,7 @@ import { useWriteGuard } from '@/presentation/context/WriteGuardContext'
 import { reportError } from '@/shared/utils/reportError'
 import { parseDecimal } from '@/shared/utils/parseDecimal'
 import { displayUnit } from '@/presentation/utils/units'
+import { friendlyError } from '@/presentation/utils/friendlyError'
 
 export function ExpenseForm({
   onDone,
@@ -175,7 +176,7 @@ export function ExpenseForm({
         onDone()
       } catch (err) {
         reportError('ExpenseForm', err)
-        setError(err instanceof Error ? err.message : 'Error')
+        setError(friendlyError(err, t))
       } finally {
         setBusy(false)
       }

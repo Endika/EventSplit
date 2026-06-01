@@ -1,4 +1,8 @@
 {
+  "errors": {
+    "concurrency": "Couldn't save — several people edited at once. Please try again.",
+    "generic": "Something went wrong. Please try again."
+  },
   "offline": "Offline — read only",
   "updateAvailable": "New version available",
   "updateRequired": "Your version is out of date — update to keep saving",

@@ -8,6 +8,7 @@ import { useCurrentUser } from '@/presentation/context/UserContext'
 import { useWriteGuard } from '@/presentation/context/WriteGuardContext'
 import { Button } from '@/presentation/components/common/Button'
 import { reportError } from '@/shared/utils/reportError'
+import { friendlyError } from '@/presentation/utils/friendlyError'
 import { Input } from '@/presentation/components/common/Input'
 import { AddressAutocomplete } from './AddressAutocomplete'
 import { MapEmbed } from './MapEmbed'
@@ -101,7 +102,7 @@ export function LocationTab() {
         setEditing(false)
       } catch (err) {
         reportError('LocationTab', err)
-        setError(err instanceof Error ? err.message : 'Error')
+        setError(friendlyError(err, t))
       } finally {
         setBusy(false)
       }

@@ -4,10 +4,13 @@ import { withOptimisticRetry } from '@/application/support/withOptimisticRetry'
 import { InMemoryEventRepository } from '@/infrastructure/persistence/InMemoryEventRepository'
 import type { EventSnapshot } from '@/domain/entities/Event'
 import {
+  ConcurrencyLimitError,
   type IEventRepository,
   type SaveResult,
   VersionConflictError,
 } from '@/domain/repositories/IEventRepository'
+
+const noSleep = () => Promise.resolve()
 
 /**
  * Wraps a real repository and throws VersionConflictError on the first N update
@@ -53,10 +56,15 @@ describe('withOptimisticRetry', () => {
     const repo = new ConflictingRepository(inner, 1)
 
     let mutateRuns = 0
-    const saved = await withOptimisticRetry(repo, eventId, (row) => {
-      mutateRuns++
-      return { ...row.snapshot, name: 'Renamed' }
-    })
+    const saved = await withOptimisticRetry(
+      repo,
+      eventId,
+      (row) => {
+        mutateRuns++
+        return { ...row.snapshot, name: 'Renamed' }
+      },
+      { sleep: noSleep },
+    )
 
     expect(mutateRuns).toBe(2)
     expect(repo.updateCalls).toBe(2)
@@ -85,15 +93,35 @@ describe('withOptimisticRetry', () => {
     expect(updateCalls).toBe(1)
   })
 
-  it('throws after exhausting retries when every update conflicts', async () => {
+  it('throws ConcurrencyLimitError after exhausting retries, sleeping between attempts', async () => {
+    const inner = new InMemoryEventRepository()
+    const eventId = await seed(inner)
+    const repo = new ConflictingRepository(inner, Number.POSITIVE_INFINITY)
+    const sleeps: number[] = []
+    const sleep = (ms: number) => {
+      sleeps.push(ms)
+      return Promise.resolve()
+    }
+
+    await expect(
+      withOptimisticRetry(repo, eventId, (row) => row.snapshot, { sleep }),
+    ).rejects.toBeInstanceOf(ConcurrencyLimitError)
+    expect(repo.updateCalls).toBe(6) // DEFAULT_MAX_RETRIES
+    expect(sleeps).toHaveLength(5) // one fewer than attempts — no sleep after the last
+  })
+
+  it('respects a custom maxRetries budget', async () => {
     const inner = new InMemoryEventRepository()
     const eventId = await seed(inner)
     const repo = new ConflictingRepository(inner, Number.POSITIVE_INFINITY)
 
     await expect(
-      withOptimisticRetry(repo, eventId, (row) => row.snapshot),
-    ).rejects.toThrow('Could not save: too many concurrent writes')
-    expect(repo.updateCalls).toBe(3)
+      withOptimisticRetry(repo, eventId, (row) => row.snapshot, {
+        maxRetries: 2,
+        sleep: noSleep,
+      }),
+    ).rejects.toBeInstanceOf(ConcurrencyLimitError)
+    expect(repo.updateCalls).toBe(2)
   })
 
   it('throws "Event not found" when the row is missing', async () => {

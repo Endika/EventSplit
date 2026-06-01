@@ -1,4 +1,8 @@
 {
+  "errors": {
+    "concurrency": "No s'ha pogut guardar: diversos canvis alhora. Torna-ho a provar.",
+    "generic": "Alguna cosa ha eixit malament. Torna-ho a provar."
+  },
   "offline": "Sense connexió — només lectura",
   "updateAvailable": "Nova versió disponible",
   "updateRequired": "La teua versió està desactualitzada — actualitza per a continuar guardant",

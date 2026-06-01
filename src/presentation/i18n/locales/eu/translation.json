@@ -1,4 +1,8 @@
 {
+  "errors": {
+    "concurrency": "Ezin izan da gorde: aldi berean hainbat aldaketa. Saiatu berriro.",
+    "generic": "Zerbait gaizki joan da. Saiatu berriro."
+  },
   "offline": "Konexiorik gabe — irakurri soilik",
   "updateAvailable": "Bertsio berria eskuragarri",
   "updateRequired": "Zure bertsioa zaharkituta dago — eguneratu gordetzen jarraitzeko",
