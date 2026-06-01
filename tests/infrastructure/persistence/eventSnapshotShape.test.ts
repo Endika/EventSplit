@@ -5,6 +5,7 @@ import {
   PurchaseSchema,
   ExpenseSchema,
   EventLocationSchema,
+  ManualLiquidationSchema,
 } from '@/infrastructure/persistence/EventSnapshotSchema'
 import { SCHEMA_VERSION } from '@/infrastructure/persistence/schemaVersion'
 
@@ -23,6 +24,7 @@ describe('EventSnapshot shape guard', () => {
       purchase: keys(PurchaseSchema),
       expense: keys(ExpenseSchema),
       location: keys(EventLocationSchema),
+      manualLiquidation: keys(ManualLiquidationSchema),
     }).toEqual({
       event: [
         'availability',
@@ -99,6 +101,19 @@ describe('EventSnapshot shape guard', () => {
         'splitAmong',
       ],
       location: ['address', 'googleMapsUrl', 'lat', 'lng', 'name', 'postalCode'],
+      manualLiquidation: [
+        'affects',
+        'cents',
+        'concept',
+        'createdAt',
+        'currency',
+        'deleted',
+        'deletedAt',
+        'deletedBy',
+        'id',
+        'paidBy',
+        'paidShares',
+      ],
     })
   })
 

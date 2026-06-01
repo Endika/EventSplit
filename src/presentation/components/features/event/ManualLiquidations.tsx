@@ -7,9 +7,12 @@ import { useWriteGuard } from '@/presentation/context/WriteGuardContext'
 import { Button } from '@/presentation/components/common/Button'
 import { ManualLiquidationSplitter } from '@/domain/services/ManualLiquidationSplitter'
 import type { AddManualLiquidationHandler } from '@/application/handlers/AddManualLiquidationHandler'
+import type { EditManualLiquidationHandler } from '@/application/handlers/EditManualLiquidationHandler'
 import type { DeleteManualLiquidationHandler } from '@/application/handlers/DeleteManualLiquidationHandler'
 import type { RecoverManualLiquidationHandler } from '@/application/handlers/RecoverManualLiquidationHandler'
 import type { ToggleLiquidationShareHandler } from '@/application/handlers/ToggleLiquidationShareHandler'
+import type { ManualLiquidationSnapshot } from '@/domain/entities/ManualLiquidation'
+import { parseDecimal } from '@/shared/utils/parseDecimal'
 import { reportError } from '@/shared/utils/reportError'
 
 const fmt = (cents: number): string => (cents / 100).toFixed(2)
@@ -21,6 +24,7 @@ export function ManualLiquidations() {
   const me = useCurrentUser()
   const { guardedExecute } = useWriteGuard()
   const [adding, setAdding] = useState(false)
+  const [editingId, setEditingId] = useState<string | null>(null)
   const [concept, setConcept] = useState('')
   const [amount, setAmount] = useState('')
   const [paidBy, setPaidBy] = useState<string | ''>('')
@@ -38,23 +42,47 @@ export function ManualLiquidations() {
     setPaidBy('')
     setAffects([])
     setAdding(false)
+    setEditingId(null)
+  }
+
+  function openEdit(liq: ManualLiquidationSnapshot) {
+    setConcept(liq.concept)
+    setAmount((liq.cents / 100).toString())
+    setPaidBy(liq.paidBy ?? '')
+    setAffects([...liq.affects])
+    setEditingId(liq.id)
+    setAdding(true)
   }
 
   function submit() {
     if (!event || !me) return
-    const euros = Number(amount)
+    const euros = parseDecimal(amount)
     if (concept.trim().length < 3 || !Number.isFinite(euros) || euros <= 0) return
     guardedExecute(async () => {
       try {
-        const handler = container.resolve<AddManualLiquidationHandler>('addManualLiquidation')
-        const result = await handler.execute({
-          eventId: event.id,
-          userId: me.id,
-          concept: concept.trim(),
-          amountEuros: euros,
-          paidBy: paidBy === '' ? null : paidBy,
-          affects,
-        })
+        let result
+        if (editingId) {
+          const handler = container.resolve<EditManualLiquidationHandler>('editManualLiquidation')
+          result = await handler.execute({
+            eventId: event.id,
+            userId: me.id,
+            liquidationId: editingId,
+            concept: concept.trim(),
+            amountEuros: euros,
+            paidBy: paidBy === '' ? null : paidBy,
+            affects,
+          })
+        } else {
+          const handler = container.resolve<AddManualLiquidationHandler>('addManualLiquidation')
+          result = await handler.execute({
+            eventId: event.id,
+            userId: me.id,
+            concept: concept.trim(),
+            amountEuros: euros,
+            paidBy: paidBy === '' ? null : paidBy,
+            affects,
+          })
+        }
         setEvent(result.event, result.version)
         resetForm()
       } catch (err) {
@@ -203,14 +231,24 @@ export function ManualLiquidations() {
                     {isPending ? t('liquidations.pendingBadge') : nameOf(liq.paidBy!)}
                   </span>
                 </div>
-                <button
-                  type="button"
-                  onClick={() => remove(liq.id)}
-                  className="inline-flex min-h-11 min-w-11 items-center justify-center rounded text-xs text-muted hover:text-danger"
-                  aria-label={t('liquidations.delete')}
-                >
-                  🗑️
-                </button>
+                <div className="flex items-center">
+                  <button
+                    type="button"
+                    onClick={() => openEdit(liq)}
+                    className="inline-flex min-h-11 min-w-11 items-center justify-center rounded text-xs text-muted hover:text-ink"
+                    aria-label={t('liquidations.edit')}
+                  >
+                    ✎
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => remove(liq.id)}
+                    className="inline-flex min-h-11 min-w-11 items-center justify-center rounded text-xs text-muted hover:text-danger"
+                    aria-label={t('liquidations.delete')}
+                  >
+                    🗑️
+                  </button>
+                </div>
               </div>
               <p className="mt-1 text-xs text-muted">
                 {t('liquidations.perPerson', { euros: fmt(perPersonCents) })}

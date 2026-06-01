@@ -75,7 +75,12 @@
       "revert": "Versión revertida",
       "edit_pin_set": "PIN configurado",
       "edit_pin_cleared": "PIN eliminado",
-      "settlement_toggled": "Pago liquidado"
+      "settlement_toggled": "Pago liquidado",
+      "manual_liquidation_added": "Liquidación manual añadida",
+      "manual_liquidation_edited": "Liquidación manual editada",
+      "manual_liquidation_deleted": "Liquidación manual eliminada",
+      "manual_liquidation_recovered": "Liquidación manual restaurada",
+      "manual_liquidation_share_toggled": "Pago de liquidación actualizado"
     }
   },
   "allergens": {
@@ -435,6 +440,7 @@
     "delete": "Eliminar",
     "empty": "Aún no hay liquidaciones manuales.",
     "showDeleted": "Ver eliminadas ({{count}})",
-    "restore": "Restaurar"
+    "restore": "Restaurar",
+    "edit": "Editar"
   }
 }

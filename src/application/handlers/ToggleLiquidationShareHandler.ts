@@ -20,6 +20,10 @@ export class ToggleLiquidationShareHandler {
         throw new Error(`User ${parsed.userId} not in event`)
       const existing = row.snapshot.manualLiquidations.find((l) => l.id === parsed.liquidationId)
       if (!existing) throw new Error(`Manual liquidation ${parsed.liquidationId} not found`)
+      const affected =
+        existing.affects.length > 0 ? existing.affects : row.snapshot.users.map((u) => u.id)
+      if (!affected.includes(parsed.shareUserId))
+        throw new Error(`shareUserId ${parsed.shareUserId} not in liquidation affects`)
 
       const toggled = ManualLiquidation.restore(existing)
         .toggleShare(parsed.shareUserId)
