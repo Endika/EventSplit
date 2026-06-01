@@ -301,7 +301,11 @@
       "transferLine": "{{from}} paga €{{euros}} a {{to}}",
       "markPaid": "Marcar como pagado",
       "paid": "Pagado"
-    }
+    },
+    "settledWarnTitle": "Hai liquidacións xa marcadas como pagadas",
+    "settledWarnBody": "Este gasto afecta a {{names}}, que xa teñen unha transferencia marcada como pagada. Engadilo cambiará os seus saldos, así que esa marca podería deixar de ser correcta. Continuar?",
+    "settledWarnContinue": "Engadir igualmente",
+    "settledWarnCancel": "Cancelar"
   },
   "participants": {
     "add": "Engadir participante",

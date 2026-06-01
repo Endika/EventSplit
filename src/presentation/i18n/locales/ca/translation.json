@@ -301,7 +301,11 @@
       "transferLine": "{{from}} paga €{{euros}} a {{to}}",
       "markPaid": "Marcar com a pagat",
       "paid": "Pagat"
-    }
+    },
+    "settledWarnTitle": "Hi ha liquidacions ja marcades com a pagades",
+    "settledWarnBody": "Aquesta despesa afecta {{names}}, que ja tenen una transferència marcada com a pagada. Afegir-la canviarà els seus saldos, així que aquesta marca podria deixar de ser correcta. Voleu continuar?",
+    "settledWarnContinue": "Afegeix igualment",
+    "settledWarnCancel": "Cancel·la"
   },
   "participants": {
     "add": "Afegeix un participant",
