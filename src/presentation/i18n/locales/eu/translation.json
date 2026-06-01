@@ -407,5 +407,22 @@
     "dark": "Iluna",
     "system": "Sistema",
     "switch": "Gaia: {{mode}}"
+  },
+  "liquidations": {
+    "title": "Eskuzko likidazioak",
+    "add": "Gehitu eskuzko likidazioa",
+    "concept": "Kontzeptua",
+    "amount": "Zenbatekoa (€)",
+    "paidByLabel": "Nork aurreratu zuen",
+    "noPayer": "Inork ez oraindik (zain)",
+    "affects": "Banatu hauen artean",
+    "pendingBadge": "Zain",
+    "perPerson": "{{euros}} € / pertsona",
+    "save": "Gorde",
+    "cancel": "Utzi",
+    "delete": "Ezabatu",
+    "empty": "Oraindik ez dago eskuzko likidaziorik.",
+    "showDeleted": "Erakutsi ezabatutakoak ({{count}})",
+    "restore": "Berreskuratu"
   }
 }

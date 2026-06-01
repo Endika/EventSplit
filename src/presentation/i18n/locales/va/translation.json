@@ -407,5 +407,22 @@
     "dark": "Fosc",
     "system": "Sistema",
     "switch": "Tema: {{mode}}"
+  },
+  "liquidations": {
+    "title": "Liquidacions manuals",
+    "add": "Afegir una liquidació manual",
+    "concept": "Concepte",
+    "amount": "Import (€)",
+    "paidByLabel": "Qui ho va avançar",
+    "noPayer": "Ningú encara (pendent)",
+    "affects": "Repartir entre",
+    "pendingBadge": "Pendent",
+    "perPerson": "{{euros}} € / persona",
+    "save": "Guardar",
+    "cancel": "Cancel·lar",
+    "delete": "Eliminar",
+    "empty": "Encara no hi ha liquidacions manuals.",
+    "showDeleted": "Mostrar les eliminades ({{count}})",
+    "restore": "Restaurar"
   }
 }

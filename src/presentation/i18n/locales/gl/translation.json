@@ -407,5 +407,22 @@
     "dark": "Escuro",
     "system": "Sistema",
     "switch": "Tema: {{mode}}"
+  },
+  "liquidations": {
+    "title": "Liquidacións manuais",
+    "add": "Engadir liquidación manual",
+    "concept": "Concepto",
+    "amount": "Importe (€)",
+    "paidByLabel": "Quen o adiantou",
+    "noPayer": "Ninguén aínda (pendente)",
+    "affects": "Repartir entre",
+    "pendingBadge": "Pendente",
+    "perPerson": "{{euros}} € / persoa",
+    "save": "Gardar",
+    "cancel": "Cancelar",
+    "delete": "Eliminar",
+    "empty": "Aínda non hai liquidacións manuais.",
+    "showDeleted": "Ver eliminadas ({{count}})",
+    "restore": "Restaurar"
   }
 }

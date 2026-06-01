@@ -407,5 +407,22 @@
     "dark": "Oscuro",
     "system": "Sistema",
     "switch": "Tema: {{mode}}"
+  },
+  "liquidations": {
+    "title": "Liquidaciones manuales",
+    "add": "Añadir liquidación manual",
+    "concept": "Concepto",
+    "amount": "Importe (€)",
+    "paidByLabel": "Quién lo adelantó",
+    "noPayer": "Nadie aún (pendiente)",
+    "affects": "Repartir entre",
+    "pendingBadge": "Pendiente",
+    "perPerson": "{{euros}} € / persona",
+    "save": "Guardar",
+    "cancel": "Cancelar",
+    "delete": "Eliminar",
+    "empty": "Aún no hay liquidaciones manuales.",
+    "showDeleted": "Ver eliminadas ({{count}})",
+    "restore": "Restaurar"
   }
 }
