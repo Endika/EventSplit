@@ -13,6 +13,8 @@ import type { RecoverExpenseHandler } from '@/application/handlers/RecoverExpens
 import { reportError } from '@/shared/utils/reportError'
 import { ExpenseForm } from './ExpenseForm'
 import { ExpenseSummary } from './ExpenseSummary'
+import { GeneralSummary } from './GeneralSummary'
+import { ManualLiquidations } from './ManualLiquidations'
 
 const fmt = (cents: number): string => (cents / 100).toFixed(2)
 
@@ -156,6 +158,8 @@ export function ExpensesTab() {
         ))}
       </ul>
       {visible.length > 0 && <ExpenseSummary />}
+      <ManualLiquidations />
+      <GeneralSummary />
       {deleted.length > 0 && (
         <div className="pt-2">
           <button

@@ -408,6 +408,14 @@
     "system": "Sistema",
     "switch": "Tema: {{mode}}"
   },
+  "summary": {
+    "general": {
+      "title": "Resum general",
+      "totalCost": "Cost total del viatge",
+      "realSpent": "Pagat de veritat",
+      "pending": "Pendent de pagar"
+    }
+  },
   "liquidations": {
     "title": "Liquidacions manuals",
     "add": "Afegir una liquidació manual",
