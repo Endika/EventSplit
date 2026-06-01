@@ -18,6 +18,7 @@ import { useWriteGuard } from '@/presentation/context/WriteGuardContext'
 import { AllergyChecker, type AllergyMatch } from '@/domain/services/AllergyChecker'
 import { AllergyAlertModal } from './AllergyAlertModal'
 import { reportError } from '@/shared/utils/reportError'
+import { friendlyError } from '@/presentation/utils/friendlyError'
 import { parseDecimal } from '@/shared/utils/parseDecimal'
 import { SHARED_UNIT } from '@/domain/entities/Purchase'
 import { SELECTABLE_UNITS as UNITS } from '@/presentation/utils/units'
@@ -274,14 +275,14 @@ export function PurchaseForm({
           onDone()
         } catch (err) {
           reportError('PurchaseForm', err)
-          setError(err instanceof Error ? err.message : 'Error')
+          setError(friendlyError(err, t))
         } finally {
           setBusy(false)
         }
       },
       (err) => {
         reportError('PurchaseForm', err)
-        setError(err instanceof Error ? err.message : 'Error')
+        setError(friendlyError(err, t))
         setBusy(false)
       },
     )

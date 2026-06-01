@@ -1,4 +1,8 @@
 {
+  "errors": {
+    "concurrency": "Non se puido gardar: varios cambios á vez. Téntao de novo.",
+    "generic": "Algo foi mal. Téntao de novo."
+  },
   "offline": "Sen conexión — só lectura",
   "updateAvailable": "Nova versión dispoñible",
   "updateRequired": "A túa versión está anticuada — actualiza para seguir gardando",

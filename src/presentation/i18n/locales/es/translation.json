@@ -1,4 +1,8 @@
 {
+  "errors": {
+    "concurrency": "No se pudo guardar: varios cambios a la vez. Inténtalo de nuevo.",
+    "generic": "Algo salió mal. Inténtalo de nuevo."
+  },
   "offline": "Sin conexión — solo lectura",
   "updateAvailable": "Nueva versión disponible",
   "updateRequired": "Tu versión está anticuada — actualiza para seguir guardando",

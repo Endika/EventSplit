@@ -8,6 +8,7 @@ import type { SetAvailabilityBatchHandler } from '@/application/handlers/SetAvai
 import type { SetAvailabilityMetaHandler } from '@/application/handlers/SetAvailabilityMetaHandler'
 import { useWriteGuard } from '@/presentation/context/WriteGuardContext'
 import { reportError } from '@/shared/utils/reportError'
+import { friendlyError } from '@/presentation/utils/friendlyError'
 import { Button } from '@/presentation/components/common/Button'
 import { Input } from '@/presentation/components/common/Input'
 import { Modal } from '@/presentation/components/common/Modal'
@@ -105,7 +106,7 @@ export function AvailabilityTab() {
         setNewDay('')
       } catch (err) {
         reportError('AvailabilityTab', err)
-        setError(err instanceof Error ? err.message : 'Error')
+        setError(friendlyError(err, t))
       } finally {
         setBusy(false)
       }
@@ -132,7 +133,7 @@ export function AvailabilityTab() {
         setEvent(result.event, result.version)
       } catch (err) {
         reportError('AvailabilityTab', err)
-        setError(err instanceof Error ? err.message : 'Error')
+        setError(friendlyError(err, t))
       } finally {
         setBusy(false)
       }
@@ -193,7 +194,7 @@ export function AvailabilityTab() {
         setEvent(result.event, result.version)
       } catch (err) {
         reportError('AvailabilityTab', err)
-        setError(err instanceof Error ? err.message : 'Error')
+        setError(friendlyError(err, t))
       } finally {
         setBusy(false)
       }

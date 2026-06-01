@@ -1,4 +1,8 @@
 {
+  "errors": {
+    "concurrency": "No s'ha pogut desar: diversos canvis alhora. Torna-ho a provar.",
+    "generic": "Alguna cosa ha anat malament. Torna-ho a provar."
+  },
   "offline": "Sense connexió — només lectura",
   "updateAvailable": "Nova versió disponible",
   "updateRequired": "La teva versió està desactualitzada — actualitza per continuar desant",

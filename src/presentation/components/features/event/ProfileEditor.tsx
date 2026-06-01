@@ -15,6 +15,7 @@ import type { LocalStorageCache } from '@/infrastructure/persistence/LocalStorag
 import type { UserKind } from '@/domain/entities/User'
 import { useWriteGuard } from '@/presentation/context/WriteGuardContext'
 import { reportError } from '@/shared/utils/reportError'
+import { friendlyError } from '@/presentation/utils/friendlyError'
 import { Modal } from '@/presentation/components/common/Modal'
 import { Button } from '@/presentation/components/common/Button'
 import { Input } from '@/presentation/components/common/Input'
@@ -110,7 +111,7 @@ export function ProfileEditor({ userId, onClose }: { userId?: string; onClose: (
         onClose()
       } catch (err) {
         reportError('ProfileEditor', err)
-        setError(err instanceof Error ? err.message : 'Error')
+        setError(friendlyError(err, t))
       } finally {
         setBusy(false)
       }

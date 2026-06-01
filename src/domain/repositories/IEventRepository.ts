@@ -25,6 +25,20 @@ export class StaleClientError extends Error {
   }
 }
 
+/**
+ * Thrown when an optimistic read-modify-write keeps losing the version race
+ * until the retry budget is exhausted (many participants writing the single
+ * event row at once). The UI turns this into a friendly "try again" message
+ * instead of leaking the raw English error text.
+ */
+export class ConcurrencyLimitError extends Error {
+  readonly code = 'CONCURRENCY_LIMIT'
+  constructor() {
+    super('Could not save after retries: too many concurrent writes')
+    this.name = 'ConcurrencyLimitError'
+  }
+}
+
 export interface IEventRepository {
   findById(id: string): Promise<{ snapshot: EventSnapshot; version: number } | null>
   /** Cheap version probe: avoids downloading the full snapshot when nothing changed. */
