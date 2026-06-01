@@ -32,6 +32,11 @@ import { SetGroupOrderHandler } from '@/application/handlers/SetGroupOrderHandle
 import { RenameSubgroupHandler } from '@/application/handlers/RenameSubgroupHandler'
 import { SetSubgroupOrderHandler } from '@/application/handlers/SetSubgroupOrderHandler'
 import { RefreshEventHandler } from '@/application/handlers/RefreshEventHandler'
+import { AddManualLiquidationHandler } from '@/application/handlers/AddManualLiquidationHandler'
+import { EditManualLiquidationHandler } from '@/application/handlers/EditManualLiquidationHandler'
+import { DeleteManualLiquidationHandler } from '@/application/handlers/DeleteManualLiquidationHandler'
+import { RecoverManualLiquidationHandler } from '@/application/handlers/RecoverManualLiquidationHandler'
+import { ToggleLiquidationShareHandler } from '@/application/handlers/ToggleLiquidationShareHandler'
 import type { IEventRepository } from '@/domain/repositories/IEventRepository'
 import type { IEventChangeNotifier } from '@/domain/ports/IEventChangeNotifier'
 
@@ -80,5 +85,22 @@ export function buildContainer(): Container {
   c.register('setGroupOrder', () => new SetGroupOrderHandler(c.resolve('eventRepo')))
   c.register('renameSubgroup', () => new RenameSubgroupHandler(c.resolve('eventRepo')))
   c.register('setSubgroupOrder', () => new SetSubgroupOrderHandler(c.resolve('eventRepo')))
+  c.register('addManualLiquidation', () => new AddManualLiquidationHandler(c.resolve('eventRepo')))
+  c.register(
+    'editManualLiquidation',
+    () => new EditManualLiquidationHandler(c.resolve('eventRepo')),
+  )
+  c.register(
+    'deleteManualLiquidation',
+    () => new DeleteManualLiquidationHandler(c.resolve('eventRepo')),
+  )
+  c.register(
+    'recoverManualLiquidation',
+    () => new RecoverManualLiquidationHandler(c.resolve('eventRepo')),
+  )
+  c.register(
+    'toggleLiquidationShare',
+    () => new ToggleLiquidationShareHandler(c.resolve('eventRepo')),
+  )
   return c
 }
