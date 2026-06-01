@@ -408,6 +408,14 @@
     "system": "Sistema",
     "switch": "Gaia: {{mode}}"
   },
+  "summary": {
+    "general": {
+      "title": "Laburpen orokorra",
+      "totalCost": "Bidaiaren kostu osoa",
+      "realSpent": "Benetan ordaindua",
+      "pending": "Ordaintzeke"
+    }
+  },
   "liquidations": {
     "title": "Eskuzko likidazioak",
     "add": "Gehitu eskuzko likidazioa",
