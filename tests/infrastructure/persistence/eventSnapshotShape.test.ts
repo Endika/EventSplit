@@ -40,6 +40,7 @@ describe('EventSnapshot shape guard', () => {
         'history',
         'id',
         'location',
+        'manualLiquidations',
         'name',
         'purchases',
         'settledTransfers',
