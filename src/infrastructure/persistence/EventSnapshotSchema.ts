@@ -65,6 +65,20 @@ export const ExpenseSchema = z.object({
   deletedAt: z.string().nullable().default(null),
 })
 
+export const ManualLiquidationSchema = z.object({
+  id: z.string(),
+  concept: z.string(),
+  cents: z.number(),
+  currency: z.literal('EUR').default('EUR'),
+  paidBy: z.string().nullable().default(null),
+  affects: z.array(z.string()).default([]),
+  paidShares: z.array(z.string()).default([]),
+  createdAt: z.string(),
+  deleted: z.boolean().default(false),
+  deletedBy: z.string().nullable().default(null),
+  deletedAt: z.string().nullable().default(null),
+})
+
 const HistoryEntrySchema = z.object({
   id: z.string(),
   version: z.number(),
@@ -109,6 +123,7 @@ export const EventSnapshotSchema = z.object({
   editPin: z.string().nullable().default(null),
   stage: z.enum(EVENT_STAGES).default('doodle'),
   settledTransfers: z.array(z.object({ from: z.string(), to: z.string() })).default([]),
+  manualLiquidations: z.array(ManualLiquidationSchema).default([]),
   history: z.array(HistoryEntrySchema).default([]),
   createdAt: z.string(),
   updatedAt: z.string(),
