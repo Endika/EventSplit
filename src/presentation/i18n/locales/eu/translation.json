@@ -301,7 +301,11 @@
       "transferLine": "{{from}}-(e)k €{{euros}} ordaintzen dizkio {{to}}-(r)i",
       "markPaid": "Markatu ordainduta",
       "paid": "Ordainduta"
-    }
+    },
+    "settledWarnTitle": "Badira jada ordaindutzat markatutako likidazioak",
+    "settledWarnBody": "Gastu honek {{names}} ukitzen ditu, eta jada transferentzia bat ordaindutzat markatuta dute. Gehitzeak haien saldoak aldatuko ditu, beraz marka hori ez da zuzena izango. Jarraitu?",
+    "settledWarnContinue": "Gehitu hala ere",
+    "settledWarnCancel": "Utzi"
   },
   "participants": {
     "add": "Parte-hartzailea gehitu",

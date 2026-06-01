@@ -45,6 +45,7 @@ export function ExpenseForm({
     return new Set((event?.users ?? []).filter((u) => u.kind === 'adult').map((u) => u.id))
   })
   const [confirmCancel, setConfirmCancel] = useState(false)
+  const [confirmSettled, setConfirmSettled] = useState(false)
   const [links, setLinks] = useState<Record<string, string>>(() => {
     if (expense) {
       const out: Record<string, string> = {}
@@ -74,6 +75,15 @@ export function ExpenseForm({
   }, [isDirty, onDirtyChange])
 
   if (!event) return null
+
+  const settledUserIds = new Set(event.settledTransfers.flatMap((s) => [s.from, s.to]))
+
+  function affectedClashIds(): string[] {
+    const allIds = event!.users.map((u) => u.id)
+    const splitIds = allIds.every((id) => splitAmong.has(id)) ? allIds : [...splitAmong]
+    const affected = new Set<string>([paidBy, ...splitIds])
+    return [...affected].filter((id) => settledUserIds.has(id))
+  }
 
   function boughtByOthers(purchaseId: string): number {
     return event!.expenses
@@ -116,6 +126,16 @@ export function ExpenseForm({
       setError(t('expenses.form.invalidAmount'))
       return
     }
+    if (affectedClashIds().length > 0 && !confirmSettled) {
+      setConfirmSettled(true)
+      return
+    }
+    setConfirmSettled(false)
+    doWrite(amountEuros)
+  }
+
+  function doWrite(amountEuros: number) {
+    if (!event || !me) return
     guardedExecute(async () => {
       setBusy(true)
       setError(null)
@@ -185,6 +205,41 @@ export function ExpenseForm({
                 }}
               >
                 {t('common.discard')}
+              </Button>
+            </div>
+          </div>
+        </Modal>
+      )}
+      {confirmSettled && (
+        <Modal
+          open
+          title={t('expenses.settledWarnTitle')}
+          dismissable
+          onClose={() => setConfirmSettled(false)}
+        >
+          <div className="space-y-3">
+            <p className="text-sm text-muted">
+              {t('expenses.settledWarnBody', {
+                names: affectedClashIds()
+                  .map((id) => {
+                    const u = event!.users.find((x) => x.id === id)
+                    return u ? (u.alias ? `${u.name} (${u.alias})` : u.name) : '?'
+                  })
+                  .join(', '),
+              })}
+            </p>
+            <div className="flex gap-2">
+              <Button type="button" variant="secondary" onClick={() => setConfirmSettled(false)}>
+                {t('expenses.settledWarnCancel')}
+              </Button>
+              <Button
+                type="button"
+                onClick={() => {
+                  setConfirmSettled(false)
+                  doWrite(parseDecimal(amount))
+                }}
+              >
+                {t('expenses.settledWarnContinue')}
               </Button>
             </div>
           </div>
