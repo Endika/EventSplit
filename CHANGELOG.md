@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.9.3](https://github.com/Endika/EventSplit/compare/v2.9.2...v2.9.3) (2026-06-02)
+
+
+### Bug Fixes
+
+* **purchases:** filter purchases and expense items by my assignments ([e4d4132](https://github.com/Endika/EventSplit/commit/e4d4132e650a7b1516872dbe06703a827ca6e51b))
+
 ## [2.9.2](https://github.com/Endika/EventSplit/compare/v2.9.1...v2.9.2) (2026-06-02)
 
 
