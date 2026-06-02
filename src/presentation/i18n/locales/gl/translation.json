@@ -19,6 +19,7 @@
   },
   "common": {
     "you": "Ti",
+    "onlyMine": "Só o meu",
     "cancel": "Cancelar",
     "save": "Gardar",
     "next": "Seguinte",

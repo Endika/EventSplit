@@ -31,6 +31,7 @@ export function PurchasesTab() {
   const [editing, setEditing] = useState<PurchaseSnapshot | null>(null)
   const [deleting, setDeleting] = useState<PurchaseSnapshot | null>(null)
   const [showDeleted, setShowDeleted] = useState(false)
+  const [onlyMine, setOnlyMine] = useState(false)
   const [formDirty, setFormDirty] = useState(false)
   const [pendingEdit, setPendingEdit] = useState<PurchaseSnapshot | null>(null)
   const [renamingGroup, setRenamingGroup] = useState<string | null>(null)
@@ -64,7 +65,10 @@ export function PurchasesTab() {
     setEditing(p)
   }
 
-  const visible = event.purchases.filter((p) => !p.deleted)
+  const notDeleted = event.purchases.filter((p) => !p.deleted)
+  const hasMine = notDeleted.some((p) => p.assignedTo === me?.id)
+  // Opt-in visual filter: show only purchases assigned to me when toggled on.
+  const visible = onlyMine ? notDeleted.filter((p) => p.assignedTo === me?.id) : notDeleted
   const deleted = event.purchases.filter((p) => p.deleted)
   const userName = (id: string) => event.users.find((u) => u.id === id)?.name ?? '?'
   const round2 = (n: number) => Math.round(n * 100) / 100
@@ -443,6 +447,17 @@ export function PurchasesTab() {
             <Button variant="secondary" onClick={() => setSharing(true)}>
               📤 {t('share.button')}
             </Button>
+          )}
+          {hasMine && (
+            <label className="flex cursor-pointer items-center gap-2 text-xs text-muted">
+              <input
+                type="checkbox"
+                checked={onlyMine}
+                onChange={() => setOnlyMine((v) => !v)}
+                className="size-4 rounded border-border bg-elevated accent-brand"
+              />
+              {t('common.onlyMine')}
+            </label>
           )}
         </div>
       )}

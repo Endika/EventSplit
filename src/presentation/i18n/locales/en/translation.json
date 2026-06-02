@@ -19,6 +19,7 @@
   },
   "common": {
     "you": "You",
+    "onlyMine": "Only mine",
     "cancel": "Cancel",
     "save": "Save",
     "next": "Next",

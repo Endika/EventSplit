@@ -47,6 +47,7 @@ export function ExpenseForm({
   })
   const [confirmCancel, setConfirmCancel] = useState(false)
   const [confirmSettled, setConfirmSettled] = useState(false)
+  const [onlyMine, setOnlyMine] = useState(false)
   const [links, setLinks] = useState<Record<string, string>>(() => {
     if (expense) {
       const out: Record<string, string> = {}
@@ -101,6 +102,10 @@ export function ExpenseForm({
     : event.purchases.filter(
         (p) => !p.deleted && p.kind !== 'bring' && boughtByOthers(p.id) < p.totalQuantity,
       )
+
+  // Purely visual filter: hide items not assigned to me. Never touches `links`,
+  // so an item checked before toggling stays linked and still gets saved.
+  const visibleItems = onlyMine ? listItems.filter((p) => p.assignedTo === me?.id) : listItems
 
   function toggleSplit(id: string) {
     setSplitAmong((prev) => {
@@ -326,8 +331,17 @@ export function ExpenseForm({
             <legend className="px-2 text-xs uppercase tracking-wide text-muted">
               {t('expenses.form.markBought')}
             </legend>
+            <label className="mb-2 flex cursor-pointer items-center gap-2 text-xs text-muted">
+              <input
+                type="checkbox"
+                checked={onlyMine}
+                onChange={() => setOnlyMine((v) => !v)}
+                className="size-4 rounded border-border bg-elevated accent-brand"
+              />
+              {t('common.onlyMine')}
+            </label>
             <ul className="space-y-2">
-              {listItems.map((p) => {
+              {visibleItems.map((p) => {
                 const checked = p.id in links
                 const remaining = Math.max(1, p.totalQuantity - boughtByOthers(p.id))
                 const unit = displayUnit(p.unit, t, p.totalQuantity)

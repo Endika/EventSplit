@@ -19,6 +19,7 @@
   },
   "common": {
     "you": "Tu",
+    "onlyMine": "Només el meu",
     "cancel": "Cancel·la",
     "save": "Desa",
     "next": "Següent",
