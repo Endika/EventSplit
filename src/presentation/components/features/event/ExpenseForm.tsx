@@ -305,22 +305,21 @@ export function ExpenseForm({
               {t('expenses.form.selectNone')}
             </button>
           </div>
-          <ul className="space-y-1">
+          <div className="flex flex-wrap gap-2">
             {event.users.map((u) => (
-              <li key={u.id} className="text-sm">
-                <label className="flex cursor-pointer items-center gap-2 py-2">
-                  <input
-                    type="checkbox"
-                    checked={splitAmong.has(u.id)}
-                    onChange={() => toggleSplit(u.id)}
-                    disabled={busy}
-                    className="size-4 rounded border-border bg-elevated accent-brand"
-                  />
-                  <span className="text-ink">{u.alias ? `${u.name} (${u.alias})` : u.name}</span>
-                </label>
-              </li>
+              <button
+                key={u.id}
+                type="button"
+                onClick={() => toggleSplit(u.id)}
+                disabled={busy}
+                className={`rounded-full px-3 py-1 text-xs ${
+                  splitAmong.has(u.id) ? 'bg-brand text-white' : 'bg-elevated text-muted'
+                }`}
+              >
+                {u.alias ? `${u.name} (${u.alias})` : u.name}
+              </button>
             ))}
-          </ul>
+          </div>
         </fieldset>
         {listItems.length > 0 && (
           <fieldset className="rounded-xl border border-border p-3">
