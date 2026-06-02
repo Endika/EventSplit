@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.9.2](https://github.com/Endika/EventSplit/compare/v2.9.1...v2.9.2) (2026-06-02)
+
+
+### Bug Fixes
+
+* **expenses:** split selector as pills instead of checkboxes ([c7309ad](https://github.com/Endika/EventSplit/commit/c7309ad2abc70974e488d38deaf4e541742bc6d2))
+
 ## [2.9.1](https://github.com/Endika/EventSplit/compare/v2.9.0...v2.9.1) (2026-06-01)
 
 
