@@ -34,6 +34,11 @@ export const ExpenseSplitter = {
 
     const spent = new Map<string, number>(input.participantIds.map((id) => [id, 0]))
     const owed = new Map<string, number>(input.participantIds.map((id) => [id, 0]))
+    // Running count of leftover ("rounding") cents each person has absorbed so
+    // far. The remainder of every split goes to whoever carries the fewest,
+    // so the rounding burden stays homogeneous across the whole event instead
+    // of always falling on the first people in the list.
+    const extra = new Map<string, number>(input.participantIds.map((id) => [id, 0]))
     let totalCents = 0
 
     for (const e of input.expenses) {
@@ -45,13 +50,22 @@ export const ExpenseSplitter = {
       const splitList = requestedSplit.length > 0 ? requestedSplit : input.participantIds
 
       const k = splitList.length
-      // Cent-perfect split: floor + distribute remainder
+      // Cent-perfect split: everyone pays the floor...
       const base = Math.floor(e.amount.cents / k)
       const remainder = e.amount.cents - base * k
-      for (let i = 0; i < splitList.length; i++) {
-        const userId = splitList[i]!
-        const share = base + (i < remainder ? 1 : 0)
-        owed.set(userId, (owed.get(userId) ?? 0) + share)
+      for (const userId of splitList) {
+        owed.set(userId, (owed.get(userId) ?? 0) + base)
+      }
+      // ...then the leftover cents go to the least-loaded participants of this
+      // expense (ties broken by split-list order for determinism), and we
+      // record the new burden so the next expense balances it out.
+      const order = splitList
+        .map((id, i) => ({ id, i }))
+        .sort((a, b) => (extra.get(a.id) ?? 0) - (extra.get(b.id) ?? 0) || a.i - b.i)
+      for (let r = 0; r < remainder; r++) {
+        const userId = order[r]!.id
+        owed.set(userId, (owed.get(userId) ?? 0) + 1)
+        extra.set(userId, (extra.get(userId) ?? 0) + 1)
       }
     }
 

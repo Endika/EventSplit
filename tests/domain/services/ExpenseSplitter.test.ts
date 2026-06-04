@@ -130,6 +130,31 @@ describe('ExpenseSplitter', () => {
     expect(sum).toBe(0)
   })
 
+  it('spreads rounding remainder across people instead of always the first', () => {
+    // Two expenses with the same split order, each leaving exactly 1 leftover
+    // cent. The naive "first in list" rule would dump both extra cents on `a`;
+    // the remainder must instead rotate to the least-loaded participant so the
+    // burden is homogeneous. Payer `p` is outside the split so each member's
+    // owed share equals -balanceCents.
+    const result = ExpenseSplitter.compute({
+      participantIds: ['p', 'a', 'b', 'c', 'd'],
+      expenses: [
+        { paidBy: 'p', amount: Money.fromCents(1001), splitAmong: ['a', 'b', 'c', 'd'] },
+        { paidBy: 'p', amount: Money.fromCents(1001), splitAmong: ['a', 'b', 'c', 'd'] },
+      ],
+    })
+    const byId = Object.fromEntries(result.balances.map((b) => [b.userId, b.balanceCents]))
+    // Each member owes 250 + 250 = 500 base across the two expenses. The two
+    // leftover cents go to two different people (a, then b), so nobody carries
+    // more than one cent of rounding — naive "first in list" would give a -502.
+    expect(byId.a).toBe(-501)
+    expect(byId.b).toBe(-501)
+    expect(byId.c).toBe(-500)
+    expect(byId.d).toBe(-500)
+    const sum = result.balances.reduce((s, b) => s + b.balanceCents, 0)
+    expect(sum).toBe(0)
+  })
+
   it('ignores invalid userIds in splitAmong (silently filtered)', () => {
     const result = ExpenseSplitter.compute({
       participantIds: ['a', 'b'],
