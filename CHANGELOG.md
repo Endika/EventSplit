@@ -1,5 +1,13 @@
 # Changelog
 
+## [2.9.4](https://github.com/Endika/EventSplit/compare/v2.9.3...v2.9.4) (2026-06-04)
+
+
+### Chores
+
+* **deps-dev:** bump @commitlint/cli from 20.5.3 to 21.0.2 ([580d0f9](https://github.com/Endika/EventSplit/commit/580d0f97a4ff4f47f656c8158b4b400904724fce))
+* **deps:** bump the npm-minor-patch group with 13 updates ([9709000](https://github.com/Endika/EventSplit/commit/9709000c6b6587279083439e616602c3c7e6542f))
+
 ## [2.9.3](https://github.com/Endika/EventSplit/compare/v2.9.2...v2.9.3) (2026-06-02)
 
 
