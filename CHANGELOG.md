@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.9.5](https://github.com/Endika/EventSplit/compare/v2.9.4...v2.9.5) (2026-06-04)
+
+
+### Bug Fixes
+
+* **expenses:** spread rounding remainder across participants ([0fedc02](https://github.com/Endika/EventSplit/commit/0fedc0216a792930514b513c371c06ba81b2bb5c))
+
 ## [2.9.4](https://github.com/Endika/EventSplit/compare/v2.9.3...v2.9.4) (2026-06-04)
 
 
