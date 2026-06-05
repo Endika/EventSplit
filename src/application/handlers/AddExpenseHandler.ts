@@ -15,6 +15,11 @@ export class AddExpenseHandler {
       if (!row.snapshot.users.some((u) => u.id === parsed.paidBy))
         throw new Error(`Payer ${parsed.paidBy} not in event`)
 
+      // The operator who recorded the expense; defaults to the payer for legacy callers.
+      const createdBy = parsed.createdBy ?? parsed.paidBy
+      if (!row.snapshot.users.some((u) => u.id === createdBy))
+        throw new Error(`Creator ${createdBy} not in event`)
+
       if (parsed.splitAmong) {
         const knownIds = new Set(row.snapshot.users.map((u) => u.id))
         for (const id of parsed.splitAmong) {
@@ -43,13 +48,20 @@ export class AddExpenseHandler {
         purchaseLinks,
       })
 
-      const payerName = row.snapshot.users.find((u) => u.id === parsed.paidBy)?.name ?? 'Someone'
+      const nameOf = (id: string) => row.snapshot.users.find((u) => u.id === id)?.name ?? 'Someone'
+      const operatorName = nameOf(createdBy)
+      const desc = expense.toSnapshot().description
+      // Attribute the action to the operator; note the payer only when it differs.
+      const description =
+        createdBy === parsed.paidBy
+          ? `${operatorName} added expense: ${desc}`
+          : `${operatorName} added expense: ${desc} (paid by ${nameOf(parsed.paidBy)})`
       const nextSnapshot: EventSnapshot = HistoryAppender.append(
         { ...row.snapshot, expenses: [...row.snapshot.expenses, expense.toSnapshot()] },
         {
           type: 'expense_added',
-          userId: parsed.paidBy,
-          description: `${payerName} added expense: ${expense.toSnapshot().description}`,
+          userId: createdBy,
+          description,
         },
       )
 

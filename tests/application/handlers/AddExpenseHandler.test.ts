@@ -2,6 +2,7 @@ import { describe, it, expect } from 'vitest'
 import { CreateEventHandler } from '@/application/handlers/CreateEventHandler'
 import { AddExpenseHandler } from '@/application/handlers/AddExpenseHandler'
 import { AddPurchaseHandler } from '@/application/handlers/AddPurchaseHandler'
+import { JoinAsNewUserHandler } from '@/application/handlers/JoinAsNewUserHandler'
 import { InMemoryEventRepository } from '@/infrastructure/persistence/InMemoryEventRepository'
 
 describe('AddExpenseHandler', () => {
@@ -17,6 +18,40 @@ describe('AddExpenseHandler', () => {
     expect(result.event.expenses).toHaveLength(1)
     expect(result.event.expenses[0]!.cents).toBe(1234)
     expect(result.event.history.at(-1)?.type).toBe('expense_added')
+  })
+
+  it('attributes the history to the operator (createdBy), noting the payer when it differs', async () => {
+    const repo = new InMemoryEventRepository()
+    const create = await new CreateEventHandler(repo).execute({ name: 'Trip', creatorName: 'John' })
+    const join = await new JoinAsNewUserHandler(repo).execute({
+      eventId: create.event.id,
+      name: 'Alice',
+    })
+    const alice = join.event.users.find((u) => u.name === 'Alice')!
+    const result = await new AddExpenseHandler(repo).execute({
+      eventId: create.event.id,
+      paidBy: alice.id, // Alice paid
+      createdBy: create.creator.id, // John recorded it
+      amountEuros: 10,
+      description: 'Beer',
+    })
+    const entry = result.event.history.at(-1)!
+    expect(entry.type).toBe('expense_added')
+    expect(entry.userId).toBe(create.creator.id) // actor = John, not Alice
+    expect(entry.description).toBe('John added expense: Beer (paid by Alice)')
+  })
+
+  it('omits the "(paid by …)" suffix when the operator paid for it themselves', async () => {
+    const repo = new InMemoryEventRepository()
+    const create = await new CreateEventHandler(repo).execute({ name: 'Trip', creatorName: 'John' })
+    const result = await new AddExpenseHandler(repo).execute({
+      eventId: create.event.id,
+      paidBy: create.creator.id,
+      createdBy: create.creator.id,
+      amountEuros: 10,
+      description: 'Beer',
+    })
+    expect(result.event.history.at(-1)!.description).toBe('John added expense: Beer')
   })
 
   it('rejects payer not in event', async () => {
