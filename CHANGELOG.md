@@ -1,5 +1,17 @@
 # Changelog
 
+## [2.10.0](https://github.com/Endika/EventSplit/compare/v2.9.5...v2.10.0) (2026-06-05)
+
+
+### Features
+
+* **expenses:** unify bought state and group product picker ([13082c4](https://github.com/Endika/EventSplit/commit/13082c4e7f99769a20d7ab03b60df7c9b9e6d665))
+
+
+### Bug Fixes
+
+* **expenses:** credit expense history to the operator ([5254872](https://github.com/Endika/EventSplit/commit/525487213f4873cc400dcf6673715fb52e8c5023))
+
 ## [2.9.5](https://github.com/Endika/EventSplit/compare/v2.9.4...v2.9.5) (2026-06-04)
 
 
