@@ -3,6 +3,9 @@ import { z } from 'zod'
 export const AddExpenseSchema = z.object({
   eventId: z.string().regex(/^[a-z0-9]{7}$/),
   paidBy: z.string().uuid(),
+  // Who entered the expense (the operator). Defaults to paidBy when omitted so the
+  // history attributes the action to the person who actually recorded it, not the payer.
+  createdBy: z.string().uuid().optional(),
   amountEuros: z.number().positive().max(999_999.99),
   description: z.string().trim().min(3).max(100),
   purchaseId: z.string().uuid().optional().nullable(),
