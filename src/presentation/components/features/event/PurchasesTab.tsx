@@ -18,6 +18,8 @@ import type { RenameSubgroupHandler } from '@/application/handlers/RenameSubgrou
 import type { SetSubgroupOrderHandler } from '@/application/handlers/SetSubgroupOrderHandler'
 import { reportError } from '@/shared/utils/reportError'
 import { displayUnit } from '@/presentation/utils/units'
+import { groupPurchases } from '@/presentation/utils/groupPurchases'
+import { boughtQuantity, isPurchaseDone } from '@/presentation/utils/purchaseProgress'
 import { PurchaseForm } from './PurchaseForm'
 import { ShareListModal } from './ShareListModal'
 
@@ -76,53 +78,9 @@ export function PurchasesTab() {
     event.expenses.filter(
       (e) => !e.deleted && (e.purchaseLinks ?? []).some((l) => l.purchaseId === pid),
     )
-  const boughtQty = (pid: string) =>
-    event.expenses
-      .filter((e) => !e.deleted)
-      .reduce(
-        (s, e) => s + ((e.purchaseLinks ?? []).find((l) => l.purchaseId === pid)?.quantity ?? 0),
-        0,
-      )
+  const boughtQty = (pid: string) => boughtQuantity(event, pid)
 
-  // Sort keys for a grouping level: explicitly-ordered first, then the rest
-  // alphabetically, with the empty ('') bucket always last.
-  function sortByOrder(keys: string[], order: string[]): string[] {
-    return [...keys].sort((a, b) => {
-      if (a === '') return 1
-      if (b === '') return -1
-      const ia = order.indexOf(a)
-      const ib = order.indexOf(b)
-      if (ia !== -1 && ib !== -1) return ia - ib
-      if (ia !== -1) return -1
-      if (ib !== -1) return 1
-      return a.localeCompare(b)
-    })
-  }
-
-  const grouped = (() => {
-    const map = new Map<string, PurchaseSnapshot[]>()
-    for (const p of visible) {
-      const key = p.group ?? ''
-      if (!map.has(key)) map.set(key, [])
-      map.get(key)!.push(p)
-    }
-    const order = event.groupOrder ?? []
-    const subOrders = event.subgroupOrder ?? {}
-    const keys = sortByOrder([...map.keys()], order)
-    return keys.map((group) => {
-      const items = map.get(group)!
-      // partition this group's items by subgroup ('' = no subgroup)
-      const subMap = new Map<string, PurchaseSnapshot[]>()
-      for (const p of items) {
-        const sk = p.subgroup ?? ''
-        if (!subMap.has(sk)) subMap.set(sk, [])
-        subMap.get(sk)!.push(p)
-      }
-      const subKeys = sortByOrder([...subMap.keys()], subOrders[group] ?? [])
-      const subgroups = subKeys.map((subgroup) => ({ subgroup, items: subMap.get(subgroup)! }))
-      return { group, items, subgroups }
-    })
-  })()
+  const grouped = groupPurchases(event, visible)
 
   // Stable collapse key for a subgroup. NUL can't occur in trimmed user input,
   // so it can't collide with a plain group key.
@@ -314,8 +272,7 @@ export function PurchasesTab() {
           const hasLinks = p.kind !== 'bring' && linkedExpenses(p.id).length > 0
           const bought = hasLinks ? boughtQty(p.id) : 0
           const total = p.totalQuantity
-          const done = hasLinks && bought >= total
-          const struck = done || p.purchased
+          const struck = isPurchaseDone(event!, p)
           const buyerNames = hasLinks
             ? [...new Set(linkedExpenses(p.id).map((e) => e.paidBy))]
                 .map((id) => userName(id))
