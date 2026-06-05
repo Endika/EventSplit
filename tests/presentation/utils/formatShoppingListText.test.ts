@@ -205,6 +205,40 @@ describe('formatShoppingListText', () => {
     expect(text).not.toContain('Wine')
   })
 
+  it('strikes through and ✅ an item fully covered by expenses even without the manual flag', () => {
+    const event = makeEvent({
+      users: [ikerUser],
+      purchases: [baseBuy], // purchased: false, totalQuantity: 10
+      expenses: [
+        { id: 'e1', createdBy: 'u1', description: 'x', paidBy: 'u1',
+          cents: 100, splitAmong: null, purchaseLinks: [{ purchaseId: 'p1', quantity: 10 }],
+          deleted: false, deletedBy: null, deletedAt: null, deleteReason: null,
+          createdAt: '2026-01-01T00:00:00.000Z' } as never,
+      ],
+    })
+    const text = formatShoppingListText(event, t)
+    expect(text).toMatch(/W̶i̶n̶e̶/)
+    expect(text).toContain('✅')
+    expect(text).toContain('10/10 bottles')
+  })
+
+  it('does NOT strike through an item only partially covered by expenses', () => {
+    const event = makeEvent({
+      users: [ikerUser],
+      purchases: [baseBuy], // totalQuantity: 10
+      expenses: [
+        { id: 'e1', createdBy: 'u1', description: 'x', paidBy: 'u1',
+          cents: 100, splitAmong: null, purchaseLinks: [{ purchaseId: 'p1', quantity: 9 }],
+          deleted: false, deletedBy: null, deletedAt: null, deleteReason: null,
+          createdAt: '2026-01-01T00:00:00.000Z' } as never,
+      ],
+    })
+    const text = formatShoppingListText(event, t)
+    expect(text).not.toMatch(/W̶i̶n̶e̶/)
+    expect(text).not.toContain('✅')
+    expect(text).toContain('9/10 bottles')
+  })
+
   it('uses summed expense.purchaseLinks quantity for "bought"', () => {
     const event = makeEvent({
       users: [ikerUser],

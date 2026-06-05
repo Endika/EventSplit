@@ -6,6 +6,7 @@ import { useCurrentUser } from '@/presentation/context/UserContext'
 import type { AddExpenseHandler } from '@/application/handlers/AddExpenseHandler'
 import type { EditExpenseHandler } from '@/application/handlers/EditExpenseHandler'
 import type { ExpenseSnapshot } from '@/domain/entities/Expense'
+import type { PurchaseSnapshot } from '@/domain/entities/Purchase'
 import { Button } from '@/presentation/components/common/Button'
 import { Input } from '@/presentation/components/common/Input'
 import { Modal } from '@/presentation/components/common/Modal'
@@ -15,6 +16,8 @@ import { reportError } from '@/shared/utils/reportError'
 import { parseDecimal } from '@/shared/utils/parseDecimal'
 import { displayUnit } from '@/presentation/utils/units'
 import { friendlyError } from '@/presentation/utils/friendlyError'
+import { groupPurchases } from '@/presentation/utils/groupPurchases'
+import { isPurchaseDone, remainingToBuy } from '@/presentation/utils/purchaseProgress'
 
 export function ExpenseForm({
   onDone,
@@ -48,6 +51,7 @@ export function ExpenseForm({
   const [confirmCancel, setConfirmCancel] = useState(false)
   const [confirmSettled, setConfirmSettled] = useState(false)
   const [onlyMine, setOnlyMine] = useState(false)
+  const [collapsed, setCollapsed] = useState<Set<string>>(new Set())
   const [links, setLinks] = useState<Record<string, string>>(() => {
     if (expense) {
       const out: Record<string, string> = {}
@@ -87,21 +91,9 @@ export function ExpenseForm({
     return [...affected].filter((id) => settledUserIds.has(id))
   }
 
-  function boughtByOthers(purchaseId: string): number {
-    return event!.expenses
-      .filter((e) => !e.deleted && e.id !== expense?.id)
-      .reduce(
-        (s, e) =>
-          s + ((e.purchaseLinks ?? []).find((l) => l.purchaseId === purchaseId)?.quantity ?? 0),
-        0,
-      )
-  }
-
-  const listItems = expense
-    ? event.purchases.filter((p) => !p.deleted && p.kind !== 'bring')
-    : event.purchases.filter(
-        (p) => !p.deleted && p.kind !== 'bring' && boughtByOthers(p.id) < p.totalQuantity,
-      )
+  // Show every buyable item. Items already fully bought by other expenses are not hidden:
+  // they render crossed-off as "Comprado" so you can still see — and over-buy — them.
+  const listItems = event.purchases.filter((p) => !p.deleted && p.kind !== 'bring')
 
   // Purely visual filter: hide items not assigned to me. Never touches `links`,
   // so an item checked before toggling stays linked and still gets saved.
@@ -122,6 +114,84 @@ export function ExpenseForm({
 
   function selectNone() {
     setSplitAmong(new Set())
+  }
+
+  function toggleCollapse(key: string) {
+    setCollapsed((prev) => {
+      const next = new Set(prev)
+      if (next.has(key)) next.delete(key)
+      else next.add(key)
+      return next
+    })
+  }
+
+  // Stable collapse key for a subgroup. NUL can't occur in trimmed user input.
+  const subCollapseKey = (group: string, subgroup: string) => `${group}\u0000${subgroup}`
+
+  const renderListItem = (p: PurchaseSnapshot) => {
+    const checked = p.id in links
+    const remaining = remainingToBuy(event!, p, { excludeExpenseId: expense?.id })
+    const done = isPurchaseDone(event!, p, { excludeExpenseId: expense?.id })
+    const unit = displayUnit(p.unit, t, p.totalQuantity)
+    const assignee = p.assignedTo ? (event!.users.find((u) => u.id === p.assignedTo) ?? null) : null
+    return (
+      <li key={p.id} className="flex flex-wrap items-center gap-2 text-sm">
+        <label className="flex flex-1 items-center gap-2">
+          <input
+            type="checkbox"
+            checked={checked}
+            onChange={() =>
+              setLinks((prev) => {
+                const next = { ...prev }
+                if (p.id in next) delete next[p.id]
+                else next[p.id] = String(remaining > 0 ? remaining : 1)
+                return next
+              })
+            }
+            className="size-4 rounded border-border bg-elevated accent-brand"
+          />
+          <span className={done ? 'text-muted line-through' : 'text-ink'}>
+            {p.item}{' '}
+            <span className="text-muted">
+              — {Math.round(p.totalQuantity * 100) / 100} {unit}
+            </span>
+            {assignee && (
+              <span
+                className="ml-1 whitespace-nowrap text-xs text-brand"
+                title={t('purchases.form.assignedTo')}
+              >
+                🛒 {assignee.alias ? `${assignee.name} (${assignee.alias})` : assignee.name}
+              </span>
+            )}
+          </span>
+          {done && (
+            <span className="ml-1 whitespace-nowrap text-xs text-muted">
+              ✅ {t('purchases.bought')}
+            </span>
+          )}
+        </label>
+        {checked && (
+          <div className="flex items-center gap-2">
+            <input
+              type="text"
+              inputMode="decimal"
+              value={links[p.id] ?? ''}
+              onChange={(e) => setLinks((prev) => ({ ...prev, [p.id]: e.target.value }))}
+              className="w-20 rounded-xl border border-border bg-surface px-2 py-1 text-base text-ink focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand sm:text-sm"
+            />
+            <span className="text-xs text-muted">
+              {remaining > 0
+                ? t('expenses.form.remainingHint', {
+                    n: Math.round(remaining * 100) / 100,
+                    total: Math.round(p.totalQuantity * 100) / 100,
+                    unit,
+                  })
+                : t('purchases.bought')}
+            </span>
+          </div>
+        )}
+      </li>
+    )
   }
 
   function submit(e: FormEvent) {
@@ -171,6 +241,7 @@ export function ExpenseForm({
           result = await handler.execute({
             eventId: event.id,
             paidBy,
+            createdBy: me.id,
             amountEuros,
             description,
             splitAmong: split,
@@ -340,72 +411,51 @@ export function ExpenseForm({
               />
               {t('common.onlyMine')}
             </label>
-            <ul className="space-y-2">
-              {visibleItems.map((p) => {
-                const checked = p.id in links
-                const remaining = Math.max(1, p.totalQuantity - boughtByOthers(p.id))
-                const unit = displayUnit(p.unit, t, p.totalQuantity)
-                const assignee = p.assignedTo
-                  ? (event.users.find((u) => u.id === p.assignedTo) ?? null)
-                  : null
-                return (
-                  <li key={p.id} className="flex flex-wrap items-center gap-2 text-sm">
-                    <label className="flex flex-1 items-center gap-2">
-                      <input
-                        type="checkbox"
-                        checked={checked}
-                        onChange={() =>
-                          setLinks((prev) => {
-                            const next = { ...prev }
-                            if (p.id in next) delete next[p.id]
-                            else next[p.id] = String(remaining)
-                            return next
-                          })
-                        }
-                        className="size-4 rounded border-border bg-elevated accent-brand"
-                      />
-                      <span className="text-ink">
-                        {p.item}{' '}
-                        <span className="text-muted">
-                          — {Math.round(p.totalQuantity * 100) / 100} {unit}
-                        </span>
-                        {assignee && (
-                          <span
-                            className="ml-1 whitespace-nowrap text-xs text-brand"
-                            title={t('purchases.form.assignedTo')}
-                          >
-                            🛒{' '}
-                            {assignee.alias
-                              ? `${assignee.name} (${assignee.alias})`
-                              : assignee.name}
-                          </span>
-                        )}
-                      </span>
-                    </label>
-                    {checked && (
-                      <div className="flex items-center gap-2">
-                        <input
-                          type="text"
-                          inputMode="decimal"
-                          value={links[p.id] ?? ''}
-                          onChange={(e) =>
-                            setLinks((prev) => ({ ...prev, [p.id]: e.target.value }))
-                          }
-                          className="w-20 rounded-xl border border-border bg-surface px-2 py-1 text-base text-ink focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand sm:text-sm"
-                        />
-                        <span className="text-xs text-muted">
-                          {t('expenses.form.remainingHint', {
-                            n: Math.round(remaining * 100) / 100,
-                            total: Math.round(p.totalQuantity * 100) / 100,
-                            unit,
-                          })}
-                        </span>
-                      </div>
-                    )}
-                  </li>
-                )
-              })}
-            </ul>
+            <div className="space-y-3">
+              {groupPurchases(event, visibleItems).map(({ group, items, subgroups }) => (
+                <div key={group || '__none__'} className="space-y-2">
+                  {group !== '' && (
+                    <button
+                      type="button"
+                      onClick={() => toggleCollapse(group)}
+                      className="flex w-full items-center gap-1.5 rounded-lg px-1 py-1.5 text-left text-xs font-semibold uppercase tracking-wide text-brand hover:bg-elevated/50"
+                      aria-label={t('purchases.toggleGroup')}
+                    >
+                      <span className="text-sm text-muted">{collapsed.has(group) ? '▸' : '▾'}</span>
+                      {group} <span className="text-muted">({items.length})</span>
+                    </button>
+                  )}
+                  {!collapsed.has(group) && (
+                    <div className="space-y-2">
+                      {subgroups.map(({ subgroup, items: subItems }) =>
+                        subgroup === '' ? (
+                          <ul key="__nosub__" className="space-y-2">
+                            {subItems.map(renderListItem)}
+                          </ul>
+                        ) : (
+                          <div key={subgroup} className="space-y-1">
+                            <button
+                              type="button"
+                              onClick={() => toggleCollapse(subCollapseKey(group, subgroup))}
+                              className="flex w-full items-center gap-1.5 rounded-lg px-1 py-1 text-left text-[0.7rem] font-semibold uppercase tracking-wide text-brand hover:bg-elevated/50"
+                              aria-label={t('purchases.toggleSubgroup')}
+                            >
+                              <span className="text-xs text-muted">
+                                {collapsed.has(subCollapseKey(group, subgroup)) ? '▸' : '▾'}
+                              </span>
+                              {subgroup} <span className="text-muted">({subItems.length})</span>
+                            </button>
+                            {!collapsed.has(subCollapseKey(group, subgroup)) && (
+                              <ul className="space-y-2 pl-4">{subItems.map(renderListItem)}</ul>
+                            )}
+                          </div>
+                        ),
+                      )}
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
           </fieldset>
         )}
         {error && <p className="text-sm text-danger">{error}</p>}
