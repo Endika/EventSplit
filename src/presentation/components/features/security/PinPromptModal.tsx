@@ -1,8 +1,11 @@
 import { type FormEvent, useState } from 'react'
 import { useTranslation } from 'react-i18next'
+import { useContainer } from '@/presentation/context/ContainerProvider'
 import { useEventState } from '@/presentation/context/EventContext'
 import { useWriteGuard } from '@/presentation/context/WriteGuardContext'
-import { EditPin } from '@/domain/value-objects/EditPin'
+import { useEditPin } from '@/presentation/context/EditPinContext'
+import { RateLimitedError } from '@/domain/repositories/IEventRepository'
+import type { VerifyPinHandler } from '@/application/handlers/VerifyPinHandler'
 import { Modal } from '@/presentation/components/common/Modal'
 import { Button } from '@/presentation/components/common/Button'
 import { Input } from '@/presentation/components/common/Input'
@@ -10,27 +13,31 @@ import { reportError } from '@/shared/utils/reportError'
 
 export function PinPromptModal() {
   const { t } = useTranslation()
+  const container = useContainer()
   const { event } = useEventState()
-  const { pending, markVerified, clearPending } = useWriteGuard()
+  const { pending, clearPending } = useWriteGuard()
+  const { setPin: setUnlockedPin } = useEditPin()
   const [pin, setPin] = useState('')
   const [error, setError] = useState<string | null>(null)
   const [busy, setBusy] = useState(false)
 
-  if (!pending || !event || !event.editPin) return null
+  if (!pending || !event || !event.hasPin) return null
 
   async function submit(e: FormEvent) {
     e.preventDefault()
-    if (!event?.editPin || !pending) return
+    if (!event?.hasPin || !pending) return
     setBusy(true)
     setError(null)
     try {
-      const ok = await EditPin.verify(pin, event.editPin, event.id)
+      const ok = await container.resolve<VerifyPinHandler>('verifyPin').execute(event.id, pin)
       if (!ok) {
         setError(t('pin.wrongPin'))
         setPin('')
         return
       }
-      markVerified()
+      // Persist the verified PIN so privileged actions can pass it server-side;
+      // this also flips WriteGuard's `verified` flag.
+      setUnlockedPin(pin)
       const fn = pending.fn
       const onError = pending.onError
       clearPending()
@@ -44,6 +51,9 @@ export function PinPromptModal() {
         reportError('PinPrompt', err)
         onError(err)
       }
+    } catch (err) {
+      setError(err instanceof RateLimitedError ? t('pin.tooManyAttempts') : t('pin.wrongPin'))
+      setPin('')
     } finally {
       setBusy(false)
     }

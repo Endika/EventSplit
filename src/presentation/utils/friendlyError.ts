@@ -1,5 +1,10 @@
 import type { TFunction } from 'i18next'
-import { ConcurrencyLimitError } from '@/domain/repositories/IEventRepository'
+import {
+  ConcurrencyLimitError,
+  PayloadTooLargeError,
+  RateLimitedError,
+  WrongPinError,
+} from '@/domain/repositories/IEventRepository'
 
 /**
  * Maps a thrown error to a user-facing, translated message. Known typed errors
@@ -9,6 +14,9 @@ import { ConcurrencyLimitError } from '@/domain/repositories/IEventRepository'
  */
 export function friendlyError(err: unknown, t: TFunction): string {
   if (err instanceof ConcurrencyLimitError) return t('errors.concurrency')
+  if (err instanceof PayloadTooLargeError) return t('errors.tooLarge')
+  if (err instanceof RateLimitedError) return t('pin.tooManyAttempts')
+  if (err instanceof WrongPinError) return t('pin.wrongPin')
   if (err instanceof Error) return err.message
   return t('errors.generic')
 }

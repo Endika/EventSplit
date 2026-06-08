@@ -120,7 +120,10 @@ export const EventSnapshotSchema = z.object({
   groupOrder: z.array(z.string()).default([]),
   subgroupOrder: z.record(z.string(), z.array(z.string())).default({}),
   expenses: z.array(ExpenseSchema).default([]),
-  editPin: z.string().nullable().default(null),
+  // Derived read field: the server reports it via get_event.hasPin and the
+  // repository injects it after parsing. It is stripped from every write blob
+  // (the hash lives in a server-side column), so old blobs simply default false.
+  hasPin: z.boolean().default(false),
   stage: z.enum(EVENT_STAGES).default('doodle'),
   settledTransfers: z.array(z.object({ from: z.string(), to: z.string() })).default([]),
   manualLiquidations: z.array(ManualLiquidationSchema).default([]),

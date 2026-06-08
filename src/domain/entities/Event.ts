@@ -85,7 +85,8 @@ export interface EventSnapshot {
   groupOrder: string[]
   subgroupOrder: Record<string, string[]>
   expenses: ExpenseSnapshot[]
-  editPin: string | null
+  /** Whether an edit PIN is set. The hash itself lives server-side, never in the blob. */
+  hasPin: boolean
   stage: EventStage
   settledTransfers: { from: string; to: string }[]
   manualLiquidations: ManualLiquidationSnapshot[]
@@ -127,7 +128,7 @@ export class Event {
       groupOrder: [],
       subgroupOrder: {},
       expenses: [],
-      editPin: null,
+      hasPin: false,
       stage: 'doodle',
       settledTransfers: [],
       manualLiquidations: [],
@@ -183,7 +184,7 @@ export class Event {
         deletedAt: e.deletedAt ?? null,
       })),
       history: s.history ?? [],
-      editPin: s.editPin ?? null,
+      hasPin: s.hasPin ?? false,
       stage: s.stage ?? 'doodle',
       settledTransfers: s.settledTransfers ?? [],
       manualLiquidations: (s.manualLiquidations ?? []).map((l) => ({

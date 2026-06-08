@@ -1,6 +1,10 @@
 import type { EventSnapshot } from '@/domain/entities/Event'
 import type { IEventChangeNotifier } from '@/domain/ports/IEventChangeNotifier'
-import type { IEventRepository, SaveResult } from '@/domain/repositories/IEventRepository'
+import type {
+  IEventRepository,
+  ReadResult,
+  SaveResult,
+} from '@/domain/repositories/IEventRepository'
 
 /**
  * Decorator over an {@link IEventRepository} that publishes a lightweight
@@ -14,7 +18,7 @@ export class NotifyingEventRepository implements IEventRepository {
     private readonly notifier: IEventChangeNotifier,
   ) {}
 
-  findById(id: string): Promise<{ snapshot: EventSnapshot; version: number } | null> {
+  findById(id: string): Promise<ReadResult | null> {
     return this.inner.findById(id)
   }
 
@@ -28,9 +32,29 @@ export class NotifyingEventRepository implements IEventRepository {
     return result
   }
 
-  async update(id: string, snapshot: EventSnapshot, expectedVersion: number): Promise<SaveResult> {
-    const result = await this.inner.update(id, snapshot, expectedVersion)
+  async update(
+    id: string,
+    snapshot: EventSnapshot,
+    expectedVersion: number,
+    pin: string | null,
+  ): Promise<SaveResult> {
+    const result = await this.inner.update(id, snapshot, expectedVersion, pin)
     this.notifier.publish(id, result.version)
     return result
+  }
+
+  setPin(id: string, newPin: string | null, currentPin: string | null): Promise<void> {
+    return this.inner.setPin(id, newPin, currentPin)
+  }
+
+  verifyPin(id: string, pin: string): Promise<boolean> {
+    return this.inner.verifyPin(id, pin)
+  }
+
+  async deleteEvent(id: string, pin: string | null): Promise<void> {
+    await this.inner.deleteEvent(id, pin)
+    // No new version exists after a delete; the ping just nudges other clients
+    // to reconcile, where get_event returns null → they treat it as removed.
+    this.notifier.publish(id, -1)
   }
 }

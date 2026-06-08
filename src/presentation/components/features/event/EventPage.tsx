@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useContainer } from '@/presentation/context/ContainerProvider'
 import { useEventState } from '@/presentation/context/EventContext'
@@ -12,14 +12,15 @@ import {
 } from '@/presentation/components/features/identification/IdentificationModal'
 import { EventTabs } from '@/presentation/components/features/event/EventTabs'
 import { EventPinGate } from '@/presentation/components/features/security/EventPinGate'
+import { useEditPin } from '@/presentation/context/EditPinContext'
 
 export function EventPage({ eventId }: { eventId: string }) {
   const { t } = useTranslation()
   const container = useContainer()
   const { event, setEvent } = useEventState()
+  const { pin: unlockedPin } = useEditPin()
   const me = useCurrentUser()
   const setMe = useSetCurrentUser()
-  const [pinTick, setPinTick] = useState(0)
   const { loading, error } = useEventSync(eventId)
 
   // Restore a previously chosen identity for this event from the local cache.
@@ -69,10 +70,10 @@ export function EventPage({ eventId }: { eventId: string }) {
   if (error) return <main className="p-6 text-danger">{error}</main>
   if (!event) return <main className="p-6 text-muted">…</main>
 
-  void pinTick
-  const needsPin = !!event.editPin && localStorage.getItem(`eventsplit.pin.${eventId}`) !== 'true'
+  const needsPin = !!event.hasPin && unlockedPin === null
   if (needsPin) {
-    return <EventPinGate event={event} onUnlock={() => setPinTick((n) => n + 1)} />
+    // Unlocking sets the session PIN in EditPinContext, which re-renders this.
+    return <EventPinGate event={event} onUnlock={() => {}} />
   }
 
   return (

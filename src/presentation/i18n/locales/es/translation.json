@@ -1,7 +1,9 @@
 {
   "errors": {
     "concurrency": "No se pudo guardar: varios cambios a la vez. Inténtalo de nuevo.",
-    "generic": "Algo salió mal. Inténtalo de nuevo."
+    "generic": "Algo salió mal. Inténtalo de nuevo.",
+    "tooLarge": "Este evento está lleno o el cambio es demasiado grande para guardarlo.",
+    "rateLimited": "Demasiados intentos de PIN. Espera un poco e inténtalo de nuevo."
   },
   "offline": "Sin conexión — solo lectura",
   "updateAvailable": "Nueva versión disponible",
@@ -381,7 +383,8 @@
     "gateBody": "Este evento está protegido. Introduce el PIN para abrirlo.",
     "gateField": "PIN",
     "gateUnlock": "Abrir evento",
-    "gateWrong": "PIN incorrecto, inténtalo de nuevo"
+    "gateWrong": "PIN incorrecto, inténtalo de nuevo",
+    "tooManyAttempts": "Demasiados intentos. Espera unos minutos e inténtalo de nuevo."
   },
   "errorBanner": {
     "title": "Error",
@@ -447,5 +450,18 @@
     "showDeleted": "Ver eliminadas ({{count}})",
     "restore": "Restaurar",
     "edit": "Editar"
+  },
+  "privacy": {
+    "link": "Privacidad",
+    "title": "Privacidad",
+    "body": "EventSplit no usa cookies, no rastrea y no muestra publicidad.\n\nQué guardamos: solo lo que introduces en el evento — nombres de los participantes y, opcionalmente, un email o teléfono, alergias y notas de dieta, además de la lista de la compra y los gastos. Sin cuentas ni pagos.\n\nDónde: los datos se guardan en servidores de Supabase en Europa.\n\nCuánto tiempo: el evento se conserva hasta que el organizador lo elimina — no hay borrado automático, porque el grupo lo consulta como registro duradero.\n\nBorrado: el organizador puede eliminar el evento y todos sus datos en cualquier momento desde los ajustes del evento con «Eliminar evento». También puedes escribir a endika2@gmail.com.\n\nContacto: endika2@gmail.com."
+  },
+  "danger": {
+    "title": "Zona peligrosa",
+    "deleteEvent": "Eliminar evento",
+    "deleteHint": "Borra para siempre este evento y todos sus datos para todos. No se puede deshacer.",
+    "deleteConfirm": "¿Eliminar este evento para todos? No se puede deshacer.",
+    "deleteYes": "Eliminar para siempre",
+    "deleting": "Eliminando…"
   }
 }

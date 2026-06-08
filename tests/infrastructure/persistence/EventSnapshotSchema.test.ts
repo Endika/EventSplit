@@ -12,7 +12,7 @@ describe('EventSnapshotSchema', () => {
       users: [],
     }
     const parsed = parseEventSnapshot(minimal)
-    expect(parsed.editPin).toBeNull()
+    expect(parsed.hasPin).toBe(false)
     expect(parsed.days).toEqual([])
     expect(parsed.availability).toEqual({})
     expect(parsed.location).toBeNull()
@@ -28,9 +28,7 @@ describe('EventSnapshotSchema', () => {
       createdBy: 'user1',
       createdAt: '2026-01-01T00:00:00Z',
       updatedAt: '2026-01-01T00:00:00Z',
-      users: [
-        { id: 'u1', name: 'Old', alias: null, joinedAt: '2026-01-01T00:00:00Z' },
-      ],
+      users: [{ id: 'u1', name: 'Old', alias: null, joinedAt: '2026-01-01T00:00:00Z' }],
     }
     const parsed = parseEventSnapshot(snapshot)
     expect(parsed.users[0]!.kind).toBe('adult')
@@ -111,6 +109,6 @@ describe('EventSnapshotSchema', () => {
     }
     const parsed = parseEventSnapshot(real)
     expect(parsed.users[0]!.kind).toBe('adult') // backfilled
-    expect(parsed.editPin).toBeNull() // backfilled
+    expect(parsed.hasPin).toBe(false) // backfilled
   })
 })

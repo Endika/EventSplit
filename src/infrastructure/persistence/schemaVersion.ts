@@ -5,4 +5,4 @@
  * rejects writes carrying a lower value — so a stale cached client running an
  * older schema can no longer silently drop fields it doesn't know about.
  */
-export const SCHEMA_VERSION = 2
+export const SCHEMA_VERSION = 3

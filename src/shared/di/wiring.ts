@@ -2,6 +2,7 @@ import { Container } from '@/shared/di/Container'
 import { getSupabase } from '@/infrastructure/sync/SupabaseClient'
 import { SupabaseEventRepository } from '@/infrastructure/persistence/SupabaseEventRepository'
 import { NotifyingEventRepository } from '@/infrastructure/persistence/NotifyingEventRepository'
+import { PinForwardingEventRepository } from '@/infrastructure/persistence/PinForwardingEventRepository'
 import { LocalStorageCache } from '@/infrastructure/persistence/LocalStorageCache'
 import { RealtimeSync } from '@/infrastructure/sync/RealtimeSync'
 import { OnlineDetector } from '@/infrastructure/network/OnlineDetector'
@@ -19,6 +20,8 @@ import { SetAvailabilityBatchHandler } from '@/application/handlers/SetAvailabil
 import { SetAvailabilityMetaHandler } from '@/application/handlers/SetAvailabilityMetaHandler'
 import { EditEventDetailsHandler } from '@/application/handlers/EditEventDetailsHandler'
 import { SetEditPinHandler } from '@/application/handlers/SetEditPinHandler'
+import { VerifyPinHandler } from '@/application/handlers/VerifyPinHandler'
+import { DeleteEventHandler } from '@/application/handlers/DeleteEventHandler'
 import { EditPurchaseHandler } from '@/application/handlers/EditPurchaseHandler'
 import { AssignPurchaseHandler } from '@/application/handlers/AssignPurchaseHandler'
 import { DeletePurchaseHandler } from '@/application/handlers/DeletePurchaseHandler'
@@ -39,16 +42,21 @@ import { RecoverManualLiquidationHandler } from '@/application/handlers/RecoverM
 import { ToggleLiquidationShareHandler } from '@/application/handlers/ToggleLiquidationShareHandler'
 import type { IEventRepository } from '@/domain/repositories/IEventRepository'
 import type { IEventChangeNotifier } from '@/domain/ports/IEventChangeNotifier'
+import { UnlockedPinHolder } from '@/shared/di/UnlockedPinHolder'
 
 export function buildContainer(): Container {
   const c = new Container()
   c.register('supabase', () => getSupabase())
   c.register<IEventChangeNotifier>('realtime', () => new RealtimeSync(c.resolve('supabase')))
+  c.register('unlockedPin', () => new UnlockedPinHolder())
   c.register<IEventRepository>(
     'eventRepo',
     () =>
       new NotifyingEventRepository(
-        new SupabaseEventRepository(c.resolve('supabase')),
+        new PinForwardingEventRepository(
+          new SupabaseEventRepository(c.resolve('supabase')),
+          c.resolve<UnlockedPinHolder>('unlockedPin'),
+        ),
         c.resolve<IEventChangeNotifier>('realtime'),
       ),
   )
@@ -73,6 +81,8 @@ export function buildContainer(): Container {
   c.register('setAvailabilityMeta', () => new SetAvailabilityMetaHandler(c.resolve('eventRepo')))
   c.register('editEventDetails', () => new EditEventDetailsHandler(c.resolve('eventRepo')))
   c.register('setEditPin', () => new SetEditPinHandler(c.resolve('eventRepo')))
+  c.register('verifyPin', () => new VerifyPinHandler(c.resolve('eventRepo')))
+  c.register('deleteEvent', () => new DeleteEventHandler(c.resolve('eventRepo')))
   c.register('editPurchase', () => new EditPurchaseHandler(c.resolve('eventRepo')))
   c.register('assignPurchase', () => new AssignPurchaseHandler(c.resolve('eventRepo')))
   c.register('deletePurchase', () => new DeletePurchaseHandler(c.resolve('eventRepo')))

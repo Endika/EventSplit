@@ -34,7 +34,7 @@ describe('InMemoryEventRepository', () => {
     const e = makeEvent()
     await repo.create(e.toSnapshot())
     const next = e.addUser(User.create({ name: 'Maria' }))
-    const result = await repo.update(next.toSnapshot().id, next.toSnapshot(), 1)
+    const result = await repo.update(next.toSnapshot().id, next.toSnapshot(), 1, null)
     expect(result.version).toBe(2)
   })
 
@@ -42,7 +42,7 @@ describe('InMemoryEventRepository', () => {
     const repo = new InMemoryEventRepository()
     const e = makeEvent()
     await repo.create(e.toSnapshot())
-    await expect(repo.update(e.toSnapshot().id, e.toSnapshot(), 99)).rejects.toBeInstanceOf(
+    await expect(repo.update(e.toSnapshot().id, e.toSnapshot(), 99, null)).rejects.toBeInstanceOf(
       VersionConflictError,
     )
   })
