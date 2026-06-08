@@ -1,5 +1,16 @@
 # Changelog
 
+## [3.0.0](https://github.com/Endika/EventSplit/compare/v2.10.0...v3.0.0) (2026-06-08)
+
+
+### ⚠ BREAKING CHANGES
+
+* **security:** gate DB access via RPCs with server-side PIN
+
+### Features
+
+* **security:** gate DB access via RPCs with server-side PIN ([678cb40](https://github.com/Endika/EventSplit/commit/678cb40eb9d98fdc8451cd5692a941576add2a6a))
+
 ## [2.10.0](https://github.com/Endika/EventSplit/compare/v2.9.5...v2.10.0) (2026-06-05)
 
 
