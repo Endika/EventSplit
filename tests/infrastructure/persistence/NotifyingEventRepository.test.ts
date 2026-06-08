@@ -36,7 +36,7 @@ describe('NotifyingEventRepository', () => {
     const snapshot = newSnapshot()
     await repo.create(snapshot)
 
-    await repo.update(snapshot.id, { ...snapshot, name: 'Renamed' }, 1)
+    await repo.update(snapshot.id, { ...snapshot, name: 'Renamed' }, 1, null)
 
     expect(notifier.published.at(-1)).toEqual({ eventId: snapshot.id, version: 2 })
   })
@@ -48,7 +48,7 @@ describe('NotifyingEventRepository', () => {
     await repo.create(snapshot)
     notifier.published.length = 0 // ignore the create notification
 
-    await expect(repo.update(snapshot.id, snapshot, 99)).rejects.toThrow()
+    await expect(repo.update(snapshot.id, snapshot, 99, null)).rejects.toThrow()
 
     expect(notifier.published).toEqual([])
   })

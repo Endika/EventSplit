@@ -1,7 +1,9 @@
 {
   "errors": {
     "concurrency": "No s'ha pogut desar: diversos canvis alhora. Torna-ho a provar.",
-    "generic": "Alguna cosa ha anat malament. Torna-ho a provar."
+    "generic": "Alguna cosa ha anat malament. Torna-ho a provar.",
+    "tooLarge": "Aquest esdeveniment està ple o el canvi és massa gran per desar-lo.",
+    "rateLimited": "Massa intents de PIN. Espera una mica i torna-ho a provar."
   },
   "offline": "Sense connexió — només lectura",
   "updateAvailable": "Nova versió disponible",
@@ -381,7 +383,8 @@
     "gateBody": "Aquest esdeveniment està protegit. Introdueix el PIN per obrir-lo.",
     "gateField": "PIN",
     "gateUnlock": "Obrir esdeveniment",
-    "gateWrong": "PIN incorrecte, torna-ho a provar"
+    "gateWrong": "PIN incorrecte, torna-ho a provar",
+    "tooManyAttempts": "Massa intents. Espera uns minuts i torna-ho a provar."
   },
   "errorBanner": {
     "title": "Error",
@@ -447,5 +450,18 @@
     "showDeleted": "Mostra les eliminades ({{count}})",
     "restore": "Restaura",
     "edit": "Edita"
+  },
+  "privacy": {
+    "link": "Privacitat",
+    "title": "Privacitat",
+    "body": "EventSplit no fa servir cookies, no rastreja i no mostra publicitat.\n\nQuè desem: només el que introdueixes a l'esdeveniment — noms dels participants i, opcionalment, un correu o telèfon, al·lèrgies i notes de dieta, a més de la llista de la compra i les despeses. Sense comptes ni pagaments.\n\nOn: les dades es desen en servidors de Supabase a Europa.\n\nQuant de temps: l'esdeveniment es conserva fins que l'organitzador l'elimina — no hi ha esborrat automàtic, perquè el grup el consulta com a registre durador.\n\nEsborrat: l'organitzador pot eliminar l'esdeveniment i totes les seves dades en qualsevol moment des de la configuració de l'esdeveniment amb «Elimina l'esdeveniment». També pots escriure a endika2@gmail.com.\n\nContacte: endika2@gmail.com."
+  },
+  "danger": {
+    "title": "Zona perillosa",
+    "deleteEvent": "Elimina l'esdeveniment",
+    "deleteHint": "Esborra per sempre aquest esdeveniment i totes les seves dades per a tothom. No es pot desfer.",
+    "deleteConfirm": "Vols eliminar aquest esdeveniment per a tothom? No es pot desfer.",
+    "deleteYes": "Elimina per sempre",
+    "deleting": "Eliminant…"
   }
 }

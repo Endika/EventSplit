@@ -22,7 +22,7 @@ export class SetEventStageHandler {
         return { event: row.snapshot, version: row.version }
       }
       try {
-        const saved = await this.repo.update(parsed.eventId, nextSnapshot, row.version)
+        const saved = await this.repo.update(parsed.eventId, nextSnapshot, row.version, null)
         return { event: saved.snapshot, version: saved.version }
       } catch (err) {
         if (!(err instanceof VersionConflictError)) throw err

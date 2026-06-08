@@ -1,7 +1,9 @@
 {
   "errors": {
     "concurrency": "Ezin izan da gorde: aldi berean hainbat aldaketa. Saiatu berriro.",
-    "generic": "Zerbait gaizki joan da. Saiatu berriro."
+    "generic": "Zerbait gaizki joan da. Saiatu berriro.",
+    "tooLarge": "Ekitaldi hau beteta dago edo aldaketa handiegia da gordetzeko.",
+    "rateLimited": "PIN saiakera gehiegi. Itxaron pixka bat eta saiatu berriro."
   },
   "offline": "Konexiorik gabe — irakurri soilik",
   "updateAvailable": "Bertsio berria eskuragarri",
@@ -381,7 +383,8 @@
     "gateBody": "Ekitaldi hau babestuta dago. Sartu PINa irekitzeko.",
     "gateField": "PIN",
     "gateUnlock": "Ireki ekitaldia",
-    "gateWrong": "PIN okerra, saiatu berriro"
+    "gateWrong": "PIN okerra, saiatu berriro",
+    "tooManyAttempts": "Saiakera gehiegi. Itxaron minutu batzuk eta saiatu berriro."
   },
   "errorBanner": {
     "title": "Errorea",
@@ -447,5 +450,18 @@
     "showDeleted": "Erakutsi ezabatutakoak ({{count}})",
     "restore": "Berreskuratu",
     "edit": "Editatu"
+  },
+  "privacy": {
+    "link": "Pribatutasuna",
+    "title": "Pribatutasuna",
+    "body": "EventSplitek ez du cookierik erabiltzen, ez du jarraipenik egiten eta ez du publizitaterik erakusten.\n\nZer gordetzen dugun: ekitaldian sartzen duzuna baino ez — partaideen izenak eta, aukeran, email edo telefono bat, alergiak eta dieta-oharrak, baita erosketa-zerrenda eta gastuak ere. Konturik eta ordainketarik gabe.\n\nNon: datuak Supabaseren Europako zerbitzarietan gordetzen dira.\n\nZenbat denbora: ekitaldia antolatzaileak ezabatu arte gordetzen da — ez dago ezabatze automatikorik, taldeak erregistro iraunkor gisa kontsultatzen baitu.\n\nEzabatzea: antolatzaileak ekitaldia eta bere datu guztiak edonoiz ezaba ditzake ekitaldiaren ezarpenetatik «Ekitaldia ezabatu» erabiliz. endika2@gmail.com helbidera ere idatz dezakezu.\n\nKontaktua: endika2@gmail.com."
+  },
+  "danger": {
+    "title": "Arrisku-eremua",
+    "deleteEvent": "Ekitaldia ezabatu",
+    "deleteHint": "Ekitaldi hau eta bere datu guztiak betiko ezabatzen ditu guztiontzat. Ezin da desegin.",
+    "deleteConfirm": "Ekitaldi hau guztiontzat ezabatu? Ezin da desegin.",
+    "deleteYes": "Betiko ezabatu",
+    "deleting": "Ezabatzen…"
   }
 }

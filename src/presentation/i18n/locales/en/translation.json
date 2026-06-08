@@ -1,7 +1,9 @@
 {
   "errors": {
     "concurrency": "Couldn't save — several people edited at once. Please try again.",
-    "generic": "Something went wrong. Please try again."
+    "generic": "Something went wrong. Please try again.",
+    "tooLarge": "This event is full or the change is too large to save.",
+    "rateLimited": "Too many PIN attempts. Please wait a bit and try again."
   },
   "offline": "Offline — read only",
   "updateAvailable": "New version available",
@@ -381,7 +383,8 @@
     "gateBody": "This event is protected. Enter the PIN to open it.",
     "gateField": "PIN",
     "gateUnlock": "Open event",
-    "gateWrong": "Wrong PIN, try again"
+    "gateWrong": "Wrong PIN, try again",
+    "tooManyAttempts": "Too many attempts. Please wait a few minutes and try again."
   },
   "errorBanner": {
     "title": "Error",
@@ -447,5 +450,18 @@
     "showDeleted": "Show deleted ({{count}})",
     "restore": "Restore",
     "edit": "Edit"
+  },
+  "privacy": {
+    "link": "Privacy",
+    "title": "Privacy",
+    "body": "EventSplit uses no cookies, no tracking and no ads.\n\nWhat we store: only what you enter in the event — participant names, and optionally an email or phone, allergies and dietary notes, plus shopping items and expenses. No accounts, no payments.\n\nWhere: data is stored on Supabase servers in Europe.\n\nHow long: an event is kept until the host deletes it — there is no automatic deletion, because the group revisits it as a lasting record.\n\nDeletion: the host can erase the event and all its data at any time from the event settings with “Delete event”. You can also write to endika2@gmail.com.\n\nContact: endika2@gmail.com."
+  },
+  "danger": {
+    "title": "Danger zone",
+    "deleteEvent": "Delete event",
+    "deleteHint": "Permanently erases this event and all its data for everyone. This cannot be undone.",
+    "deleteConfirm": "Delete this event for everyone? This cannot be undone.",
+    "deleteYes": "Delete forever",
+    "deleting": "Deleting…"
   }
 }

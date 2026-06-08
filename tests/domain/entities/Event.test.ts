@@ -238,9 +238,9 @@ describe('Event', () => {
   it('setStage rejects invalid stage', () => {
     const creator = User.create({ name: 'John' })
     const e = Event.create({ name: 'Trip', creator })
-    expect(() =>
-      e.setStage({ stage: 'invalid' as never, userId: creator.id.value }),
-    ).toThrow(/invalid stage/i)
+    expect(() => e.setStage({ stage: 'invalid' as never, userId: creator.id.value })).toThrow(
+      /invalid stage/i,
+    )
   })
 
   it('setStage to same stage is a no-op (no version bump)', () => {
@@ -269,7 +269,7 @@ describe('Event', () => {
     expect(snap.days).toEqual([])
     expect(snap.availability).toEqual({})
     expect(snap.location).toBeNull()
-    expect(snap.editPin).toBeNull()
+    expect(snap.hasPin).toBe(false)
     expect(snap.users[0]!.allergies).toEqual([])
     expect(snap.users[0]!.email).toBeNull()
   })
@@ -281,7 +281,11 @@ describe('Event', () => {
     const snap = e.toSnapshot()
     snap.days = ['2026-06-05', '2026-06-06']
     e = Event.restore(snap)
-    const next = e.setAvailabilityMeta({ userId: creator.id.value, note: 'Weekends only', chosenDay: '2026-06-06' })
+    const next = e.setAvailabilityMeta({
+      userId: creator.id.value,
+      note: 'Weekends only',
+      chosenDay: '2026-06-06',
+    })
     expect(next.toSnapshot().availabilityNote).toBe('Weekends only')
     expect(next.toSnapshot().chosenDay).toBe('2026-06-06')
   })
@@ -321,7 +325,9 @@ describe('Event', () => {
 
   it('toggleSettlement rejects unknown user', () => {
     const e = Event.create({ name: 'Trip', creator: User.create({ name: 'John' }) })
-    expect(() => e.toggleSettlement({ userId: '00000000-0000-7000-8000-000000000000', from: 'a', to: 'b' })).toThrow(/not in event/i)
+    expect(() =>
+      e.toggleSettlement({ userId: '00000000-0000-7000-8000-000000000000', from: 'a', to: 'b' }),
+    ).toThrow(/not in event/i)
   })
 
   it('Event.create starts with empty settledTransfers', () => {
@@ -334,11 +340,22 @@ describe('Event', () => {
     let e = Event.create({ name: 'Trip', creator })
     const snap = e.toSnapshot()
     snap.purchases.push({
-      id: '01900000-0000-7000-8000-0000000000a1', createdBy: creator.id.value,
-      item: 'Bread', quantity: 1, unit: 'units', dailyConsumption: 1,
-      totalQuantity: 1, consumers: [{ userId: creator.id.value, multiplier: 1 }],
-      deleted: false, deletedBy: null, deletedAt: null, deleteReason: null,
-      createdAt: '2026-01-01T00:00:00Z', assignedTo: null, purchased: false, boughtQuantity: 0,
+      id: '01900000-0000-7000-8000-0000000000a1',
+      createdBy: creator.id.value,
+      item: 'Bread',
+      quantity: 1,
+      unit: 'units',
+      dailyConsumption: 1,
+      totalQuantity: 1,
+      consumers: [{ userId: creator.id.value, multiplier: 1 }],
+      deleted: false,
+      deletedBy: null,
+      deletedAt: null,
+      deleteReason: null,
+      createdAt: '2026-01-01T00:00:00Z',
+      assignedTo: null,
+      purchased: false,
+      boughtQuantity: 0,
       group: 'Cena',
     } as never)
     e = Event.restore(snap)
@@ -355,7 +372,9 @@ describe('Event', () => {
 
   it('renameGroup rejects unknown user', () => {
     const e = Event.create({ name: 'Trip', creator: User.create({ name: 'John' }) })
-    expect(() => e.renameGroup({ userId: '00000000-0000-7000-8000-000000000000', from: 'X', to: 'Y' })).toThrow(/not in event/i)
+    expect(() =>
+      e.renameGroup({ userId: '00000000-0000-7000-8000-000000000000', from: 'X', to: 'Y' }),
+    ).toThrow(/not in event/i)
   })
 
   it('Event.create starts with empty groupOrder', () => {
@@ -373,12 +392,24 @@ describe('Event', () => {
     let e = Event.create({ name: 'Trip', creator })
     const snap = e.toSnapshot()
     snap.purchases.push({
-      id: '01900000-0000-7000-8000-0000000000a1', createdBy: creator.id.value,
-      item: 'Bread', quantity: 1, unit: 'units', dailyConsumption: 1,
-      totalQuantity: 1, consumers: [{ userId: creator.id.value, multiplier: 1 }],
-      deleted: false, deletedBy: null, deletedAt: null, deleteReason: null,
-      createdAt: '2026-01-01T00:00:00Z', assignedTo: null, purchased: false, boughtQuantity: 0,
-      group: 'Cena', subgroup: 'Entrantes',
+      id: '01900000-0000-7000-8000-0000000000a1',
+      createdBy: creator.id.value,
+      item: 'Bread',
+      quantity: 1,
+      unit: 'units',
+      dailyConsumption: 1,
+      totalQuantity: 1,
+      consumers: [{ userId: creator.id.value, multiplier: 1 }],
+      deleted: false,
+      deletedBy: null,
+      deletedAt: null,
+      deleteReason: null,
+      createdAt: '2026-01-01T00:00:00Z',
+      assignedTo: null,
+      purchased: false,
+      boughtQuantity: 0,
+      group: 'Cena',
+      subgroup: 'Entrantes',
     } as never)
     snap.groupOrder = ['Cena']
     snap.subgroupOrder = { Cena: ['Entrantes'] }
@@ -394,16 +425,33 @@ describe('Event', () => {
     let e = Event.create({ name: 'Trip', creator })
     const snap = e.toSnapshot()
     snap.purchases.push({
-      id: '01900000-0000-7000-8000-0000000000b1', createdBy: creator.id.value,
-      item: 'Bread', quantity: 1, unit: 'units', dailyConsumption: 1,
-      totalQuantity: 1, consumers: [{ userId: creator.id.value, multiplier: 1 }],
-      deleted: false, deletedBy: null, deletedAt: null, deleteReason: null,
-      createdAt: '2026-01-01T00:00:00Z', assignedTo: null, purchased: false, boughtQuantity: 0,
-      group: 'Cena', subgroup: 'Entrantes',
+      id: '01900000-0000-7000-8000-0000000000b1',
+      createdBy: creator.id.value,
+      item: 'Bread',
+      quantity: 1,
+      unit: 'units',
+      dailyConsumption: 1,
+      totalQuantity: 1,
+      consumers: [{ userId: creator.id.value, multiplier: 1 }],
+      deleted: false,
+      deletedBy: null,
+      deletedAt: null,
+      deleteReason: null,
+      createdAt: '2026-01-01T00:00:00Z',
+      assignedTo: null,
+      purchased: false,
+      boughtQuantity: 0,
+      group: 'Cena',
+      subgroup: 'Entrantes',
     } as never)
     snap.subgroupOrder = { Cena: ['Entrantes'] }
     e = Event.restore(snap)
-    const renamed = e.renameSubgroup({ userId: creator.id.value, group: 'Cena', from: 'Entrantes', to: 'Aperitivos' })
+    const renamed = e.renameSubgroup({
+      userId: creator.id.value,
+      group: 'Cena',
+      from: 'Entrantes',
+      to: 'Aperitivos',
+    })
     const out = renamed.toSnapshot()
     expect(out.purchases[0]!.subgroup).toBe('Aperitivos')
     expect(out.subgroupOrder['Cena']).toEqual(['Aperitivos'])
@@ -412,7 +460,12 @@ describe('Event', () => {
   it('renameSubgroup rejects unknown user', () => {
     const e = Event.create({ name: 'Trip', creator: User.create({ name: 'John' }) })
     expect(() =>
-      e.renameSubgroup({ userId: '00000000-0000-7000-8000-000000000000', group: 'Cena', from: 'X', to: 'Y' }),
+      e.renameSubgroup({
+        userId: '00000000-0000-7000-8000-000000000000',
+        group: 'Cena',
+        from: 'X',
+        to: 'Y',
+      }),
     ).toThrow(/not in event/i)
   })
 
@@ -426,7 +479,11 @@ describe('Event', () => {
   it('setSubgroupOrder rejects unknown user', () => {
     const e = Event.create({ name: 'Trip', creator: User.create({ name: 'John' }) })
     expect(() =>
-      e.setSubgroupOrder({ userId: '00000000-0000-7000-8000-000000000000', group: 'Cena', order: ['A'] }),
+      e.setSubgroupOrder({
+        userId: '00000000-0000-7000-8000-000000000000',
+        group: 'Cena',
+        order: ['A'],
+      }),
     ).toThrow(/not in event/i)
   })
 })

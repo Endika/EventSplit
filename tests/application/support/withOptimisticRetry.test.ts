@@ -6,9 +6,17 @@ import type { EventSnapshot } from '@/domain/entities/Event'
 import {
   ConcurrencyLimitError,
   type IEventRepository,
+  type ReadResult,
   type SaveResult,
   VersionConflictError,
 } from '@/domain/repositories/IEventRepository'
+
+/** Round out a partial repo with the PIN methods the retry helper never touches. */
+const pinNoops = {
+  setPin: async () => {},
+  verifyPin: async () => true,
+  deleteEvent: async () => {},
+}
 
 const noSleep = () => Promise.resolve()
 
@@ -18,12 +26,15 @@ const noSleep = () => Promise.resolve()
  */
 class ConflictingRepository implements IEventRepository {
   updateCalls = 0
+  setPin = pinNoops.setPin
+  verifyPin = pinNoops.verifyPin
+  deleteEvent = pinNoops.deleteEvent
   constructor(
     private readonly inner: IEventRepository,
     private readonly conflictsBeforeSuccess: number,
   ) {}
 
-  findById(id: string) {
+  findById(id: string): Promise<ReadResult | null> {
     return this.inner.findById(id)
   }
   getVersion(id: string) {
@@ -32,7 +43,12 @@ class ConflictingRepository implements IEventRepository {
   create(snapshot: EventSnapshot) {
     return this.inner.create(snapshot)
   }
-  async update(id: string, snapshot: EventSnapshot, expectedVersion: number): Promise<SaveResult> {
+  async update(
+    id: string,
+    snapshot: EventSnapshot,
+    expectedVersion: number,
+    pin: string | null,
+  ): Promise<SaveResult> {
     this.updateCalls++
     if (this.updateCalls <= this.conflictsBeforeSuccess) {
       // Report a stale-version style conflict without mutating the inner row,
@@ -40,7 +56,7 @@ class ConflictingRepository implements IEventRepository {
       const current = await this.inner.getVersion(id)
       throw new VersionConflictError(current ?? expectedVersion)
     }
-    return this.inner.update(id, snapshot, expectedVersion)
+    return this.inner.update(id, snapshot, expectedVersion, pin)
   }
 }
 
@@ -85,11 +101,12 @@ describe('withOptimisticRetry', () => {
         updateCalls++
         throw new Error('database exploded')
       },
+      ...pinNoops,
     }
 
-    await expect(
-      withOptimisticRetry(repo, eventId, (row) => row.snapshot),
-    ).rejects.toThrow('database exploded')
+    await expect(withOptimisticRetry(repo, eventId, (row) => row.snapshot)).rejects.toThrow(
+      'database exploded',
+    )
     expect(updateCalls).toBe(1)
   })
 
@@ -126,8 +143,8 @@ describe('withOptimisticRetry', () => {
 
   it('throws "Event not found" when the row is missing', async () => {
     const repo = new InMemoryEventRepository()
-    await expect(
-      withOptimisticRetry(repo, 'missing-id', (row) => row.snapshot),
-    ).rejects.toThrow('Event not found')
+    await expect(withOptimisticRetry(repo, 'missing-id', (row) => row.snapshot)).rejects.toThrow(
+      'Event not found',
+    )
   })
 })

@@ -1,6 +1,7 @@
-import { type ReactNode } from 'react'
+import { type ReactNode, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { ThemeToggle } from '@/presentation/components/common/ThemeToggle'
+import { Modal } from '@/presentation/components/common/Modal'
 
 // Flag emoji (🇬🇧/🇪🇸) don't render as flags on Windows, so we draw these inline too.
 function UnionJack() {
@@ -101,8 +102,9 @@ const LANGUAGES: { code: string; label: string; short: string; flag: ReactNode }
 ]
 
 export function Footer() {
-  const { i18n } = useTranslation()
+  const { t, i18n } = useTranslation()
   const current = i18n.resolvedLanguage ?? i18n.language ?? 'en'
+  const [showPrivacy, setShowPrivacy] = useState(false)
 
   function changeTo(code: string) {
     void i18n.changeLanguage(code)
@@ -130,10 +132,25 @@ export function Footer() {
           )
         })}
       </div>
+      <button
+        type="button"
+        onClick={() => setShowPrivacy(true)}
+        className="underline-offset-2 hover:text-ink hover:underline"
+      >
+        {t('privacy.link')}
+      </button>
       <div className="flex items-center gap-2">
         <span>v{__APP_VERSION__}</span>
         <ThemeToggle />
       </div>
+
+      {showPrivacy && (
+        <Modal open title={t('privacy.title')} onClose={() => setShowPrivacy(false)}>
+          <p className="whitespace-pre-line text-sm leading-relaxed text-muted">
+            {t('privacy.body')}
+          </p>
+        </Modal>
+      )}
     </footer>
   )
 }

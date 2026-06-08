@@ -32,7 +32,11 @@ Open the URL in Chrome, Edge or Safari and use **"Add to Home Screen"** (mobile)
 
 ## Privacy
 
-No login. Your name (and optional nickname) live in your browser's localStorage. Event data syncs through Supabase (Europe-hosted, encrypted in transit). Anyone with the event URL can read and edit it — keep the link private to your group. No analytics, no tracking, no cookies (except your language preference).
+No login. Your name (and optional nickname) live in your browser's localStorage. Event data syncs through Supabase (Europe-hosted, encrypted in transit). No analytics, no tracking, no advertising cookies (only your language preference).
+
+**Access** — all database access goes through `SECURITY DEFINER` RPCs; the table is not directly readable, so the public key can't bulk-read events. An event is reachable only by its exact id (keep the link private to your group). An optional **edit PIN**, when set, is enforced **server-side** (the hash never reaches the browser) and rate-limited.
+
+**Your data** — `events.data` holds names, optional email/phone, allergies and the expense/purchase records. Stored data is `COMMENT`-tagged as personal + special-category (health). **Erasure**: any participant can permanently delete the event (and all its data) from **Location → Danger zone → Delete event**. No automatic retention — an event is kept until someone deletes it. Contact: endika2@gmail.com.
 
 ---
 

@@ -7,6 +7,12 @@ export const SetEditPinSchema = z.object({
     .string()
     .regex(/^\d{4,6}$/)
     .nullable(),
+  /** Required by the server when changing or removing an existing PIN. */
+  currentPin: z
+    .string()
+    .regex(/^\d{4,6}$/)
+    .nullable()
+    .optional(),
 })
 
 export type SetEditPinInput = z.infer<typeof SetEditPinSchema>

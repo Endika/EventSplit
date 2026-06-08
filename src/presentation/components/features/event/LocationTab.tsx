@@ -4,8 +4,12 @@ import { useContainer } from '@/presentation/context/ContainerProvider'
 import { useEventState } from '@/presentation/context/EventContext'
 import type { EditEventDetailsHandler } from '@/application/handlers/EditEventDetailsHandler'
 import type { SetEditPinHandler } from '@/application/handlers/SetEditPinHandler'
+import type { DeleteEventHandler } from '@/application/handlers/DeleteEventHandler'
+import type { RefreshEventHandler } from '@/application/handlers/RefreshEventHandler'
+import type { LocalStorageCache } from '@/infrastructure/persistence/LocalStorageCache'
 import { useCurrentUser } from '@/presentation/context/UserContext'
 import { useWriteGuard } from '@/presentation/context/WriteGuardContext'
+import { useEditPin } from '@/presentation/context/EditPinContext'
 import { Button } from '@/presentation/components/common/Button'
 import { reportError } from '@/shared/utils/reportError'
 import { friendlyError } from '@/presentation/utils/friendlyError'
@@ -21,6 +25,7 @@ export function LocationTab() {
 
   const me = useCurrentUser()
   const { guardedExecute } = useWriteGuard()
+  const { pin: unlockedPin, setPin: setUnlockedPin } = useEditPin()
   const [editing, setEditing] = useState(false)
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -29,7 +34,10 @@ export function LocationTab() {
   const [pinBusy, setPinBusy] = useState(false)
   const [pinError, setPinError] = useState<string | null>(null)
   const [confirmRemovePin, setConfirmRemovePin] = useState(false)
-  const hasPin = !!event?.editPin
+  const [confirmDelete, setConfirmDelete] = useState(false)
+  const [deleteBusy, setDeleteBusy] = useState(false)
+  const [deleteError, setDeleteError] = useState<string | null>(null)
+  const hasPin = !!event?.hasPin
 
   const [eventName, setEventName] = useState(event?.name ?? '')
   const [name, setName] = useState(loc?.name ?? '')
@@ -109,6 +117,18 @@ export function LocationTab() {
     })
   }
 
+  async function refreshFromServer() {
+    if (!event) return
+    const cache = container.resolve<LocalStorageCache>('cache')
+    const refresh = container.resolve<RefreshEventHandler>('refreshEvent')
+    // Force a full re-read so the derived hasPin flag reflects the change.
+    const result = await refresh.execute({ eventId: event.id, local: null })
+    if (result.status === 'updated' || result.status === 'unchanged') {
+      setEvent(result.snapshot, result.version)
+      cache.set(event.id, { snapshot: result.snapshot, version: result.version })
+    }
+  }
+
   function savePin(pin: string | null) {
     if (!event || !me) return
     guardedExecute(async () => {
@@ -116,22 +136,41 @@ export function LocationTab() {
       setPinError(null)
       try {
         const handler = container.resolve<SetEditPinHandler>('setEditPin')
-        const result = await handler.execute({ eventId: event.id, userId: me.id, pin })
-        setEvent(result.event, result.version)
-        // Setting a PIN from this device: mark this device verified so the user
-        // who just set it isn't immediately locked out. Clearing: remove the flag.
-        if (pin) {
-          localStorage.setItem(`eventsplit.pin.${event.id}`, 'true')
-        } else {
-          localStorage.removeItem(`eventsplit.pin.${event.id}`)
-        }
+        // Changing or removing an existing PIN requires the current (unlocked) one.
+        const currentPin = hasPin ? unlockedPin : null
+        await handler.execute({ eventId: event.id, userId: me.id, pin, currentPin })
+        // Keep the new PIN unlocked for this session so the host who just set it
+        // isn't immediately locked out (and can pass it to later privileged ops).
+        setUnlockedPin(pin)
+        await refreshFromServer()
         setPinInput('')
         setConfirmRemovePin(false)
       } catch (err) {
         reportError('LocationTab', err)
-        setPinError(err instanceof Error ? err.message : 'Error')
+        setPinError(friendlyError(err, t))
       } finally {
         setPinBusy(false)
+      }
+    })
+  }
+
+  function deleteEvent() {
+    if (!event) return
+    guardedExecute(async () => {
+      setDeleteBusy(true)
+      setDeleteError(null)
+      try {
+        const handler = container.resolve<DeleteEventHandler>('deleteEvent')
+        await handler.execute(event.id, hasPin ? unlockedPin : null)
+        // Wipe every local trace of this event, then go home.
+        const cache = container.resolve<LocalStorageCache>('cache')
+        cache.remove(event.id)
+        setUnlockedPin(null)
+        window.location.assign(window.location.pathname)
+      } catch (err) {
+        reportError('LocationTab', err)
+        setDeleteError(friendlyError(err, t))
+        setDeleteBusy(false)
       }
     })
   }
@@ -360,8 +399,8 @@ export function LocationTab() {
           <button
             type="button"
             onClick={() => {
-              localStorage.removeItem(`eventsplit.pin.${event.id}`)
-              window.location.reload()
+              // Re-lock for this session: drop the unlocked PIN; the gate returns.
+              setUnlockedPin(null)
             }}
             className="text-xs text-muted hover:text-ink"
           >
@@ -371,6 +410,36 @@ export function LocationTab() {
         {pinError && <p className="text-xs text-danger">{pinError}</p>}
         <p className="text-xs text-muted">{t('pin.manageHint')}</p>
         <p className="text-xs text-muted">{t('pin.ownerVerifiedHint')}</p>
+      </div>
+
+      <div className="space-y-3 rounded-xl border border-danger bg-danger-soft p-4">
+        <h2 className="text-sm font-semibold uppercase tracking-wide text-danger-soft-fg">
+          {t('danger.title')}
+        </h2>
+        <p className="text-xs text-danger-soft-fg">{t('danger.deleteHint')}</p>
+        {!confirmDelete ? (
+          <Button type="button" variant="secondary" onClick={() => setConfirmDelete(true)}>
+            {t('danger.deleteEvent')}
+          </Button>
+        ) : (
+          <div className="space-y-2">
+            <p className="text-xs font-semibold text-danger-soft-fg">{t('danger.deleteConfirm')}</p>
+            <div className="flex gap-2">
+              <Button
+                type="button"
+                variant="secondary"
+                onClick={() => setConfirmDelete(false)}
+                disabled={deleteBusy}
+              >
+                {t('common.cancel')}
+              </Button>
+              <Button type="button" onClick={deleteEvent} disabled={deleteBusy}>
+                {deleteBusy ? t('danger.deleting') : t('danger.deleteYes')}
+              </Button>
+            </div>
+          </div>
+        )}
+        {deleteError && <p className="text-xs text-danger">{deleteError}</p>}
       </div>
     </div>
   )

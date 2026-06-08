@@ -4,6 +4,7 @@ import { EventProvider } from '@/presentation/context/EventContext'
 import { UserProvider } from '@/presentation/context/UserContext'
 import { SyncProvider } from '@/presentation/context/SyncContext'
 import { WriteGuardProvider } from '@/presentation/context/WriteGuardContext'
+import { EditPinProvider } from '@/presentation/context/EditPinContext'
 import { HomePage } from '@/presentation/components/features/home/HomePage'
 import { PinPromptModal } from '@/presentation/components/features/security/PinPromptModal'
 import { OfflineBanner } from '@/presentation/components/features/pwa/OfflineBanner'
@@ -38,18 +39,20 @@ export default function App() {
       <SyncProvider>
         <EventProvider>
           <UserProvider>
-            <WriteGuardProvider>
-              <OfflineBanner />
-              <UpdateBanner />
-              <InstallPrompt />
-              <ErrorBanner />
-              <NoticeBanner />
-              <Suspense fallback={<div className="p-6 text-muted">…</div>}>
-                {eventId ? <EventPage eventId={eventId} /> : <HomePage />}
-              </Suspense>
-              <PinPromptModal />
-              <Footer />
-            </WriteGuardProvider>
+            <EditPinProvider>
+              <WriteGuardProvider>
+                <OfflineBanner />
+                <UpdateBanner />
+                <InstallPrompt />
+                <ErrorBanner />
+                <NoticeBanner />
+                <Suspense fallback={<div className="p-6 text-muted">…</div>}>
+                  {eventId ? <EventPage eventId={eventId} /> : <HomePage />}
+                </Suspense>
+                <PinPromptModal />
+                <Footer />
+              </WriteGuardProvider>
+            </EditPinProvider>
           </UserProvider>
         </EventProvider>
       </SyncProvider>

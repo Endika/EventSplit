@@ -1,33 +1,43 @@
 import { type FormEvent, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import type { EventSnapshot } from '@/domain/entities/Event'
-import { EditPin } from '@/domain/value-objects/EditPin'
+import { RateLimitedError } from '@/domain/repositories/IEventRepository'
+import type { VerifyPinHandler } from '@/application/handlers/VerifyPinHandler'
+import { useContainer } from '@/presentation/context/ContainerProvider'
+import { useEditPin } from '@/presentation/context/EditPinContext'
 import { Button } from '@/presentation/components/common/Button'
 import { Input } from '@/presentation/components/common/Input'
 
 export function EventPinGate({ event, onUnlock }: { event: EventSnapshot; onUnlock: () => void }) {
   const { t } = useTranslation()
+  const container = useContainer()
+  const { setPin: setUnlockedPin } = useEditPin()
   const [pin, setPin] = useState('')
   const [error, setError] = useState<string | null>(null)
   const [busy, setBusy] = useState(false)
 
   async function submit(e: FormEvent) {
     e.preventDefault()
-    if (!event.editPin) {
+    if (!event.hasPin) {
       onUnlock()
       return
     }
     setBusy(true)
     setError(null)
     try {
-      const ok = await EditPin.verify(pin, event.editPin, event.id)
+      const ok = await container.resolve<VerifyPinHandler>('verifyPin').execute(event.id, pin)
       if (!ok) {
         setError(t('pin.gateWrong'))
         setPin('')
         return
       }
-      localStorage.setItem(`eventsplit.pin.${event.id}`, 'true')
+      // Keep the verified PIN for the session so privileged actions can pass it
+      // server-side; this also flips EventPage's gate (no localStorage flag).
+      setUnlockedPin(pin)
       onUnlock()
+    } catch (err) {
+      setError(err instanceof RateLimitedError ? t('pin.tooManyAttempts') : t('pin.gateWrong'))
+      setPin('')
     } finally {
       setBusy(false)
     }

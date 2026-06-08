@@ -1,7 +1,9 @@
 {
   "errors": {
     "concurrency": "Non se puido gardar: varios cambios á vez. Téntao de novo.",
-    "generic": "Algo foi mal. Téntao de novo."
+    "generic": "Algo foi mal. Téntao de novo.",
+    "tooLarge": "Este evento está cheo ou o cambio é grande de máis para gardalo.",
+    "rateLimited": "Demasiados intentos de PIN. Agarda un pouco e téntao de novo."
   },
   "offline": "Sen conexión — só lectura",
   "updateAvailable": "Nova versión dispoñible",
@@ -381,7 +383,8 @@
     "gateBody": "Este evento está protexido. Introduce o PIN para abrilo.",
     "gateField": "PIN",
     "gateUnlock": "Abrir evento",
-    "gateWrong": "PIN incorrecto, téntao de novo"
+    "gateWrong": "PIN incorrecto, téntao de novo",
+    "tooManyAttempts": "Demasiados intentos. Agarda uns minutos e téntao de novo."
   },
   "errorBanner": {
     "title": "Erro",
@@ -447,5 +450,18 @@
     "showDeleted": "Ver eliminadas ({{count}})",
     "restore": "Restaurar",
     "edit": "Editar"
+  },
+  "privacy": {
+    "link": "Privacidade",
+    "title": "Privacidade",
+    "body": "EventSplit non usa cookies, non rastrexa e non mostra publicidade.\n\nQue gardamos: só o que introduces no evento — nomes dos participantes e, opcionalmente, un email ou teléfono, alerxias e notas de dieta, ademais da lista da compra e os gastos. Sen contas nin pagos.\n\nOnde: os datos gárdanse en servidores de Supabase en Europa.\n\nCanto tempo: o evento consérvase ata que o organizador o elimina — non hai borrado automático, porque o grupo consúltao como rexistro duradeiro.\n\nBorrado: o organizador pode eliminar o evento e todos os seus datos en calquera momento desde os axustes do evento con «Eliminar evento». Tamén podes escribir a endika2@gmail.com.\n\nContacto: endika2@gmail.com."
+  },
+  "danger": {
+    "title": "Zona perigosa",
+    "deleteEvent": "Eliminar evento",
+    "deleteHint": "Borra para sempre este evento e todos os seus datos para todos. Non se pode desfacer.",
+    "deleteConfirm": "Eliminar este evento para todos? Non se pode desfacer.",
+    "deleteYes": "Eliminar para sempre",
+    "deleting": "Eliminando…"
   }
 }

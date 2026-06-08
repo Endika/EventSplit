@@ -1,5 +1,6 @@
 import { createContext, type ReactNode, useContext, useState } from 'react'
 import { useEventState } from '@/presentation/context/EventContext'
+import { useEditPin } from '@/presentation/context/EditPinContext'
 import { allowWrite } from '@/shared/utils/rateLimit'
 import { notify } from '@/shared/utils/notify'
 
@@ -12,32 +13,22 @@ interface WriteGuardState {
   pending: PendingExecution | null
   isLocked: boolean
   verified: boolean
-  markVerified: () => void
   guardedExecute: (fn: () => Promise<unknown> | unknown, onError?: (err: unknown) => void) => void
   clearPending: () => void
 }
 
 const Ctx = createContext<WriteGuardState | null>(null)
 
-function pinKey(eventId: string): string {
-  return `eventsplit.pin.${eventId}`
-}
-
 export function WriteGuardProvider({ children }: { children: ReactNode }) {
   const { event } = useEventState()
+  const { pin: unlockedPin } = useEditPin()
   const [pending, setPending] = useState<PendingExecution | null>(null)
-  // verified-state tick: bumped when markVerified is called to trigger re-render
-  const [verifiedTick, setVerifiedTick] = useState(0)
 
-  const isLocked = !!event?.editPin
-  const verified = !isLocked || (event ? localStorage.getItem(pinKey(event.id)) === 'true' : false)
-
-  function markVerified(): void {
-    if (event) {
-      localStorage.setItem(pinKey(event.id), 'true')
-      setVerifiedTick((n) => n + 1)
-    }
-  }
+  const isLocked = !!event?.hasPin
+  // Verified for this session once the in-memory edit PIN is unlocked (at the
+  // gate or prompt). Server-side enforcement needs the plaintext PIN to pass it
+  // on every privileged write, so verification is session-scoped, not persisted.
+  const verified = !isLocked || unlockedPin !== null
 
   function guardedExecute(
     fn: () => Promise<unknown> | unknown,
@@ -66,13 +57,8 @@ export function WriteGuardProvider({ children }: { children: ReactNode }) {
     setPending(null)
   }
 
-  // Use verifiedTick to ensure context re-evaluates `verified` after unlock
-  void verifiedTick
-
   return (
-    <Ctx.Provider
-      value={{ pending, isLocked, verified, markVerified, guardedExecute, clearPending }}
-    >
+    <Ctx.Provider value={{ pending, isLocked, verified, guardedExecute, clearPending }}>
       {children}
     </Ctx.Provider>
   )

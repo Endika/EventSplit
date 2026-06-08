@@ -28,6 +28,13 @@ export interface RetryOptions {
   maxRetries?: number
   /** Injectable for tests so retry behaviour can be exercised without real timers. */
   sleep?: (ms: number) => Promise<void>
+  /**
+   * Unlocked edit PIN to pass to the server-side PIN check. Defaults to null —
+   * collaborative guest writes (adding expenses/purchases) run PIN-less, and
+   * PIN-protected events gate those writes in the UI (WriteGuard/PinPrompt).
+   * Thread a real PIN here only for privileged host edits that already hold it.
+   */
+  pin?: string | null
 }
 
 /**
@@ -44,13 +51,14 @@ export async function withOptimisticRetry(
 ): Promise<SaveResult> {
   const maxRetries = opts.maxRetries ?? DEFAULT_MAX_RETRIES
   const sleep = opts.sleep ?? defaultSleep
+  const pin = opts.pin ?? null
 
   for (let attempt = 0; attempt < maxRetries; attempt++) {
     const row = await repo.findById(eventId)
     if (!row) throw new Error('Event not found')
     const next = mutate(row)
     try {
-      return await repo.update(eventId, next, row.version)
+      return await repo.update(eventId, next, row.version, pin)
     } catch (err) {
       if (!(err instanceof VersionConflictError)) throw err
       // Don't sleep after the final attempt — we're about to give up.
