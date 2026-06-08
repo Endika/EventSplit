@@ -6,16 +6,16 @@
 -- prod — re-applying it is a no-op.
 
 create table if not exists public.events (
-  id         varchar primary key,
-  name       varchar not null,
-  created_by varchar not null,
-  data       jsonb   not null,
-  version    integer not null default 1,
-  edit_pin   varchar,
-  updated_by varchar,
-  updated_at timestamptz not null default now(),
-  created_at timestamptz not null default now(),
-  active     boolean not null default true
+  id         varchar(7) primary key,
+  name       varchar(100) not null,
+  created_by varchar(50)  not null,
+  data       jsonb        not null,
+  version    integer      not null default 1,
+  edit_pin   varchar(60), -- legacy width; widened to text in 0004 (sha256 hex is 64 chars)
+  updated_by varchar(50),
+  updated_at timestamptz  not null default now(),
+  created_at timestamptz  not null default now(),
+  active     boolean      not null default true
 );
 
 create index if not exists events_updated_idx on public.events using btree (updated_at desc);
