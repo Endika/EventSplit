@@ -1,5 +1,12 @@
 # Changelog
 
+## [3.0.1](https://github.com/Endika/EventSplit/compare/v3.0.0...v3.0.1) (2026-06-08)
+
+
+### Bug Fixes
+
+* **db:** widen edit_pin to text for the 64-char pin hash ([920e9c5](https://github.com/Endika/EventSplit/commit/920e9c5f2642a497ba122f4531da40696c20a877))
+
 ## [3.0.0](https://github.com/Endika/EventSplit/compare/v2.10.0...v3.0.0) (2026-06-08)
 
 
