@@ -1,5 +1,12 @@
 # Changelog
 
+## [3.0.2](https://github.com/Endika/EventSplit/compare/v3.0.1...v3.0.2) (2026-06-09)
+
+
+### Chores
+
+* **deps:** bump the npm-minor-patch group with 6 updates ([24d97be](https://github.com/Endika/EventSplit/commit/24d97beab0eb74052a59d612fac9f32470d4d36d))
+
 ## [3.0.1](https://github.com/Endika/EventSplit/compare/v3.0.0...v3.0.1) (2026-06-08)
 
 
