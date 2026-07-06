@@ -1,5 +1,12 @@
 # Changelog
 
+## [3.0.5](https://github.com/Endika/EventSplit/compare/v3.0.4...v3.0.5) (2026-07-06)
+
+
+### Chores
+
+* **ci:** drop redundant deploy dispatch from release flow ([e1f6f87](https://github.com/Endika/EventSplit/commit/e1f6f87e1d90db023a327b164a49253701a4572d))
+
 ## [3.0.4](https://github.com/Endika/EventSplit/compare/v3.0.3...v3.0.4) (2026-07-06)
 
 
