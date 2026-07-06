@@ -1,5 +1,15 @@
 # Changelog
 
+## [3.0.3](https://github.com/Endika/EventSplit/compare/v3.0.2...v3.0.3) (2026-07-06)
+
+
+### Chores
+
+* **deps-dev:** bump @types/node from 25.9.3 to 26.0.1 ([18921cc](https://github.com/Endika/EventSplit/commit/18921cc105c8e3b7318fd7cc65046d4790fcfea9))
+* **deps-dev:** bump the npm-minor-patch group with 5 updates ([b5f4642](https://github.com/Endika/EventSplit/commit/b5f46429b0c733b0b8c03144f3555f86ab873917))
+* **deps:** bump the npm-minor-patch group with 13 updates ([c86fb29](https://github.com/Endika/EventSplit/commit/c86fb291a5474f9fee7c93080b51cc1ba63d6bb9))
+* **deps:** bump the npm-minor-patch group with 14 updates ([8c68e38](https://github.com/Endika/EventSplit/commit/8c68e38b5046a6d770460796d8d83f0a4832996d))
+
 ## [3.0.2](https://github.com/Endika/EventSplit/compare/v3.0.1...v3.0.2) (2026-06-09)
 
 
