@@ -1,5 +1,13 @@
 # Changelog
 
+## [3.0.6](https://github.com/Endika/EventSplit/compare/v3.0.5...v3.0.6) (2026-07-07)
+
+
+### Chores
+
+* **deps:** bump the npm-minor-patch group with 13 updates ([0ca0477](https://github.com/Endika/EventSplit/commit/0ca04778aaae3f9429e7f787fc497d3668236a5f))
+* **deps:** sync package-lock.json with bumped dependencies ([88677b9](https://github.com/Endika/EventSplit/commit/88677b9e300f10244c57df668843e04a83b15ba0))
+
 ## [3.0.5](https://github.com/Endika/EventSplit/compare/v3.0.4...v3.0.5) (2026-07-06)
 
 
