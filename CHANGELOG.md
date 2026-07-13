@@ -1,5 +1,12 @@
 # Changelog
 
+## [3.0.7](https://github.com/Endika/EventSplit/compare/v3.0.6...v3.0.7) (2026-07-13)
+
+
+### Bug Fixes
+
+* prevent accidental pinch and double-tap zoom on mobile ([2186d26](https://github.com/Endika/EventSplit/commit/2186d265facd2824b0723324659fb58ce23ac857))
+
 ## [3.0.6](https://github.com/Endika/EventSplit/compare/v3.0.5...v3.0.6) (2026-07-07)
 
 
