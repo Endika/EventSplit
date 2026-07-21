@@ -1,5 +1,14 @@
 # Changelog
 
+## [3.0.8](https://github.com/Endika/EventSplit/compare/v3.0.7...v3.0.8) (2026-07-21)
+
+
+### Chores
+
+* **deps-dev:** bump @testing-library/jest-dom from 6.9.1 to 7.0.0 ([e7eaa46](https://github.com/Endika/EventSplit/commit/e7eaa46a2964e34b73c4172860c5cf8cfca46b48))
+* **deps:** bump the npm-minor-patch group with 10 updates ([4db7caa](https://github.com/Endika/EventSplit/commit/4db7caa8b4521b3144513ecbc18500ba153a28e5))
+* **deps:** bump the npm-minor-patch group with 12 updates ([5097769](https://github.com/Endika/EventSplit/commit/509776990c327a8b682655d0229e2cfd771328bc))
+
 ## [3.0.7](https://github.com/Endika/EventSplit/compare/v3.0.6...v3.0.7) (2026-07-13)
 
 
