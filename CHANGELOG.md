@@ -1,5 +1,13 @@
 # Changelog
 
+## [3.0.9](https://github.com/Endika/EventSplit/compare/v3.0.8...v3.0.9) (2026-07-28)
+
+
+### Chores
+
+* **deps-dev:** bump jsdom from 29.1.1 to 30.0.0 ([92a8c26](https://github.com/Endika/EventSplit/commit/92a8c26fd9796eadeb3c384ba57f46284c6bd3e6))
+* **deps:** bump the npm-minor-patch group with 10 updates ([96987e0](https://github.com/Endika/EventSplit/commit/96987e0f0803d2f8e85a9ccc8f9f5156f779d289))
+
 ## [3.0.8](https://github.com/Endika/EventSplit/compare/v3.0.7...v3.0.8) (2026-07-21)
 
 
