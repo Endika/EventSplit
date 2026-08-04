@@ -1,5 +1,14 @@
 # Changelog
 
+## [3.0.10](https://github.com/Endika/EventSplit/compare/v3.0.9...v3.0.10) (2026-08-04)
+
+
+### Chores
+
+* **deps:** bump brace-expansion ([c44fae2](https://github.com/Endika/EventSplit/commit/c44fae2e4af67cfa1dfc6dcbd162032383bc26fb))
+* **deps:** bump fast-uri from 3.1.2 to 3.1.5 ([720c662](https://github.com/Endika/EventSplit/commit/720c662f38cf5848df0c3b1d8fae2ac8ae3564c4))
+* **deps:** bump the npm-minor-patch group with 7 updates ([c698959](https://github.com/Endika/EventSplit/commit/c698959990035eac1c13776e8cebf2699ae46991))
+
 ## [3.0.9](https://github.com/Endika/EventSplit/compare/v3.0.8...v3.0.9) (2026-07-28)
 
 
