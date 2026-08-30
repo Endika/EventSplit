@@ -8,6 +8,7 @@ import type { EditPurchaseHandler } from '@/application/handlers/EditPurchaseHan
 import type { AddBroughtItemHandler } from '@/application/handlers/AddBroughtItemHandler'
 import type { EditBroughtItemHandler } from '@/application/handlers/EditBroughtItemHandler'
 import type { PurchaseSnapshot } from '@/domain/entities/Purchase'
+import { inferPurchaseDays, defaultConsumptionDays } from '@/domain/services/inferPurchaseDays'
 import { Button } from '@/presentation/components/common/Button'
 import { Input } from '@/presentation/components/common/Input'
 import { Modal } from '@/presentation/components/common/Modal'
@@ -39,14 +40,7 @@ export function PurchaseForm({
   const online = useOnlineStatus()
   const { guardedExecute } = useWriteGuard()
 
-  const inferredDays = (() => {
-    if (!purchase) return 2
-    const sumMul = purchase.consumers.reduce((s, c) => s + c.multiplier, 0)
-    const totalDaily = purchase.dailyConsumption * sumMul
-    if (totalDaily <= 0) return 2
-    const d = Math.round(purchase.totalQuantity / totalDaily)
-    return d > 0 ? d : 2
-  })()
+  const inferredDays = purchase ? inferPurchaseDays(purchase) : defaultConsumptionDays(event)
 
   const [mode, setMode] = useState<'buy' | 'bring'>(purchase ? (purchase.kind ?? 'buy') : 'buy')
   const [item, setItem] = useState(purchase?.item ?? '')
