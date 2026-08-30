@@ -172,7 +172,7 @@
     "legendEveryone": "Todos",
     "pickOptionForDay": "¿A qué opción te refieres?",
     "pickOptionToRemove": "¿Qué opción quieres quitar?",
-    "optionNotePlaceholder": "Nota (ej. puente de la Almudena)",
+    "optionNotePlaceholder": "Nota para esta opción",
     "optionNoteAria": "Nota de la opción {{label}}",
     "optionHasNote": "Tiene nota: {{note}}",
     "notCandidate": "Este día no está en la votación",
