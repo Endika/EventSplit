@@ -1,5 +1,12 @@
 # Changelog
 
+## [3.1.1](https://github.com/Endika/EventSplit/compare/v3.1.0...v3.1.1) (2026-08-30)
+
+
+### Bug Fixes
+
+* **availability:** reach the day picker without existing options ([bd601d8](https://github.com/Endika/EventSplit/commit/bd601d89fd1f3778c9726e51bb3db04303dc0eff))
+
 ## [3.1.0](https://github.com/Endika/EventSplit/compare/v3.0.10...v3.1.0) (2026-08-30)
 
 
