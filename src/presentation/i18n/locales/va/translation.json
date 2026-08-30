@@ -180,7 +180,8 @@
     "nextMonth": "Mes següent",
     "myVote": "El meu vot en {{label}}",
     "chosenOption": "Opció triada",
-    "optionVotes": "{{votes}} de {{total}} hi poden anar"
+    "optionVotes": "{{votes}} de {{total}} hi poden anar",
+    "editOptions": "Triar dies en el calendari"
   },
   "id": {
     "who": "Qui eres en \"{{eventName}}\"?",
