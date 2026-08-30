@@ -172,7 +172,7 @@
     "legendEveryone": "Tots",
     "pickOptionForDay": "A quina opció et referixes?",
     "pickOptionToRemove": "Quina opció vols traure?",
-    "optionNotePlaceholder": "Nota (ex. pont de Sant Josep)",
+    "optionNotePlaceholder": "Nota per a esta opció",
     "optionNoteAria": "Nota de l’opció {{label}}",
     "optionHasNote": "Té nota: {{note}}",
     "notCandidate": "Este dia no està en la votació",
