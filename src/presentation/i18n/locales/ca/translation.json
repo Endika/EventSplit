@@ -209,7 +209,8 @@
     "notes": "Notes generals",
     "wifi": "Contrasenya WiFi",
     "emergency": "Contacte d'emergència",
-    "searchHint": "Cerca el lloc per emplenar el nom, l’adreça i el mapa."
+    "searchHint": "Cerca el lloc per emplenar el nom, l’adreça i el mapa.",
+    "nameRequired": "Posa-li nom al lloc per poder desar. No s'ha perdut res del que has escrit."
   },
   "purchases": {
     "add": "Afegeix a la llista",

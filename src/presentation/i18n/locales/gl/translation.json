@@ -209,7 +209,8 @@
     "notes": "Notas xerais",
     "wifi": "Contrasinal WiFi",
     "emergency": "Contacto de emerxencia",
-    "searchHint": "Busca o lugar para autocompletar o nome, o enderezo e o mapa."
+    "searchHint": "Busca o lugar para autocompletar o nome, o enderezo e o mapa.",
+    "nameRequired": "Ponlle nome ao sitio para poder gardar. Non se perdeu nada do que escribiches."
   },
   "purchases": {
     "add": "Engadir á lista",
