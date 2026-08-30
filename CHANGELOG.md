@@ -1,5 +1,35 @@
 # Changelog
 
+## [3.1.0](https://github.com/Endika/EventSplit/compare/v3.0.10...v3.1.0) (2026-08-30)
+
+
+### Features
+
+* **availability:** add DayOption value object for vote options ([11cac40](https://github.com/Endika/EventSplit/commit/11cac40ad772a71df8910c44be5299a89f2abe38))
+* **availability:** add heat level and table column selection ([ef9513b](https://github.com/Endika/EventSplit/commit/ef9513bb670cddc09c7871880134ae8af72563b8))
+* **availability:** pick and vote day options from a calendar ([06b3f9b](https://github.com/Endika/EventSplit/commit/06b3f9baa613fc84edd50c5b12828ebc872436e7))
+* **availability:** vote on day and range options instead of days ([3ca0fca](https://github.com/Endika/EventSplit/commit/3ca0fcaead8e534ba3cb068063840f94c437b2e9))
+* **ui:** add MonthGrid calendar layout primitive ([30286e4](https://github.com/Endika/EventSplit/commit/30286e41a4b4925f253d10cce37dbf476815a4f5))
+
+
+### Bug Fixes
+
+* **availability:** label the calendar day picker distinctly ([93e0cf8](https://github.com/Endika/EventSplit/commit/93e0cf82390c60508366cc5c10e72d8dc279bca5))
+
+
+### Refactor
+
+* **availability:** share one draft across the tab views ([6763b62](https://github.com/Endika/EventSplit/commit/6763b621594bb901226cce237fa916ce87c7a00f))
+
+
+### Chores
+
+* **deps-dev:** bump js-yaml ([8ae884b](https://github.com/Endika/EventSplit/commit/8ae884b9b13717a375215337c71785fd235f2c5a))
+* **deps:** bump the npm-minor-patch group with 7 updates ([2550552](https://github.com/Endika/EventSplit/commit/255055255a6d79dade4b7250ecda855866169e04))
+* **deps:** bump the npm-minor-patch group with 9 updates ([2006825](https://github.com/Endika/EventSplit/commit/2006825c13534226e362bbcc1ce5fd52791ea339))
+* **deps:** bump the npm-minor-patch group with 9 updates ([007ca13](https://github.com/Endika/EventSplit/commit/007ca13377750ddef50ce7cfc78c204149659a1a))
+* **i18n:** drop two unused availability keys ([afe3b67](https://github.com/Endika/EventSplit/commit/afe3b6796b53b66fa138df54367427213b7a7871))
+
 ## [3.0.10](https://github.com/Endika/EventSplit/compare/v3.0.9...v3.0.10) (2026-08-04)
 
 
