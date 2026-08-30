@@ -487,5 +487,28 @@
     "deleteConfirm": "¿Eliminar este evento para todos? No se puede deshacer.",
     "deleteYes": "Eliminar para siempre",
     "deleting": "Eliminando…"
+  },
+  "clone": {
+    "title": "Traer de otro evento",
+    "open": "Traer de otro evento",
+    "noSources": "No tienes otros eventos guardados en este dispositivo de los que copiar.",
+    "sourceMeta_one": "{{count}} participante · {{date}}",
+    "sourceMeta_other": "{{count}} participantes · {{date}}",
+    "step1": "¿De qué evento?",
+    "step2": "¿Qué te traes?",
+    "clone": "Traer",
+    "cloning": "Trayendo…",
+    "blockDays": "Días de la votación",
+    "blockPurchases": "Lista de la compra",
+    "blockUsers": "Participantes",
+    "blockSite": "Datos del sitio",
+    "noVotes": "Los días llegan sin votos.",
+    "cleanList": "Los productos llegan sin nadie asignado y con las cantidades para ti.",
+    "duplicateName": "Ya hay alguien con este nombre",
+    "nothingPicked": "Marca algo para traer.",
+    "fieldLocation": "Nombre y dirección",
+    "fieldEmergency": "Contacto de emergencia",
+    "fieldWifi": "Contraseña WiFi",
+    "fieldNotes": "Notas generales"
   }
 }
