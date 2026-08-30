@@ -14,11 +14,7 @@ describe('Expense', () => {
 
   it('edit updates amount, description and payer', () => {
     const e = Expense.create({ paidBy: u1, amount: Money.fromEuros(10), description: 'Bread' })
-    const next = e.edit({
-      paidBy: u2,
-      amount: Money.fromEuros(25.5),
-      description: 'Bread and milk',
-    })
+    const next = e.edit({ paidBy: u2, amount: Money.fromEuros(25.5), description: 'Bread and milk' })
     expect(next.toSnapshot().cents).toBe(2550)
     expect(next.toSnapshot().paidBy).toBe(u2)
     expect(next.toSnapshot().description).toBe('Bread and milk')
@@ -27,12 +23,8 @@ describe('Expense', () => {
 
   it('edit rejects amount <= 0 and bad description', () => {
     const e = Expense.create({ paidBy: u1, amount: Money.fromEuros(10), description: 'Bread' })
-    expect(() => e.edit({ paidBy: u1, amount: Money.fromEuros(0), description: 'Bread' })).toThrow(
-      /amount/,
-    )
-    expect(() => e.edit({ paidBy: u1, amount: Money.fromEuros(5), description: 'ab' })).toThrow(
-      /description/,
-    )
+    expect(() => e.edit({ paidBy: u1, amount: Money.fromEuros(0), description: 'Bread' })).toThrow(/amount/)
+    expect(() => e.edit({ paidBy: u1, amount: Money.fromEuros(5), description: 'ab' })).toThrow(/description/)
   })
 
   it('softDelete marks deleted with editor', () => {

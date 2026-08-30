@@ -46,14 +46,10 @@ describe('AddParticipant via JoinAsNewUserHandler (UI shape)', () => {
     const repo = new InMemoryEventRepository()
     const create = await new CreateEventHandler(repo).execute({ name: 'Trip', creatorName: 'John' })
     await new JoinAsNewUserHandler(repo).execute({
-      eventId: create.event.id,
-      name: 'Maria',
-      kind: 'adult',
+      eventId: create.event.id, name: 'Maria', kind: 'adult',
     })
     await new JoinAsNewUserHandler(repo).execute({
-      eventId: create.event.id,
-      name: 'Sofía',
-      kind: 'child',
+      eventId: create.event.id, name: 'Sofía', kind: 'child',
     })
     const final = await repo.findById(create.event.id)
     expect(final?.snapshot.users.map((u) => u.name)).toEqual(['John', 'Maria', 'Sofía'])

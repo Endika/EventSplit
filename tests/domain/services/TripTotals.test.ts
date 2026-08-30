@@ -26,13 +26,7 @@ describe('computeTripTotals', () => {
       participantIds: participants,
       expenses: [],
       manualLiquidations: [
-        {
-          cents: 40000,
-          paidBy: null,
-          affects: participants,
-          paidShares: ['endika'],
-          deleted: false,
-        },
+        { cents: 40000, paidBy: null, affects: participants, paidShares: ['endika'], deleted: false },
       ],
     })
     expect(totals.realSpentCents).toBe(10000)

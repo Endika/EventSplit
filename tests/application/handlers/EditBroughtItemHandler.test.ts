@@ -11,34 +11,18 @@ async function setup() {
   const repo = new InMemoryEventRepository()
   const create = await new CreateEventHandler(repo).execute({ name: 'Trip', creatorName: 'John' })
   const added = await new AddBroughtItemHandler(repo).execute({
-    eventId: create.event.id,
-    createdBy: create.creator.id,
-    item: 'Tortilla',
-    quantity: 2,
-    unit: 'units',
-    group: 'Breakfast',
-    broughtBy: create.creator.id,
+    eventId: create.event.id, createdBy: create.creator.id,
+    item: 'Tortilla', quantity: 2, unit: 'units', group: 'Breakfast', broughtBy: create.creator.id,
   })
-  return {
-    repo,
-    eventId: create.event.id,
-    userId: create.creator.id,
-    purchaseId: added.event.purchases[0]!.id,
-  }
+  return { repo, eventId: create.event.id, userId: create.creator.id, purchaseId: added.event.purchases[0]!.id }
 }
 
 describe('EditBroughtItemHandler', () => {
   it('edits a brought item and records history', async () => {
     const ctx = await setup()
     const result = await new EditBroughtItemHandler(ctx.repo).execute({
-      eventId: ctx.eventId,
-      purchaseId: ctx.purchaseId,
-      editedBy: ctx.userId,
-      item: 'Empanada',
-      quantity: 5,
-      unit: 'units',
-      group: 'Lunch',
-      broughtBy: ctx.userId,
+      eventId: ctx.eventId, purchaseId: ctx.purchaseId, editedBy: ctx.userId,
+      item: 'Empanada', quantity: 5, unit: 'units', group: 'Lunch', broughtBy: ctx.userId,
     })
     const p = result.event.purchases[0]!
     expect(p.item).toBe('Empanada')
@@ -51,12 +35,8 @@ describe('EditBroughtItemHandler', () => {
     const ctx = await setup()
     await expect(
       new EditBroughtItemHandler(ctx.repo).execute({
-        eventId: ctx.eventId,
-        purchaseId: ctx.purchaseId,
-        editedBy: STRANGER,
-        item: 'Pan',
-        quantity: 1,
-        unit: 'units',
+        eventId: ctx.eventId, purchaseId: ctx.purchaseId, editedBy: STRANGER,
+        item: 'Pan', quantity: 1, unit: 'units',
       }),
     ).rejects.toThrow(/editedBy.*not in event/i)
   })
@@ -65,13 +45,8 @@ describe('EditBroughtItemHandler', () => {
     const ctx = await setup()
     await expect(
       new EditBroughtItemHandler(ctx.repo).execute({
-        eventId: ctx.eventId,
-        purchaseId: ctx.purchaseId,
-        editedBy: ctx.userId,
-        item: 'Pan',
-        quantity: 1,
-        unit: 'units',
-        broughtBy: STRANGER,
+        eventId: ctx.eventId, purchaseId: ctx.purchaseId, editedBy: ctx.userId,
+        item: 'Pan', quantity: 1, unit: 'units', broughtBy: STRANGER,
       }),
     ).rejects.toThrow(/broughtBy.*not in event/i)
   })
@@ -79,18 +54,12 @@ describe('EditBroughtItemHandler', () => {
   it('rejects editing a deleted purchase', async () => {
     const ctx = await setup()
     await new DeletePurchaseHandler(ctx.repo).execute({
-      eventId: ctx.eventId,
-      purchaseId: ctx.purchaseId,
-      deletedBy: ctx.userId,
+      eventId: ctx.eventId, purchaseId: ctx.purchaseId, deletedBy: ctx.userId,
     })
     await expect(
       new EditBroughtItemHandler(ctx.repo).execute({
-        eventId: ctx.eventId,
-        purchaseId: ctx.purchaseId,
-        editedBy: ctx.userId,
-        item: 'Pan',
-        quantity: 1,
-        unit: 'units',
+        eventId: ctx.eventId, purchaseId: ctx.purchaseId, editedBy: ctx.userId,
+        item: 'Pan', quantity: 1, unit: 'units',
       }),
     ).rejects.toThrow(/deleted purchase/i)
   })
@@ -99,12 +68,8 @@ describe('EditBroughtItemHandler', () => {
     const ctx = await setup()
     await expect(
       new EditBroughtItemHandler(ctx.repo).execute({
-        eventId: ctx.eventId,
-        purchaseId: STRANGER,
-        editedBy: ctx.userId,
-        item: 'Pan',
-        quantity: 1,
-        unit: 'units',
+        eventId: ctx.eventId, purchaseId: STRANGER, editedBy: ctx.userId,
+        item: 'Pan', quantity: 1, unit: 'units',
       }),
     ).rejects.toThrow(/not found/i)
   })

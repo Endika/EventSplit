@@ -10,9 +10,7 @@ describe('SetGroupOrderHandler', () => {
     const creatorId = create.creator.id
 
     const result = await new SetGroupOrderHandler(repo).execute({
-      eventId: create.event.id,
-      userId: creatorId,
-      order: ['B', 'A'],
+      eventId: create.event.id, userId: creatorId, order: ['B', 'A'],
     })
 
     expect(result.event.groupOrder).toEqual(['B', 'A'])

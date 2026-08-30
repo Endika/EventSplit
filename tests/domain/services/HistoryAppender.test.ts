@@ -9,8 +9,7 @@ describe('HistoryAppender', () => {
     const e = Event.create({ name: 'Trip', creator })
     const snap = e.toSnapshot()
     const next = HistoryAppender.append(snap, {
-      type: 'expense_added',
-      userId: creator.id.value,
+      type: 'expense_added', userId: creator.id.value,
       description: 'John added EUR 10',
     })
     expect(next.history).toHaveLength(2)

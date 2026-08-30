@@ -32,10 +32,10 @@ describe('ExpenseSplitter', () => {
     const result = ExpenseSplitter.compute({
       participantIds: ['john', 'maria', 'pedro', 'ana', 'carlos'],
       expenses: [
-        { paidBy: 'john', amount: Money.fromEuros(120) },
-        { paidBy: 'maria', amount: Money.fromEuros(80) },
-        { paidBy: 'pedro', amount: Money.fromEuros(90) },
-        { paidBy: 'ana', amount: Money.fromEuros(50) },
+        { paidBy: 'john',   amount: Money.fromEuros(120) },
+        { paidBy: 'maria',  amount: Money.fromEuros(80) },
+        { paidBy: 'pedro',  amount: Money.fromEuros(90) },
+        { paidBy: 'ana',    amount: Money.fromEuros(50) },
         { paidBy: 'carlos', amount: Money.fromEuros(60) },
       ],
     })
@@ -80,7 +80,7 @@ describe('ExpenseSplitter', () => {
       expenses: [{ paidBy: 'a', amount: Money.fromEuros(30), splitAmong: [] }],
     })
     const byId = Object.fromEntries(result.balances.map((b) => [b.userId, b.balanceCents]))
-    expect(byId.a).toBe(2000) // paid 3000, owes 1000
+    expect(byId.a).toBe(2000)  // paid 3000, owes 1000
     expect(byId.b).toBe(-1000)
     expect(byId.c).toBe(-1000)
   })

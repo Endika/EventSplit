@@ -7,9 +7,7 @@ const lactose: AllergenSnapshot = { name: 'lactose', severity: 'mild', notes: nu
 const peanut: AllergenSnapshot = { name: 'peanut', severity: 'moderate', notes: null }
 
 const profile = (id: string, name: string, allergies: AllergenSnapshot[]) => ({
-  userId: id,
-  displayName: name,
-  allergies,
+  userId: id, displayName: name, allergies,
 })
 
 describe('AllergyChecker', () => {
@@ -56,11 +54,7 @@ describe('AllergyChecker', () => {
     })
     expect(result).toHaveLength(1)
     expect(result[0]).toEqual({
-      userId: 'a',
-      displayName: 'John',
-      allergen: 'gluten',
-      severity: 'severe',
-      keyword: 'pan',
+      userId: 'a', displayName: 'John', allergen: 'gluten', severity: 'severe', keyword: 'pan',
     })
   })
 

@@ -6,8 +6,7 @@ import { User } from '@/domain/entities/User'
 describe('LocalStorageCache', () => {
   beforeEach(() => localStorage.clear())
 
-  const sample = () =>
-    Event.create({ name: 'Trip', creator: User.create({ name: 'John' }) }).toSnapshot()
+  const sample = () => Event.create({ name: 'Trip', creator: User.create({ name: 'John' }) }).toSnapshot()
 
   it('returns null when nothing cached', () => {
     expect(new LocalStorageCache().get('missing')).toBeNull()
