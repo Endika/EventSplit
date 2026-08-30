@@ -35,6 +35,7 @@ export type HistoryType =
   | 'manual_liquidation_deleted'
   | 'manual_liquidation_recovered'
   | 'manual_liquidation_share_toggled'
+  | 'cloned_from'
 
 export interface HistoryEntry {
   id: string
