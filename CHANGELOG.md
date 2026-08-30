@@ -1,5 +1,16 @@
 # Changelog
 
+## [3.3.0](https://github.com/Endika/EventSplit/compare/v3.2.1...v3.3.0) (2026-08-30)
+
+
+### Features
+
+* **clone:** add the clone-into-event handler ([fffea56](https://github.com/Endika/EventSplit/commit/fffea568b3713d9c97c07ec7957a87c549736320))
+* **clone:** bring blocks over from another event ([7739cb7](https://github.com/Endika/EventSplit/commit/7739cb78b04572b17d0d30c1b87815d545c1809b))
+* **clone:** build the patch to copy blocks between events ([8155089](https://github.com/Endika/EventSplit/commit/815508982b871aa778a4ce1f953b2ff2d95dffce))
+* **clone:** pick a source event from the cached ones ([3b4bac0](https://github.com/Endika/EventSplit/commit/3b4bac0f2d555c9d40bcde12bac88f47df7d619d))
+* **clone:** tick blocks, groups and items to copy ([ce568ac](https://github.com/Endika/EventSplit/commit/ce568acdef2e17cd4b24cc0febbf18785f0ce37b))
+
 ## [3.2.1](https://github.com/Endika/EventSplit/compare/v3.2.0...v3.2.1) (2026-08-30)
 
 
