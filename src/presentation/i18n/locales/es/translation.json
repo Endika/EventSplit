@@ -158,7 +158,9 @@
     "removeDayYes": "Quitar",
     "cannotRemoveLast": "No puedes quitar el único día — añade otro primero.",
     "dayAlreadyExists": "Ese día ya está en la lista.",
-    "showChildren": "Mostrar niños ({{count}})"
+    "showChildren": "Mostrar niños ({{count}})",
+    "hiddenOptions_one": "{{count}} opción más fuera de la tabla · míralas en el calendario",
+    "hiddenOptions_other": "{{count}} opciones más fuera de la tabla · míralas en el calendario"
   },
   "id": {
     "who": "¿Quién eres en \"{{eventName}}\"?",

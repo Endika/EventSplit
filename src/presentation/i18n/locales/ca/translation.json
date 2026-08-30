@@ -158,7 +158,9 @@
     "removeDayYes": "Treure",
     "cannotRemoveLast": "No pots treure l'únic dia — afegeix-ne un altre primer.",
     "dayAlreadyExists": "Aquest dia ja és a la llista.",
-    "showChildren": "Mostra els nens ({{count}})"
+    "showChildren": "Mostra els nens ({{count}})",
+    "hiddenOptions_one": "{{count}} opció més fora de la taula · mira-les al calendari",
+    "hiddenOptions_other": "{{count}} opcions més fora de la taula · mira-les al calendari"
   },
   "id": {
     "who": "Qui ets a \"{{eventName}}\"?",

@@ -1,4 +1,4 @@
-import { type FormEvent, useState } from 'react'
+import { type FormEvent, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useContainer } from '@/presentation/context/ContainerProvider'
 import { useEventState } from '@/presentation/context/EventContext'
@@ -12,35 +12,12 @@ import { friendlyError } from '@/presentation/utils/friendlyError'
 import { Button } from '@/presentation/components/common/Button'
 import { Input } from '@/presentation/components/common/Input'
 import { Modal } from '@/presentation/components/common/Modal'
-import { YouLabel } from '@/presentation/components/common/YouLabel'
 import { optionKey, type DayOption } from '@/domain/value-objects/DayOption'
-
-function formatDate(iso: string, locale: string): string {
-  try {
-    return new Intl.DateTimeFormat(locale, {
-      weekday: 'short',
-      day: 'numeric',
-      month: 'short',
-    }).format(new Date(iso + 'T00:00:00'))
-  } catch {
-    return iso
-  }
-}
-
-type Drafts = Record<string, Record<string, boolean>>
-
-function buildDrafts(
-  users: { id: string }[],
-  options: DayOption[],
-  availability: Record<string, boolean[]>,
-): Drafts {
-  const drafts: Drafts = {}
-  for (const u of users) {
-    const saved = availability[u.id] ?? []
-    drafts[u.id] = Object.fromEntries(options.map((o, i) => [optionKey(o), saved[i] ?? false]))
-  }
-  return drafts
-}
+import { votesPerOption } from '@/domain/services/availabilityHeat'
+import { pickTableOptions } from '@/domain/services/pickTableOptions'
+import { formatOptionLabel } from '@/presentation/utils/formatOptionLabel'
+import { useAvailabilityDraft } from '@/presentation/hooks/useAvailabilityDraft'
+import { AvailabilityMatrix } from './AvailabilityMatrix'
 
 export function AvailabilityTab() {
   const { t, i18n } = useTranslation()
@@ -48,52 +25,58 @@ export function AvailabilityTab() {
   const { event, setEvent } = useEventState()
   const me = useCurrentUser()
   const { guardedExecute } = useWriteGuard()
+  const draft = useAvailabilityDraft(event)
 
   const [newDay, setNewDay] = useState('')
   const [note, setNote] = useState(event?.availabilityNote ?? '')
   const [showChildren, setShowChildren] = useState(false)
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState<string | null>(null)
-  const [dayToRemove, setDayToRemove] = useState<string | null>(null)
-  const [drafts, setDrafts] = useState<Drafts>(() =>
-    event ? buildDrafts(event.users, event.dayOptions, event.availability) : {},
+  const [optionToRemove, setOptionToRemove] = useState<string | null>(null)
+
+  const matrixUsers = useMemo(
+    () =>
+      showChildren ? (event?.users ?? []) : (event?.users ?? []).filter((u) => u.kind === 'adult'),
+    [event, showChildren],
   )
+
+  // The column set comes from *saved* votes so it does not reshuffle while
+  // someone is ticking boxes.
+  const tableIndexes = useMemo(() => {
+    if (!event) return []
+    const saved = votesPerOption(
+      event.dayOptions,
+      event.availability,
+      matrixUsers.map((u) => u.id),
+    )
+    return pickTableOptions(event.dayOptions, saved, event.chosenOptions)
+  }, [event, matrixUsers])
 
   if (!event) return null
 
-  function savedVotesForOption(key: string): number {
-    const idx = event!.dayOptions.findIndex((o) => optionKey(o) === key)
+  const savedVotesForOption = (key: string): number => {
+    const idx = event.dayOptions.findIndex((o) => optionKey(o) === key)
     if (idx < 0) return 0
-    return event!.users.reduce((n, u) => n + (event!.availability[u.id]?.[idx] ? 1 : 0), 0)
+    return event.users.reduce((n, u) => n + (event.availability[u.id]?.[idx] ? 1 : 0), 0)
   }
 
-  // Reconcile drafts when the set of users or days changes (e.g. realtime update).
-  const draftUserIds = Object.keys(drafts).sort().join(',')
-  const eventUserIds = event.users
-    .map((u) => u.id)
-    .sort()
-    .join(',')
-  const firstUserDraft = Object.values(drafts)[0]
-  const draftDayCount = firstUserDraft ? Object.keys(firstUserDraft).length : 0
-  if (draftUserIds !== eventUserIds || draftDayCount !== event.dayOptions.length) {
-    setDrafts(buildDrafts(event.users, event.dayOptions, event.availability))
-  }
+  const removableKeys = event.dayOptions
+    .map(optionKey)
+    .filter((key) => savedVotesForOption(key) === 0)
 
-  const matrixUsers = showChildren ? event.users : event.users.filter((u) => u.kind === 'adult')
   const childCount = event.users.filter((u) => u.kind === 'child').length
 
-  function toggleVote(userId: string, key: string, checked: boolean) {
-    setDrafts((prev) => ({
-      ...prev,
-      [userId]: { ...prev[userId], [key]: checked },
-    }))
+  async function commitOptions(options: DayOption[]) {
+    const handler = container.resolve<SetDayOptionsHandler>('setDayOptions')
+    const result = await handler.execute({ eventId: event!.id, options })
+    setEvent(result.event, result.version)
   }
 
   function addDay(e: FormEvent) {
     e.preventDefault()
-    if (!event || !newDay) return
+    if (!newDay) return
     const key = `${newDay}..${newDay}`
-    if (event.dayOptions.some((o) => optionKey(o) === key)) {
+    if (event!.dayOptions.some((o) => optionKey(o) === key)) {
       setError(t('availability.dayAlreadyExists'))
       return
     }
@@ -101,10 +84,10 @@ export function AvailabilityTab() {
       setBusy(true)
       setError(null)
       try {
-        const handler = container.resolve<SetDayOptionsHandler>('setDayOptions')
-        const next = [...event.dayOptions, { start: newDay, end: newDay, note: null }]
-        const result = await handler.execute({ eventId: event.id, options: next })
-        setEvent(result.event, result.version)
+        await commitOptions([
+          ...draft.optionsWithNotes(),
+          { start: newDay, end: newDay, note: null },
+        ])
         setNewDay('')
       } catch (err) {
         reportError('AvailabilityTab', err)
@@ -115,24 +98,17 @@ export function AvailabilityTab() {
     })
   }
 
-  function saveAll() {
-    if (!event || !me) return
+  function removeOption(key: string) {
+    const next = draft.optionsWithNotes().filter((o) => optionKey(o) !== key)
+    if (next.length === 0) {
+      setError(t('availability.cannotRemoveLast'))
+      return
+    }
     guardedExecute(async () => {
       setBusy(true)
       setError(null)
       try {
-        const votes: Record<string, boolean[]> = {}
-        for (const u of event.users) {
-          const draft = drafts[u.id] ?? {}
-          votes[u.id] = event.dayOptions.map((o) => draft[optionKey(o)] ?? false)
-        }
-        const handler = container.resolve<SetAvailabilityBatchHandler>('setAvailabilityBatch')
-        const result = await handler.execute({
-          eventId: event.id,
-          editedBy: me.id,
-          votes,
-        })
-        setEvent(result.event, result.version)
+        await commitOptions(next)
       } catch (err) {
         reportError('AvailabilityTab', err)
         setError(friendlyError(err, t))
@@ -142,60 +118,45 @@ export function AvailabilityTab() {
     })
   }
 
-  function saveNote() {
-    if (!event || !me) return
-    if ((event.availabilityNote ?? '') === note.trim()) return // no change
-    guardedExecute(async () => {
-      try {
-        const handler = container.resolve<SetAvailabilityMetaHandler>('setAvailabilityMeta')
-        const result = await handler.execute({
-          eventId: event.id,
-          userId: me.id,
-          note: note.trim() || null,
-          chosenOptions: event.chosenOptions,
-        })
-        setEvent(result.event, result.version)
-      } catch (err) {
-        reportError('AvailabilityTab', err)
-      }
-    })
-  }
-
-  function pickDay(key: string) {
-    if (!event || !me) return
-    const next = event.chosenOptions.includes(key)
-      ? event.chosenOptions.filter((k) => k !== key)
-      : [...event.chosenOptions, key]
-    guardedExecute(async () => {
-      try {
-        const handler = container.resolve<SetAvailabilityMetaHandler>('setAvailabilityMeta')
-        const result = await handler.execute({
-          eventId: event.id,
-          userId: me.id,
-          note: event.availabilityNote ?? null,
-          chosenOptions: next,
-        })
-        setEvent(result.event, result.version)
-      } catch (err) {
-        reportError('AvailabilityTab', err)
-      }
-    })
-  }
-
-  function removeDay(key: string) {
-    if (!event || !me) return
-    const next = event.dayOptions.filter((o) => optionKey(o) !== key)
-    if (next.length === 0) {
-      setError(t('availability.cannotRemoveLast'))
-      return
-    }
+  /**
+   * One write per area that actually changed — options (which carry the notes),
+   * votes, and the availability meta (pins plus the shared note). Every event is
+   * a single JSONB blob, so a needless write costs every connected client a full
+   * download of it.
+   */
+  function saveAll() {
+    if (!me) return
     guardedExecute(async () => {
       setBusy(true)
       setError(null)
       try {
-        const handler = container.resolve<SetDayOptionsHandler>('setDayOptions')
-        const result = await handler.execute({ eventId: event.id, options: next })
-        setEvent(result.event, result.version)
+        const notesChanged = event!.dayOptions.some((o) => o.note !== draft.noteOf(optionKey(o)))
+        if (notesChanged) await commitOptions(draft.optionsWithNotes())
+
+        const batch = container.resolve<SetAvailabilityBatchHandler>('setAvailabilityBatch')
+        const voteResult = await batch.execute({
+          eventId: event!.id,
+          editedBy: me.id,
+          votes: draft.matrix(event!.users.map((u) => u.id)),
+        })
+        setEvent(voteResult.event, voteResult.version)
+
+        const pinsChanged =
+          draft.pins.length !== event!.chosenOptions.length ||
+          draft.pins.some((k) => !event!.chosenOptions.includes(k))
+        const noteChanged = (event!.availabilityNote ?? '') !== note.trim()
+        if (pinsChanged || noteChanged) {
+          const meta = container.resolve<SetAvailabilityMetaHandler>('setAvailabilityMeta')
+          const metaResult = await meta.execute({
+            eventId: event!.id,
+            userId: me.id,
+            note: note.trim() || null,
+            chosenOptions: draft.pins,
+          })
+          setEvent(metaResult.event, metaResult.version)
+        }
+
+        draft.reset()
       } catch (err) {
         reportError('AvailabilityTab', err)
         setError(friendlyError(err, t))
@@ -215,7 +176,6 @@ export function AvailabilityTab() {
         className="w-full rounded-lg border border-border bg-surface px-3 py-2 text-base text-ink placeholder-muted focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand sm:text-sm"
         value={note}
         onChange={(e) => setNote(e.target.value)}
-        onBlur={saveNote}
         maxLength={200}
         rows={2}
         placeholder={t('availability.notePlaceholder')}
@@ -254,107 +214,21 @@ export function AvailabilityTab() {
       {event.dayOptions.length > 0 && (
         <>
           <p className="text-xs text-muted">{t('availability.editAnyoneHint')}</p>
-          <div data-no-swipe className="overflow-x-auto rounded-xl border border-border bg-surface">
-            <table className="w-full text-sm">
-              <thead className="text-xs uppercase text-muted">
-                <tr>
-                  <th className="p-3 text-left">&nbsp;</th>
-                  {event.dayOptions.map((o) => {
-                    const d = o.start
-                    const key = optionKey(o)
-                    const isChosen = event.chosenOptions.includes(key)
-                    return (
-                      <th
-                        key={key}
-                        className={`p-3 text-center font-medium ${isChosen ? 'bg-brand-soft text-brand-soft-fg' : 'text-ink'}`}
-                      >
-                        <div className="flex flex-col items-center gap-0.5">
-                          <button
-                            type="button"
-                            onClick={() => pickDay(key)}
-                            className="flex flex-col items-center gap-0.5"
-                            title={t('availability.pickDay')}
-                          >
-                            <span>{formatDate(d, i18n.language)}</span>
-                            <span className={isChosen ? 'text-brand' : 'text-muted'}>📌</span>
-                          </button>
-                          {savedVotesForOption(key) === 0 && (
-                            <button
-                              type="button"
-                              onClick={() => setDayToRemove(key)}
-                              disabled={busy}
-                              className="mt-1 inline-flex min-h-11 min-w-11 items-center justify-center text-[10px] text-muted hover:text-danger"
-                              title={t('availability.removeDay')}
-                              aria-label={t('availability.removeDay')}
-                            >
-                              ✕
-                            </button>
-                          )}
-                        </div>
-                      </th>
-                    )
-                  })}
-                </tr>
-              </thead>
-              <tbody>
-                {matrixUsers.map((u) => {
-                  const isMe = me?.id === u.id
-                  return (
-                    <tr key={u.id} className={isMe ? 'bg-brand-soft/30' : ''}>
-                      <td className="p-3 text-ink">
-                        {u.alias ? `${u.name} (${u.alias})` : u.name}
-                        <YouLabel userId={u.id} />
-                      </td>
-                      {event.dayOptions.map((o) => {
-                        const d = o.start
-                        const key = optionKey(o)
-                        const checked = drafts[u.id]?.[key] ?? false
-                        return (
-                          <td
-                            key={key}
-                            className={`p-0 text-center ${
-                              event.chosenOptions.includes(key) ? 'bg-brand-soft/20' : ''
-                            }`}
-                          >
-                            <label className="flex h-full w-full cursor-pointer items-center justify-center p-3">
-                              <input
-                                type="checkbox"
-                                checked={checked}
-                                onChange={(e) => toggleVote(u.id, key, e.target.checked)}
-                                disabled={busy}
-                                className="size-4 rounded border-border bg-elevated accent-brand"
-                                aria-label={`${u.name} ${formatDate(d, i18n.language)}`}
-                              />
-                            </label>
-                          </td>
-                        )
-                      })}
-                    </tr>
-                  )
-                })}
-              </tbody>
-              <tfoot>
-                <tr className="border-t border-border text-xs text-muted">
-                  <td className="p-3 font-medium">{t('availability.votes')}</td>
-                  {event.dayOptions.map((o) => {
-                    const key = optionKey(o)
-                    const count = matrixUsers.reduce((n, u) => n + (drafts[u.id]?.[key] ? 1 : 0), 0)
-                    return (
-                      <td
-                        key={key}
-                        className={`p-3 text-center ${
-                          event.chosenOptions.includes(key) ? 'bg-brand-soft/20' : ''
-                        }`}
-                      >
-                        <span className="font-semibold text-pos">{count}</span>
-                        <span className="text-muted">/{matrixUsers.length}</span>
-                      </td>
-                    )
-                  })}
-                </tr>
-              </tfoot>
-            </table>
-          </div>
+
+          <AvailabilityMatrix
+            users={matrixUsers}
+            options={event.dayOptions}
+            optionIndexes={tableIndexes}
+            hiddenCount={event.dayOptions.length - tableIndexes.length}
+            pins={draft.pins}
+            meId={me?.id ?? null}
+            removableKeys={removableKeys}
+            voteOf={draft.voteOf}
+            onVote={draft.setVote}
+            onTogglePin={draft.togglePin}
+            onRemove={setOptionToRemove}
+            busy={busy}
+          />
 
           {me && (
             <Button onClick={saveAll} disabled={busy}>
@@ -364,24 +238,31 @@ export function AvailabilityTab() {
         </>
       )}
 
-      {dayToRemove && (
+      {optionToRemove && (
         <Modal
           open
           title={t('availability.removeDayTitle')}
           dismissable={!busy}
-          onClose={() => setDayToRemove(null)}
+          onClose={() => setOptionToRemove(null)}
         >
           <div className="space-y-3">
             <p className="text-sm text-ink">
               {t('availability.removeDayConfirm', {
-                date: formatDate(dayToRemove.slice(0, 10), i18n.language),
+                date: formatOptionLabel(
+                  event.dayOptions.find((o) => optionKey(o) === optionToRemove) ?? {
+                    start: optionToRemove.slice(0, 10),
+                    end: optionToRemove.slice(0, 10),
+                    note: null,
+                  },
+                  i18n.language,
+                ),
               })}
             </p>
             <div className="flex gap-2">
               <Button
                 type="button"
                 variant="secondary"
-                onClick={() => setDayToRemove(null)}
+                onClick={() => setOptionToRemove(null)}
                 disabled={busy}
               >
                 {t('common.cancel')}
@@ -389,9 +270,9 @@ export function AvailabilityTab() {
               <Button
                 type="button"
                 onClick={() => {
-                  const d = dayToRemove
-                  setDayToRemove(null)
-                  removeDay(d)
+                  const key = optionToRemove
+                  setOptionToRemove(null)
+                  removeOption(key)
                 }}
                 disabled={busy}
               >
