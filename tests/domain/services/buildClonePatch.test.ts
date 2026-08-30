@@ -90,7 +90,7 @@ function buy(id: string, over: Partial<PurchaseSnapshot> = {}): PurchaseSnapshot
 const bring = (id: string, over: Partial<PurchaseSnapshot> = {}): PurchaseSnapshot =>
   buy(id, { kind: 'bring', ...over })
 
-const base = { clonedBy: 'me', consumptionDays: 3 }
+const base = { clonedBy: 'me' }
 
 describe('buildClonePatch', () => {
   it('copies day options with their notes and no votes', () => {

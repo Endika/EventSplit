@@ -8,6 +8,7 @@ import {
   type DayOption,
 } from '@/domain/value-objects/DayOption'
 import { pruneGroupOrder, pruneSubgroupOrder } from '@/domain/services/pruneGroupOrder'
+import { inferPurchaseDays } from '@/domain/services/inferPurchaseDays'
 
 /** What the user ticked in the clone dialog. Ids are the SOURCE event's ids. */
 export type CloneSelection = {
@@ -47,17 +48,17 @@ export type ClonePatch = {
  * - Anything that points at a person is dropped, except who brings an item —
  *   that survives only if the person came over in this same clone.
  * - Quantities are recomputed by the entity, never copied: the cloner is the
- *   only consumer, so a copied total would contradict its own consumer list.
+ *   only consumer, so a copied total would contradict its own consumer list. The
+ *   days each item was sized for are read back out of the source item, so a
+ *   three-day item stays a three-day item for its new, smaller group.
  */
 export function buildClonePatch(input: {
   source: EventSnapshot
   target: EventSnapshot
   selection: CloneSelection
   clonedBy: string
-  consumptionDays: number
 }): ClonePatch {
   const { source, selection, clonedBy } = input
-  const days = Math.max(1, Math.trunc(input.consumptionDays))
 
   const users: UserSnapshot[] = []
   const idMap: Record<string, string> = {}
@@ -105,7 +106,7 @@ export function buildClonePatch(input: {
         // The cloner is the only consumer; the entity recomputes the total from
         // that. For SHARED_UNIT staples the quantity is fixed and survives as is.
         consumers: [{ userId: clonedBy, multiplier: 1 }],
-        days: p.unit === SHARED_UNIT ? 1 : days,
+        days: p.unit === SHARED_UNIT ? 1 : inferPurchaseDays(p),
         assignedTo,
         group: p.group,
         subgroup: p.subgroup,
