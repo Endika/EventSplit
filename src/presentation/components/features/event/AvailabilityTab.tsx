@@ -17,7 +17,11 @@ import { votesPerOption } from '@/domain/services/availabilityHeat'
 import { pickTableOptions } from '@/domain/services/pickTableOptions'
 import { formatOptionLabel } from '@/presentation/utils/formatOptionLabel'
 import { useAvailabilityDraft } from '@/presentation/hooks/useAvailabilityDraft'
+import { useAvailabilityView } from '@/presentation/hooks/useAvailabilityView'
 import { AvailabilityMatrix } from './AvailabilityMatrix'
+import { DayOptionsCalendar } from './DayOptionsCalendar'
+import { VotingCalendar } from './VotingCalendar'
+import { OptionVoteList } from './OptionVoteList'
 
 export function AvailabilityTab() {
   const { t, i18n } = useTranslation()
@@ -26,6 +30,7 @@ export function AvailabilityTab() {
   const me = useCurrentUser()
   const { guardedExecute } = useWriteGuard()
   const draft = useAvailabilityDraft(event)
+  const [view, setView] = useAvailabilityView()
 
   const [newDay, setNewDay] = useState('')
   const [note, setNote] = useState(event?.availabilityNote ?? '')
@@ -33,6 +38,7 @@ export function AvailabilityTab() {
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [optionToRemove, setOptionToRemove] = useState<string | null>(null)
+  const [editingDays, setEditingDays] = useState(false)
 
   const matrixUsers = useMemo(
     () =>
@@ -65,6 +71,25 @@ export function AvailabilityTab() {
     .filter((key) => savedVotesForOption(key) === 0)
 
   const childCount = event.users.filter((u) => u.kind === 'child').length
+  const voterIds = matrixUsers.map((u) => u.id)
+
+  // Live counts: the same figure the table foot shows, so the two views can
+  // never contradict each other.
+  const liveCounts = event.dayOptions.map((o) => draft.votesFor(optionKey(o), voterIds))
+  const myVotes = Object.fromEntries(
+    event.dayOptions.map((o) => [optionKey(o), me ? draft.voteOf(me.id, optionKey(o)) : false]),
+  )
+  const draftNotes = Object.fromEntries(
+    event.dayOptions.map((o) => [optionKey(o), draft.noteOf(optionKey(o))]),
+  )
+  const savedVotesByKey = Object.fromEntries(
+    event.dayOptions.map((o) => [optionKey(o), savedVotesForOption(optionKey(o))]),
+  )
+
+  function toggleMyVote(key: string) {
+    if (!me) return
+    draft.setVote(me.id, key, !draft.voteOf(me.id, key))
+  }
 
   async function commitOptions(options: DayOption[]) {
     const handler = container.resolve<SetDayOptionsHandler>('setDayOptions')
@@ -133,11 +158,17 @@ export function AvailabilityTab() {
         const notesChanged = event!.dayOptions.some((o) => o.note !== draft.noteOf(optionKey(o)))
         if (notesChanged) await commitOptions(draft.optionsWithNotes())
 
+        // From the calendar and the list only my own row goes up, so a stale
+        // draft cannot overwrite what someone else saved meanwhile. Filling in
+        // for other people stays a table-only power.
         const batch = container.resolve<SetAvailabilityBatchHandler>('setAvailabilityBatch')
         const voteResult = await batch.execute({
           eventId: event!.id,
           editedBy: me.id,
-          votes: draft.matrix(event!.users.map((u) => u.id)),
+          votes:
+            view === 'table'
+              ? draft.matrix(event!.users.map((u) => u.id))
+              : { [me.id]: draft.rowFor(me.id) },
         })
         setEvent(voteResult.event, voteResult.version)
 
@@ -213,22 +244,71 @@ export function AvailabilityTab() {
 
       {event.dayOptions.length > 0 && (
         <>
-          <p className="text-xs text-muted">{t('availability.editAnyoneHint')}</p>
+          <div data-no-swipe className="flex gap-1 rounded-xl border border-border bg-surface p-1">
+            {(['calendar', 'table'] as const).map((v) => (
+              <button
+                key={v}
+                type="button"
+                onClick={() => setView(v)}
+                aria-pressed={view === v}
+                className={`flex-1 rounded-lg px-3 py-2 text-sm font-medium ${
+                  view === v ? 'bg-brand-soft text-brand-soft-fg' : 'text-muted hover:text-ink'
+                }`}
+              >
+                {v === 'calendar' ? t('availability.viewCalendar') : t('availability.viewTable')}
+              </button>
+            ))}
+          </div>
 
-          <AvailabilityMatrix
-            users={matrixUsers}
-            options={event.dayOptions}
-            optionIndexes={tableIndexes}
-            hiddenCount={event.dayOptions.length - tableIndexes.length}
-            pins={draft.pins}
-            meId={me?.id ?? null}
-            removableKeys={removableKeys}
-            voteOf={draft.voteOf}
-            onVote={draft.setVote}
-            onTogglePin={draft.togglePin}
-            onRemove={setOptionToRemove}
-            busy={busy}
-          />
+          {view === 'calendar' && (
+            <div className="space-y-3">
+              <VotingCalendar
+                options={event.dayOptions}
+                counts={liveCounts}
+                totalVoters={voterIds.length}
+                myVotes={myVotes}
+                pins={draft.pins}
+                onToggleMine={toggleMyVote}
+                canVote={me !== null}
+              />
+              <Button type="button" variant="secondary" onClick={() => setEditingDays(true)}>
+                {t('availability.addDay')}
+              </Button>
+              <OptionVoteList
+                options={event.dayOptions}
+                counts={liveCounts}
+                totalVoters={voterIds.length}
+                myVotes={myVotes}
+                pins={draft.pins}
+                notes={draftNotes}
+                onToggleMine={toggleMyVote}
+                onTogglePin={draft.togglePin}
+                onSetNote={draft.setNote}
+                canVote={me !== null}
+              />
+            </div>
+          )}
+
+          {view === 'table' && (
+            <>
+              <p className="text-xs text-muted">{t('availability.editAnyoneHint')}</p>
+
+              <AvailabilityMatrix
+                users={matrixUsers}
+                options={event.dayOptions}
+                optionIndexes={tableIndexes}
+                hiddenCount={event.dayOptions.length - tableIndexes.length}
+                pins={draft.pins}
+                meId={me?.id ?? null}
+                removableKeys={removableKeys}
+                voteOf={draft.voteOf}
+                onVote={draft.setVote}
+                onTogglePin={draft.togglePin}
+                onRemove={setOptionToRemove}
+                busy={busy}
+              />
+            </>
+          )}
 
           {me && (
             <Button onClick={saveAll} disabled={busy}>
@@ -236,6 +316,36 @@ export function AvailabilityTab() {
             </Button>
           )}
         </>
+      )}
+
+      {editingDays && (
+        <Modal
+          open
+          title={t('availability.addDay')}
+          dismissable={!busy}
+          onClose={() => setEditingDays(false)}
+        >
+          <DayOptionsCalendar
+            options={event.dayOptions}
+            votesByKey={savedVotesByKey}
+            busy={busy}
+            onCommit={(next) => {
+              setEditingDays(false)
+              guardedExecute(async () => {
+                setBusy(true)
+                setError(null)
+                try {
+                  await commitOptions(next)
+                } catch (err) {
+                  reportError('AvailabilityTab', err)
+                  setError(friendlyError(err, t))
+                } finally {
+                  setBusy(false)
+                }
+              })
+            }}
+          />
+        </Modal>
       )}
 
       {optionToRemove && (
