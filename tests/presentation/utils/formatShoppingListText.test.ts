@@ -24,62 +24,29 @@ const t = (key: string, vars?: Record<string, unknown>): string => {
 
 function makeEvent(overrides: Partial<EventSnapshot>): EventSnapshot {
   return {
-    id: 'evt',
-    name: 'Iker BDay',
-    description: null,
-    location: null,
-    generalNotes: null,
-    dayOptions: [],
-    chosenOptions: [],
-    stage: 'planning',
-    availability: {},
-    availabilityNote: null,
-    users: [],
-    purchases: [],
-    expenses: [],
-    history: [],
-    groupOrder: [],
-    subgroupOrder: {},
-    createdAt: '2026-01-01T00:00:00.000Z',
-    schemaVersion: 1,
+    id: 'evt', name: 'Iker BDay', description: null, location: null,
+    generalNotes: null, dayOptions: [], chosenOptions: [], stage: 'planning',
+    availability: {}, availabilityNote: null, users: [], purchases: [],
+    expenses: [], history: [], groupOrder: [], subgroupOrder: {},
+    createdAt: '2026-01-01T00:00:00.000Z', schemaVersion: 1,
     ...overrides,
   } as EventSnapshot
 }
 
 const baseBuy = {
-  id: 'p1',
-  createdBy: 'u1',
-  kind: 'buy' as const,
-  item: 'Wine',
-  quantity: 1,
-  unit: 'bottles',
-  dailyConsumption: 1,
-  totalQuantity: 10,
+  id: 'p1', createdBy: 'u1', kind: 'buy' as const,
+  item: 'Wine', quantity: 1, unit: 'bottles',
+  dailyConsumption: 1, totalQuantity: 10,
   consumers: [{ userId: 'u1', multiplier: 1 }],
-  deleted: false,
-  deletedBy: null,
-  deletedAt: null,
-  deleteReason: null,
+  deleted: false, deletedBy: null, deletedAt: null, deleteReason: null,
   createdAt: '2026-01-01T00:00:00.000Z',
-  assignedTo: 'u1',
-  purchased: false,
-  boughtQuantity: 0,
-  group: 'Drinks',
-  subgroup: null,
+  assignedTo: 'u1', purchased: false, boughtQuantity: 0,
+  group: 'Drinks', subgroup: null,
 }
 
-const ikerUser = {
-  id: 'u1',
-  name: 'Iker',
-  alias: null,
-  kind: 'adult' as const,
-  email: null,
-  phone: null,
-  dietary: null,
-  notes: null,
-  allergies: [],
-  joinedAt: '2026-01-01T00:00:00.000Z',
-}
+const ikerUser = { id: 'u1', name: 'Iker', alias: null, kind: 'adult' as const,
+  email: null, phone: null, dietary: null, notes: null, allergies: [],
+  joinedAt: '2026-01-01T00:00:00.000Z' }
 
 describe('formatShoppingListText', () => {
   it('renders header with event name', () => {
@@ -96,10 +63,8 @@ describe('formatShoppingListText', () => {
   })
 
   it('applies U+0336 strikethrough to item name when purchased', () => {
-    const event = makeEvent({
-      users: [ikerUser],
-      purchases: [{ ...baseBuy, purchased: true, boughtQuantity: 10 }],
-    })
+    const event = makeEvent({ users: [ikerUser],
+      purchases: [{ ...baseBuy, purchased: true, boughtQuantity: 10 }] })
     const text = formatShoppingListText(event, t)
     expect(text).toMatch(/W̶i̶n̶e̶/)
     expect(text).toContain('✅')
@@ -132,7 +97,8 @@ describe('formatShoppingListText', () => {
   })
 
   it('renders subgroup as "└ {name}" under its group', () => {
-    const event = makeEvent({ users: [ikerUser], purchases: [{ ...baseBuy, subgroup: 'Beer' }] })
+    const event = makeEvent({ users: [ikerUser],
+      purchases: [{ ...baseBuy, subgroup: 'Beer' }] })
     const text = formatShoppingListText(event, t)
     expect(text).toContain('📌 Drinks')
     expect(text).toContain('└ Beer')
@@ -196,14 +162,8 @@ describe('formatShoppingListText', () => {
     const event = makeEvent({
       users: [luisUser],
       purchases: [
-        {
-          ...baseBuy,
-          id: 'p1',
-          kind: 'bring',
-          item: 'Tablecloth',
-          unit: 'units',
-          assignedTo: 'u1',
-        },
+        { ...baseBuy, id: 'p1', kind: 'bring', item: 'Tablecloth', unit: 'units',
+          assignedTo: 'u1' },
       ],
     })
     const text = formatShoppingListText(event, t)
@@ -212,15 +172,11 @@ describe('formatShoppingListText', () => {
   })
 
   it('formats decimals with at most 1 fractional digit (no trailing zeros)', () => {
-    const eventA = makeEvent({
-      users: [],
-      purchases: [{ ...baseBuy, totalQuantity: 4.5, assignedTo: null }],
-    })
+    const eventA = makeEvent({ users: [],
+      purchases: [{ ...baseBuy, totalQuantity: 4.5, assignedTo: null }] })
     expect(formatShoppingListText(eventA, t)).toContain('0/4.5 bottles')
-    const eventB = makeEvent({
-      users: [],
-      purchases: [{ ...baseBuy, totalQuantity: 4, assignedTo: null }],
-    })
+    const eventB = makeEvent({ users: [],
+      purchases: [{ ...baseBuy, totalQuantity: 4, assignedTo: null }] })
     expect(formatShoppingListText(eventB, t)).toContain('0/4 bottles')
   })
 
@@ -243,7 +199,8 @@ describe('formatShoppingListText', () => {
   })
 
   it('excludes soft-deleted purchases', () => {
-    const event = makeEvent({ users: [], purchases: [{ ...baseBuy, deleted: true, item: 'Wine' }] })
+    const event = makeEvent({ users: [],
+      purchases: [{ ...baseBuy, deleted: true, item: 'Wine' }] })
     const text = formatShoppingListText(event, t)
     expect(text).not.toContain('Wine')
   })
@@ -253,20 +210,10 @@ describe('formatShoppingListText', () => {
       users: [ikerUser],
       purchases: [baseBuy], // purchased: false, totalQuantity: 10
       expenses: [
-        {
-          id: 'e1',
-          createdBy: 'u1',
-          description: 'x',
-          paidBy: 'u1',
-          cents: 100,
-          splitAmong: null,
-          purchaseLinks: [{ purchaseId: 'p1', quantity: 10 }],
-          deleted: false,
-          deletedBy: null,
-          deletedAt: null,
-          deleteReason: null,
-          createdAt: '2026-01-01T00:00:00.000Z',
-        } as never,
+        { id: 'e1', createdBy: 'u1', description: 'x', paidBy: 'u1',
+          cents: 100, splitAmong: null, purchaseLinks: [{ purchaseId: 'p1', quantity: 10 }],
+          deleted: false, deletedBy: null, deletedAt: null, deleteReason: null,
+          createdAt: '2026-01-01T00:00:00.000Z' } as never,
       ],
     })
     const text = formatShoppingListText(event, t)
@@ -280,20 +227,10 @@ describe('formatShoppingListText', () => {
       users: [ikerUser],
       purchases: [baseBuy], // totalQuantity: 10
       expenses: [
-        {
-          id: 'e1',
-          createdBy: 'u1',
-          description: 'x',
-          paidBy: 'u1',
-          cents: 100,
-          splitAmong: null,
-          purchaseLinks: [{ purchaseId: 'p1', quantity: 9 }],
-          deleted: false,
-          deletedBy: null,
-          deletedAt: null,
-          deleteReason: null,
-          createdAt: '2026-01-01T00:00:00.000Z',
-        } as never,
+        { id: 'e1', createdBy: 'u1', description: 'x', paidBy: 'u1',
+          cents: 100, splitAmong: null, purchaseLinks: [{ purchaseId: 'p1', quantity: 9 }],
+          deleted: false, deletedBy: null, deletedAt: null, deleteReason: null,
+          createdAt: '2026-01-01T00:00:00.000Z' } as never,
       ],
     })
     const text = formatShoppingListText(event, t)
@@ -307,20 +244,11 @@ describe('formatShoppingListText', () => {
       users: [ikerUser],
       purchases: [baseBuy],
       expenses: [
-        {
-          id: 'e1',
-          createdBy: 'u1',
-          description: 'x',
-          paidBy: 'u1',
+        { id: 'e1', createdBy: 'u1', description: 'x', paidBy: 'u1',
           amount: { cents: 100, currency: 'EUR' },
-          splitAmong: null,
-          purchaseLinks: [{ purchaseId: 'p1', quantity: 3 }],
-          deleted: false,
-          deletedBy: null,
-          deletedAt: null,
-          deleteReason: null,
-          createdAt: '2026-01-01T00:00:00.000Z',
-        } as never,
+          splitAmong: null, purchaseLinks: [{ purchaseId: 'p1', quantity: 3 }],
+          deleted: false, deletedBy: null, deletedAt: null, deleteReason: null,
+          createdAt: '2026-01-01T00:00:00.000Z' } as never,
       ],
     })
     const text = formatShoppingListText(event, t)

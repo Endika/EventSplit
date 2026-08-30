@@ -9,9 +9,7 @@ describe('Allergen', () => {
     expect(() => Allergen.of({ name: 'gluten', severity: 'maybe' as never })).toThrow(/severity/)
   })
   it('rejects notes longer than 200 chars', () => {
-    expect(() => Allergen.of({ name: 'gluten', severity: 'mild', notes: 'a'.repeat(201) })).toThrow(
-      /notes/,
-    )
+    expect(() => Allergen.of({ name: 'gluten', severity: 'mild', notes: 'a'.repeat(201) })).toThrow(/notes/)
   })
   it('accepts valid construction with all severities', () => {
     const a = Allergen.of({ name: 'gluten', severity: 'severe', notes: '  trimmed  ' })

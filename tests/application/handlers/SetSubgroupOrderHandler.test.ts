@@ -10,10 +10,7 @@ describe('SetSubgroupOrderHandler', () => {
     const creatorId = create.creator.id
 
     const result = await new SetSubgroupOrderHandler(repo).execute({
-      eventId: create.event.id,
-      userId: creatorId,
-      group: 'Cena',
-      order: ['B', 'A'],
+      eventId: create.event.id, userId: creatorId, group: 'Cena', order: ['B', 'A'],
     })
 
     expect(result.event.subgroupOrder['Cena']).toEqual(['B', 'A'])

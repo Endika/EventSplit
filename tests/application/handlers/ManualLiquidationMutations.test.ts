@@ -9,10 +9,7 @@ import { InMemoryEventRepository } from '@/infrastructure/persistence/InMemoryEv
 
 async function setupWithLiq() {
   const repo = new InMemoryEventRepository()
-  const create = await new CreateEventHandler(repo).execute({
-    name: 'Casa rural',
-    creatorName: 'Javi',
-  })
+  const create = await new CreateEventHandler(repo).execute({ name: 'Casa rural', creatorName: 'Javi' })
   const javi = create.creator.id
   const eventId = create.event.id
   const added = await new AddManualLiquidationHandler(repo).execute({
@@ -94,17 +91,9 @@ describe('Manual liquidation mutations', () => {
 
   it('rejects deleting an already-deleted liquidation', async () => {
     const { repo, eventId, javi, liqId } = await setupWithLiq()
-    await new DeleteManualLiquidationHandler(repo).execute({
-      eventId,
-      userId: javi,
-      liquidationId: liqId,
-    })
+    await new DeleteManualLiquidationHandler(repo).execute({ eventId, userId: javi, liquidationId: liqId })
     await expect(
-      new DeleteManualLiquidationHandler(repo).execute({
-        eventId,
-        userId: javi,
-        liquidationId: liqId,
-      }),
+      new DeleteManualLiquidationHandler(repo).execute({ eventId, userId: javi, liquidationId: liqId }),
     ).rejects.toThrow(/already-deleted/i)
   })
 })

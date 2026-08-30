@@ -8,8 +8,7 @@ describe('JoinAsNewUserHandler', () => {
     const repo = new InMemoryEventRepository()
     const create = await new CreateEventHandler(repo).execute({ name: 'Trip', creatorName: 'John' })
     const join = await new JoinAsNewUserHandler(repo).execute({
-      eventId: create.event.id,
-      name: 'Maria',
+      eventId: create.event.id, name: 'Maria',
     })
     expect(join.event.users.map((u) => u.name)).toEqual(['John', 'Maria'])
     expect(join.version).toBe(2)
@@ -22,8 +21,7 @@ describe('JoinAsNewUserHandler', () => {
     const fresh = await repo.findById(create.event.id)
     await repo.update(create.event.id, fresh!.snapshot, fresh!.version)
     const join = await new JoinAsNewUserHandler(repo).execute({
-      eventId: create.event.id,
-      name: 'Maria',
+      eventId: create.event.id, name: 'Maria',
     })
     expect(join.version).toBe(3)
   })

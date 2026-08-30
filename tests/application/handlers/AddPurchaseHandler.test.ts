@@ -34,10 +34,7 @@ describe('AddPurchaseHandler', () => {
       handler.execute({
         eventId: create.event.id,
         createdBy: create.creator.id,
-        item: 'Coke',
-        quantity: 1,
-        unit: 'bottles',
-        dailyConsumption: 1,
+        item: 'Coke', quantity: 1, unit: 'bottles', dailyConsumption: 1,
         consumers: [{ userId: '018f4a8e-0000-7000-8000-000000000000', multiplier: 1 }],
         days: 1,
       }),
