@@ -131,11 +131,31 @@ export function DayOptionsCalendar(props: {
           const picked = covering.length > 0
           const isRangeStart = rangeStart === iso
           const blocked = !picked && full && !rangeMode
+          // A stretch has to read as one band, not as N separate days: only its
+          // ends are rounded, and the cells in between touch.
+          const first = covering[0]
+          const span = !first
+            ? 'none'
+            : first.start === first.end
+              ? 'single'
+              : iso === first.start
+                ? 'start'
+                : iso === first.end
+                  ? 'end'
+                  : 'middle'
+          const rounding = {
+            none: 'rounded-lg',
+            single: 'rounded-lg',
+            start: 'rounded-l-lg',
+            end: 'rounded-r-lg',
+            middle: '',
+          }[span]
           return (
             <button
               type="button"
               data-iso={iso}
               data-picked={picked}
+              data-span={span}
               onClick={() => handleDay(iso)}
               disabled={busy || blocked}
               aria-pressed={picked}
@@ -145,7 +165,8 @@ export function DayOptionsCalendar(props: {
                 year: 'numeric',
               }).format(new Date(iso + 'T00:00:00'))}
               className={[
-                'flex h-full min-h-11 w-full items-center justify-center rounded-lg text-sm',
+                'flex h-full min-h-11 w-full items-center justify-center text-sm',
+                rounding,
                 inMonth ? 'text-ink' : 'text-muted/50',
                 picked ? 'bg-brand-soft font-semibold text-brand-soft-fg' : 'hover:bg-elevated',
                 isRangeStart ? 'ring-2 ring-brand' : '',
