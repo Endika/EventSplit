@@ -88,9 +88,9 @@ describe('DayOption', () => {
     expect(optionKey({ start: '2026-06-05', end: '2026-06-05', note: 'puente' })).toBe(
       optionKey(day('2026-06-05')),
     )
-    expect(
-      isValidOption({ start: '2026-06-05', end: '2026-06-05', note: 'x'.repeat(81) }),
-    ).toBe(false)
+    expect(isValidOption({ start: '2026-06-05', end: '2026-06-05', note: 'x'.repeat(81) })).toBe(
+      false,
+    )
   })
 
   it('normalizes notes', () => {

@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next'
 import { useContainer } from '@/presentation/context/ContainerProvider'
 import { useEventState } from '@/presentation/context/EventContext'
 import { useCurrentUser } from '@/presentation/context/UserContext'
-import type { SetEventDaysHandler } from '@/application/handlers/SetEventDaysHandler'
+import type { SetDayOptionsHandler } from '@/application/handlers/SetDayOptionsHandler'
 import type { SetAvailabilityBatchHandler } from '@/application/handlers/SetAvailabilityBatchHandler'
 import type { SetAvailabilityMetaHandler } from '@/application/handlers/SetAvailabilityMetaHandler'
 import { useWriteGuard } from '@/presentation/context/WriteGuardContext'
@@ -13,6 +13,7 @@ import { Button } from '@/presentation/components/common/Button'
 import { Input } from '@/presentation/components/common/Input'
 import { Modal } from '@/presentation/components/common/Modal'
 import { YouLabel } from '@/presentation/components/common/YouLabel'
+import { optionKey, type DayOption } from '@/domain/value-objects/DayOption'
 
 function formatDate(iso: string, locale: string): string {
   try {
@@ -30,13 +31,13 @@ type Drafts = Record<string, Record<string, boolean>>
 
 function buildDrafts(
   users: { id: string }[],
-  days: string[],
+  options: DayOption[],
   availability: Record<string, boolean[]>,
 ): Drafts {
   const drafts: Drafts = {}
   for (const u of users) {
     const saved = availability[u.id] ?? []
-    drafts[u.id] = Object.fromEntries(days.map((d, i) => [d, saved[i] ?? false]))
+    drafts[u.id] = Object.fromEntries(options.map((o, i) => [optionKey(o), saved[i] ?? false]))
   }
   return drafts
 }
@@ -55,13 +56,13 @@ export function AvailabilityTab() {
   const [error, setError] = useState<string | null>(null)
   const [dayToRemove, setDayToRemove] = useState<string | null>(null)
   const [drafts, setDrafts] = useState<Drafts>(() =>
-    event ? buildDrafts(event.users, event.days, event.availability) : {},
+    event ? buildDrafts(event.users, event.dayOptions, event.availability) : {},
   )
 
   if (!event) return null
 
-  function savedVotesForDay(day: string): number {
-    const idx = event!.days.indexOf(day)
+  function savedVotesForOption(key: string): number {
+    const idx = event!.dayOptions.findIndex((o) => optionKey(o) === key)
     if (idx < 0) return 0
     return event!.users.reduce((n, u) => n + (event!.availability[u.id]?.[idx] ? 1 : 0), 0)
   }
@@ -74,24 +75,25 @@ export function AvailabilityTab() {
     .join(',')
   const firstUserDraft = Object.values(drafts)[0]
   const draftDayCount = firstUserDraft ? Object.keys(firstUserDraft).length : 0
-  if (draftUserIds !== eventUserIds || draftDayCount !== event.days.length) {
-    setDrafts(buildDrafts(event.users, event.days, event.availability))
+  if (draftUserIds !== eventUserIds || draftDayCount !== event.dayOptions.length) {
+    setDrafts(buildDrafts(event.users, event.dayOptions, event.availability))
   }
 
   const matrixUsers = showChildren ? event.users : event.users.filter((u) => u.kind === 'adult')
   const childCount = event.users.filter((u) => u.kind === 'child').length
 
-  function toggleVote(userId: string, day: string, checked: boolean) {
+  function toggleVote(userId: string, key: string, checked: boolean) {
     setDrafts((prev) => ({
       ...prev,
-      [userId]: { ...prev[userId], [day]: checked },
+      [userId]: { ...prev[userId], [key]: checked },
     }))
   }
 
   function addDay(e: FormEvent) {
     e.preventDefault()
     if (!event || !newDay) return
-    if (event.days.includes(newDay)) {
+    const key = `${newDay}..${newDay}`
+    if (event.dayOptions.some((o) => optionKey(o) === key)) {
       setError(t('availability.dayAlreadyExists'))
       return
     }
@@ -99,9 +101,9 @@ export function AvailabilityTab() {
       setBusy(true)
       setError(null)
       try {
-        const handler = container.resolve<SetEventDaysHandler>('setEventDays')
-        const next = [...event.days, newDay].sort()
-        const result = await handler.execute({ eventId: event.id, days: next })
+        const handler = container.resolve<SetDayOptionsHandler>('setDayOptions')
+        const next = [...event.dayOptions, { start: newDay, end: newDay, note: null }]
+        const result = await handler.execute({ eventId: event.id, options: next })
         setEvent(result.event, result.version)
         setNewDay('')
       } catch (err) {
@@ -122,7 +124,7 @@ export function AvailabilityTab() {
         const votes: Record<string, boolean[]> = {}
         for (const u of event.users) {
           const draft = drafts[u.id] ?? {}
-          votes[u.id] = event.days.map((d) => draft[d] ?? false)
+          votes[u.id] = event.dayOptions.map((o) => draft[optionKey(o)] ?? false)
         }
         const handler = container.resolve<SetAvailabilityBatchHandler>('setAvailabilityBatch')
         const result = await handler.execute({
@@ -150,7 +152,7 @@ export function AvailabilityTab() {
           eventId: event.id,
           userId: me.id,
           note: note.trim() || null,
-          chosenDay: event.chosenDay,
+          chosenOptions: event.chosenOptions,
         })
         setEvent(result.event, result.version)
       } catch (err) {
@@ -159,9 +161,11 @@ export function AvailabilityTab() {
     })
   }
 
-  function pickDay(day: string) {
+  function pickDay(key: string) {
     if (!event || !me) return
-    const next = event.chosenDay === day ? null : day
+    const next = event.chosenOptions.includes(key)
+      ? event.chosenOptions.filter((k) => k !== key)
+      : [...event.chosenOptions, key]
     guardedExecute(async () => {
       try {
         const handler = container.resolve<SetAvailabilityMetaHandler>('setAvailabilityMeta')
@@ -169,7 +173,7 @@ export function AvailabilityTab() {
           eventId: event.id,
           userId: me.id,
           note: event.availabilityNote ?? null,
-          chosenDay: next,
+          chosenOptions: next,
         })
         setEvent(result.event, result.version)
       } catch (err) {
@@ -178,9 +182,9 @@ export function AvailabilityTab() {
     })
   }
 
-  function removeDay(day: string) {
+  function removeDay(key: string) {
     if (!event || !me) return
-    const next = event.days.filter((d) => d !== day)
+    const next = event.dayOptions.filter((o) => optionKey(o) !== key)
     if (next.length === 0) {
       setError(t('availability.cannotRemoveLast'))
       return
@@ -189,8 +193,8 @@ export function AvailabilityTab() {
       setBusy(true)
       setError(null)
       try {
-        const handler = container.resolve<SetEventDaysHandler>('setEventDays')
-        const result = await handler.execute({ eventId: event.id, days: next })
+        const handler = container.resolve<SetDayOptionsHandler>('setDayOptions')
+        const result = await handler.execute({ eventId: event.id, options: next })
         setEvent(result.event, result.version)
       } catch (err) {
         reportError('AvailabilityTab', err)
@@ -243,9 +247,11 @@ export function AvailabilityTab() {
 
       {error && <p className="text-sm text-danger">{error}</p>}
 
-      {event.days.length === 0 && <p className="text-sm text-muted">{t('availability.noDays')}</p>}
+      {event.dayOptions.length === 0 && (
+        <p className="text-sm text-muted">{t('availability.noDays')}</p>
+      )}
 
-      {event.days.length > 0 && (
+      {event.dayOptions.length > 0 && (
         <>
           <p className="text-xs text-muted">{t('availability.editAnyoneHint')}</p>
           <div data-no-swipe className="overflow-x-auto rounded-xl border border-border bg-surface">
@@ -253,27 +259,29 @@ export function AvailabilityTab() {
               <thead className="text-xs uppercase text-muted">
                 <tr>
                   <th className="p-3 text-left">&nbsp;</th>
-                  {event.days.map((d) => {
-                    const isChosen = event.chosenDay === d
+                  {event.dayOptions.map((o) => {
+                    const d = o.start
+                    const key = optionKey(o)
+                    const isChosen = event.chosenOptions.includes(key)
                     return (
                       <th
-                        key={d}
+                        key={key}
                         className={`p-3 text-center font-medium ${isChosen ? 'bg-brand-soft text-brand-soft-fg' : 'text-ink'}`}
                       >
                         <div className="flex flex-col items-center gap-0.5">
                           <button
                             type="button"
-                            onClick={() => pickDay(d)}
+                            onClick={() => pickDay(key)}
                             className="flex flex-col items-center gap-0.5"
                             title={t('availability.pickDay')}
                           >
                             <span>{formatDate(d, i18n.language)}</span>
                             <span className={isChosen ? 'text-brand' : 'text-muted'}>📌</span>
                           </button>
-                          {savedVotesForDay(d) === 0 && (
+                          {savedVotesForOption(key) === 0 && (
                             <button
                               type="button"
-                              onClick={() => setDayToRemove(d)}
+                              onClick={() => setDayToRemove(key)}
                               disabled={busy}
                               className="mt-1 inline-flex min-h-11 min-w-11 items-center justify-center text-[10px] text-muted hover:text-danger"
                               title={t('availability.removeDay')}
@@ -297,18 +305,22 @@ export function AvailabilityTab() {
                         {u.alias ? `${u.name} (${u.alias})` : u.name}
                         <YouLabel userId={u.id} />
                       </td>
-                      {event.days.map((d) => {
-                        const checked = drafts[u.id]?.[d] ?? false
+                      {event.dayOptions.map((o) => {
+                        const d = o.start
+                        const key = optionKey(o)
+                        const checked = drafts[u.id]?.[key] ?? false
                         return (
                           <td
-                            key={d}
-                            className={`p-0 text-center ${event.chosenDay === d ? 'bg-brand-soft/20' : ''}`}
+                            key={key}
+                            className={`p-0 text-center ${
+                              event.chosenOptions.includes(key) ? 'bg-brand-soft/20' : ''
+                            }`}
                           >
                             <label className="flex h-full w-full cursor-pointer items-center justify-center p-3">
                               <input
                                 type="checkbox"
                                 checked={checked}
-                                onChange={(e) => toggleVote(u.id, d, e.target.checked)}
+                                onChange={(e) => toggleVote(u.id, key, e.target.checked)}
                                 disabled={busy}
                                 className="size-4 rounded border-border bg-elevated accent-brand"
                                 aria-label={`${u.name} ${formatDate(d, i18n.language)}`}
@@ -324,12 +336,15 @@ export function AvailabilityTab() {
               <tfoot>
                 <tr className="border-t border-border text-xs text-muted">
                   <td className="p-3 font-medium">{t('availability.votes')}</td>
-                  {event.days.map((d) => {
-                    const count = matrixUsers.reduce((n, u) => n + (drafts[u.id]?.[d] ? 1 : 0), 0)
+                  {event.dayOptions.map((o) => {
+                    const key = optionKey(o)
+                    const count = matrixUsers.reduce((n, u) => n + (drafts[u.id]?.[key] ? 1 : 0), 0)
                     return (
                       <td
-                        key={d}
-                        className={`p-3 text-center ${event.chosenDay === d ? 'bg-brand-soft/20' : ''}`}
+                        key={key}
+                        className={`p-3 text-center ${
+                          event.chosenOptions.includes(key) ? 'bg-brand-soft/20' : ''
+                        }`}
                       >
                         <span className="font-semibold text-pos">{count}</span>
                         <span className="text-muted">/{matrixUsers.length}</span>
@@ -359,7 +374,7 @@ export function AvailabilityTab() {
           <div className="space-y-3">
             <p className="text-sm text-ink">
               {t('availability.removeDayConfirm', {
-                date: formatDate(dayToRemove, i18n.language),
+                date: formatDate(dayToRemove.slice(0, 10), i18n.language),
               })}
             </p>
             <div className="flex gap-2">

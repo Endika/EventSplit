@@ -266,7 +266,8 @@ describe('Event', () => {
     } as never
     const e = Event.restore(legacy)
     const snap = e.toSnapshot()
-    expect(snap.days).toEqual([])
+    expect(snap.dayOptions).toEqual([])
+    expect(snap.chosenOptions).toEqual([])
     expect(snap.availability).toEqual({})
     expect(snap.location).toBeNull()
     expect(snap.hasPin).toBe(false)
@@ -274,42 +275,55 @@ describe('Event', () => {
     expect(snap.users[0]!.email).toBeNull()
   })
 
-  it('setAvailabilityMeta stores note and chosen day', () => {
+  it('setAvailabilityMeta stores note and several chosen options', () => {
     const creator = User.create({ name: 'John' })
     let e = Event.create({ name: 'Trip', creator })
-    // need a day first
     const snap = e.toSnapshot()
-    snap.days = ['2026-06-05', '2026-06-06']
+    snap.dayOptions = [
+      { start: '2026-06-05', end: '2026-06-05', note: null },
+      { start: '2026-06-12', end: '2026-06-14', note: 'casa rural' },
+    ]
     e = Event.restore(snap)
     const next = e.setAvailabilityMeta({
       userId: creator.id.value,
       note: 'Weekends only',
-      chosenDay: '2026-06-06',
+      chosenOptions: ['2026-06-05..2026-06-05', '2026-06-12..2026-06-14'],
     })
     expect(next.toSnapshot().availabilityNote).toBe('Weekends only')
-    expect(next.toSnapshot().chosenDay).toBe('2026-06-06')
+    expect(next.toSnapshot().chosenOptions).toEqual([
+      '2026-06-05..2026-06-05',
+      '2026-06-12..2026-06-14',
+    ])
   })
 
-  it('setAvailabilityMeta rejects a chosenDay not in days', () => {
+  it('setAvailabilityMeta rejects a chosen option that is not an event option', () => {
     const creator = User.create({ name: 'John' })
     const e = Event.create({ name: 'Trip', creator })
     expect(() =>
-      e.setAvailabilityMeta({ userId: creator.id.value, note: null, chosenDay: '2099-01-01' }),
-    ).toThrow(/chosenDay/)
+      e.setAvailabilityMeta({
+        userId: creator.id.value,
+        note: null,
+        chosenOptions: ['2099-01-01..2099-01-01'],
+      }),
+    ).toThrow(/chosenOptions/)
   })
 
-  it('setAvailabilityMeta accepts null chosenDay (unset)', () => {
+  it('setAvailabilityMeta accepts an empty chosenOptions (unset)', () => {
     const creator = User.create({ name: 'John' })
     const e = Event.create({ name: 'Trip', creator })
-    const next = e.setAvailabilityMeta({ userId: creator.id.value, note: 'note', chosenDay: null })
-    expect(next.toSnapshot().chosenDay).toBeNull()
+    const next = e.setAvailabilityMeta({
+      userId: creator.id.value,
+      note: 'note',
+      chosenOptions: [],
+    })
+    expect(next.toSnapshot().chosenOptions).toEqual([])
     expect(next.toSnapshot().availabilityNote).toBe('note')
   })
 
   it('Event.create starts with null availability meta', () => {
     const e = Event.create({ name: 'Trip', creator: User.create({ name: 'John' }) })
     expect(e.toSnapshot().availabilityNote).toBeNull()
-    expect(e.toSnapshot().chosenDay).toBeNull()
+    expect(e.toSnapshot().chosenOptions).toEqual([])
   })
 
   it('toggleSettlement adds and removes a settled transfer', () => {

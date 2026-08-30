@@ -98,9 +98,14 @@ describe('AddExpenseHandler', () => {
     const repo = new InMemoryEventRepository()
     const create = await new CreateEventHandler(repo).execute({ name: 'Trip', creatorName: 'John' })
     const added = await new AddPurchaseHandler(repo).execute({
-      eventId: create.event.id, createdBy: create.creator.id,
-      item: 'Coke', quantity: 1, unit: 'units',
-      dailyConsumption: 1, consumers: [{ userId: create.creator.id, multiplier: 1 }], days: 1,
+      eventId: create.event.id,
+      createdBy: create.creator.id,
+      item: 'Coke',
+      quantity: 1,
+      unit: 'units',
+      dailyConsumption: 1,
+      consumers: [{ userId: create.creator.id, multiplier: 1 }],
+      days: 1,
     })
     const purchaseId = added.event.purchases[0]!.id
     const result = await new AddExpenseHandler(repo).execute({

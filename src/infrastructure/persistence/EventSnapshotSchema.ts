@@ -2,6 +2,29 @@ import { z } from 'zod'
 import { COMMON_ALLERGENS, ALLERGEN_SEVERITIES } from '@/domain/value-objects/Allergen'
 import { EVENT_STAGES, type EventSnapshot } from '@/domain/entities/Event'
 import { USER_KINDS } from '@/domain/entities/User'
+import { isValidOption, optionKey, sortOptions } from '@/domain/value-objects/DayOption'
+
+/**
+ * v3 → v4: `days: string[]` became single-day options and `chosenDay` became
+ * `chosenOptions`. Old blobs keep arriving from the local cache and from events
+ * nobody has rewritten yet, so the migration lives on the read path.
+ */
+function migrateLegacyDays(raw: unknown): unknown {
+  if (typeof raw !== 'object' || raw === null || Array.isArray(raw)) return raw
+  const out = { ...(raw as Record<string, unknown>) }
+  if (!Array.isArray(out.dayOptions) && Array.isArray(out.days)) {
+    out.dayOptions = (out.days as unknown[])
+      .filter((d): d is string => typeof d === 'string')
+      .map((d) => ({ start: d, end: d, note: null }))
+  }
+  if (!Array.isArray(out.chosenOptions)) {
+    const legacy = typeof out.chosenDay === 'string' ? out.chosenDay : null
+    out.chosenOptions = legacy ? [`${legacy}..${legacy}`] : []
+  }
+  delete out.days
+  delete out.chosenDay
+  return out
+}
 
 const AllergenSchema = z.object({
   name: z.enum(COMMON_ALLERGENS),
@@ -114,8 +137,16 @@ export const EventSnapshotSchema = z.object({
   users: z.array(UserSchema).default([]),
   availability: z.record(z.string(), z.array(z.boolean())).default({}),
   availabilityNote: z.string().nullable().default(null),
-  chosenDay: z.string().nullable().default(null),
-  days: z.array(z.string()).default([]),
+  chosenOptions: z.array(z.string()).default([]),
+  dayOptions: z
+    .array(
+      z.object({
+        start: z.string(),
+        end: z.string(),
+        note: z.string().nullable().default(null),
+      }),
+    )
+    .default([]),
   purchases: z.array(PurchaseSchema).default([]),
   groupOrder: z.array(z.string()).default([]),
   subgroupOrder: z.record(z.string(), z.array(z.string())).default({}),
@@ -141,7 +172,7 @@ export const EventSnapshotSchema = z.object({
  * callers get a domain `EventSnapshot` without each one re-casting.
  */
 export function parseEventSnapshot(raw: unknown): EventSnapshot {
-  const result = EventSnapshotSchema.safeParse(raw)
+  const result = EventSnapshotSchema.safeParse(migrateLegacyDays(raw))
   if (!result.success) {
     const issues = result.error.issues
       .slice(0, 5)
@@ -149,5 +180,12 @@ export function parseEventSnapshot(raw: unknown): EventSnapshot {
       .join('; ')
     throw new Error(`Event snapshot validation failed: ${issues}`)
   }
-  return result.data as EventSnapshot
+
+  // A corrupt option must not take the whole event down with it, the same way
+  // history[].type stays permissive. Votes are realigned on the next write.
+  const dayOptions = sortOptions(result.data.dayOptions.filter(isValidOption))
+  const keys = new Set(dayOptions.map(optionKey))
+  const chosenOptions = result.data.chosenOptions.filter((k) => keys.has(k))
+
+  return { ...result.data, dayOptions, chosenOptions } as EventSnapshot
 }

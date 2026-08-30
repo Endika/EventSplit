@@ -20,13 +20,13 @@ export class SetAvailabilityBatchHandler {
       if (!knownIds.has(parsed.editedBy))
         throw new Error(`editedBy ${parsed.editedBy} not in event`)
 
-      const dayCount = row.snapshot.days.length
+      const dayCount = row.snapshot.dayOptions.length
       const nextAvailability = { ...row.snapshot.availability }
       for (const [userId, votes] of Object.entries(parsed.votes)) {
         if (!knownIds.has(userId)) throw new Error(`User ${userId} not in event`)
         if (votes.length !== dayCount)
           throw new Error(
-            `votes for ${userId} length (${votes.length}) must match days length (${dayCount})`,
+            `votes for ${userId} length (${votes.length}) must match option count (${dayCount})`,
           )
         nextAvailability[userId] = votes
       }
