@@ -1,5 +1,17 @@
 # Changelog
 
+## [3.2.0](https://github.com/Endika/EventSplit/compare/v3.1.1...v3.2.0) (2026-08-30)
+
+
+### Features
+
+* **purchases:** default the days to the pinned day length ([f48bd47](https://github.com/Endika/EventSplit/commit/f48bd47d6f98556bdfc588e46be242ddc012d46c))
+
+
+### Bug Fixes
+
+* **i18n:** make the option note placeholder generic ([ef9a740](https://github.com/Endika/EventSplit/commit/ef9a74002bf498b653f3a7caa8d9cf72bd8ebc41))
+
 ## [3.1.1](https://github.com/Endika/EventSplit/compare/v3.1.0...v3.1.1) (2026-08-30)
 
 
