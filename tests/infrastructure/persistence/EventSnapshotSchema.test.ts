@@ -13,7 +13,8 @@ describe('EventSnapshotSchema', () => {
     }
     const parsed = parseEventSnapshot(minimal)
     expect(parsed.hasPin).toBe(false)
-    expect(parsed.days).toEqual([])
+    expect(parsed.dayOptions).toEqual([])
+    expect(parsed.chosenOptions).toEqual([])
     expect(parsed.availability).toEqual({})
     expect(parsed.location).toBeNull()
     expect(parsed.expenses).toEqual([])
@@ -110,5 +111,73 @@ describe('EventSnapshotSchema', () => {
     const parsed = parseEventSnapshot(real)
     expect(parsed.users[0]!.kind).toBe('adult') // backfilled
     expect(parsed.hasPin).toBe(false) // backfilled
+  })
+
+  it('migrates legacy days into single-day options', () => {
+    const parsed = parseEventSnapshot({
+      id: 'abc123x',
+      name: 'Viaje',
+      createdBy: 'u1',
+      createdAt: '2026-01-01T00:00:00.000Z',
+      updatedAt: '2026-01-01T00:00:00.000Z',
+      days: ['2026-06-05', '2026-06-06'],
+      chosenDay: '2026-06-06',
+      availability: { u1: [true, false] },
+    })
+    expect(parsed.dayOptions).toEqual([
+      { start: '2026-06-05', end: '2026-06-05', note: null },
+      { start: '2026-06-06', end: '2026-06-06', note: null },
+    ])
+    expect(parsed.chosenOptions).toEqual(['2026-06-06..2026-06-06'])
+    expect(parsed.availability.u1).toEqual([true, false])
+    expect('days' in parsed).toBe(false)
+    expect('chosenDay' in parsed).toBe(false)
+  })
+
+  it('reads a v4 blob straight through and drops invalid options', () => {
+    const parsed = parseEventSnapshot({
+      id: 'abc123x',
+      name: 'Viaje',
+      createdBy: 'u1',
+      createdAt: '2026-01-01T00:00:00.000Z',
+      updatedAt: '2026-01-01T00:00:00.000Z',
+      dayOptions: [
+        { start: '2026-06-12', end: '2026-06-14', note: 'casa rural' },
+        { start: '2026-06-20', end: '2026-06-18', note: null },
+      ],
+      chosenOptions: ['2026-06-12..2026-06-14', '2099-01-01..2099-01-01'],
+    })
+    expect(parsed.dayOptions).toEqual([
+      { start: '2026-06-12', end: '2026-06-14', note: 'casa rural' },
+    ])
+    expect(parsed.chosenOptions).toEqual(['2026-06-12..2026-06-14'])
+  })
+
+  it('legacy chosenDay null becomes an empty chosenOptions', () => {
+    const parsed = parseEventSnapshot({
+      id: 'abc123x',
+      name: 'Viaje',
+      createdBy: 'u1',
+      createdAt: '2026-01-01T00:00:00.000Z',
+      updatedAt: '2026-01-01T00:00:00.000Z',
+      days: ['2026-06-05'],
+      chosenDay: null,
+    })
+    expect(parsed.chosenOptions).toEqual([])
+  })
+
+  it('sorts the options it reads', () => {
+    const parsed = parseEventSnapshot({
+      id: 'abc123x',
+      name: 'Viaje',
+      createdBy: 'u1',
+      createdAt: '2026-01-01T00:00:00.000Z',
+      updatedAt: '2026-01-01T00:00:00.000Z',
+      dayOptions: [
+        { start: '2026-06-12', end: '2026-06-14', note: null },
+        { start: '2026-06-05', end: '2026-06-05', note: null },
+      ],
+    })
+    expect(parsed.dayOptions.map((o) => o.start)).toEqual(['2026-06-05', '2026-06-12'])
   })
 })

@@ -18,7 +18,7 @@ export class SetAvailabilityMetaHandler {
         .setAvailabilityMeta({
           userId: parsed.userId,
           note: parsed.note,
-          chosenDay: parsed.chosenDay,
+          chosenOptions: parsed.chosenOptions,
         })
         .toSnapshot()
     })

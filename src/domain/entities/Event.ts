@@ -1,4 +1,5 @@
 import { EventId } from '@/domain/value-objects/EventId'
+import { optionKey, type DayOption } from '@/domain/value-objects/DayOption'
 import { User } from '@/domain/entities/User'
 import type { UserSnapshot } from '@/domain/entities/User'
 import type { PurchaseSnapshot } from '@/domain/entities/Purchase'
@@ -79,8 +80,8 @@ export interface EventSnapshot {
   users: UserSnapshot[]
   availability: Record<string, boolean[]>
   availabilityNote: string | null
-  chosenDay: string | null
-  days: string[]
+  chosenOptions: string[]
+  dayOptions: DayOption[]
   purchases: PurchaseSnapshot[]
   groupOrder: string[]
   subgroupOrder: Record<string, string[]>
@@ -122,8 +123,8 @@ export class Event {
       users: [input.creator.toSnapshot()],
       availability: {},
       availabilityNote: null,
-      chosenDay: null,
-      days: [],
+      chosenOptions: [],
+      dayOptions: [],
       purchases: [],
       groupOrder: [],
       subgroupOrder: {},
@@ -158,10 +159,10 @@ export class Event {
       generalNotes: s.generalNotes ?? null,
       wifiPassword: s.wifiPassword ?? null,
       emergencyContact: s.emergencyContact ?? null,
-      days: s.days ?? [],
+      dayOptions: s.dayOptions ?? [],
       availability: s.availability ?? {},
       availabilityNote: s.availabilityNote ?? null,
-      chosenDay: s.chosenDay ?? null,
+      chosenOptions: s.chosenOptions ?? [],
       purchases: (s.purchases ?? []).map((p) => {
         const purchased = (p as { purchased?: boolean }).purchased ?? false
         return {
@@ -351,12 +352,14 @@ export class Event {
   setAvailabilityMeta(input: {
     userId: string
     note: string | null
-    chosenDay: string | null
+    chosenOptions: string[]
   }): Event {
     if (!this.s.users.some((u) => u.id === input.userId))
       throw new Error('Event: user not in event')
-    if (input.chosenDay !== null && !this.s.days.includes(input.chosenDay))
-      throw new Error('Event: chosenDay must be one of the event days')
+    const known = new Set(this.s.dayOptions.map(optionKey))
+    const unknown = input.chosenOptions.filter((k) => !known.has(k))
+    if (unknown.length > 0)
+      throw new Error(`Event: chosenOptions must be event options (${unknown.join(', ')})`)
     const note = input.note?.trim() ? input.note.trim().slice(0, 200) : null
     const now = new Date().toISOString()
     const nextVersion = (this.s.history.at(-1)?.version ?? 0) + 1
@@ -364,7 +367,7 @@ export class Event {
     const nextSnapshot: EventSnapshot = {
       ...this.s,
       availabilityNote: note,
-      chosenDay: input.chosenDay,
+      chosenOptions: [...input.chosenOptions],
       updatedAt: now,
       history: [
         ...this.s.history,
@@ -572,7 +575,8 @@ export class Event {
         paidShares: [...l.paidShares],
       })),
       history: this.s.history.map((h) => ({ ...h })),
-      days: [...this.s.days],
+      dayOptions: this.s.dayOptions.map((o) => ({ ...o })),
+      chosenOptions: [...this.s.chosenOptions],
       availability: Object.fromEntries(
         Object.entries(this.s.availability).map(([k, v]) => [k, [...v]]),
       ),

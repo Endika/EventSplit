@@ -15,7 +15,7 @@ import { AddExpenseHandler } from '@/application/handlers/AddExpenseHandler'
 import { EditExpenseHandler } from '@/application/handlers/EditExpenseHandler'
 import { DeleteExpenseHandler } from '@/application/handlers/DeleteExpenseHandler'
 import { UpdateProfileHandler } from '@/application/handlers/UpdateProfileHandler'
-import { SetEventDaysHandler } from '@/application/handlers/SetEventDaysHandler'
+import { SetDayOptionsHandler } from '@/application/handlers/SetDayOptionsHandler'
 import { SetAvailabilityBatchHandler } from '@/application/handlers/SetAvailabilityBatchHandler'
 import { SetAvailabilityMetaHandler } from '@/application/handlers/SetAvailabilityMetaHandler'
 import { EditEventDetailsHandler } from '@/application/handlers/EditEventDetailsHandler'
@@ -76,7 +76,7 @@ export function buildContainer(): Container {
   c.register('deleteExpense', () => new DeleteExpenseHandler(c.resolve('eventRepo')))
   c.register('refreshEvent', () => new RefreshEventHandler(c.resolve('eventRepo')))
   c.register('updateProfile', () => new UpdateProfileHandler(c.resolve('eventRepo')))
-  c.register('setEventDays', () => new SetEventDaysHandler(c.resolve('eventRepo')))
+  c.register('setDayOptions', () => new SetDayOptionsHandler(c.resolve('eventRepo')))
   c.register('setAvailabilityBatch', () => new SetAvailabilityBatchHandler(c.resolve('eventRepo')))
   c.register('setAvailabilityMeta', () => new SetAvailabilityMetaHandler(c.resolve('eventRepo')))
   c.register('editEventDetails', () => new EditEventDetailsHandler(c.resolve('eventRepo')))

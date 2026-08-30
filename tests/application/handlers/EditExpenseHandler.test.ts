@@ -14,7 +14,12 @@ async function setup() {
     amountEuros: 10,
     description: 'Bread',
   })
-  return { repo, eventId: create.event.id, userId: create.creator.id, expenseId: added.event.expenses[0]!.id }
+  return {
+    repo,
+    eventId: create.event.id,
+    userId: create.creator.id,
+    expenseId: added.event.expenses[0]!.id,
+  }
 }
 
 describe('EditExpenseHandler', () => {
@@ -80,13 +85,21 @@ describe('EditExpenseHandler', () => {
     const repo = new InMemoryEventRepository()
     const create = await new CreateEventHandler(repo).execute({ name: 'Trip', creatorName: 'John' })
     const p1 = await new AddPurchaseHandler(repo).execute({
-      eventId: create.event.id, createdBy: create.creator.id,
-      item: 'Coke', quantity: 1, unit: 'units',
-      dailyConsumption: 1, consumers: [{ userId: create.creator.id, multiplier: 1 }], days: 1,
+      eventId: create.event.id,
+      createdBy: create.creator.id,
+      item: 'Coke',
+      quantity: 1,
+      unit: 'units',
+      dailyConsumption: 1,
+      consumers: [{ userId: create.creator.id, multiplier: 1 }],
+      days: 1,
     })
     const purchaseId = p1.event.purchases[0]!.id
     const exp = await new AddExpenseHandler(repo).execute({
-      eventId: create.event.id, paidBy: create.creator.id, amountEuros: 10, description: 'Shop',
+      eventId: create.event.id,
+      paidBy: create.creator.id,
+      amountEuros: 10,
+      description: 'Shop',
       purchaseLinks: [{ purchaseId, quantity: 6 }],
     })
     expect(exp.event.expenses[0]!.purchaseLinks).toEqual([{ purchaseId, quantity: 6 }])
@@ -94,8 +107,12 @@ describe('EditExpenseHandler', () => {
     const expenseId = exp.event.expenses[0]!.id
     // Edit the expense to cover fewer units.
     const edited = await new EditExpenseHandler(repo).execute({
-      eventId: create.event.id, expenseId, editedBy: create.creator.id,
-      paidBy: create.creator.id, amountEuros: 10, description: 'Shop',
+      eventId: create.event.id,
+      expenseId,
+      editedBy: create.creator.id,
+      paidBy: create.creator.id,
+      amountEuros: 10,
+      description: 'Shop',
       purchaseLinks: [{ purchaseId, quantity: 3 }],
     })
     expect(edited.event.expenses[0]!.purchaseLinks).toEqual([{ purchaseId, quantity: 3 }])
@@ -107,19 +124,31 @@ describe('EditExpenseHandler', () => {
     const repo = new InMemoryEventRepository()
     const create = await new CreateEventHandler(repo).execute({ name: 'Trip', creatorName: 'John' })
     const p1 = await new AddPurchaseHandler(repo).execute({
-      eventId: create.event.id, createdBy: create.creator.id,
-      item: 'Coke', quantity: 1, unit: 'units',
-      dailyConsumption: 1, consumers: [{ userId: create.creator.id, multiplier: 1 }], days: 1,
+      eventId: create.event.id,
+      createdBy: create.creator.id,
+      item: 'Coke',
+      quantity: 1,
+      unit: 'units',
+      dailyConsumption: 1,
+      consumers: [{ userId: create.creator.id, multiplier: 1 }],
+      days: 1,
     })
     const purchaseId = p1.event.purchases[0]!.id
     const exp = await new AddExpenseHandler(repo).execute({
-      eventId: create.event.id, paidBy: create.creator.id, amountEuros: 10, description: 'Shop',
+      eventId: create.event.id,
+      paidBy: create.creator.id,
+      amountEuros: 10,
+      description: 'Shop',
       purchaseLinks: [{ purchaseId, quantity: 6 }],
     })
     const expenseId = exp.event.expenses[0]!.id
     const edited = await new EditExpenseHandler(repo).execute({
-      eventId: create.event.id, expenseId, editedBy: create.creator.id,
-      paidBy: create.creator.id, amountEuros: 15, description: 'Shop trip',
+      eventId: create.event.id,
+      expenseId,
+      editedBy: create.creator.id,
+      paidBy: create.creator.id,
+      amountEuros: 15,
+      description: 'Shop trip',
     })
     expect(edited.event.expenses[0]!.purchaseLinks).toEqual([{ purchaseId, quantity: 6 }])
   })

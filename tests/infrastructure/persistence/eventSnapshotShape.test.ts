@@ -29,10 +29,10 @@ describe('EventSnapshot shape guard', () => {
       event: [
         'availability',
         'availabilityNote',
-        'chosenDay',
+        'chosenOptions',
         'createdAt',
         'createdBy',
-        'days',
+        'dayOptions',
         'description',
         'emergencyContact',
         'expenses',

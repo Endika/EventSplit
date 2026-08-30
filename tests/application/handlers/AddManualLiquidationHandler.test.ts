@@ -5,7 +5,10 @@ import { InMemoryEventRepository } from '@/infrastructure/persistence/InMemoryEv
 
 async function setup() {
   const repo = new InMemoryEventRepository()
-  const create = await new CreateEventHandler(repo).execute({ name: 'Casa rural', creatorName: 'Javi' })
+  const create = await new CreateEventHandler(repo).execute({
+    name: 'Casa rural',
+    creatorName: 'Javi',
+  })
   return { repo, eventId: create.event.id, javi: create.creator.id }
 }
 

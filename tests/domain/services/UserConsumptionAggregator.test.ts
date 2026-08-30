@@ -63,10 +63,22 @@ describe('UserConsumptionAggregator', () => {
   it('produces one detail entry per buy purchase with shares', () => {
     const event = makeEvent({
       purchases: [
-        { ...basePurchase, id: 'p1', item: 'Wine', unit: 'bottles', totalQuantity: 6,
-          consumers: [{ userId: 'u1', multiplier: 1 }] },
-        { ...basePurchase, id: 'p2', item: 'Water', unit: 'liters', totalQuantity: 4,
-          consumers: [{ userId: 'u1', multiplier: 1 }] },
+        {
+          ...basePurchase,
+          id: 'p1',
+          item: 'Wine',
+          unit: 'bottles',
+          totalQuantity: 6,
+          consumers: [{ userId: 'u1', multiplier: 1 }],
+        },
+        {
+          ...basePurchase,
+          id: 'p2',
+          item: 'Water',
+          unit: 'liters',
+          totalQuantity: 4,
+          consumers: [{ userId: 'u1', multiplier: 1 }],
+        },
       ],
     })
     const r = UserConsumptionAggregator.compute(event, 'u1')
@@ -79,8 +91,14 @@ describe('UserConsumptionAggregator', () => {
   it('puts SHARED_UNIT items into shared bucket, not detail', () => {
     const event = makeEvent({
       purchases: [
-        { ...basePurchase, id: 'p1', item: 'Olive oil', unit: 'single', totalQuantity: 1,
-          consumers: [{ userId: 'u1', multiplier: 1 }] },
+        {
+          ...basePurchase,
+          id: 'p1',
+          item: 'Olive oil',
+          unit: 'single',
+          totalQuantity: 1,
+          consumers: [{ userId: 'u1', multiplier: 1 }],
+        },
       ],
     })
     const r = UserConsumptionAggregator.compute(event, 'u1')
@@ -91,10 +109,26 @@ describe('UserConsumptionAggregator', () => {
   it('puts bring items where assignedTo === userId into brought', () => {
     const event = makeEvent({
       purchases: [
-        { ...basePurchase, id: 'p1', kind: 'bring', item: 'Tablecloth', unit: 'units',
-          totalQuantity: 1, assignedTo: 'u1', consumers: [] },
-        { ...basePurchase, id: 'p2', kind: 'bring', item: 'Ice', unit: 'kg',
-          totalQuantity: 5, assignedTo: 'u2', consumers: [] },
+        {
+          ...basePurchase,
+          id: 'p1',
+          kind: 'bring',
+          item: 'Tablecloth',
+          unit: 'units',
+          totalQuantity: 1,
+          assignedTo: 'u1',
+          consumers: [],
+        },
+        {
+          ...basePurchase,
+          id: 'p2',
+          kind: 'bring',
+          item: 'Ice',
+          unit: 'kg',
+          totalQuantity: 5,
+          assignedTo: 'u2',
+          consumers: [],
+        },
       ],
     })
     const r = UserConsumptionAggregator.compute(event, 'u1')
@@ -124,13 +158,16 @@ describe('UserConsumptionAggregator', () => {
 
   it('handles fractional multipliers (children)', () => {
     const event = makeEvent({
-      purchases: [{
-        ...basePurchase, totalQuantity: 10,
-        consumers: [
-          { userId: 'adult', multiplier: 1 },
-          { userId: 'child', multiplier: 0.5 },
-        ],
-      }],
+      purchases: [
+        {
+          ...basePurchase,
+          totalQuantity: 10,
+          consumers: [
+            { userId: 'adult', multiplier: 1 },
+            { userId: 'child', multiplier: 0.5 },
+          ],
+        },
+      ],
     })
     const adult = UserConsumptionAggregator.compute(event, 'adult')
     const child = UserConsumptionAggregator.compute(event, 'child')
