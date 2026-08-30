@@ -14,6 +14,7 @@ import { Button } from '@/presentation/components/common/Button'
 import { reportError } from '@/shared/utils/reportError'
 import { friendlyError } from '@/presentation/utils/friendlyError'
 import { Input } from '@/presentation/components/common/Input'
+import { CloneFromEventModal } from '@/presentation/components/features/clone/CloneFromEventModal'
 import { AddressAutocomplete } from './AddressAutocomplete'
 import { MapEmbed } from './MapEmbed'
 
@@ -28,6 +29,7 @@ export function LocationTab() {
   const { pin: unlockedPin, setPin: setUnlockedPin } = useEditPin()
   const [editing, setEditing] = useState(false)
   const nameRef = useRef<HTMLInputElement>(null)
+  const [cloning, setCloning] = useState(false)
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
@@ -426,6 +428,20 @@ export function LocationTab() {
         <p className="text-xs text-muted">{t('pin.manageHint')}</p>
         <p className="text-xs text-muted">{t('pin.ownerVerifiedHint')}</p>
       </div>
+
+      {/* One single entry point for cloning, in the event's settings section: a
+          clone button per tab would be the same flow repeated five times, each
+          with its own subset and its own way to drift. */}
+      <div className="space-y-2 rounded-xl border border-border bg-surface p-4">
+        <h2 className="text-sm font-semibold uppercase tracking-wide text-muted">
+          {t('clone.title')}
+        </h2>
+        <Button type="button" variant="secondary" onClick={() => setCloning(true)}>
+          {t('clone.open')}
+        </Button>
+      </div>
+
+      <CloneFromEventModal open={cloning} onClose={() => setCloning(false)} />
 
       <div className="space-y-3 rounded-xl border border-danger bg-danger-soft p-4">
         <h2 className="text-sm font-semibold uppercase tracking-wide text-danger-soft-fg">
