@@ -1,5 +1,12 @@
 # Changelog
 
+## [3.2.1](https://github.com/Endika/EventSplit/compare/v3.2.0...v3.2.1) (2026-08-30)
+
+
+### Bug Fixes
+
+* **location:** stop discarding an address with no place name ([d1ec129](https://github.com/Endika/EventSplit/commit/d1ec12999eda58bc864a2e50a1e4fb8c934eb381))
+
 ## [3.2.0](https://github.com/Endika/EventSplit/compare/v3.1.1...v3.2.0) (2026-08-30)
 
 
