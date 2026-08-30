@@ -180,7 +180,8 @@
     "nextMonth": "Next month",
     "myVote": "My vote on {{label}}",
     "chosenOption": "Chosen option",
-    "optionVotes": "{{votes}} of {{total}} can make it"
+    "optionVotes": "{{votes}} of {{total}} can make it",
+    "editOptions": "Choose days on the calendar"
   },
   "id": {
     "who": "Who are you in \"{{eventName}}\"?",

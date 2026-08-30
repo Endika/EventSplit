@@ -180,7 +180,8 @@
     "nextMonth": "Hurrengo hilabetea",
     "myVote": "Nire botoa {{label}}-n",
     "chosenOption": "Aukeratutako aukera",
-    "optionVotes": "{{total}}(e)tik {{votes}} etor daitezke"
+    "optionVotes": "{{total}}(e)tik {{votes}} etor daitezke",
+    "editOptions": "Aukeratu egunak egutegian"
   },
   "id": {
     "who": "Nor zara \"{{eventName}}\" ekitaldian?",

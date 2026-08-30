@@ -180,7 +180,8 @@
     "nextMonth": "Mes seguinte",
     "myVote": "O meu voto en {{label}}",
     "chosenOption": "Opción elixida",
-    "optionVotes": "{{votes}} de {{total}} poden vir"
+    "optionVotes": "{{votes}} de {{total}} poden vir",
+    "editOptions": "Escoller días no calendario"
   },
   "id": {
     "who": "Quen es en \"{{eventName}}\"?",

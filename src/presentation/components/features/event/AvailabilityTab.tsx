@@ -272,7 +272,7 @@ export function AvailabilityTab() {
                 canVote={me !== null}
               />
               <Button type="button" variant="secondary" onClick={() => setEditingDays(true)}>
-                {t('availability.addDay')}
+                {t('availability.editOptions')}
               </Button>
               <OptionVoteList
                 options={event.dayOptions}
@@ -321,7 +321,7 @@ export function AvailabilityTab() {
       {editingDays && (
         <Modal
           open
-          title={t('availability.addDay')}
+          title={t('availability.editOptions')}
           dismissable={!busy}
           onClose={() => setEditingDays(false)}
         >
