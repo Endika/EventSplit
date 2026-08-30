@@ -487,5 +487,28 @@
     "deleteConfirm": "Ekitaldi hau guztiontzat ezabatu? Ezin da desegin.",
     "deleteYes": "Betiko ezabatu",
     "deleting": "Ezabatzen…"
+  },
+  "clone": {
+    "title": "Ekarri beste ekitaldi batetik",
+    "open": "Ekarri beste ekitaldi batetik",
+    "noSources": "Ez duzu gailu honetan beste ekitaldirik gordeta kopiatzeko.",
+    "sourceMeta_one": "Partaide {{count}} · {{date}}",
+    "sourceMeta_other": "{{count}} partaide · {{date}}",
+    "step1": "Zein ekitalditik?",
+    "step2": "Zer ekarri nahi duzu?",
+    "clone": "Ekarri",
+    "cloning": "Ekartzen…",
+    "blockDays": "Bozketaren egunak",
+    "blockPurchases": "Erosketa zerrenda",
+    "blockUsers": "Partaideak",
+    "blockSite": "Lekuaren datuak",
+    "noVotes": "Egunak botorik gabe datoz.",
+    "cleanList": "Produktuak inori esleitu gabe eta zure neurrira datoz.",
+    "duplicateName": "Izen hori duen norbait dago jada",
+    "nothingPicked": "Markatu zerbait ekartzeko.",
+    "fieldLocation": "Izena eta helbidea",
+    "fieldEmergency": "Larrialdietarako kontaktua",
+    "fieldWifi": "WiFi pasahitza",
+    "fieldNotes": "Ohar orokorrak"
   }
 }

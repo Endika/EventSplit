@@ -487,5 +487,28 @@
     "deleteConfirm": "Vols eliminar aquest esdeveniment per a tothom? No es pot desfer.",
     "deleteYes": "Elimina per sempre",
     "deleting": "Eliminant…"
+  },
+  "clone": {
+    "title": "Portar d'un altre esdeveniment",
+    "open": "Portar d'un altre esdeveniment",
+    "noSources": "No tens altres esdeveniments guardats en este dispositiu per a copiar.",
+    "sourceMeta_one": "{{count}} participant · {{date}}",
+    "sourceMeta_other": "{{count}} participants · {{date}}",
+    "step1": "De quin esdeveniment?",
+    "step2": "Què vols portar?",
+    "clone": "Portar",
+    "cloning": "Portant…",
+    "blockDays": "Dies de la votació",
+    "blockPurchases": "Llista de la compra",
+    "blockUsers": "Participants",
+    "blockSite": "Dades del lloc",
+    "noVotes": "Els dies arriben sense vots.",
+    "cleanList": "Els productes arriben sense ningú assignat i amb les quantitats per a tu.",
+    "duplicateName": "Ja hi ha algú amb este nom",
+    "nothingPicked": "Marca alguna cosa per a portar.",
+    "fieldLocation": "Nom i adreça",
+    "fieldEmergency": "Contacte d'emergència",
+    "fieldWifi": "Contrasenya WiFi",
+    "fieldNotes": "Notes generals"
   }
 }

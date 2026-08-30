@@ -487,5 +487,28 @@
     "deleteConfirm": "Delete this event for everyone? This cannot be undone.",
     "deleteYes": "Delete forever",
     "deleting": "Deleting…"
+  },
+  "clone": {
+    "title": "Bring from another event",
+    "open": "Bring from another event",
+    "noSources": "You have no other events saved on this device to copy from.",
+    "sourceMeta_one": "{{count}} participant · {{date}}",
+    "sourceMeta_other": "{{count}} participants · {{date}}",
+    "step1": "From which event?",
+    "step2": "What do you want?",
+    "clone": "Bring",
+    "cloning": "Bringing…",
+    "blockDays": "Poll days",
+    "blockPurchases": "Shopping list",
+    "blockUsers": "Participants",
+    "blockSite": "Site details",
+    "noVotes": "Days arrive with no votes.",
+    "cleanList": "Items arrive unassigned, sized for you.",
+    "duplicateName": "Someone here already has this name",
+    "nothingPicked": "Tick something to bring.",
+    "fieldLocation": "Name and address",
+    "fieldEmergency": "Emergency contact",
+    "fieldWifi": "WiFi password",
+    "fieldNotes": "General notes"
   }
 }
