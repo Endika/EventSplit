@@ -209,7 +209,8 @@
     "notes": "Ohar orokorrak",
     "wifi": "WiFi pasahitza",
     "emergency": "Larrialdiko kontaktua",
-    "searchHint": "Bilatu lekua izena, helbidea eta mapa automatikoki betetzeko."
+    "searchHint": "Bilatu lekua izena, helbidea eta mapa automatikoki betetzeko.",
+    "nameRequired": "Eman lekuari izena gordetzeko. Idatzi duzuna ez da galdu."
   },
   "purchases": {
     "add": "Zerrendara gehitu",

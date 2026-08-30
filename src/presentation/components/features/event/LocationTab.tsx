@@ -1,4 +1,4 @@
-import { type FormEvent, useState } from 'react'
+import { type FormEvent, useState, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useContainer } from '@/presentation/context/ContainerProvider'
 import { useEventState } from '@/presentation/context/EventContext'
@@ -27,6 +27,7 @@ export function LocationTab() {
   const { guardedExecute } = useWriteGuard()
   const { pin: unlockedPin, setPin: setUnlockedPin } = useEditPin()
   const [editing, setEditing] = useState(false)
+  const nameRef = useRef<HTMLInputElement>(null)
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
@@ -84,6 +85,15 @@ export function LocationTab() {
   function save(e: FormEvent) {
     e.preventDefault()
     if (!event) return
+    // The snapshot has no place for an address without a name: a nameless
+    // location becomes null, which would throw away what was just typed — and
+    // wipe whatever was saved before. Say so instead of losing it.
+    const hasDetails = Boolean(address.trim() || lat.trim() || lng.trim() || postalCode.trim())
+    if (hasDetails && !name.trim()) {
+      setError(t('location.nameRequired'))
+      nameRef.current?.focus()
+      return
+    }
     guardedExecute(async () => {
       setBusy(true)
       setError(null)
@@ -254,6 +264,11 @@ export function LocationTab() {
             value={name}
             onChange={(e) => setName(e.target.value)}
             maxLength={100}
+            ref={nameRef}
+            aria-required="true"
+            aria-invalid={Boolean(
+              (address.trim() || lat.trim() || lng.trim() || postalCode.trim()) && !name.trim(),
+            )}
           />
           <AddressAutocomplete
             value={address}

@@ -209,7 +209,8 @@
     "notes": "General notes",
     "wifi": "WiFi password",
     "emergency": "Emergency contact",
-    "searchHint": "Search the place to autofill its name, address and map."
+    "searchHint": "Search the place to autofill its name, address and map.",
+    "nameRequired": "Give the place a name to save. Nothing you typed has been lost."
   },
   "purchases": {
     "add": "Add to list",

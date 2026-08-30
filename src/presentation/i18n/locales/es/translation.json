@@ -209,7 +209,8 @@
     "notes": "Notas generales",
     "wifi": "Contraseña WiFi",
     "emergency": "Contacto de emergencia",
-    "searchHint": "Busca el sitio para autocompletar el nombre, la dirección y el mapa."
+    "searchHint": "Busca el sitio para autocompletar el nombre, la dirección y el mapa.",
+    "nameRequired": "Ponle nombre al sitio para poder guardar. No se ha perdido nada de lo que has escrito."
   },
   "purchases": {
     "add": "Añadir a la lista",
