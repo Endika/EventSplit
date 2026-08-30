@@ -158,7 +158,9 @@
     "removeDayYes": "Kendu",
     "cannotRemoveLast": "Ezin duzu egun bakarra kendu — gehitu beste bat lehenik.",
     "dayAlreadyExists": "Egun hori dagoeneko zerrendan dago.",
-    "showChildren": "Erakutsi haurrak ({{count}})"
+    "showChildren": "Erakutsi haurrak ({{count}})",
+    "hiddenOptions_one": "Taulatik kanpo {{count}} aukera gehiago · ikusi egutegian",
+    "hiddenOptions_other": "Taulatik kanpo {{count}} aukera gehiago · ikusi egutegian"
   },
   "id": {
     "who": "Nor zara \"{{eventName}}\" ekitaldian?",
