@@ -224,17 +224,25 @@ export function AvailabilityTab() {
         </label>
       )}
 
-      <form onSubmit={addDay} className="flex gap-2">
-        <Input
-          type="date"
-          value={newDay}
-          onChange={(e) => setNewDay(e.target.value)}
-          className="max-w-xs"
-        />
-        <Button type="submit" disabled={busy || !newDay}>
-          {t('availability.addDay')}
+      {/* Two ways in, on purpose: one date at a time, or the calendar for a
+          batch. The calendar must be reachable with zero options too — it is
+          the only way to pick a stretch. */}
+      <div className="space-y-2">
+        <Button type="button" onClick={() => setEditingDays(true)} disabled={busy}>
+          {t('availability.editOptions')}
         </Button>
-      </form>
+        <form onSubmit={addDay} className="flex gap-2">
+          <Input
+            type="date"
+            value={newDay}
+            onChange={(e) => setNewDay(e.target.value)}
+            className="max-w-xs"
+          />
+          <Button type="submit" variant="secondary" disabled={busy || !newDay}>
+            {t('availability.addDay')}
+          </Button>
+        </form>
+      </div>
 
       {error && <p className="text-sm text-danger">{error}</p>}
 
@@ -271,9 +279,6 @@ export function AvailabilityTab() {
                 onToggleMine={toggleMyVote}
                 canVote={me !== null}
               />
-              <Button type="button" variant="secondary" onClick={() => setEditingDays(true)}>
-                {t('availability.editOptions')}
-              </Button>
               <OptionVoteList
                 options={event.dayOptions}
                 counts={liveCounts}

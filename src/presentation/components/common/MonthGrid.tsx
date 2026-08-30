@@ -67,7 +67,7 @@ export function MonthGrid(props: {
             </div>
           ))}
         </div>
-        <div className="grid grid-cols-7 gap-0.5">
+        <div className="grid grid-cols-7 gap-y-0.5">
           {days.map((iso) => (
             <div key={iso} role="gridcell" className="min-h-11">
               {renderDay(iso, monthOf(iso) === month)}

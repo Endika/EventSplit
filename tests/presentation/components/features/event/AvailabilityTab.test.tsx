@@ -181,4 +181,36 @@ describe('AvailabilityTab', () => {
     )
     expect(screen.getByRole('textbox', { name: /nota|note|oharra/i })).toHaveValue('casa rural')
   })
+
+  it('offers the day picker on an event with no options yet', async () => {
+    render(
+      <Wrap event={makeEvent([])}>
+        <AvailabilityTab />
+      </Wrap>,
+    )
+    const picker = await waitFor(() =>
+      screen.getByRole('button', {
+        name: /elegir d(í|i)as|choose days|aukeratu egunak|triar dies|escoller d(í|i)as/i,
+      }),
+    )
+    fireEvent.click(picker)
+    expect(screen.getByRole('dialog')).toBeInTheDocument()
+    // and inside it, the range shortcut
+    expect(screen.getByRole('button', { name: /tramo|stretch|tarte|tram/i })).toBeInTheDocument()
+  })
+
+  it('offers the day picker from the table view too', async () => {
+    render(
+      <Wrap event={makeEvent([jun5])}>
+        <AvailabilityTab />
+      </Wrap>,
+    )
+    await waitFor(() => expect(cell('2026-06-05')).toBeInTheDocument())
+    fireEvent.click(tableButton())
+    expect(
+      screen.getByRole('button', {
+        name: /elegir d(í|i)as|choose days|aukeratu egunak|triar dies|escoller d(í|i)as/i,
+      }),
+    ).toBeInTheDocument()
+  })
 })

@@ -163,4 +163,40 @@ describe('DayOptionsCalendar', () => {
     fireEvent.click(screen.getByRole('button', { name: /guardar|save|gorde|desa/i }))
     expect(onCommit).toHaveBeenCalledWith([day('2026-06-05'), day('2026-06-20')])
   })
+
+  it('draws a selected stretch as one band, not as separate days', () => {
+    render(
+      <DayOptionsCalendar
+        options={[{ start: '2026-06-12', end: '2026-06-14', note: null }]}
+        votesByKey={{}}
+        onCommit={vi.fn()}
+        busy={false}
+      />,
+    )
+    expect(cell('2026-06-12')).toHaveAttribute('data-span', 'start')
+    expect(cell('2026-06-13')).toHaveAttribute('data-span', 'middle')
+    expect(cell('2026-06-14')).toHaveAttribute('data-span', 'end')
+  })
+
+  it('a single day is its own rounded cell', () => {
+    render(
+      <DayOptionsCalendar
+        options={[day('2026-06-05')]}
+        votesByKey={{}}
+        onCommit={vi.fn()}
+        busy={false}
+      />,
+    )
+    expect(cell('2026-06-05')).toHaveAttribute('data-span', 'single')
+  })
+
+  it('a day picked into a stretch reads as a band right away', () => {
+    render(<DayOptionsCalendar options={[]} votesByKey={{}} onCommit={vi.fn()} busy={false} />)
+    fireEvent.click(screen.getByRole('button', { name: /tramo|stretch|tarte|tram/i }))
+    fireEvent.click(cell('2026-06-12'))
+    fireEvent.click(cell('2026-06-14'))
+    expect(cell('2026-06-12')).toHaveAttribute('data-span', 'start')
+    expect(cell('2026-06-13')).toHaveAttribute('data-span', 'middle')
+    expect(cell('2026-06-14')).toHaveAttribute('data-span', 'end')
+  })
 })
