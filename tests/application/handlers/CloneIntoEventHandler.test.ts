@@ -5,6 +5,7 @@ import { SetDayOptionsHandler } from '@/application/handlers/SetDayOptionsHandle
 import { SetAvailabilityBatchHandler } from '@/application/handlers/SetAvailabilityBatchHandler'
 import { AddPurchaseHandler } from '@/application/handlers/AddPurchaseHandler'
 import { CloneIntoEventHandler } from '@/application/handlers/CloneIntoEventHandler'
+import { UpdateProfileHandler } from '@/application/handlers/UpdateProfileHandler'
 import { InMemoryEventRepository } from '@/infrastructure/persistence/InMemoryEventRepository'
 import { CountingRepository } from '../../support/CountingRepository'
 import { optionKey } from '@/domain/value-objects/DayOption'
@@ -64,7 +65,14 @@ async function seed(repo: InMemoryEventRepository) {
 }
 
 function sel(over: Partial<CloneSelection> = {}): CloneSelection {
-  return { dayOptions: false, userIds: [], purchaseIds: [], site: noSite, ...over }
+  return {
+    dayOptions: false,
+    userIds: [],
+    mergeUserIds: [],
+    purchaseIds: [],
+    site: noSite,
+    ...over,
+  }
 }
 
 describe('CloneIntoEventHandler', () => {
@@ -299,5 +307,156 @@ describe('CloneIntoEventHandler', () => {
     expect(result.event.chosenOptions).toEqual([])
     expect(result.event.history.every((h) => h.type !== 'days_set' || true)).toBe(true)
     expect(result.event.name).toBe('Viaje nuevo')
+  })
+
+  describe('merging a duplicate participant', () => {
+    /**
+     * The real shape of the problem: the target's creator, Iker, is also in the
+     * source event — with a profile filled in there and blank here — and brings
+     * an item along.
+     */
+    async function seedTwin(repo: InMemoryEventRepository) {
+      const ctx = await seed(repo)
+      const source = await new JoinAsNewUserHandler(repo).execute({
+        eventId: ctx.sourceId,
+        name: 'Iker',
+      })
+      const twinId = source.newUser.id
+      await new UpdateProfileHandler(repo).execute({
+        eventId: ctx.sourceId,
+        userId: twinId,
+        actorId: twinId,
+        dietary: 'vegano',
+        phone: '600123456',
+        allergies: [{ name: 'nuts', severity: 'severe', notes: null }],
+      })
+      const oil = await new AddPurchaseHandler(repo).execute({
+        eventId: ctx.sourceId,
+        createdBy: twinId,
+        item: 'Aceite',
+        quantity: 1,
+        unit: 'units',
+        dailyConsumption: 1,
+        consumers: [{ userId: twinId, multiplier: 1 }],
+        days: 1,
+        assignedTo: twinId,
+      })
+      const oilId = oil.event.purchases.find((p) => p.item === 'Aceite')!.id
+      return { ...ctx, twinId, oilId }
+    }
+
+    it('fills the existing profile in and adds no second participant', async () => {
+      const repo = new InMemoryEventRepository()
+      const ctx = await seedTwin(repo)
+
+      const result = await new CloneIntoEventHandler(repo).execute({
+        targetEventId: ctx.targetId,
+        sourceEventId: ctx.sourceId,
+        clonedBy: ctx.me,
+        selection: sel({ userIds: [ctx.twinId], mergeUserIds: [ctx.twinId] }),
+      })
+
+      expect(result.event.users).toHaveLength(1)
+      const iker = result.event.users[0]!
+      expect(iker.id).toBe(ctx.me)
+      expect(iker.dietary).toBe('vegano')
+      expect(iker.phone).toBe('600123456')
+      expect(iker.allergies).toEqual([{ name: 'nuts', severity: 'severe', notes: null }])
+    })
+
+    it('hands the cloned item to the existing participant', async () => {
+      const repo = new InMemoryEventRepository()
+      const ctx = await seedTwin(repo)
+
+      const result = await new CloneIntoEventHandler(repo).execute({
+        targetEventId: ctx.targetId,
+        sourceEventId: ctx.sourceId,
+        clonedBy: ctx.me,
+        selection: sel({
+          userIds: [ctx.twinId],
+          mergeUserIds: [ctx.twinId],
+          purchaseIds: [ctx.oilId],
+        }),
+      })
+
+      expect(result.event.purchases[0]!.assignedTo).toBe(ctx.me)
+    })
+
+    it('adds a second Iker when the merge is declined', async () => {
+      const repo = new InMemoryEventRepository()
+      const ctx = await seedTwin(repo)
+
+      const result = await new CloneIntoEventHandler(repo).execute({
+        targetEventId: ctx.targetId,
+        sourceEventId: ctx.sourceId,
+        clonedBy: ctx.me,
+        selection: sel({ userIds: [ctx.twinId] }),
+      })
+
+      expect(result.event.users).toHaveLength(2)
+      expect(result.event.users.map((u) => u.name)).toEqual(['Iker', 'Iker'])
+      // The one that was already here is left untouched.
+      expect(result.event.users.find((u) => u.id === ctx.me)!.dietary).toBeNull()
+    })
+
+    it('tells merges and arrivals apart in the history', async () => {
+      const repo = new InMemoryEventRepository()
+      const ctx = await seedTwin(repo)
+
+      const result = await new CloneIntoEventHandler(repo).execute({
+        targetEventId: ctx.targetId,
+        sourceEventId: ctx.sourceId,
+        clonedBy: ctx.me,
+        selection: sel({
+          userIds: [ctx.twinId, ctx.anaId],
+          mergeUserIds: [ctx.twinId],
+        }),
+      })
+
+      const entry = result.event.history.find((h) => h.type === 'cloned_from')!
+      expect(entry.description).toContain('1 participant(s)')
+      expect(entry.description).toContain('1 merged participant(s)')
+    })
+
+    it("leaves the target's own filled-in fields alone", async () => {
+      const repo = new InMemoryEventRepository()
+      const ctx = await seedTwin(repo)
+      await new UpdateProfileHandler(repo).execute({
+        eventId: ctx.targetId,
+        userId: ctx.me,
+        actorId: ctx.me,
+        dietary: 'celiaco',
+      })
+
+      const result = await new CloneIntoEventHandler(repo).execute({
+        targetEventId: ctx.targetId,
+        sourceEventId: ctx.sourceId,
+        clonedBy: ctx.me,
+        selection: sel({ userIds: [ctx.twinId], mergeUserIds: [ctx.twinId] }),
+      })
+
+      expect(result.event.users[0]!.dietary).toBe('celiaco')
+      // The gap it did have still gets filled.
+      expect(result.event.users[0]!.phone).toBe('600123456')
+    })
+
+    it('still costs a single write', async () => {
+      const inner = new InMemoryEventRepository()
+      const ctx = await seedTwin(inner)
+      const repo = new CountingRepository(inner)
+
+      await new CloneIntoEventHandler(repo).execute({
+        targetEventId: ctx.targetId,
+        sourceEventId: ctx.sourceId,
+        clonedBy: ctx.me,
+        selection: sel({
+          userIds: [ctx.twinId],
+          mergeUserIds: [ctx.twinId],
+          purchaseIds: [ctx.oilId],
+        }),
+      })
+
+      expect(repo.updates).toBe(1)
+    })
   })
 })
