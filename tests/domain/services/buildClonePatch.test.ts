@@ -40,6 +40,7 @@ function sel(over: Partial<CloneSelection> = {}): CloneSelection {
   return {
     dayOptions: false,
     userIds: [],
+    mergeUserIds: [],
     purchaseIds: [],
     site: { location: false, emergencyContact: false, wifiPassword: false, generalNotes: false },
     ...over,
@@ -331,5 +332,201 @@ describe('buildClonePatch', () => {
     })
     const ids = patch.purchases.map((p) => p.id)
     expect(new Set(ids).size).toBe(2)
+  })
+
+  describe('merging a duplicate participant', () => {
+    const endika = (over: Partial<UserSnapshot> = {}) => user('su1', 'Endika', over)
+    const twin = (over: Partial<UserSnapshot> = {}) => user('tu1', 'Endika', over)
+    const merge = (over: Partial<CloneSelection> = {}) =>
+      sel({ userIds: ['su1'], mergeUserIds: ['su1'], ...over })
+
+    it('adds nobody and points the id map at the participant already there', () => {
+      const patch = buildClonePatch({
+        ...base,
+        source: src({ users: [endika()] }),
+        target: tgt({ users: [twin()] }),
+        selection: merge(),
+      })
+      expect(patch.users).toEqual([])
+      expect(patch.idMap.su1).toBe('tu1')
+    })
+
+    it('matches on the normalized name, so casing and padding still merge', () => {
+      const patch = buildClonePatch({
+        ...base,
+        source: src({ users: [user('su1', '  ENDIKA ')] }),
+        target: tgt({ users: [twin()] }),
+        selection: merge(),
+      })
+      expect(patch.users).toEqual([])
+      expect(patch.idMap.su1).toBe('tu1')
+    })
+
+    it('hands a cloned item to the participant already there, not to a clone', () => {
+      const patch = buildClonePatch({
+        ...base,
+        source: src({
+          users: [endika()],
+          purchases: [bring('sp1', { item: 'Aceite', assignedTo: 'su1' })],
+        }),
+        target: tgt({ users: [twin()] }),
+        selection: merge({ purchaseIds: ['sp1'] }),
+      })
+      expect(patch.purchases[0]!.assignedTo).toBe('tu1')
+    })
+
+    it('fills only the fields the target left empty', () => {
+      const patch = buildClonePatch({
+        ...base,
+        source: src({
+          users: [
+            endika({
+              alias: 'Endi',
+              dietary: 'vegano',
+              email: 'endika@example.com',
+              phone: '600',
+              notes: 'conduce',
+            }),
+          ],
+        }),
+        target: tgt({ users: [twin({ dietary: 'celiaco', phone: '700' })] }),
+        selection: merge(),
+      })
+      expect(patch.profileUpdates).toEqual([
+        {
+          userId: 'tu1',
+          update: {
+            alias: 'Endi',
+            email: 'endika@example.com',
+            notes: 'conduce',
+          },
+        },
+      ])
+    })
+
+    it('treats a whitespace-only value in the target as empty', () => {
+      const patch = buildClonePatch({
+        ...base,
+        source: src({ users: [endika({ dietary: 'vegano' })] }),
+        target: tgt({ users: [twin({ dietary: '   ' })] }),
+        selection: merge(),
+      })
+      expect(patch.profileUpdates[0]!.update.dietary).toBe('vegano')
+    })
+
+    it('unions allergies instead of replacing them', () => {
+      const patch = buildClonePatch({
+        ...base,
+        source: src({
+          users: [
+            endika({
+              allergies: [
+                { name: 'nuts', severity: 'severe', notes: null },
+                { name: 'gluten', severity: 'mild', notes: null },
+              ],
+            }),
+          ],
+        }),
+        target: tgt({
+          users: [twin({ allergies: [{ name: 'gluten', severity: 'severe', notes: 'ojo' }] })],
+        }),
+        selection: merge(),
+      })
+      expect(patch.profileUpdates[0]!.update.allergies).toEqual([
+        // The target's own severity survives; only the unknown allergen is added.
+        { name: 'gluten', severity: 'severe', notes: 'ojo' },
+        { name: 'nuts', severity: 'severe', notes: null },
+      ])
+    })
+
+    it('emits no allergy update when the target is already at the cap', () => {
+      const full = Array.from({ length: 20 }, (_, i) => ({
+        name: ['gluten', 'lactose', 'egg', 'peanut', 'nuts'][i % 5] as 'gluten',
+        severity: 'mild' as const,
+        notes: `a${i}`,
+      }))
+      const patch = buildClonePatch({
+        ...base,
+        source: src({
+          users: [endika({ allergies: [{ name: 'fish', severity: 'mild', notes: null }] })],
+        }),
+        target: tgt({ users: [twin({ allergies: full })] }),
+        selection: merge(),
+      })
+      expect(patch.profileUpdates).toEqual([])
+    })
+
+    it('never touches name or kind', () => {
+      const patch = buildClonePatch({
+        ...base,
+        source: src({ users: [user('su1', 'endika', { kind: 'child' })] }),
+        target: tgt({ users: [twin({ kind: 'adult' })] }),
+        selection: merge(),
+      })
+      expect(patch.profileUpdates).toEqual([])
+    })
+
+    it('emits no update when there is nothing left to fill', () => {
+      const patch = buildClonePatch({
+        ...base,
+        source: src({ users: [endika({ dietary: 'vegano' })] }),
+        target: tgt({ users: [twin({ dietary: 'vegano' })] }),
+        selection: merge(),
+      })
+      expect(patch.profileUpdates).toEqual([])
+      expect(patch.idMap.su1).toBe('tu1')
+    })
+
+    it('accumulates two source people folded into the same participant', () => {
+      const patch = buildClonePatch({
+        ...base,
+        source: src({
+          users: [endika({ dietary: 'vegano' }), user('su2', 'Endika', { alias: 'Endi' })],
+        }),
+        target: tgt({ users: [twin()] }),
+        selection: sel({ userIds: ['su1', 'su2'], mergeUserIds: ['su1', 'su2'] }),
+      })
+      expect(patch.users).toEqual([])
+      expect(patch.profileUpdates).toEqual([
+        { userId: 'tu1', update: { dietary: 'vegano', alias: 'Endi' } },
+      ])
+      expect(patch.idMap).toEqual({ su1: 'tu1', su2: 'tu1' })
+    })
+
+    it('creates a new participant when merging was asked for but nobody matches', () => {
+      const patch = buildClonePatch({
+        ...base,
+        source: src({ users: [endika()] }),
+        target: tgt({ users: [user('tu1', 'Maite')] }),
+        selection: merge(),
+      })
+      expect(patch.users).toHaveLength(1)
+      expect(patch.users[0]!.name).toBe('Endika')
+      expect(patch.profileUpdates).toEqual([])
+      expect(patch.idMap.su1).toBe(patch.users[0]!.id)
+    })
+
+    it('ignores a merge decision for someone who was not ticked', () => {
+      const patch = buildClonePatch({
+        ...base,
+        source: src({ users: [endika({ dietary: 'vegano' })] }),
+        target: tgt({ users: [twin()] }),
+        selection: sel({ userIds: [], mergeUserIds: ['su1'] }),
+      })
+      expect(patch.users).toEqual([])
+      expect(patch.profileUpdates).toEqual([])
+      expect(patch.idMap).toEqual({})
+    })
+
+    it('still creates a duplicate when the merge was not asked for', () => {
+      const patch = buildClonePatch({
+        ...base,
+        source: src({ users: [endika()] }),
+        target: tgt({ users: [twin()] }),
+        selection: sel({ userIds: ['su1'] }),
+      })
+      expect(patch.users).toHaveLength(1)
+      expect(patch.idMap.su1).not.toBe('tu1')
+    })
   })
 })

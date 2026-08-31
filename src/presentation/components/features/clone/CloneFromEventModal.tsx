@@ -19,6 +19,7 @@ import { CloneBlockTree } from './CloneBlockTree'
 const EMPTY: CloneSelection = {
   dayOptions: false,
   userIds: [],
+  mergeUserIds: [],
   purchaseIds: [],
   site: { location: false, emergencyContact: false, wifiPassword: false, generalNotes: false },
 }

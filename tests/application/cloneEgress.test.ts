@@ -63,6 +63,7 @@ describe('clone egress', () => {
       selection: {
         dayOptions: true,
         userIds: [ctx.anaId],
+        mergeUserIds: [],
         purchaseIds: ctx.purchaseIds,
         site: {
           location: true,
@@ -90,6 +91,7 @@ describe('clone egress', () => {
       selection: {
         dayOptions: false,
         userIds: [],
+        mergeUserIds: [],
         purchaseIds: ctx.purchaseIds,
         site: {
           location: false,
