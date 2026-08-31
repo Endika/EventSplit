@@ -9,6 +9,7 @@ export const CloneIntoEventSchema = z.object({
   selection: z.object({
     dayOptions: z.boolean(),
     userIds: z.array(z.string()).max(50),
+    mergeUserIds: z.array(z.string()).max(50),
     purchaseIds: z.array(z.string()).max(500),
     site: z.object({
       location: z.boolean(),

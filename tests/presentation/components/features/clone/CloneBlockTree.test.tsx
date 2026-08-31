@@ -81,6 +81,7 @@ function snap(over: Partial<EventSnapshot>): EventSnapshot {
 const empty: CloneSelection = {
   dayOptions: false,
   userIds: [],
+  mergeUserIds: [],
   purchaseIds: [],
   site: { location: false, emergencyContact: false, wifiPassword: false, generalNotes: false },
 }
@@ -222,5 +223,133 @@ describe('CloneBlockTree', () => {
     expect(
       screen.getByText(/sin votos|no votes|botorik gabe|sense vots|sen votos/i),
     ).toBeInTheDocument()
+  })
+
+  describe('the merge choice on a duplicate', () => {
+    const twinTarget = snap({ users: [user('t1', 'ana')] })
+    const radios = () => document.querySelectorAll<HTMLInputElement>('[data-merge="su1"] input')
+
+    it('is hidden until the duplicate is ticked', () => {
+      render(
+        <CloneBlockTree
+          source={fullSource}
+          target={twinTarget}
+          selection={empty}
+          onChange={vi.fn()}
+        />,
+      )
+      expect(radios()).toHaveLength(0)
+    })
+
+    it('never shows for a participant who is not a duplicate', () => {
+      render(
+        <CloneBlockTree
+          source={fullSource}
+          target={twinTarget}
+          selection={{ ...empty, userIds: ['su1', 'su2'], mergeUserIds: ['su1'] }}
+          onChange={vi.fn()}
+        />,
+      )
+      expect(document.querySelector('[data-merge="su2"]')).toBeNull()
+      expect(radios()).toHaveLength(2)
+    })
+
+    it('ticking a duplicate defaults it to merging', () => {
+      const onChange = vi.fn()
+      render(
+        <CloneBlockTree
+          source={fullSource}
+          target={twinTarget}
+          selection={empty}
+          onChange={onChange}
+        />,
+      )
+      fireEvent.click(box(/^Ana$/))
+      expect(onChange).toHaveBeenCalledWith(
+        expect.objectContaining({ userIds: ['su1'], mergeUserIds: ['su1'] }),
+      )
+    })
+
+    it('ticking someone who is not a duplicate adds no merge', () => {
+      const onChange = vi.fn()
+      render(
+        <CloneBlockTree
+          source={fullSource}
+          target={twinTarget}
+          selection={empty}
+          onChange={onChange}
+        />,
+      )
+      fireEvent.click(box(/^Luis/))
+      expect(onChange).toHaveBeenCalledWith(
+        expect.objectContaining({ userIds: ['su2'], mergeUserIds: [] }),
+      )
+    })
+
+    it('shows merging preselected and switches to creating a new one', () => {
+      const onChange = vi.fn()
+      render(
+        <CloneBlockTree
+          source={fullSource}
+          target={twinTarget}
+          selection={{ ...empty, userIds: ['su1'], mergeUserIds: ['su1'] }}
+          onChange={onChange}
+        />,
+      )
+      const [mergeRadio, newRadio] = [...radios()]
+      expect(mergeRadio!.checked).toBe(true)
+      expect(newRadio!.checked).toBe(false)
+
+      fireEvent.click(newRadio!)
+      expect(onChange).toHaveBeenCalledWith(expect.objectContaining({ mergeUserIds: [] }))
+    })
+
+    it('unticking a duplicate drops its merge decision', () => {
+      const onChange = vi.fn()
+      render(
+        <CloneBlockTree
+          source={fullSource}
+          target={twinTarget}
+          selection={{ ...empty, userIds: ['su1'], mergeUserIds: ['su1'] }}
+          onChange={onChange}
+        />,
+      )
+      fireEvent.click(box(/^Ana$/))
+      expect(onChange).toHaveBeenCalledWith(
+        expect.objectContaining({ userIds: [], mergeUserIds: [] }),
+      )
+    })
+
+    it('ticking the whole block defaults every duplicate to merging', () => {
+      const onChange = vi.fn()
+      render(
+        <CloneBlockTree
+          source={fullSource}
+          target={twinTarget}
+          selection={empty}
+          onChange={onChange}
+        />,
+      )
+      fireEvent.click(box(/participantes|participants|partaide/i))
+      expect(onChange).toHaveBeenCalledWith(
+        expect.objectContaining({ userIds: ['su1', 'su2'], mergeUserIds: ['su1'] }),
+      )
+    })
+
+    it('unticking the whole block clears every merge decision', () => {
+      const onChange = vi.fn()
+      render(
+        <CloneBlockTree
+          source={fullSource}
+          target={twinTarget}
+          selection={{ ...empty, userIds: ['su1', 'su2'], mergeUserIds: ['su1'] }}
+          onChange={onChange}
+        />,
+      )
+      fireEvent.click(box(/participantes|participants|partaide/i))
+      expect(onChange).toHaveBeenCalledWith(
+        expect.objectContaining({ userIds: [], mergeUserIds: [] }),
+      )
+    })
   })
 })
