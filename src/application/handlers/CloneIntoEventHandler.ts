@@ -3,19 +3,39 @@ import {
   type CloneIntoEventInput,
 } from '@/application/dtos/CloneIntoEventDTO'
 import type { EventSnapshot } from '@/domain/entities/Event'
+import { User, type ProfileUpdate } from '@/domain/entities/User'
 import { HistoryAppender } from '@/domain/services/HistoryAppender'
 import { buildClonePatch, type CloneSelection } from '@/domain/services/buildClonePatch'
 import type { IEventRepository } from '@/domain/repositories/IEventRepository'
 import { withOptimisticRetry } from '@/application/support/withOptimisticRetry'
 import { MAX_OPTIONS, optionKey, sortOptions } from '@/domain/value-objects/DayOption'
 
-function describeBlocks(selection: CloneSelection): string {
+function describeBlocks(
+  selection: CloneSelection,
+  people: { added: number; merged: number },
+): string {
   const blocks: string[] = []
   if (selection.dayOptions) blocks.push('day options')
-  if (selection.userIds.length > 0) blocks.push(`${selection.userIds.length} participant(s)`)
+  // Merged people are not new arrivals, so they are counted apart: the history
+  // has to be able to explain why the participant count did not move.
+  if (people.added > 0) blocks.push(`${people.added} participant(s)`)
+  if (people.merged > 0) blocks.push(`${people.merged} merged participant(s)`)
   if (selection.purchaseIds.length > 0) blocks.push(`${selection.purchaseIds.length} item(s)`)
   if (Object.values(selection.site).some(Boolean)) blocks.push('site details')
   return blocks.length > 0 ? blocks.join(', ') : 'nothing'
+}
+
+/** Fill in the gaps on participants a merge folded someone into, in place. */
+function applyProfileUpdates(
+  users: EventSnapshot['users'],
+  updates: { userId: string; update: ProfileUpdate }[],
+): EventSnapshot['users'] {
+  if (updates.length === 0) return users
+  const byId = new Map(updates.map((u) => [u.userId, u.update]))
+  return users.map((u) => {
+    const update = byId.get(u.id)
+    return update ? User.restore(u).withProfile(update).toSnapshot() : u
+  })
 }
 
 function mergeSubgroupOrder(
@@ -80,7 +100,7 @@ export class CloneIntoEventHandler {
         {
           ...row.snapshot,
           ...patch.site,
-          users: [...row.snapshot.users, ...patch.users],
+          users: [...applyProfileUpdates(row.snapshot.users, patch.profileUpdates), ...patch.users],
           purchases: [...row.snapshot.purchases, ...patch.purchases],
           dayOptions,
           availability,
@@ -90,7 +110,11 @@ export class CloneIntoEventHandler {
         {
           type: 'cloned_from',
           userId: parsed.clonedBy,
-          description: `Cloned ${describeBlocks(parsed.selection)} from "${source.snapshot.name}"`,
+          description: `Cloned ${describeBlocks(parsed.selection, {
+            added: patch.users.length,
+            // Everyone who resolved to an id but did not arrive as a new person.
+            merged: Object.keys(patch.idMap).length - patch.users.length,
+          })} from "${source.snapshot.name}"`,
         },
       )
 
