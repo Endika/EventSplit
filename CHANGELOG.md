@@ -1,5 +1,14 @@
 # Changelog
 
+## [3.4.0](https://github.com/Endika/EventSplit/compare/v3.3.0...v3.4.0) (2026-08-31)
+
+
+### Features
+
+* **clone:** fill in the merged profile when applying the patch ([fb9ac9f](https://github.com/Endika/EventSplit/commit/fb9ac9f130dd725e9846e8d5e6d2811a3b9f46a7))
+* **clone:** fold a duplicate participant into the one already there ([361a6c2](https://github.com/Endika/EventSplit/commit/361a6c2615a5492763ca0b827df6badc3331af5a))
+* **clone:** pick merge or a new person for each duplicate ([dbf78ad](https://github.com/Endika/EventSplit/commit/dbf78adc9051a0402cca0b97fa95b3ebbcd294cd))
+
 ## [3.3.0](https://github.com/Endika/EventSplit/compare/v3.2.1...v3.3.0) (2026-08-30)
 
 
