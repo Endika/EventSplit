@@ -1,5 +1,15 @@
 # Changelog
 
+## [3.4.1](https://github.com/Endika/EventSplit/compare/v3.4.0...v3.4.1) (2026-09-05)
+
+
+### Chores
+
+* **deps-dev:** bump browserslist ([67c2ff7](https://github.com/Endika/EventSplit/commit/67c2ff7174688b586710a05619a102e3a755efad))
+* **deps:** bump fast-uri in the security-npm group across 1 directory ([cb37d08](https://github.com/Endika/EventSplit/commit/cb37d08634003a1b242227b9085df2ac656d1a52))
+* **deps:** bump the npm-minor-patch group with 12 updates ([152afd5](https://github.com/Endika/EventSplit/commit/152afd514b507cb3e515539819dc09c03dc783c7))
+* run lint, prettier and typecheck over tests too ([2d2c15c](https://github.com/Endika/EventSplit/commit/2d2c15c7fbd34a62c7ab1a2e517000abcb6add54))
+
 ## [3.4.0](https://github.com/Endika/EventSplit/compare/v3.3.0...v3.4.0) (2026-08-31)
 
 
