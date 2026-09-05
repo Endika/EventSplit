@@ -11,7 +11,11 @@ describe('CreateEventHandler', () => {
   it('creates the event and persists it', async () => {
     const repo = new InMemoryEventRepository()
     const handler = new CreateEventHandler(repo)
-    const result = await handler.execute({ name: 'Mountain trip', creatorName: 'John', creatorAlias: 'cousin' })
+    const result = await handler.execute({
+      name: 'Mountain trip',
+      creatorName: 'John',
+      creatorAlias: 'cousin',
+    })
     expect(result.event.name).toBe('Mountain trip')
     expect(result.creator.displayName).toBe('John (cousin)')
     expect(result.version).toBe(1)

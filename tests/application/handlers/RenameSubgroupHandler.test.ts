@@ -12,16 +12,30 @@ describe('RenameSubgroupHandler', () => {
     const creatorId = create.creator.id
 
     await new AddPurchaseHandler(repo).execute({
-      eventId: create.event.id, createdBy: creatorId,
-      item: 'Coke', quantity: 3, unit: 'bottles', dailyConsumption: 2,
-      consumers: [{ userId: creatorId, multiplier: 1 }], days: 3, group: 'Cena', subgroup: 'Entrantes',
+      eventId: create.event.id,
+      createdBy: creatorId,
+      item: 'Coke',
+      quantity: 3,
+      unit: 'bottles',
+      dailyConsumption: 2,
+      consumers: [{ userId: creatorId, multiplier: 1 }],
+      days: 3,
+      group: 'Cena',
+      subgroup: 'Entrantes',
     })
     await new SetSubgroupOrderHandler(repo).execute({
-      eventId: create.event.id, userId: creatorId, group: 'Cena', order: ['Entrantes'],
+      eventId: create.event.id,
+      userId: creatorId,
+      group: 'Cena',
+      order: ['Entrantes'],
     })
 
     const result = await new RenameSubgroupHandler(repo).execute({
-      eventId: create.event.id, userId: creatorId, group: 'Cena', from: 'Entrantes', to: 'Aperitivos',
+      eventId: create.event.id,
+      userId: creatorId,
+      group: 'Cena',
+      from: 'Entrantes',
+      to: 'Aperitivos',
     })
 
     expect(result.event.purchases[0]!.subgroup).toBe('Aperitivos')
@@ -34,18 +48,36 @@ describe('RenameSubgroupHandler', () => {
     const creatorId = create.creator.id
 
     await new AddPurchaseHandler(repo).execute({
-      eventId: create.event.id, createdBy: creatorId,
-      item: 'Coke', quantity: 3, unit: 'bottles', dailyConsumption: 2,
-      consumers: [{ userId: creatorId, multiplier: 1 }], days: 3, group: 'Cena', subgroup: 'Bebidas',
+      eventId: create.event.id,
+      createdBy: creatorId,
+      item: 'Coke',
+      quantity: 3,
+      unit: 'bottles',
+      dailyConsumption: 2,
+      consumers: [{ userId: creatorId, multiplier: 1 }],
+      days: 3,
+      group: 'Cena',
+      subgroup: 'Bebidas',
     })
     await new AddPurchaseHandler(repo).execute({
-      eventId: create.event.id, createdBy: creatorId,
-      item: 'Water', quantity: 3, unit: 'bottles', dailyConsumption: 2,
-      consumers: [{ userId: creatorId, multiplier: 1 }], days: 3, group: 'Comida', subgroup: 'Bebidas',
+      eventId: create.event.id,
+      createdBy: creatorId,
+      item: 'Water',
+      quantity: 3,
+      unit: 'bottles',
+      dailyConsumption: 2,
+      consumers: [{ userId: creatorId, multiplier: 1 }],
+      days: 3,
+      group: 'Comida',
+      subgroup: 'Bebidas',
     })
 
     const result = await new RenameSubgroupHandler(repo).execute({
-      eventId: create.event.id, userId: creatorId, group: 'Cena', from: 'Bebidas', to: 'Refrescos',
+      eventId: create.event.id,
+      userId: creatorId,
+      group: 'Cena',
+      from: 'Bebidas',
+      to: 'Refrescos',
     })
 
     const coke = result.event.purchases.find((p) => p.item === 'Coke')!

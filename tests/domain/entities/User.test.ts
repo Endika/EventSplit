@@ -23,7 +23,12 @@ describe('User', () => {
   })
   it('reuses existing id when restored from JSON', () => {
     const id = UserId.generate()
-    const u = User.restore({ id: id.value, name: 'John', alias: null, joinedAt: '2026-01-01T00:00:00Z' })
+    const u = User.restore({
+      id: id.value,
+      name: 'John',
+      alias: null,
+      joinedAt: '2026-01-01T00:00:00Z',
+    })
     expect(u.id.value).toBe(id.value)
   })
 
@@ -62,7 +67,11 @@ describe('User', () => {
 
   it('withProfile rejects too many allergies', () => {
     const u = User.create({ name: 'John' })
-    const tooMany = Array.from({ length: 21 }, () => ({ name: 'other' as const, severity: 'mild' as const, notes: null }))
+    const tooMany = Array.from({ length: 21 }, () => ({
+      name: 'other' as const,
+      severity: 'mild' as const,
+      notes: null,
+    }))
     expect(() => u.withProfile({ allergies: tooMany })).toThrow(/20/)
   })
 

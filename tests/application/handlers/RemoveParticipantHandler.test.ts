@@ -9,7 +9,8 @@ describe('RemoveParticipantHandler', () => {
     const repo = new InMemoryEventRepository()
     const create = await new CreateEventHandler(repo).execute({ name: 'Trip', creatorName: 'John' })
     const join = await new JoinAsNewUserHandler(repo).execute({
-      eventId: create.event.id, name: 'Maria',
+      eventId: create.event.id,
+      name: 'Maria',
     })
     const result = await new RemoveParticipantHandler(repo).execute({
       eventId: create.event.id,

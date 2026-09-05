@@ -5,7 +5,10 @@ import { InMemoryEventRepository } from '@/infrastructure/persistence/InMemoryEv
 
 async function setup() {
   const repo = new InMemoryEventRepository()
-  const create = await new CreateEventHandler(repo).execute({ name: 'Casa rural', creatorName: 'Javi' })
+  const create = await new CreateEventHandler(repo).execute({
+    name: 'Casa rural',
+    creatorName: 'Javi',
+  })
   return { repo, eventId: create.event.id, javi: create.creator.id }
 }
 
@@ -21,8 +24,8 @@ describe('AddManualLiquidationHandler', () => {
       affects: [javi],
     })
     expect(res.event.manualLiquidations).toHaveLength(1)
-    expect(res.event.manualLiquidations[0].cents).toBe(40000)
-    expect(res.event.manualLiquidations[0].paidBy).toBe(javi)
+    expect(res.event.manualLiquidations[0]!.cents).toBe(40000)
+    expect(res.event.manualLiquidations[0]!.paidBy).toBe(javi)
   })
 
   it('adds a pending liquidation (no payer)', async () => {
@@ -35,7 +38,7 @@ describe('AddManualLiquidationHandler', () => {
       paidBy: null,
       affects: [],
     })
-    expect(res.event.manualLiquidations[0].paidBy).toBeNull()
+    expect(res.event.manualLiquidations[0]!.paidBy).toBeNull()
   })
 
   it('rejects an unknown payer', async () => {
