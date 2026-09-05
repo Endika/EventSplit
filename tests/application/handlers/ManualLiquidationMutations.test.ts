@@ -9,7 +9,10 @@ import { InMemoryEventRepository } from '@/infrastructure/persistence/InMemoryEv
 
 async function setupWithLiq() {
   const repo = new InMemoryEventRepository()
-  const create = await new CreateEventHandler(repo).execute({ name: 'Casa rural', creatorName: 'Javi' })
+  const create = await new CreateEventHandler(repo).execute({
+    name: 'Casa rural',
+    creatorName: 'Javi',
+  })
   const javi = create.creator.id
   const eventId = create.event.id
   const added = await new AddManualLiquidationHandler(repo).execute({
@@ -20,7 +23,7 @@ async function setupWithLiq() {
     paidBy: javi,
     affects: [javi],
   })
-  return { repo, eventId, javi, liqId: added.event.manualLiquidations[0].id }
+  return { repo, eventId, javi, liqId: added.event.manualLiquidations[0]!.id }
 }
 
 describe('Manual liquidation mutations', () => {
@@ -48,14 +51,14 @@ describe('Manual liquidation mutations', () => {
       liquidationId: liqId,
       shareUserId: javi,
     })
-    expect(on.event.manualLiquidations[0].paidShares).toEqual([javi])
+    expect(on.event.manualLiquidations[0]!.paidShares).toEqual([javi])
     const off = await new ToggleLiquidationShareHandler(repo).execute({
       eventId,
       userId: javi,
       liquidationId: liqId,
       shareUserId: javi,
     })
-    expect(off.event.manualLiquidations[0].paidShares).toEqual([])
+    expect(off.event.manualLiquidations[0]!.paidShares).toEqual([])
   })
 
   it('soft-deletes then recovers', async () => {
@@ -65,13 +68,13 @@ describe('Manual liquidation mutations', () => {
       userId: javi,
       liquidationId: liqId,
     })
-    expect(del.event.manualLiquidations[0].deleted).toBe(true)
+    expect(del.event.manualLiquidations[0]!.deleted).toBe(true)
     const rec = await new RecoverManualLiquidationHandler(repo).execute({
       eventId,
       userId: javi,
       liquidationId: liqId,
     })
-    expect(rec.event.manualLiquidations[0].deleted).toBe(false)
+    expect(rec.event.manualLiquidations[0]!.deleted).toBe(false)
   })
 
   it('rejects edit of an unknown liquidation', async () => {
@@ -91,9 +94,17 @@ describe('Manual liquidation mutations', () => {
 
   it('rejects deleting an already-deleted liquidation', async () => {
     const { repo, eventId, javi, liqId } = await setupWithLiq()
-    await new DeleteManualLiquidationHandler(repo).execute({ eventId, userId: javi, liquidationId: liqId })
+    await new DeleteManualLiquidationHandler(repo).execute({
+      eventId,
+      userId: javi,
+      liquidationId: liqId,
+    })
     await expect(
-      new DeleteManualLiquidationHandler(repo).execute({ eventId, userId: javi, liquidationId: liqId }),
+      new DeleteManualLiquidationHandler(repo).execute({
+        eventId,
+        userId: javi,
+        liquidationId: liqId,
+      }),
     ).rejects.toThrow(/already-deleted/i)
   })
 })

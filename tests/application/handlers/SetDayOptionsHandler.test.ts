@@ -43,7 +43,7 @@ describe('SetDayOptionsHandler', () => {
     const row = await repo.findById(eventId)
     if (!row) throw new Error('unexpected')
     row.snapshot.availability[userId] = [true, true]
-    await repo.update(eventId, row.snapshot, row.version)
+    await repo.update(eventId, row.snapshot, row.version, null)
 
     const result = await handler.execute({
       eventId,
@@ -85,7 +85,7 @@ describe('SetDayOptionsHandler', () => {
     const row = await repo.findById(eventId)
     if (!row) throw new Error('unexpected')
     row.snapshot.chosenOptions = ['2026-06-05..2026-06-05', '2026-06-12..2026-06-14']
-    await repo.update(eventId, row.snapshot, row.version)
+    await repo.update(eventId, row.snapshot, row.version, null)
 
     const result = await handler.execute({
       eventId,
@@ -153,7 +153,7 @@ describe('SetDayOptionsHandler', () => {
     const row = await repo.findById(eventId)
     if (!row) throw new Error('unexpected')
     row.snapshot.availability[userId] = [true]
-    await repo.update(eventId, row.snapshot, row.version)
+    await repo.update(eventId, row.snapshot, row.version, null)
 
     const result = await handler.execute({
       eventId,

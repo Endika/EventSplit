@@ -37,8 +37,8 @@ describe('Event manualLiquidations', () => {
       },
     ]
     const cleaned = Event.restore(snap).removeUser(other.id.value).toSnapshot()
-    expect(cleaned.manualLiquidations[0].affects).toEqual([creator.id.value])
-    expect(cleaned.manualLiquidations[0].paidShares).toEqual([])
+    expect(cleaned.manualLiquidations[0]!.affects).toEqual([creator.id.value])
+    expect(cleaned.manualLiquidations[0]!.paidShares).toEqual([])
   })
 
   it('removeUser refuses if the user is the payer of a live manual liquidation', () => {

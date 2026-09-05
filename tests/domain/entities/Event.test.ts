@@ -93,6 +93,12 @@ describe('Event', () => {
       deletedAt: null,
       deleteReason: null,
       createdAt: '2026-01-01T00:00:00Z',
+      kind: 'buy',
+      assignedTo: null,
+      purchased: false,
+      boughtQuantity: 0,
+      group: null,
+      subgroup: null,
     })
     e = Event.restore(snap)
 
@@ -122,6 +128,11 @@ describe('Event', () => {
       deleteReason: null,
       createdAt: '2026-01-01T00:00:00Z',
       assignedTo: maria.id.value, // maria is assigned to buy it
+      kind: 'buy',
+      purchased: false,
+      boughtQuantity: 0,
+      group: null,
+      subgroup: null,
     })
     snap.settledTransfers.push({ from: maria.id.value, to: creator.id.value })
     e = Event.restore(snap)
@@ -174,6 +185,10 @@ describe('Event', () => {
       date: '2026-01-01T00:00:00Z',
       createdAt: '2026-01-01T00:00:00Z',
       splitAmong: [],
+      purchaseLinks: [],
+      deleted: false,
+      deletedBy: null,
+      deletedAt: null,
     })
     e = Event.restore(snap)
     expect(() => e.removeUser(maria.id.value)).toThrow(/paid for expenses/i)
@@ -199,6 +214,12 @@ describe('Event', () => {
       deletedAt: null,
       deleteReason: null,
       createdAt: '2026-01-01T00:00:00Z',
+      kind: 'buy',
+      assignedTo: null,
+      purchased: false,
+      boughtQuantity: 0,
+      group: null,
+      subgroup: null,
     })
     e = Event.restore(snap)
     expect(() => e.removeUser(maria.id.value)).toThrow(/created purchases/i)

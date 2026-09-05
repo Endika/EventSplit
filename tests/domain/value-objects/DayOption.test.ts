@@ -70,8 +70,8 @@ describe('DayOption', () => {
       { start: '2026-06-05', end: '2026-06-07', note: null },
       { start: '2026-06-06', end: '2026-06-06', note: null },
     ]
-    expect(coversDay(os[0], '2026-06-06')).toBe(true)
-    expect(coversDay(os[1], '2026-06-05')).toBe(false)
+    expect(coversDay(os[0]!, '2026-06-06')).toBe(true)
+    expect(coversDay(os[1]!, '2026-06-05')).toBe(false)
     expect(optionsCoveringDay(os, '2026-06-06')).toEqual([0, 1])
     expect(optionsCoveringDay(os, '2026-06-09')).toEqual([])
   })

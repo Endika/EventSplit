@@ -5,7 +5,10 @@ import type { ConsumptionResult } from '@/domain/services/UserConsumptionAggrega
 const t = (key: string): string => key
 
 const emptyResult: ConsumptionResult = {
-  detail: [], brought: [], shared: [], isEmpty: true,
+  detail: [],
+  brought: [],
+  shared: [],
+  isEmpty: true,
 }
 
 describe('formatConsumptionSummary', () => {
@@ -17,7 +20,10 @@ describe('formatConsumptionSummary', () => {
 
   it('returns mode "onlyBrings" when user only brings', () => {
     const r: ConsumptionResult = {
-      detail: [], brought: [{ item: 'Ice' }], shared: [], isEmpty: false,
+      detail: [],
+      brought: [{ item: 'Ice' }],
+      shared: [],
+      isEmpty: false,
     }
     const blocks = formatConsumptionSummary(r, t)
     expect(blocks.mode).toBe('onlyBrings')
@@ -42,7 +48,10 @@ describe('formatConsumptionSummary', () => {
 
   it('omits closing when only shared (no detail)', () => {
     const r: ConsumptionResult = {
-      detail: [], brought: [], shared: [{ item: 'Salt' }], isEmpty: false,
+      detail: [],
+      brought: [],
+      shared: [{ item: 'Salt' }],
+      isEmpty: false,
     }
     const blocks = formatConsumptionSummary(r, t)
     expect(blocks.mode).toBe('full')
@@ -52,9 +61,11 @@ describe('formatConsumptionSummary', () => {
   it('rounds detail quantities to 1 decimal (no trailing zeros)', () => {
     const r: ConsumptionResult = {
       detail: [{ item: 'Water', quantity: 3.456, unit: 'liters' }],
-      brought: [], shared: [], isEmpty: false,
+      brought: [],
+      shared: [],
+      isEmpty: false,
     }
     const blocks = formatConsumptionSummary(r, t)
-    expect(blocks.detail[0].quantity).toBe(3.5)
+    expect(blocks.detail[0]!.quantity).toBe(3.5)
   })
 })

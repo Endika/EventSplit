@@ -11,13 +11,22 @@ describe('RenameGroupHandler', () => {
     const creatorId = create.creator.id
 
     await new AddPurchaseHandler(repo).execute({
-      eventId: create.event.id, createdBy: creatorId,
-      item: 'Coke', quantity: 3, unit: 'bottles', dailyConsumption: 2,
-      consumers: [{ userId: creatorId, multiplier: 1 }], days: 3, group: 'Cena',
+      eventId: create.event.id,
+      createdBy: creatorId,
+      item: 'Coke',
+      quantity: 3,
+      unit: 'bottles',
+      dailyConsumption: 2,
+      consumers: [{ userId: creatorId, multiplier: 1 }],
+      days: 3,
+      group: 'Cena',
     })
 
     const result = await new RenameGroupHandler(repo).execute({
-      eventId: create.event.id, userId: creatorId, from: 'Cena', to: 'Cena sábado',
+      eventId: create.event.id,
+      userId: creatorId,
+      from: 'Cena',
+      to: 'Cena sábado',
     })
 
     expect(result.event.purchases[0]!.group).toBe('Cena sábado')

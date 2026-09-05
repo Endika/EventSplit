@@ -37,7 +37,11 @@ describe('UpdateProfileHandler', () => {
 
   it('leaves untouched fields unchanged', async () => {
     const repo = new InMemoryEventRepository()
-    const create = await new CreateEventHandler(repo).execute({ name: 'Trip', creatorName: 'John', creatorAlias: 'cousin' })
+    const create = await new CreateEventHandler(repo).execute({
+      name: 'Trip',
+      creatorName: 'John',
+      creatorAlias: 'cousin',
+    })
     const result = await new UpdateProfileHandler(repo).execute({
       eventId: create.event.id,
       userId: create.creator.id,
@@ -66,7 +70,9 @@ describe('UpdateProfileHandler', () => {
   it('records actor as the history userId and credits the actor when editing someone elses profile', async () => {
     const repo = new InMemoryEventRepository()
     const create = await new CreateEventHandler(repo).execute({ name: 'Trip', creatorName: 'John' })
-    const joinHandler = new (await import('@/application/handlers/JoinAsNewUserHandler')).JoinAsNewUserHandler(repo)
+    const joinHandler = new (
+      await import('@/application/handlers/JoinAsNewUserHandler')
+    ).JoinAsNewUserHandler(repo)
     const joined = await joinHandler.execute({ eventId: create.event.id, name: 'Maite' })
     const result = await new UpdateProfileHandler(repo).execute({
       eventId: create.event.id,
@@ -77,7 +83,7 @@ describe('UpdateProfileHandler', () => {
     const entry = result.event.history.at(-1)!
     expect(entry.userId).toBe(create.creator.id)
     expect(entry.description).toContain('John')
-    expect(entry.description).toContain("Maite")
+    expect(entry.description).toContain('Maite')
     expect(entry.description).not.toMatch(/their profile/i)
   })
 })

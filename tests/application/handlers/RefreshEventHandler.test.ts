@@ -46,7 +46,7 @@ describe('RefreshEventHandler', () => {
 
   it('downloads and returns the remote snapshot when the local copy is stale', async () => {
     const ctx = await setup()
-    await ctx.repo.update(ctx.eventId, { ...ctx.snapshot, name: 'Renamed Trip' }, ctx.version)
+    await ctx.repo.update(ctx.eventId, { ...ctx.snapshot, name: 'Renamed Trip' }, ctx.version, null)
     const result = await new RefreshEventHandler(ctx.repo).execute({
       eventId: ctx.eventId,
       local: { snapshot: ctx.snapshot, version: ctx.version },

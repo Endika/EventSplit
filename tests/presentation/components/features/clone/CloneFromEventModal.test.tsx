@@ -59,7 +59,7 @@ function Init({ event }: { event: EventSnapshot }) {
   const setUser = useSetCurrentUser()
   useEffect(() => {
     setEvent(event, 1)
-    setUser({ id: 'u1', name: 'Iker', eventId: event.id })
+    setUser({ id: 'u1', name: 'Iker', alias: null, displayName: 'Iker' })
   }, [event, setEvent, setUser])
   return null
 }
