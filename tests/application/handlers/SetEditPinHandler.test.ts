@@ -19,8 +19,9 @@ describe('SetEditPinHandler', () => {
     const read = await repo.findById(create.event.id)
     expect(read?.hasPin).toBe(true)
     expect(read?.snapshot.hasPin).toBe(true)
-    // The plaintext PIN never appears in the snapshot blob.
-    expect(JSON.stringify(read?.snapshot)).not.toContain('1234')
+    // The plaintext PIN never appears in the snapshot blob. Quoted: a bare 1234
+    // also turns up inside a random UUID often enough to flake.
+    expect(JSON.stringify(read?.snapshot)).not.toContain('"1234"')
     expect(await repo.verifyPin(create.event.id, '1234')).toBe(true)
   })
 
