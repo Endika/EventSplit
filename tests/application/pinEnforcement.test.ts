@@ -123,7 +123,8 @@ describe('read shape', () => {
     await new SetEditPinHandler(repo).execute({ eventId: id, userId, pin: '1234' })
     const after = await repo.findById(id)
     expect(after?.hasPin).toBe(true)
-    expect(JSON.stringify(after?.snapshot)).not.toContain('1234')
+    // Quoted: a bare 1234 also turns up inside a random UUID often enough to flake.
+    expect(JSON.stringify(after?.snapshot)).not.toContain('"1234"')
     expect('editPin' in (after!.snapshot as unknown as Record<string, unknown>)).toBe(false)
   })
 })
