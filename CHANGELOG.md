@@ -1,5 +1,12 @@
 # Changelog
 
+## [3.4.2](https://github.com/Endika/EventSplit/compare/v3.4.1...v3.4.2) (2026-09-08)
+
+
+### Chores
+
+* **deps-dev:** bump vitest and @vitest/coverage-v8 to 5.0.0 ([52e3ec0](https://github.com/Endika/EventSplit/commit/52e3ec0d1893975ef205c78e321c794b48cddb95))
+
 ## [3.4.1](https://github.com/Endika/EventSplit/compare/v3.4.0...v3.4.1) (2026-09-05)
 
 
