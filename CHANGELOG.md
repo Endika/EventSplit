@@ -1,5 +1,12 @@
 # Changelog
 
+## [3.4.3](https://github.com/Endika/EventSplit/compare/v3.4.2...v3.4.3) (2026-09-08)
+
+
+### Chores
+
+* **deps:** bump the npm-minor-patch group across 1 directory with 14 updates ([7a74250](https://github.com/Endika/EventSplit/commit/7a74250684ccc852f3ea66ebb2f0dc013acacc1e))
+
 ## [3.4.2](https://github.com/Endika/EventSplit/compare/v3.4.1...v3.4.2) (2026-09-08)
 
 
