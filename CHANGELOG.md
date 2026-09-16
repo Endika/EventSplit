@@ -1,5 +1,12 @@
 # Changelog
 
+## [3.5.0](https://github.com/Endika/EventSplit/compare/v3.4.3...v3.5.0) (2026-09-16)
+
+
+### Features
+
+* **ci:** block PRs that introduce high-severity dependency advisories ([838796c](https://github.com/Endika/EventSplit/commit/838796cd216dcee1f3fa36e31a49be9b4491cd51))
+
 ## [3.4.3](https://github.com/Endika/EventSplit/compare/v3.4.2...v3.4.3) (2026-09-08)
 
 
