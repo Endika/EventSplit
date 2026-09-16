@@ -1,5 +1,12 @@
 # Changelog
 
+## [3.6.0](https://github.com/Endika/EventSplit/compare/v3.5.0...v3.6.0) (2026-09-16)
+
+
+### Features
+
+* **ci:** add CodeQL static analysis ([aa7227d](https://github.com/Endika/EventSplit/commit/aa7227d941eae92a791f172a82a6ca7d1412ab05))
+
 ## [3.5.0](https://github.com/Endika/EventSplit/compare/v3.4.3...v3.5.0) (2026-09-16)
 
 
