@@ -96,7 +96,7 @@ export function EventPage({ eventId }: { eventId: string }) {
               console.error('[Share]', err)
             }
           }}
-          className="flex items-center gap-1 rounded-xl border border-border bg-elevated px-3 py-1.5 text-sm text-ink hover:bg-elevated"
+          className="flex min-h-11 items-center gap-1 border border-border bg-elevated px-3 text-sm text-ink hover:bg-surface"
         >
           <svg
             width="14"
