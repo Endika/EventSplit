@@ -30,3 +30,14 @@ export const isDefaultConsumer = (kind: UserKind): boolean => kind !== 'dog'
 
 export const payingUsers = <T extends { kind: UserKind }>(users: readonly T[]): T[] =>
   users.filter((u) => paysExpenses(u.kind))
+
+/**
+ * A participant who already put money in cannot be turned into a dog: dogs are
+ * absent from every balance, so the expense they paid would stop being credited
+ * to anybody and the balances would quietly stop summing to zero.
+ */
+export const canBecome = (
+  kind: UserKind,
+  spending: { expenses: readonly { paidBy: string; deleted: boolean }[]; userId: string },
+): boolean =>
+  paysExpenses(kind) || !spending.expenses.some((e) => !e.deleted && e.paidBy === spending.userId)

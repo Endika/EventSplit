@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach } from 'vitest'
+import { describe, it, expect, beforeEach, vi } from 'vitest'
 import { render, screen, fireEvent, waitFor } from '@testing-library/react'
 import { useEffect, type ReactNode } from 'react'
 import '@/presentation/i18n/config'
@@ -7,8 +7,12 @@ import { EventProvider, useEventState } from '@/presentation/context/EventContex
 import { UserProvider, useSetCurrentUser } from '@/presentation/context/UserContext'
 import { WriteGuardProvider } from '@/presentation/context/WriteGuardContext'
 import { EditPinProvider } from '@/presentation/context/EditPinContext'
+import { SyncProvider } from '@/presentation/context/SyncContext'
 import { ExpenseSummary } from '@/presentation/components/features/event/ExpenseSummary'
 import { AvailabilityTab } from '@/presentation/components/features/event/AvailabilityTab'
+import { PurchaseForm } from '@/presentation/components/features/event/PurchaseForm'
+import { ProfileEditor } from '@/presentation/components/features/event/ProfileEditor'
+import { IdentificationModal } from '@/presentation/components/features/identification/IdentificationModal'
 import type { EventSnapshot } from '@/domain/entities/Event'
 import type { UserSnapshot } from '@/domain/entities/User'
 
@@ -81,16 +85,27 @@ function Init({ event }: { event: EventSnapshot }) {
   return null
 }
 
+/**
+ * Forms seed their local state from the event on first render, so they must not
+ * mount before it is there — in the real app the event is always loaded first.
+ */
+function WhenLoaded({ children }: { children: ReactNode }) {
+  const { event } = useEventState()
+  return event ? <>{children}</> : null
+}
+
 function Wrap({ event, children }: { event: EventSnapshot; children: ReactNode }) {
   return (
     <ContainerProvider>
       <EventProvider>
         <UserProvider>
           <EditPinProvider>
-            <WriteGuardProvider>
-              <Init event={event} />
-              {children}
-            </WriteGuardProvider>
+            <SyncProvider>
+              <WriteGuardProvider>
+                <Init event={event} />
+                <WhenLoaded>{children}</WhenLoaded>
+              </WriteGuardProvider>
+            </SyncProvider>
           </EditPinProvider>
         </UserProvider>
       </EventProvider>
@@ -101,7 +116,67 @@ function Wrap({ event, children }: { event: EventSnapshot; children: ReactNode }
 const tableButton = () => screen.getByRole('button', { name: /^(tabla|table|taula|t\u00e1boa)$/i })
 
 describe('dog participants', () => {
-  beforeEach(() => localStorage.clear())
+  beforeEach(() => {
+    localStorage.clear()
+    // jsdom has no layout, and switching the purchase mode scrolls the form.
+    Element.prototype.scrollIntoView = vi.fn()
+  })
+
+  it('offers the child but not the dog as who brings an item', async () => {
+    const event = makeEvent([])
+    event.users = [...event.users, user('c1', 'Nora', 'child')]
+    render(
+      <Wrap event={event}>
+        <PurchaseForm onDone={() => {}} />
+      </Wrap>,
+    )
+    // The "brought by" select only exists in bring mode.
+    fireEvent.click(await screen.findByRole('button', { name: /i bring it/i }))
+    const select = await screen.findByRole('combobox', { name: /brought by/i })
+    const options = [...select.querySelectorAll('option')].map((o) => o.textContent)
+    expect(options).toContain('Nora')
+    expect(options).not.toContain('Toby')
+  })
+
+  it('lets a dog stay a dog in the profile editor, and offers no way to turn a person into one', async () => {
+    const event = makeEvent([])
+    const { unmount } = render(
+      <Wrap event={event}>
+        <ProfileEditor userId="d1" onClose={() => {}} />
+      </Wrap>,
+    )
+    const dogSelect = (await screen.findByRole('combobox', {
+      name: /type/i,
+    })) as HTMLSelectElement
+    expect(dogSelect.value).toBe('dog')
+    unmount()
+
+    render(
+      <Wrap event={event}>
+        <ProfileEditor userId="u2" onClose={() => {}} />
+      </Wrap>,
+    )
+    const humanSelect = (await screen.findByRole('combobox', {
+      name: /type/i,
+    })) as HTMLSelectElement
+    expect(humanSelect.value).toBe('adult')
+    expect([...humanSelect.querySelectorAll('option')].map((o) => o.value)).toEqual([
+      'adult',
+      'child',
+    ])
+  })
+
+  it('never offers the dog as who you are, but still sees its name for collisions', async () => {
+    const event = makeEvent([])
+    render(
+      <Wrap event={event}>
+        <IdentificationModal eventName="Trip" users={event.users} onConfirm={async () => {}} />
+      </Wrap>,
+    )
+    await waitFor(() => expect(screen.getByText('Iker')).toBeInTheDocument())
+    expect(screen.getByText('Ane')).toBeInTheDocument()
+    expect(screen.queryByText('Toby')).not.toBeInTheDocument()
+  })
 
   it('leaves the dog out of an expense split among "everyone"', async () => {
     render(
