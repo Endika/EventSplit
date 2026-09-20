@@ -18,6 +18,20 @@ describe('AddParticipant via JoinAsNewUserHandler (UI shape)', () => {
     expect(sofia.kind).toBe('child')
   })
 
+  it('adds a dog and round-trips it through the repository', async () => {
+    const repo = new InMemoryEventRepository()
+    const create = await new CreateEventHandler(repo).execute({ name: 'Trip', creatorName: 'John' })
+    const result = await new JoinAsNewUserHandler(repo).execute({
+      eventId: create.event.id,
+      name: 'Toby',
+      alias: null,
+      kind: 'dog',
+    })
+    expect(result.event.users.find((u) => u.name === 'Toby')!.kind).toBe('dog')
+    const reloaded = await repo.findById(create.event.id)
+    expect(reloaded!.snapshot.users.find((u) => u.name === 'Toby')!.kind).toBe('dog')
+  })
+
   it('adds participant when kind is undefined (defaults to adult)', async () => {
     const repo = new InMemoryEventRepository()
     const create = await new CreateEventHandler(repo).execute({ name: 'Trip', creatorName: 'John' })

@@ -89,6 +89,7 @@ export function AddParticipantModal({ onClose }: { onClose: () => void }) {
           >
             <option value="adult">{t('participants.adult')}</option>
             <option value="child">{t('participants.child')}</option>
+            <option value="dog">{t('participants.dog')}</option>
           </select>
         </label>
         {error && (

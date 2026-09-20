@@ -351,6 +351,7 @@
     "kind": "Tipus",
     "adult": "Adult",
     "child": "Xiquet/a",
+    "dog": "Gos",
     "submit": "Afig",
     "switchUser": "No sóc esta persona",
     "switchConfirm": "Oblidar esta identitat en este dispositiu i tornar a triar?",

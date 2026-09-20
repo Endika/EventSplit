@@ -27,11 +27,11 @@ export function ParticipantsTab() {
           const isMe = me?.id === u.id
           const label = u.alias ? `${u.name} (${u.alias})` : u.name
           const kindBadge =
-            u.kind === 'child' ? (
+            u.kind === 'adult' ? null : (
               <span className="ml-2 inline-flex items-center rounded-full bg-brand-soft px-2 py-0.5 text-xs font-medium text-brand-soft-fg">
-                {t('participants.child')}
+                {u.kind === 'dog' ? `\u{1F415} ${t('participants.dog')}` : t('participants.child')}
               </span>
-            ) : null
+            )
           return (
             <li key={u.id} className={`flex items-center ${isMe ? 'bg-brand-soft' : ''}`}>
               <button
