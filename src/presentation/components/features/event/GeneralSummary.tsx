@@ -2,8 +2,7 @@ import { useTranslation } from 'react-i18next'
 import { useEventState } from '@/presentation/context/EventContext'
 import { computeTripTotals } from '@/domain/services/TripTotals'
 import { payingUsers } from '@/domain/services/participantRoles'
-
-const fmt = (cents: number): string => (cents / 100).toFixed(2)
+import { formatMoney } from '@/presentation/utils/money'
 
 export function GeneralSummary() {
   const { t } = useTranslation()
@@ -30,16 +29,16 @@ export function GeneralSummary() {
       <dl className="space-y-1 text-sm">
         <div className="flex justify-between">
           <dt className="text-muted">{t('summary.general.totalCost')}</dt>
-          <dd className="text-ink">€{fmt(totals.totalCostCents)}</dd>
+          <dd className="text-ink">{formatMoney(totals.totalCostCents)}</dd>
         </div>
         <div className="flex justify-between">
           <dt className="text-muted">{t('summary.general.realSpent')}</dt>
-          <dd className="text-pos">€{fmt(totals.realSpentCents)}</dd>
+          <dd className="text-pos">{formatMoney(totals.realSpentCents)}</dd>
         </div>
         <div className="flex justify-between">
           <dt className="text-muted">{t('summary.general.pending')}</dt>
           <dd className={totals.pendingCents > 0 ? 'text-warn' : 'text-muted'}>
-            €{fmt(totals.pendingCents)}
+            {formatMoney(totals.pendingCents)}
           </dd>
         </div>
       </dl>

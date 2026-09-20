@@ -15,8 +15,7 @@ import type { ToggleLiquidationShareHandler } from '@/application/handlers/Toggl
 import type { ManualLiquidationSnapshot } from '@/domain/entities/ManualLiquidation'
 import { parseDecimal } from '@/shared/utils/parseDecimal'
 import { reportError } from '@/shared/utils/reportError'
-
-const fmt = (cents: number): string => (cents / 100).toFixed(2)
+import { formatMoney } from '@/presentation/utils/money'
 
 export function ManualLiquidations() {
   const { t } = useTranslation()
@@ -223,7 +222,7 @@ export function ManualLiquidations() {
               <div className="flex items-start justify-between gap-2">
                 <div>
                   <span className="font-medium text-ink">{liq.concept}</span>{' '}
-                  <span className="text-sm text-muted">€{fmt(liq.cents)}</span>
+                  <span className="text-sm text-muted">{formatMoney(liq.cents)}</span>
                   <span
                     className={`ml-2 rounded-full px-2 py-0.5 text-xs ${
                       isPending ? 'bg-warn-soft text-warn-soft-fg' : 'bg-pos-soft text-pos-soft-fg'
@@ -252,7 +251,7 @@ export function ManualLiquidations() {
                 </div>
               </div>
               <p className="mt-1 text-xs text-muted">
-                {t('liquidations.perPerson', { euros: fmt(perPersonCents) })}
+                {t('liquidations.perPerson', { amount: formatMoney(perPersonCents) })}
               </p>
               <ul className="mt-2 space-y-1">
                 {view.shares.map((s) => (
@@ -265,7 +264,7 @@ export function ManualLiquidations() {
                       className="size-4 rounded border-border bg-elevated accent-pos"
                     />
                     <span className={s.paid ? 'text-muted line-through' : 'text-ink'}>
-                      {nameOf(s.userId)} · €{fmt(s.cents)}
+                      {nameOf(s.userId)} · {formatMoney(s.cents)}
                     </span>
                   </li>
                 ))}
@@ -292,7 +291,7 @@ export function ManualLiquidations() {
                   className="flex items-center justify-between gap-2 rounded-lg border border-border bg-surface/50 p-3 text-sm"
                 >
                   <span className="text-muted line-through">
-                    {liq.concept} · €{fmt(liq.cents)}
+                    {liq.concept} · {formatMoney(liq.cents)}
                   </span>
                   <button
                     type="button"

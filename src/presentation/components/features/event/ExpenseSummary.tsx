@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useContainer } from '@/presentation/context/ContainerProvider'
 import { useEventState } from '@/presentation/context/EventContext'
@@ -6,11 +7,10 @@ import { useWriteGuard } from '@/presentation/context/WriteGuardContext'
 import { ExpenseSplitter } from '@/domain/services/ExpenseSplitter'
 import { payingUsers } from '@/domain/services/participantRoles'
 import { Money } from '@/domain/value-objects/Money'
+import { formatMoney, formatSignedMoney } from '@/presentation/utils/money'
 import { YouLabel } from '@/presentation/components/common/YouLabel'
 import type { ToggleSettlementHandler } from '@/application/handlers/ToggleSettlementHandler'
 import { reportError } from '@/shared/utils/reportError'
-
-const fmt = (cents: number): string => (cents / 100).toFixed(2)
 
 export function ExpenseSummary() {
   const { t } = useTranslation()
@@ -18,6 +18,7 @@ export function ExpenseSummary() {
   const container = useContainer()
   const me = useCurrentUser()
   const { guardedExecute } = useWriteGuard()
+  const [unfolded, setUnfolded] = useState(false)
   if (!event) return null
 
   function isSettled(from: string, to: string): boolean {
@@ -37,97 +38,156 @@ export function ExpenseSummary() {
     })
   }
 
+  const payers = payingUsers(event.users)
+  const payerIds = payers.map((u) => u.id)
+  const live = event.expenses.filter((e) => !e.deleted)
   const result = ExpenseSplitter.compute({
     // Dogs attend but never owe: they are kept out of the split entirely,
     // which also drops their id from any expense that still lists them.
-    participantIds: payingUsers(event.users).map((u) => u.id),
-    expenses: event.expenses
-      .filter((e) => !e.deleted)
-      .map((e) => ({
-        paidBy: e.paidBy,
-        amount: Money.fromCents(e.cents),
-        splitAmong: e.splitAmong,
-      })),
+    participantIds: payerIds,
+    expenses: live.map((e) => ({
+      paidBy: e.paidBy,
+      amount: Money.fromCents(e.cents),
+      splitAmong: e.splitAmong,
+    })),
   })
   const nameOf = (id: string) => event.users.find((u) => u.id === id)?.name ?? '?'
 
+  const mine = result.balances.find((b) => b.userId === me?.id)
+  const others = result.balances.filter((b) => b.userId !== mine?.userId)
+  const allSquare =
+    result.transfers.length > 0 && result.transfers.every((tr) => isSettled(tr.from, tr.to))
+
+  // The expenses this person is actually in. An empty splitAmong means everyone
+  // who pays, so it is resolved against the payer list, the same way the
+  // splitter resolves it.
+  const myExpenses = me
+    ? live.filter((e) => {
+        const split = e.splitAmong.filter((id) => payerIds.includes(id))
+        return (split.length > 0 ? split : payerIds).includes(me.id)
+      })
+    : []
+
+  const toneOf = (cents: number) =>
+    cents > 0 ? 'text-pos' : cents < 0 ? 'text-warn' : 'text-muted'
+
   return (
-    <div className="space-y-4 rounded-xl border border-border bg-surface p-4">
-      <div className="text-sm text-muted">
-        {t('expenses.summary.total')}:{' '}
-        <strong className="text-ink">€{fmt(result.totalCents)}</strong>
-      </div>
-      <div className="overflow-x-auto" data-no-swipe>
-        <table className="w-full text-sm">
-          <thead className="text-left text-xs uppercase text-muted">
-            <tr>
-              <th className="py-1">{t('expenses.summary.person')}</th>
-              <th className="py-1">{t('expenses.summary.spent')}</th>
-              <th className="py-1">{t('expenses.summary.balance')}</th>
-            </tr>
-          </thead>
-          <tbody>
-            {result.balances.map((b) => {
-              const isMe = me?.id === b.userId
-              return (
-                <tr key={b.userId} className={isMe ? 'bg-brand-soft' : ''}>
-                  <td className="py-1 break-words">
-                    {nameOf(b.userId)}
-                    <YouLabel userId={b.userId} />
-                  </td>
-                  <td className="py-1">€{fmt(b.spentCents)}</td>
-                  <td
-                    className={`py-1 ${
-                      b.balanceCents > 0
-                        ? 'text-pos'
-                        : b.balanceCents < 0
-                          ? 'text-warn'
-                          : 'text-muted'
-                    }`}
-                  >
-                    {b.balanceCents > 0 ? '+' : ''}€{fmt(b.balanceCents)}
-                  </td>
-                </tr>
-              )
-            })}
-          </tbody>
-        </table>
-      </div>
-      {result.transfers.length > 0 && (
-        <div>
-          <p className="mb-1 text-xs font-medium uppercase text-muted">
-            {t('expenses.summary.transfers')}
+    <div className="space-y-6">
+      <section className="border border-border bg-surface px-4 pb-4 pt-5">
+        {mine ? (
+          <>
+            <button
+              type="button"
+              onClick={() => setUnfolded((v) => !v)}
+              aria-expanded={unfolded}
+              className="block w-full text-left"
+            >
+              <span
+                className={`price block text-[clamp(3.5rem,19vw,6rem)] ${toneOf(mine.balanceCents)}`}
+              >
+                {formatSignedMoney(mine.balanceCents)}
+              </span>
+              <span className="fineprint mt-2 block">
+                {t('expenses.summary.youPaid', { amount: formatMoney(mine.spentCents) })}
+                {' · '}
+                {t('expenses.summary.yourShare', {
+                  amount: formatMoney(mine.spentCents - mine.balanceCents),
+                })}
+                <span className="ml-2 text-brand">
+                  {unfolded ? t('expenses.summary.fold') : t('expenses.summary.unfold')}
+                </span>
+              </span>
+            </button>
+            {unfolded && (
+              <ul className="mt-3 space-y-1 border-l-2 border-border pl-3">
+                <li className="fineprint">
+                  {t('expenses.summary.inThis', { count: myExpenses.length })}
+                </li>
+                {myExpenses.map((e) => (
+                  <li key={e.id} className="flex justify-between gap-3 text-sm">
+                    <span className="min-w-0 truncate text-ink">
+                      {e.description}{' '}
+                      <span className="text-muted">
+                        {t('expenses.summary.paidBy', { name: nameOf(e.paidBy) })}
+                      </span>
+                    </span>
+                    <span className="shrink-0 tabular-nums text-muted">{formatMoney(e.cents)}</span>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </>
+        ) : (
+          <span className="price block text-[clamp(3rem,16vw,5rem)]">
+            {formatMoney(result.totalCents)}
+          </span>
+        )}
+
+        <div className="rail mt-4" />
+
+        <ul className="mt-3">
+          {others.map((b) => (
+            <li
+              key={b.userId}
+              className="flex items-baseline justify-between gap-3 border-b border-border py-2 last:border-0"
+            >
+              <span className="flex min-w-0 items-baseline truncate text-sm text-ink">
+                {nameOf(b.userId)}
+                <YouLabel userId={b.userId} />
+              </span>
+              <span className="shrink-0 text-right text-sm tabular-nums text-muted">
+                {formatMoney(b.spentCents)}
+              </span>
+              <span
+                className={`w-24 shrink-0 text-right text-sm font-semibold tabular-nums ${toneOf(b.balanceCents)}`}
+              >
+                {formatSignedMoney(b.balanceCents)}
+              </span>
+            </li>
+          ))}
+        </ul>
+        <p className="fineprint mt-3">
+          {t('expenses.summary.total')} {formatMoney(result.totalCents)}
+        </p>
+      </section>
+
+      <section>
+        <h3 className="fineprint mb-2">{t('expenses.summary.transfers')}</h3>
+        {allSquare && (
+          <p className="mb-3 inline-block bg-promo px-3 py-1 text-sm font-bold uppercase tracking-wide text-promo-fg">
+            {t('expenses.summary.allSquare')}
           </p>
-          <ul className="space-y-1 text-sm">
+        )}
+        {result.transfers.length === 0 ? (
+          <p className="text-sm text-muted">{t('expenses.summary.nobodyOwes')}</p>
+        ) : (
+          <ul className="space-y-1">
             {result.transfers.map((tr, i) => {
               const settled = isSettled(tr.from, tr.to)
               return (
-                <li key={i} className="flex items-center gap-2 text-sm">
-                  <input
-                    type="checkbox"
-                    checked={settled}
-                    onChange={() => toggleSettled(tr.from, tr.to)}
-                    className="size-4 rounded border-border bg-elevated accent-pos"
-                    aria-label={t('expenses.summary.markPaid')}
-                  />
-                  <span className={settled ? 'text-muted line-through' : 'text-ink'}>
-                    {t('expenses.summary.transferLine', {
-                      from: nameOf(tr.from),
-                      euros: fmt(tr.cents),
-                      to: nameOf(tr.to),
-                    })}
-                  </span>
-                  {settled && (
-                    <span className="rounded-full bg-pos-soft px-2 py-0.5 text-xs text-pos-soft-fg">
-                      {t('expenses.summary.paid')}
+                <li key={i}>
+                  <label className="flex min-h-11 cursor-pointer items-center gap-3 text-sm">
+                    <input
+                      type="checkbox"
+                      checked={settled}
+                      onChange={() => toggleSettled(tr.from, tr.to)}
+                      className="size-5 shrink-0 accent-pos"
+                      aria-label={t('expenses.summary.markPaid')}
+                    />
+                    <span className={settled ? 'text-muted line-through' : 'text-ink'}>
+                      {t('expenses.summary.transferLine', {
+                        from: nameOf(tr.from),
+                        amount: formatMoney(tr.cents),
+                        to: nameOf(tr.to),
+                      })}
                     </span>
-                  )}
+                  </label>
                 </li>
               )
             })}
           </ul>
-        </div>
-      )}
+        )}
+      </section>
     </div>
   )
 }

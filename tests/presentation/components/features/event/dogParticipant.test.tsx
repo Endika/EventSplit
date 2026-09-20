@@ -184,8 +184,9 @@ describe('dog participants', () => {
         <ExpenseSummary />
       </Wrap>,
     )
-    await waitFor(() => expect(screen.getByText('Iker')).toBeInTheDocument())
-    expect(screen.getByText('Ane')).toBeInTheDocument()
+    // Iker is the viewer, so they are the headline figure; the others list
+    // holds everybody else who pays.
+    await waitFor(() => expect(screen.getByText('Ane')).toBeInTheDocument())
     expect(screen.queryByText('Toby')).not.toBeInTheDocument()
   })
 
@@ -195,11 +196,10 @@ describe('dog participants', () => {
         <ExpenseSummary />
       </Wrap>,
     )
-    await waitFor(() => expect(screen.getByText('Iker')).toBeInTheDocument())
-    expect(screen.queryByText('Toby')).not.toBeInTheDocument()
     // 10,01 € over two humans: the payer covers 5,01 and is owed 5,00. Split
     // over three it would have been +6,67, so the dog is provably out.
-    expect(screen.getByText('+€5.00')).toBeInTheDocument()
+    await waitFor(() => expect(screen.getByText('+€5.00')).toBeInTheDocument())
+    expect(screen.queryByText('Toby')).not.toBeInTheDocument()
     expect(screen.queryByText('+€6.67')).not.toBeInTheDocument()
   })
 

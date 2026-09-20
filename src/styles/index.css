@@ -3,74 +3,89 @@
 /* Dark mode driven by a `.dark` class on <html> (set before paint in index.html). */
 @custom-variant dark (&:where(.dark, .dark *));
 
-/* ── Brand palette: light (default) ─────────────────────────────── */
+/* ── Shelf label: light (default) ───────────────────────────────
+   The ground is uncoated stock; the label face sits a shade brighter on it so a
+   label reads as an object on a shelf, not as a region of the page. */
 :root {
   color-scheme: light;
   --safe-bottom: env(safe-area-inset-bottom, 0px);
 
-  --c-bg: #fff8f5;
-  --c-surface: #ffffff;
-  --c-elevated: #fff1ec;
-  --c-border: #f0e2dc;
-  --c-ink: #1c1a17;
-  --c-muted: #8a7f79;
+  --c-bg: #f2efe6;
+  --c-surface: #fbf9f3;
+  --c-elevated: #e9e4d6;
+  --c-border: #d6cfbc;
+  --c-ink: #14120e;
+  --c-muted: #6b6455;
 
-  --c-brand: #ff5a47;
-  --c-brand-hover: #ed4733;
-  --c-brand-soft: #ffe3de;
-  --c-brand-soft-fg: #c73d2c;
+  /* The structural rule under a figure. Ink, not a gray: a real shelf label
+     prints it black, and at hairline weight a tinted rule just looks faded. */
+  --c-rail: #14120e;
 
-  --c-pos: #14b88a;
-  --c-pos-soft: #d8f3ea;
-  --c-pos-soft-fg: #0e7c70;
+  /* The tag colour. The incumbent coral, translated into the deeper promotion
+     red this world prints — which is also the first version of it that carries
+     white text at 4.5:1. */
+  --c-brand: #c42d12;
+  --c-brand-hover: #a52409;
+  --c-brand-soft: #f7e2da;
+  --c-brand-soft-fg: #8e2109;
 
-  --c-warn: #e89611;
-  --c-warn-soft: #fcebcf;
-  --c-warn-soft-fg: #9a6708;
+  --c-promo: #f5c400;
+  --c-promo-fg: #14120e;
 
-  --c-danger: #dc2626;
-  --c-danger-soft: #fbe0e0;
-  --c-danger-soft-fg: #b11c1c;
+  --c-pos: #0f6b4f;
+  --c-pos-soft: #dcefe6;
+  --c-pos-soft-fg: #0b5740;
 
-  --c-grad-from: #ff5a47;
-  --c-grad-to: #ffb37a;
+  --c-warn: #8a5a00;
+  --c-warn-soft: #f6e9cd;
+  --c-warn-soft-fg: #6f4800;
+
+  --c-danger: #b3261e;
+  --c-danger-soft: #f8e0dd;
+  --c-danger-soft-fg: #8f1e17;
 }
 
-/* ── Brand palette: dark ────────────────────────────────────────── */
+/* ── Shelf label: dark ──────────────────────────────────────────
+   Not a category default: the scene that earns it is the same trip at night,
+   in the house, settling up. Warm because the stock is warm. */
 .dark {
   color-scheme: dark;
 
-  --c-bg: #15110e;
-  --c-surface: #221a15;
-  --c-elevated: #2c221c;
-  --c-border: #38291f;
-  --c-ink: #f5ece7;
-  --c-muted: #a99b92;
+  --c-bg: #131210;
+  --c-surface: #1e1b17;
+  --c-elevated: #2a251f;
+  --c-border: #3a332a;
+  --c-ink: #f2ede3;
+  --c-muted: #a39a88;
 
-  --c-brand: #ff7a66;
-  --c-brand-hover: #ff8e7c;
-  --c-brand-soft: #3a211b;
-  --c-brand-soft-fg: #ff9e8c;
+  --c-rail: #f2ede3;
 
-  --c-pos: #34d9a0;
-  --c-pos-soft: #16352b;
-  --c-pos-soft-fg: #46e0a8;
+  --c-brand: #ff6b4f;
+  --c-brand-hover: #ff8268;
+  --c-brand-soft: #3a1d15;
+  --c-brand-soft-fg: #ff9a85;
 
-  --c-warn: #f0b43c;
+  --c-promo: #f5c400;
+  --c-promo-fg: #131210;
+
+  --c-pos: #4fd6a0;
+  --c-pos-soft: #12352a;
+  --c-pos-soft-fg: #62e0ae;
+
+  --c-warn: #f0b84c;
   --c-warn-soft: #3a2d14;
-  --c-warn-soft-fg: #f4c257;
+  --c-warn-soft-fg: #f4c76b;
 
-  --c-danger: #f87171;
-  --c-danger-soft: #3a1d1d;
-  --c-danger-soft-fg: #fb8c8c;
-
-  --c-grad-from: #ff7a66;
-  --c-grad-to: #ffc197;
+  --c-danger: #ff8a7a;
+  --c-danger-soft: #3a1c19;
+  --c-danger-soft-fg: #ff9e90;
 }
 
-/* ── Map palette → Tailwind theme tokens (flip with .dark) ──────── */
 @theme inline {
-  --font-sans: 'Plus Jakarta Sans', ui-sans-serif, system-ui, sans-serif;
+  /* Archivo: a grotesque drawn for high-impact print and small text, with a
+     width axis. The price and the fine print are the same voice at two widths,
+     which is exactly how a shelf label is set. */
+  --font-sans: 'Archivo', ui-sans-serif, system-ui, sans-serif;
 
   --color-bg: var(--c-bg);
   --color-surface: var(--c-surface);
@@ -78,11 +93,15 @@
   --color-border: var(--c-border);
   --color-ink: var(--c-ink);
   --color-muted: var(--c-muted);
+  --color-rail: var(--c-rail);
 
   --color-brand: var(--c-brand);
   --color-brand-hover: var(--c-brand-hover);
   --color-brand-soft: var(--c-brand-soft);
   --color-brand-soft-fg: var(--c-brand-soft-fg);
+
+  --color-promo: var(--c-promo);
+  --color-promo-fg: var(--c-promo-fg);
 
   --color-pos: var(--c-pos);
   --color-pos-soft: var(--c-pos-soft);
@@ -110,14 +129,68 @@ body {
   font-variant-numeric: tabular-nums;
 }
 
-/* Brand gradient — used sparingly (app icon, hero/primary CTA). */
-.bg-brand-gradient {
-  background-image: linear-gradient(135deg, var(--c-grad-from), var(--c-grad-to));
+/* ── The price ──────────────────────────────────────────────────
+   The one piece of type this product owns. Condensed to the width a label
+   prints at, tracked in, and locked to tabular figures so a changing total
+   never reflows the line under it. */
+.price {
+  font-stretch: 68%;
+  font-weight: 800;
+  letter-spacing: -0.04em;
+  font-variant-numeric: tabular-nums;
+  line-height: 0.86;
+}
+
+/* The line of fine print that says what a figure is made of. */
+.fineprint {
+  font-stretch: 88%;
+  font-weight: 600;
+  font-size: 0.6875rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--c-muted);
+}
+
+/* The rule between a figure and its explanation. */
+.rail {
+  border-bottom: 2px solid var(--c-rail);
+}
+
+/* ── Browser surfaces ───────────────────────────────────────────
+   The parts nobody draws still carry the design. */
+::selection {
+  background: var(--c-promo);
+  color: var(--c-promo-fg);
+}
+
+:root {
+  caret-color: var(--c-brand);
+  scrollbar-color: var(--c-border) transparent;
+  scrollbar-width: thin;
+}
+
+:focus-visible {
+  outline: 2px solid var(--c-brand);
+  outline-offset: 2px;
+  border-radius: 2px;
+}
+
+a {
+  text-underline-offset: 0.2em;
+  text-decoration-thickness: from-font;
 }
 
 @supports (padding: env(safe-area-inset-top)) {
   body {
     padding-top: env(safe-area-inset-top);
-    padding-bottom: env(safe-area-inset-bottom);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
   }
 }
