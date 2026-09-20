@@ -42,7 +42,10 @@ export const UserSchema = z.object({
   allergies: z.array(AllergenSchema).default([]),
   dietary: z.string().nullable().default(null),
   notes: z.string().nullable().default(null),
-  kind: z.enum(USER_KINDS).default('adult'),
+  // A kind this build doesn't know (a newer one added a fourth) degrades that
+  // one participant to an adult instead of taking the whole event down in
+  // parseEventSnapshot, the same way history[].type stays permissive.
+  kind: z.enum(USER_KINDS).catch('adult'),
 })
 
 const PurchaseConsumerSchema = z.object({
