@@ -137,7 +137,7 @@ export function Footer() {
       <button
         type="button"
         onClick={() => setShowPrivacy(true)}
-        className="fineprint inline-flex min-h-11 items-center px-2 underline underline-offset-4 hover:text-ink!"
+        className="fineprint inline-flex min-h-11 items-center px-2 underline underline-offset-4 hover:text-ink"
       >
         {t('privacy.link')}
       </button>

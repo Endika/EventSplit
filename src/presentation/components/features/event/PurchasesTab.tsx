@@ -468,7 +468,7 @@ export function PurchasesTab() {
               <button
                 type="button"
                 onClick={() => toggleCollapse(group)}
-                className="fineprint flex min-h-11 flex-1 items-center gap-1.5 text-left text-brand! hover:text-ink!"
+                className="fineprint flex min-h-11 flex-1 items-center gap-1.5 text-left text-brand hover:text-ink"
                 aria-label={t('purchases.toggleGroup')}
               >
                 <IconChevron
@@ -511,7 +511,7 @@ export function PurchasesTab() {
             <button
               type="button"
               onClick={() => toggleCollapse(group)}
-              className="fineprint flex min-h-11 w-full items-center gap-1.5 border-b-2 border-rail text-left text-brand! hover:text-ink!"
+              className="fineprint flex min-h-11 w-full items-center gap-1.5 border-b-2 border-rail text-left text-brand hover:text-ink"
               aria-label={t('purchases.toggleGroup')}
             >
               <IconChevron
@@ -533,7 +533,7 @@ export function PurchasesTab() {
                       <button
                         type="button"
                         onClick={() => toggleCollapse(subCollapseKey(group, subgroup))}
-                        className="fineprint flex min-h-11 flex-1 items-center gap-1.5 text-left text-ink! hover:text-brand!"
+                        className="fineprint flex min-h-11 flex-1 items-center gap-1.5 text-left text-ink hover:text-brand"
                         aria-label={t('purchases.toggleSubgroup')}
                       >
                         <IconChevron
@@ -586,7 +586,7 @@ export function PurchasesTab() {
           <button
             type="button"
             onClick={() => setShowDeleted((v) => !v)}
-            className="fineprint inline-flex min-h-11 items-center hover:text-ink!"
+            className="fineprint inline-flex min-h-11 items-center hover:text-ink"
           >
             <IconChevron dir={showDeleted ? 'down' : 'right'} className="mr-1.5 size-3.5" />
             {t('purchases.showDeleted', { count: deleted.length })}
@@ -602,7 +602,7 @@ export function PurchasesTab() {
                   <button
                     type="button"
                     onClick={() => recover(p)}
-                    className="fineprint inline-flex min-h-11 shrink-0 items-center px-2 text-brand! hover:text-ink!"
+                    className="fineprint inline-flex min-h-11 shrink-0 items-center px-2 text-brand hover:text-ink"
                   >
                     <IconUndo className="mr-1.5 size-3.5" />
                     {t('purchases.restore')}

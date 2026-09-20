@@ -427,7 +427,7 @@ export function ExpenseForm({
                     <button
                       type="button"
                       onClick={() => toggleCollapse(group)}
-                      className="fineprint flex min-h-11 w-full items-center gap-1.5 border-b-2 border-rail text-left text-brand! hover:text-ink!"
+                      className="fineprint flex min-h-11 w-full items-center gap-1.5 border-b-2 border-rail text-left text-brand hover:text-ink"
                       aria-label={t('purchases.toggleGroup')}
                     >
                       <IconChevron
@@ -449,7 +449,7 @@ export function ExpenseForm({
                             <button
                               type="button"
                               onClick={() => toggleCollapse(subCollapseKey(group, subgroup))}
-                              className="fineprint flex min-h-11 w-full items-center gap-1.5 border-b border-border text-left text-ink! hover:text-brand!"
+                              className="fineprint flex min-h-11 w-full items-center gap-1.5 border-b border-border text-left text-ink hover:text-brand"
                               aria-label={t('purchases.toggleSubgroup')}
                             >
                               <IconChevron
