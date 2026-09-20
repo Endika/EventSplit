@@ -36,6 +36,9 @@ export function ExpensesTab() {
   const [formDirty, setFormDirty] = useState(false)
   const [pendingEdit, setPendingEdit] = useState<ExpenseSnapshot | null>(null)
   const [deleteBusy, setDeleteBusy] = useState(false)
+  // The row being torn off the label. Deleting used to be an instant unmount;
+  // a destructive act that leaves no mark reads as if nothing happened.
+  const [tearing, setTearing] = useState<string | null>(null)
   if (!event) return null
 
   function requestEdit(e: ExpenseSnapshot) {
@@ -72,9 +75,14 @@ export function ExpensesTab() {
   function confirmDelete() {
     if (!event || !me || !deleting) return
     const target = deleting
+    setTearing(target.id)
+    setDeleting(null)
     guardedExecute(async () => {
       setDeleteBusy(true)
       try {
+        // Let the tear play out before the row goes; the write is what takes
+        // the time anyway, so this costs nothing in practice.
+        await new Promise((resolve) => setTimeout(resolve, 160))
         const handler = container.resolve<DeleteExpenseHandler>('deleteExpense')
         const result = await handler.execute({
           eventId: event.id,
@@ -82,11 +90,11 @@ export function ExpensesTab() {
           deletedBy: me.id,
         })
         setEvent(result.event, result.version)
-        setDeleting(null)
       } catch (err) {
         reportError('ExpensesTab', err)
       } finally {
         setDeleteBusy(false)
+        setTearing(null)
       }
     })
   }
@@ -123,7 +131,7 @@ export function ExpensesTab() {
             key={e.id}
             className={`flex items-center justify-between gap-2 border-b border-border ${
               editing?.id === e.id ? 'bg-brand-soft' : ''
-            }`}
+            } ${tearing === e.id ? 'tear' : ''}`}
           >
             <button
               type="button"
