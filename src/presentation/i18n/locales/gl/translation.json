@@ -351,6 +351,7 @@
     "kind": "Tipo",
     "adult": "Adulto",
     "child": "Neno/a",
+    "dog": "Can",
     "submit": "Engadir",
     "switchUser": "Non son esta persoa",
     "switchConfirm": "Esquecer esta identidade neste dispositivo e volver elixir?",

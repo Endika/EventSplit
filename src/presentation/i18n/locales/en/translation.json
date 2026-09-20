@@ -351,6 +351,7 @@
     "kind": "Type",
     "adult": "Adult",
     "child": "Child",
+    "dog": "Dog",
     "submit": "Add",
     "switchUser": "I'm not this person",
     "switchConfirm": "Forget this identity on this device and pick again?",
