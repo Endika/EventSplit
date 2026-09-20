@@ -51,6 +51,7 @@
     "availability": "Cando",
     "location": "Onde",
     "purchases": "Lista da compra",
+    "purchasesShort": "Compra",
     "expenses": "Gastos",
     "history": "Historial",
     "openMenu": "Abrir menú",
