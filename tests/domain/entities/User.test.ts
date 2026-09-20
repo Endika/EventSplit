@@ -98,6 +98,10 @@ describe('User', () => {
     expect(User.create({ name: 'Kid', kind: 'child' }).toSnapshot().kind).toBe('child')
   })
 
+  it('accepts dog kind', () => {
+    expect(User.create({ name: 'Toby', kind: 'dog' }).toSnapshot().kind).toBe('dog')
+  })
+
   it('rejects invalid kind', () => {
     expect(() => User.create({ name: 'John', kind: 'baby' as never })).toThrow(/kind/)
   })
