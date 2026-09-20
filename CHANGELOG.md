@@ -1,5 +1,22 @@
 # Changelog
 
+## [3.8.0](https://github.com/Endika/EventSplit/compare/v3.7.0...v3.8.0) (2026-09-20)
+
+
+### Features
+
+* **participants:** settle a child's share with the adult in charge ([3ff157e](https://github.com/Endika/EventSplit/commit/3ff157e402234ca872ed38f854fa5306d2886a36))
+* **ui:** author the motion grammar and tear a row when it is deleted ([37154d3](https://github.com/Endika/EventSplit/commit/37154d3ba1ca192ef345958cc754c22cad5ef0c2))
+
+
+### Bug Fixes
+
+* **expenses:** show what you actually end up with when you carry a child ([c97b510](https://github.com/Endika/EventSplit/commit/c97b510c1f139617d0ac5e461985eee2943b6022))
+* **pwa:** use the app's own ground for the splash instead of slate ([cc203d3](https://github.com/Endika/EventSplit/commit/cc203d38ca3fa384507041717c24cc395458999b))
+* **ui:** drop the last !important left over from the unlayered classes ([010d845](https://github.com/Endika/EventSplit/commit/010d8450c9cc1e848624409b4459d87595e6dd6b))
+* **ui:** layer the world's classes so utilities stop needing !important ([2daed31](https://github.com/Endika/EventSplit/commit/2daed31171811c4afe115dde1e9719fe11d7b4ac))
+* **ui:** write quantities in the language the app is speaking ([11cc584](https://github.com/Endika/EventSplit/commit/11cc584bfb218c08d1a329f93e77df3e63f5e1e0))
+
 ## [3.7.0](https://github.com/Endika/EventSplit/compare/v3.6.0...v3.7.0) (2026-09-20)
 
 
