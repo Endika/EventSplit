@@ -324,6 +324,7 @@
       "splitBetween": "Reparteix entre",
       "selectAll": "Tots",
       "selectNone": "Cap",
+      "dogsExcluded": "Els gossos són a la llista, mai al repartiment.",
       "markBought": "Què has comprat de la llista?",
       "remainingHint": "falten {{n}} de {{total}} {{unit}}"
     },

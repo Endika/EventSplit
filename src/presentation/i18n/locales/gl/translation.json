@@ -324,6 +324,7 @@
       "splitBetween": "Repartir entre",
       "selectAll": "Todos",
       "selectNone": "Ningún",
+      "dogsExcluded": "Os cans están na lista, nunca no reparto.",
       "markBought": "Que compraches da lista?",
       "remainingHint": "faltan {{n}} de {{total}} {{unit}}"
     },
