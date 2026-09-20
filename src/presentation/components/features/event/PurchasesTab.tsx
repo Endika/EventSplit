@@ -32,6 +32,7 @@ import { PurchaseForm } from './PurchaseForm'
 import { ShareListModal } from './ShareListModal'
 import { canBeAssigned, canBring } from '@/domain/services/participantRoles'
 import { PrimaryAction } from '@/presentation/components/common/PrimaryAction'
+import { formatQuantity } from '@/presentation/utils/quantity'
 
 export function PurchasesTab() {
   const { t } = useTranslation()
@@ -83,7 +84,6 @@ export function PurchasesTab() {
   const visible = onlyMine ? notDeleted.filter((p) => p.assignedTo === me?.id) : notDeleted
   const deleted = event.purchases.filter((p) => p.deleted)
   const userName = (id: string) => event.users.find((u) => u.id === id)?.name ?? '?'
-  const round2 = (n: number) => Math.round(n * 100) / 100
   const linkedExpenses = (pid: string) =>
     event.expenses.filter(
       (e) => !e.deleted && (e.purchaseLinks ?? []).some((l) => l.purchaseId === pid),
@@ -302,7 +302,7 @@ export function PurchasesTab() {
                   title={t(
                     p.kind === 'bring' ? 'purchases.totalToBring' : 'purchases.totalQuantity',
                     {
-                      n: round2(p.totalQuantity),
+                      n: formatQuantity(p.totalQuantity),
                       unit: displayUnit(p.unit, t, p.totalQuantity),
                     },
                   )}
@@ -323,7 +323,7 @@ export function PurchasesTab() {
                     </span>
                   </span>
                   <span className="shrink-0 whitespace-nowrap text-right text-sm font-semibold tabular-nums text-ink">
-                    {round2(p.totalQuantity)} {displayUnit(p.unit, t, p.totalQuantity)}
+                    {formatQuantity(p.totalQuantity)} {displayUnit(p.unit, t, p.totalQuantity)}
                   </span>
                 </button>
                 <button
@@ -360,8 +360,8 @@ export function PurchasesTab() {
                     <div className="flex items-center justify-between gap-2">
                       <span className="text-sm font-semibold tabular-nums text-ink">
                         {t('purchases.boughtProgress', {
-                          n: round2(bought),
-                          total: round2(total),
+                          n: formatQuantity(bought),
+                          total: formatQuantity(total),
                           unit: displayUnit(p.unit, t, total),
                         })}
                       </span>
