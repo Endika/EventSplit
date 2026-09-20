@@ -161,6 +161,50 @@ body {
   }
 }
 
+/* ── Motion ─────────────────────────────────────────────────────
+   One duration and one easing for the whole surface. The app is used standing
+   up, so nothing is allowed to make anyone wait: figures cross-fade between
+   digit states, everything else moves on a single axis. */
+@layer components {
+  :root {
+    --motion: 160ms;
+    --ease: cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  /* A changing total swaps rather than slides: the digits are the content. */
+  .price {
+    transition:
+      opacity var(--motion) var(--ease),
+      color var(--motion) var(--ease);
+  }
+
+  /* Unfolding a total pushes the rest down; it never slides sideways. */
+  .unfold {
+    animation: unfold var(--motion) var(--ease);
+    transform-origin: top;
+  }
+
+  @keyframes unfold {
+    from {
+      opacity: 0;
+      transform: translateY(-4px);
+    }
+  }
+
+  /* Deleting tears the label along the row instead of fading it out. */
+  .tear {
+    animation: tear var(--motion) var(--ease) forwards;
+  }
+
+  @keyframes tear {
+    to {
+      opacity: 0;
+      clip-path: polygon(0 0, 100% 0, 100% 42%, 0 58%);
+      transform: translateX(-6px);
+    }
+  }
+}
+
 /* ── Browser surfaces ───────────────────────────────────────────
    The parts nobody draws still carry the design. */
 ::selection {

@@ -148,7 +148,7 @@ export function ManualLiquidations() {
   }
 
   return (
-    <div className="space-y-3 border border-border bg-surface p-4">
+    <div className="space-y-3 p-4">
       <div>
         <p className="fineprint">{t('liquidations.title')}</p>
         <div className="rail mt-1" />

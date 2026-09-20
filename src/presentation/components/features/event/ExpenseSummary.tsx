@@ -131,7 +131,7 @@ export function ExpenseSummary() {
               </span>
             </button>
             {unfolded && (
-              <ul className="mt-3 space-y-1 border-l-2 border-border pl-3">
+              <ul className="unfold mt-3 space-y-1 pl-3">
                 <li className="fineprint">
                   {t('expenses.summary.inThis', { count: myExpenses.length })}
                 </li>
