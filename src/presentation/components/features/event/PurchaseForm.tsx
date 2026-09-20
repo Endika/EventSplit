@@ -23,6 +23,7 @@ import { friendlyError } from '@/presentation/utils/friendlyError'
 import { parseDecimal } from '@/shared/utils/parseDecimal'
 import { SHARED_UNIT } from '@/domain/entities/Purchase'
 import { SELECTABLE_UNITS as UNITS } from '@/presentation/utils/units'
+import { canBeAssigned } from '@/domain/services/participantRoles'
 
 export function PurchaseForm({
   onDone,
@@ -583,7 +584,7 @@ export function PurchaseForm({
               >
                 <option value="">{t('purchases.form.assignedNobody')}</option>
                 {event.users
-                  .filter((u) => u.kind === 'adult')
+                  .filter((u) => canBeAssigned(u.kind))
                   .map((u) => (
                     <option key={u.id} value={u.id}>
                       {u.alias ? `${u.name} (${u.alias})` : u.name}

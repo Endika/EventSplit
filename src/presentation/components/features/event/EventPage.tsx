@@ -13,6 +13,7 @@ import {
 import { EventTabs } from '@/presentation/components/features/event/EventTabs'
 import { EventPinGate } from '@/presentation/components/features/security/EventPinGate'
 import { useEditPin } from '@/presentation/context/EditPinContext'
+import { isSelectableAsSelf } from '@/domain/services/participantRoles'
 
 export function EventPage({ eventId }: { eventId: string }) {
   const { t } = useTranslation()
@@ -121,7 +122,7 @@ export function EventPage({ eventId }: { eventId: string }) {
       {!me && (
         <IdentificationModal
           eventName={event.name}
-          users={event.users}
+          users={event.users.filter((u) => isSelectableAsSelf(u.kind))}
           onConfirm={handleIdentification}
         />
       )}

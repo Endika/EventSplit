@@ -1,6 +1,7 @@
 import { useTranslation } from 'react-i18next'
 import { useEventState } from '@/presentation/context/EventContext'
 import { computeTripTotals } from '@/domain/services/TripTotals'
+import { payingUsers } from '@/domain/services/participantRoles'
 
 const fmt = (cents: number): string => (cents / 100).toFixed(2)
 
@@ -10,7 +11,7 @@ export function GeneralSummary() {
   if (!event) return null
 
   const totals = computeTripTotals({
-    participantIds: event.users.map((u) => u.id),
+    participantIds: payingUsers(event.users).map((u) => u.id),
     expenses: event.expenses.map((e) => ({ cents: e.cents, deleted: e.deleted })),
     manualLiquidations: event.manualLiquidations.map((l) => ({
       cents: l.cents,

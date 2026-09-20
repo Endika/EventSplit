@@ -22,6 +22,7 @@ import { AvailabilityMatrix } from './AvailabilityMatrix'
 import { DayOptionsCalendar } from './DayOptionsCalendar'
 import { VotingCalendar } from './VotingCalendar'
 import { OptionVoteList } from './OptionVoteList'
+import { canVote } from '@/domain/services/participantRoles'
 
 export function AvailabilityTab() {
   const { t, i18n } = useTranslation()
@@ -42,7 +43,9 @@ export function AvailabilityTab() {
 
   const matrixUsers = useMemo(
     () =>
-      showChildren ? (event?.users ?? []) : (event?.users ?? []).filter((u) => u.kind === 'adult'),
+      showChildren
+        ? (event?.users ?? []).filter((u) => canVote(u.kind))
+        : (event?.users ?? []).filter((u) => u.kind === 'adult'),
     [event, showChildren],
   )
 

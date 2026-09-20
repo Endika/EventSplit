@@ -4,6 +4,7 @@ import { useEventState } from '@/presentation/context/EventContext'
 import { useCurrentUser } from '@/presentation/context/UserContext'
 import { useWriteGuard } from '@/presentation/context/WriteGuardContext'
 import { ExpenseSplitter } from '@/domain/services/ExpenseSplitter'
+import { payingUsers } from '@/domain/services/participantRoles'
 import { Money } from '@/domain/value-objects/Money'
 import { YouLabel } from '@/presentation/components/common/YouLabel'
 import type { ToggleSettlementHandler } from '@/application/handlers/ToggleSettlementHandler'
@@ -37,7 +38,9 @@ export function ExpenseSummary() {
   }
 
   const result = ExpenseSplitter.compute({
-    participantIds: event.users.map((u) => u.id),
+    // Dogs attend but never owe: they are kept out of the split entirely,
+    // which also drops their id from any expense that still lists them.
+    participantIds: payingUsers(event.users).map((u) => u.id),
     expenses: event.expenses
       .filter((e) => !e.deleted)
       .map((e) => ({

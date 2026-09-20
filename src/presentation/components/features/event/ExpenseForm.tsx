@@ -18,6 +18,7 @@ import { displayUnit } from '@/presentation/utils/units'
 import { friendlyError } from '@/presentation/utils/friendlyError'
 import { groupPurchases } from '@/presentation/utils/groupPurchases'
 import { isPurchaseDone, remainingToBuy } from '@/presentation/utils/purchaseProgress'
+import { payingUsers } from '@/domain/services/participantRoles'
 
 export function ExpenseForm({
   onDone,
@@ -40,13 +41,16 @@ export function ExpenseForm({
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [splitAmong, setSplitAmong] = useState<Set<string>>(() => {
-    const allIds = event?.users.map((u) => u.id) ?? []
+    const payers = payingUsers(event?.users ?? [])
+    const allIds = payers.map((u) => u.id)
     if (expense) {
-      // Editing: preserve the saved split (empty array meant "everyone").
-      return new Set(expense.splitAmong.length > 0 ? expense.splitAmong : allIds)
+      // Editing: preserve the saved split (empty array meant "everyone"), minus
+      // any dog an older build may have saved into it.
+      const saved = expense.splitAmong.length > 0 ? expense.splitAmong : allIds
+      return new Set(saved.filter((id) => allIds.includes(id)))
     }
     // New expense: default to adults only — children don't usually share costs.
-    return new Set((event?.users ?? []).filter((u) => u.kind === 'adult').map((u) => u.id))
+    return new Set(payers.filter((u) => u.kind === 'adult').map((u) => u.id))
   })
   const [confirmCancel, setConfirmCancel] = useState(false)
   const [confirmSettled, setConfirmSettled] = useState(false)
@@ -109,7 +113,7 @@ export function ExpenseForm({
   }
 
   function selectAll() {
-    setSplitAmong(new Set(event?.users.map((u) => u.id) ?? []))
+    setSplitAmong(new Set(payingUsers(event?.users ?? []).map((u) => u.id)))
   }
 
   function selectNone() {
@@ -338,7 +342,7 @@ export function ExpenseForm({
             <option value="" disabled>
               —
             </option>
-            {event.users.map((u) => (
+            {payingUsers(event.users).map((u) => (
               <option key={u.id} value={u.id}>
                 {u.alias ? `${u.name} (${u.alias})` : u.name}
               </option>
@@ -382,7 +386,7 @@ export function ExpenseForm({
             </button>
           </div>
           <div className="flex flex-wrap gap-2">
-            {event.users.map((u) => (
+            {payingUsers(event.users).map((u) => (
               <button
                 key={u.id}
                 type="button"
