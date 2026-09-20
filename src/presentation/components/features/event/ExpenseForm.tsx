@@ -21,6 +21,7 @@ import { groupPurchases } from '@/presentation/utils/groupPurchases'
 import { isPurchaseDone, remainingToBuy } from '@/presentation/utils/purchaseProgress'
 import { payingUsers, paysExpenses } from '@/domain/services/participantRoles'
 import { toStoredSplit } from '@/domain/services/splitScope'
+import { formatQuantity } from '@/presentation/utils/quantity'
 
 export function ExpenseForm({
   onDone,
@@ -159,7 +160,7 @@ export function ExpenseForm({
           <span className={done ? 'text-muted line-through' : 'text-ink'}>
             {p.item}{' '}
             <span className="text-muted">
-              — {Math.round(p.totalQuantity * 100) / 100} {unit}
+              — {formatQuantity(p.totalQuantity)} {unit}
             </span>
             {assignee && (
               <span
@@ -191,7 +192,7 @@ export function ExpenseForm({
               {remaining > 0
                 ? t('expenses.form.remainingHint', {
                     n: Math.round(remaining * 100) / 100,
-                    total: Math.round(p.totalQuantity * 100) / 100,
+                    total: formatQuantity(p.totalQuantity),
                     unit,
                   })
                 : t('purchases.bought')}
