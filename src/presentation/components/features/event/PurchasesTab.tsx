@@ -31,6 +31,7 @@ import { boughtQuantity, isPurchaseDone } from '@/presentation/utils/purchasePro
 import { PurchaseForm } from './PurchaseForm'
 import { ShareListModal } from './ShareListModal'
 import { canBeAssigned, canBring } from '@/domain/services/participantRoles'
+import { PrimaryAction } from '@/presentation/components/common/PrimaryAction'
 
 export function PurchasesTab() {
   const { t } = useTranslation()
@@ -419,7 +420,11 @@ export function PurchasesTab() {
     <div className="space-y-3">
       {!adding && !editing && (
         <div className="flex flex-wrap gap-2">
-          <Button onClick={() => setAdding(true)}>{t('purchases.add')}</Button>
+          <PrimaryAction>
+            <Button className="w-full" onClick={() => setAdding(true)}>
+              {t('purchases.add')}
+            </Button>
+          </PrimaryAction>
           {visible.length > 0 && (
             <Button variant="secondary" onClick={() => setSharing(true)}>
               <IconShare className="size-4" />
