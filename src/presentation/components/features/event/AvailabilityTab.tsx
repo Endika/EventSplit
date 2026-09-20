@@ -66,13 +66,19 @@ export function AvailabilityTab() {
   const savedVotesForOption = (key: string): number => {
     const idx = event.dayOptions.findIndex((o) => optionKey(o) === key)
     if (idx < 0) return 0
-    return event.users.reduce((n, u) => n + (event.availability[u.id]?.[idx] ? 1 : 0), 0)
+    return event.users.reduce(
+      (n, u) => n + (canVote(u.kind) && event.availability[u.id]?.[idx] ? 1 : 0),
+      0,
+    )
   }
 
   const removableKeys = event.dayOptions
     .map(optionKey)
     .filter((key) => savedVotesForOption(key) === 0)
 
+  // Everyone who may hold a vote, whatever the show-children toggle says:
+  // the matrix is only *displayed* filtered, it must still be *saved* whole.
+  const voterUserIds = event.users.filter((u) => canVote(u.kind)).map((u) => u.id)
   const childCount = event.users.filter((u) => u.kind === 'child').length
   const voterIds = matrixUsers.map((u) => u.id)
 
@@ -168,10 +174,7 @@ export function AvailabilityTab() {
         const voteResult = await batch.execute({
           eventId: event!.id,
           editedBy: me.id,
-          votes:
-            view === 'table'
-              ? draft.matrix(event!.users.map((u) => u.id))
-              : { [me.id]: draft.rowFor(me.id) },
+          votes: view === 'table' ? draft.matrix(voterUserIds) : { [me.id]: draft.rowFor(me.id) },
         })
         setEvent(voteResult.event, voteResult.version)
 

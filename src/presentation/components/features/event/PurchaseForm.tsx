@@ -25,6 +25,7 @@ import { SHARED_UNIT } from '@/domain/entities/Purchase'
 import { SELECTABLE_UNITS as UNITS } from '@/presentation/utils/units'
 import {
   canBeAssigned,
+  canBring,
   defaultMultiplier,
   isDefaultConsumer,
 } from '@/domain/services/participantRoles'
@@ -236,7 +237,9 @@ export function PurchaseForm({
           const buyDaily = isSingle ? 1 : dailyConsumption
           const buyDays = isSingle ? 1 : days
           const list = isSingle
-            ? event.users.map((u) => ({ userId: u.id, multiplier: 1 }))
+            ? event.users
+                .filter((u) => isDefaultConsumer(u.kind))
+                .map((u) => ({ userId: u.id, multiplier: 1 }))
             : Object.entries(consumers).map(([userId, multiplier]) => ({ userId, multiplier }))
           if (purchase) {
             const handler = container.resolve<EditPurchaseHandler>('editPurchase')
@@ -440,11 +443,13 @@ export function PurchaseForm({
                 onChange={(e) => setBroughtBy(e.target.value || null)}
               >
                 <option value="">{t('purchases.form.broughtByNobody')}</option>
-                {event.users.map((u) => (
-                  <option key={u.id} value={u.id}>
-                    {u.alias ? `${u.name} (${u.alias})` : u.name}
-                  </option>
-                ))}
+                {event.users
+                  .filter((u) => canBring(u.kind))
+                  .map((u) => (
+                    <option key={u.id} value={u.id}>
+                      {u.alias ? `${u.name} (${u.alias})` : u.name}
+                    </option>
+                  ))}
               </select>
             </label>
           </>

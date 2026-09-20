@@ -22,7 +22,7 @@ import { groupPurchases } from '@/presentation/utils/groupPurchases'
 import { boughtQuantity, isPurchaseDone } from '@/presentation/utils/purchaseProgress'
 import { PurchaseForm } from './PurchaseForm'
 import { ShareListModal } from './ShareListModal'
-import { canBeAssigned } from '@/domain/services/participantRoles'
+import { canBeAssigned, canBring } from '@/domain/services/participantRoles'
 
 export function PurchasesTab() {
   const { t } = useTranslation()
@@ -328,11 +328,13 @@ export function PurchasesTab() {
                       className="min-h-11 rounded border border-border bg-surface p-1 text-base text-ink sm:text-sm"
                     >
                       <option value="">{t('purchases.unassigned')}</option>
-                      {event!.users.map((u) => (
-                        <option key={u.id} value={u.id}>
-                          {u.alias ? `${u.name} (${u.alias})` : u.name}
-                        </option>
-                      ))}
+                      {event!.users
+                        .filter((u) => canBring(u.kind))
+                        .map((u) => (
+                          <option key={u.id} value={u.id}>
+                            {u.alias ? `${u.name} (${u.alias})` : u.name}
+                          </option>
+                        ))}
                     </select>
                   </label>
                 ) : hasLinks ? (
