@@ -59,6 +59,14 @@ export function ExpenseSummary() {
   const nameOf = (id: string) => event.users.find((u) => u.id === id)?.name ?? '?'
 
   const mine = result.balances.find((b) => b.userId === me?.id)
+  // What this person actually ends up with. Carrying a child means carrying
+  // their balance too, so showing the bare personal figure would contradict the
+  // settlement list right underneath it.
+  const carriedFor = (payerId: string) =>
+    result.balances
+      .filter((b) => event.users.find((u) => u.id === b.userId)?.guardianId === payerId)
+      .reduce((n, b) => n + b.balanceCents, 0)
+  const myCarried = mine ? mine.balanceCents + carriedFor(mine.userId) : 0
   const others = result.balances.filter((b) => b.userId !== mine?.userId)
   const allSquare =
     result.transfers.length > 0 && result.transfers.every((tr) => isSettled(tr.from, tr.to))
@@ -81,6 +89,11 @@ export function ExpenseSummary() {
       .map((u) => u.name)
       .join(', ')
 
+  const guardianNameOf = (userId: string): string => {
+    const guardianId = event.users.find((u) => u.id === userId)?.guardianId
+    return guardianId ? nameOf(guardianId) : ''
+  }
+
   const toneOf = (cents: number) =>
     cents > 0 ? 'text-pos' : cents < 0 ? 'text-warn' : 'text-muted'
 
@@ -95,10 +108,8 @@ export function ExpenseSummary() {
               aria-expanded={unfolded}
               className="block w-full text-left"
             >
-              <span
-                className={`price block text-[clamp(3.5rem,19vw,6rem)] ${toneOf(mine.balanceCents)}`}
-              >
-                {formatSignedMoney(mine.balanceCents)}
+              <span className={`price block text-[clamp(3.5rem,19vw,6rem)] ${toneOf(myCarried)}`}>
+                {formatSignedMoney(myCarried)}
               </span>
               <span className="fineprint mt-2 block">
                 {t('expenses.summary.youPaid', { amount: formatMoney(mine.spentCents) })}
@@ -106,6 +117,12 @@ export function ExpenseSummary() {
                 {t('expenses.summary.yourShare', {
                   amount: formatMoney(mine.spentCents - mine.balanceCents),
                 })}
+                {carriedNames(mine.userId) && (
+                  <>
+                    {' · '}
+                    {t('expenses.summary.includes', { names: carriedNames(mine.userId) })}
+                  </>
+                )}
                 <span className="ml-2 text-brand">
                   {unfolded ? t('expenses.summary.fold') : t('expenses.summary.unfold')}
                 </span>
@@ -144,9 +161,16 @@ export function ExpenseSummary() {
               key={b.userId}
               className="flex items-baseline justify-between gap-3 border-b border-border py-2 last:border-0"
             >
-              <span className="flex min-w-0 items-baseline truncate text-sm text-ink">
-                {nameOf(b.userId)}
-                <YouLabel userId={b.userId} />
+              <span className="flex min-w-0 flex-col truncate text-sm text-ink">
+                <span className="truncate">
+                  {nameOf(b.userId)}
+                  <YouLabel userId={b.userId} />
+                </span>
+                {guardianNameOf(b.userId) && (
+                  <span className="fineprint">
+                    {t('participants.guardianOf', { name: guardianNameOf(b.userId) })}
+                  </span>
+                )}
               </span>
               <span className="shrink-0 text-right text-sm tabular-nums text-muted">
                 {formatMoney(b.spentCents)}
