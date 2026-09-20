@@ -97,17 +97,13 @@ export function CloneFromEventModal(props: { open: boolean; onClose: () => void 
     <Modal open title={t('clone.title')} dismissable={!busy} onClose={onClose}>
       <div className="space-y-4">
         <section className="space-y-2">
-          <h3 className="text-xs font-semibold uppercase tracking-wide text-muted">
-            {t('clone.step1')}
-          </h3>
+          <h3 className="fineprint">{t('clone.step1')}</h3>
           <CloneSourcePicker sources={sources} value={sourceId} onChange={pickSource} />
         </section>
 
         {sourceSnapshot && (
           <section className="space-y-2">
-            <h3 className="text-xs font-semibold uppercase tracking-wide text-muted">
-              {t('clone.step2')}
-            </h3>
+            <h3 className="fineprint">{t('clone.step2')}</h3>
             <CloneBlockTree
               source={sourceSnapshot}
               target={event}

@@ -205,12 +205,10 @@ export function AvailabilityTab() {
 
   return (
     <div className="space-y-4">
-      <h2 className="text-sm font-semibold uppercase tracking-wide text-muted">
-        {t('availability.title')}
-      </h2>
+      <h2 className="fineprint border-b-2 border-rail pb-1">{t('availability.title')}</h2>
 
       <textarea
-        className="w-full rounded-lg border border-border bg-surface px-3 py-2 text-base text-ink placeholder-muted focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand sm:text-sm"
+        className="w-full border border-border bg-surface px-3 py-2 text-base text-ink placeholder-muted focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand sm:text-sm"
         value={note}
         onChange={(e) => setNote(e.target.value)}
         maxLength={200}
@@ -219,12 +217,12 @@ export function AvailabilityTab() {
       />
 
       {childCount > 0 && (
-        <label className="flex items-center gap-2 text-xs text-muted">
+        <label className="flex min-h-11 cursor-pointer items-center gap-2 text-xs text-muted">
           <input
             type="checkbox"
             checked={showChildren}
             onChange={(e) => setShowChildren(e.target.checked)}
-            className="size-4 rounded border-border bg-elevated accent-brand"
+            className="size-5 border-border bg-elevated accent-brand"
           />
           {t('availability.showChildren', { count: childCount })}
         </label>
@@ -242,9 +240,9 @@ export function AvailabilityTab() {
             type="date"
             value={newDay}
             onChange={(e) => setNewDay(e.target.value)}
-            className="max-w-xs"
+            className="min-w-0 flex-1 sm:max-w-xs"
           />
-          <Button type="submit" variant="secondary" disabled={busy || !newDay}>
+          <Button type="submit" variant="secondary" className="shrink-0" disabled={busy || !newDay}>
             {t('availability.addDay')}
           </Button>
         </form>
@@ -258,15 +256,17 @@ export function AvailabilityTab() {
 
       {event.dayOptions.length > 0 && (
         <>
-          <div data-no-swipe className="flex gap-1 rounded-xl border border-border bg-surface p-1">
+          <div data-no-swipe className="flex border border-border bg-surface">
             {(['calendar', 'table'] as const).map((v) => (
               <button
                 key={v}
                 type="button"
                 onClick={() => setView(v)}
                 aria-pressed={view === v}
-                className={`flex-1 rounded-lg px-3 py-2 text-sm font-medium ${
-                  view === v ? 'bg-brand-soft text-brand-soft-fg' : 'text-muted hover:text-ink'
+                className={`flex min-h-11 flex-1 items-center justify-center px-3 text-[0.6875rem] font-semibold uppercase tracking-[0.08em] ${
+                  view === v
+                    ? 'bg-brand text-white dark:text-bg'
+                    : 'text-muted hover:bg-elevated hover:text-ink'
                 }`}
               >
                 {v === 'calendar' ? t('availability.viewCalendar') : t('availability.viewTable')}
@@ -302,7 +302,7 @@ export function AvailabilityTab() {
 
           {view === 'table' && (
             <>
-              <p className="text-xs text-muted">{t('availability.editAnyoneHint')}</p>
+              <p className="text-sm text-muted">{t('availability.editAnyoneHint')}</p>
 
               <AvailabilityMatrix
                 users={matrixUsers}

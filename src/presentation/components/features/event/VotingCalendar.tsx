@@ -70,8 +70,8 @@ export function VotingCalendar(props: {
                 data-iso={iso}
                 data-candidate="false"
                 aria-label={`${longDate} — ${t('availability.notCandidate')}`}
-                className={`flex h-full min-h-11 w-full items-center justify-center rounded-lg text-sm ${
-                  inMonth ? 'text-muted' : 'text-muted/40'
+                className={`flex h-full min-h-11 w-full items-center justify-center text-sm ${
+                  inMonth ? 'text-ink' : 'text-muted'
                 }`}
               >
                 {Number(iso.slice(-2))}
@@ -86,8 +86,6 @@ export function VotingCalendar(props: {
           const isChosen = covering.some((o) => pins.includes(optionKey(o)))
           const mine = covering.some((o) => myVotes[optionKey(o)])
           const noted = covering.find((o) => o.note)
-          const isStart = covering.some((o) => o.start === iso)
-          const isEnd = covering.some((o) => o.end === iso)
           const notePart = noted?.note
             ? ` — ${t('availability.optionHasNote', { note: noted.note })}`
             : ''
@@ -109,9 +107,6 @@ export function VotingCalendar(props: {
               className={[
                 'flex h-full min-h-11 w-full flex-col items-center justify-center text-sm',
                 HEAT_CLASS[heat.level],
-                isStart ? 'rounded-l-lg' : '',
-                isEnd ? 'rounded-r-lg' : '',
-                covering.every((o) => o.start === o.end) ? 'rounded-lg' : '',
                 isChosen ? 'ring-2 ring-brand' : '',
                 mine ? 'font-bold text-ink' : 'text-ink',
                 inMonth ? '' : 'opacity-60',
@@ -128,10 +123,10 @@ export function VotingCalendar(props: {
         }}
       />
 
-      <div className="flex items-center gap-2 text-[10px] text-muted">
+      <div className="fineprint flex items-center gap-2">
         <span>{t('availability.legendNobody')}</span>
         {HEAT_CLASS.map((cls, level) => (
-          <span key={level} className={`inline-block size-3 rounded ${cls}`} aria-hidden="true" />
+          <span key={level} className={`inline-block size-3 ${cls}`} aria-hidden="true" />
         ))}
         <span>{t('availability.legendEveryone')}</span>
       </div>

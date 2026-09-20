@@ -118,7 +118,7 @@ export function DayOptionsCalendar(props: {
         >
           {t('availability.rangeMode')}
         </Button>
-        {rangeMode && <span className="text-xs text-muted">{t('availability.rangeModeHint')}</span>}
+        {rangeMode && <span className="fineprint">{t('availability.rangeModeHint')}</span>}
       </div>
 
       <MonthGrid
@@ -131,8 +131,8 @@ export function DayOptionsCalendar(props: {
           const picked = covering.length > 0
           const isRangeStart = rangeStart === iso
           const blocked = !picked && full && !rangeMode
-          // A stretch has to read as one band, not as N separate days: only its
-          // ends are rounded, and the cells in between touch.
+          // A stretch has to read as one band, not as N separate days: square
+          // cells butt against each other, so the band closes itself.
           const first = covering[0]
           const span = !first
             ? 'none'
@@ -143,13 +143,6 @@ export function DayOptionsCalendar(props: {
                 : iso === first.end
                   ? 'end'
                   : 'middle'
-          const rounding = {
-            none: 'rounded-lg',
-            single: 'rounded-lg',
-            start: 'rounded-l-lg',
-            end: 'rounded-r-lg',
-            middle: '',
-          }[span]
           return (
             <button
               type="button"
@@ -166,8 +159,7 @@ export function DayOptionsCalendar(props: {
               }).format(new Date(iso + 'T00:00:00'))}
               className={[
                 'flex h-full min-h-11 w-full items-center justify-center text-sm',
-                rounding,
-                inMonth ? 'text-ink' : 'text-muted/50',
+                inMonth ? 'text-ink' : 'text-muted',
                 picked ? 'bg-brand-soft font-semibold text-brand-soft-fg' : 'hover:bg-elevated',
                 isRangeStart ? 'ring-2 ring-brand' : '',
                 blocked ? 'cursor-not-allowed opacity-40' : '',
@@ -189,7 +181,7 @@ export function DayOptionsCalendar(props: {
         >
           {t('availability.saveOptions')}
         </Button>
-        <span className="text-xs text-muted">
+        <span className="text-sm font-semibold tabular-nums text-muted">
           {selection.length}/{MAX_OPTIONS}
         </span>
       </div>

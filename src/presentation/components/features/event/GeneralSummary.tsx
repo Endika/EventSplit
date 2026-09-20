@@ -24,24 +24,33 @@ export function GeneralSummary() {
   if (totals.totalCostCents === 0) return null
 
   return (
-    <div className="space-y-2 rounded-xl border border-border bg-surface p-4">
-      <p className="text-xs font-medium uppercase text-muted">{t('summary.general.title')}</p>
-      <dl className="space-y-1 text-sm">
-        <div className="flex justify-between">
-          <dt className="text-muted">{t('summary.general.totalCost')}</dt>
-          <dd className="text-ink">{formatMoney(totals.totalCostCents)}</dd>
+    <section className="border border-border bg-surface px-4 pb-4 pt-5">
+      <p className="fineprint">{t('summary.general.title')}</p>
+      <span className="price mt-1 block text-[clamp(2.75rem,15vw,4.5rem)] text-ink">
+        {formatMoney(totals.totalCostCents)}
+      </span>
+      <span className="fineprint mt-2 block">{t('summary.general.totalCost')}</span>
+
+      <div className="rail mt-4" />
+
+      <dl className="mt-3">
+        <div className="flex items-baseline justify-between gap-3 border-b border-border py-2">
+          <dt className="fineprint">{t('summary.general.realSpent')}</dt>
+          <dd className="shrink-0 text-sm font-semibold tabular-nums text-pos">
+            {formatMoney(totals.realSpentCents)}
+          </dd>
         </div>
-        <div className="flex justify-between">
-          <dt className="text-muted">{t('summary.general.realSpent')}</dt>
-          <dd className="text-pos">{formatMoney(totals.realSpentCents)}</dd>
-        </div>
-        <div className="flex justify-between">
-          <dt className="text-muted">{t('summary.general.pending')}</dt>
-          <dd className={totals.pendingCents > 0 ? 'text-warn' : 'text-muted'}>
+        <div className="flex items-baseline justify-between gap-3 py-2">
+          <dt className="fineprint">{t('summary.general.pending')}</dt>
+          <dd
+            className={`shrink-0 text-sm font-semibold tabular-nums ${
+              totals.pendingCents > 0 ? 'text-warn' : 'text-muted'
+            }`}
+          >
             {formatMoney(totals.pendingCents)}
           </dd>
         </div>
       </dl>
-    </div>
+    </section>
   )
 }

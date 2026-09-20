@@ -111,7 +111,7 @@ export function AddressAutocomplete({ value, onChange, placeholder }: Props) {
         maxLength={200}
       />
       {suggestions.length > 0 && (
-        <ul className="overflow-hidden rounded-xl border border-border bg-surface shadow-md">
+        <ul className="overflow-hidden border-2 border-rail bg-surface shadow-md">
           {suggestions.map((s, i) => (
             <li key={i}>
               <button

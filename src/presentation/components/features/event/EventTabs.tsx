@@ -262,7 +262,7 @@ export function EventTabs() {
             type="button"
             onClick={() => setActive(tab.key)}
             className={`whitespace-nowrap px-4 py-2.5 text-sm font-medium ${
-              active === tab.key ? 'bg-brand text-white' : 'text-muted hover:text-ink'
+              active === tab.key ? 'bg-brand text-white dark:text-bg' : 'text-muted hover:text-ink'
             }`}
           >
             {tab.label}
@@ -285,7 +285,7 @@ export function EventTabs() {
               onClick={() => selectTab(tab.key)}
               aria-current={isActive ? 'page' : undefined}
               className={`flex min-h-14 flex-col items-center justify-center gap-0.5 px-1 py-2 ${
-                isActive ? 'bg-brand text-white' : 'text-muted hover:text-ink'
+                isActive ? 'bg-brand text-white dark:text-bg' : 'text-muted hover:text-ink'
               }`}
             >
               <Mark className="size-5 shrink-0" />

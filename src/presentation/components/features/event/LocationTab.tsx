@@ -190,10 +190,10 @@ export function LocationTab() {
 
   return (
     <div className="space-y-4">
-      <label className="block text-sm text-ink">
-        {t('location.eventName')}
+      <label className="block">
+        <span className="fineprint">{t('location.eventName')}</span>
         <input
-          className="mt-1 block w-full rounded-lg border border-border bg-surface px-3 py-2 text-base text-ink focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand sm:text-sm"
+          className="mt-1 block min-h-11 w-full border border-border bg-surface px-3 py-2 text-base text-ink focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand sm:text-sm"
           value={eventName}
           onChange={(e) => setEventName(e.target.value)}
           onBlur={saveName}
@@ -202,10 +202,8 @@ export function LocationTab() {
         />
       </label>
 
-      <div className="flex items-center justify-between">
-        <h2 className="text-sm font-semibold uppercase tracking-wide text-muted">
-          {t('location.title')}
-        </h2>
+      <div className="flex items-center justify-between gap-2 border-b-2 border-rail pb-2">
+        <h2 className="fineprint">{t('location.title')}</h2>
         {!editing && (
           <Button variant="secondary" onClick={startEdit}>
             {t('location.edit')}
@@ -218,10 +216,10 @@ export function LocationTab() {
           {!loc && !event.generalNotes && !event.wifiPassword && !event.emergencyContact ? (
             <p className="text-sm text-muted">{t('location.noLocation')}</p>
           ) : (
-            <div className="space-y-3 rounded-xl border border-border bg-surface p-4">
+            <div className="space-y-3 border border-border bg-surface p-4">
               {loc && (
                 <>
-                  <div className="font-medium text-ink">{loc.name}</div>
+                  <div className="text-lg font-semibold text-ink">{loc.name}</div>
                   {loc.address && <div className="text-sm text-ink">{loc.address}</div>}
                   {loc.postalCode && <div className="text-sm text-muted">{loc.postalCode}</div>}
                   {loc.googleMapsUrl && (
@@ -239,19 +237,19 @@ export function LocationTab() {
               )}
               {event.generalNotes && (
                 <div>
-                  <div className="text-xs uppercase text-muted">{t('location.notes')}</div>
+                  <div className="fineprint">{t('location.notes')}</div>
                   <div className="whitespace-pre-wrap text-sm text-ink">{event.generalNotes}</div>
                 </div>
               )}
               {event.wifiPassword && (
                 <div>
-                  <div className="text-xs uppercase text-muted">{t('location.wifi')}</div>
+                  <div className="fineprint">{t('location.wifi')}</div>
                   <code className="text-sm text-ink">{event.wifiPassword}</code>
                 </div>
               )}
               {event.emergencyContact && (
                 <div>
-                  <div className="text-xs uppercase text-muted">{t('location.emergency')}</div>
+                  <div className="fineprint">{t('location.emergency')}</div>
                   <div className="text-sm text-ink">{event.emergencyContact}</div>
                 </div>
               )}
@@ -261,7 +259,7 @@ export function LocationTab() {
       )}
 
       {editing && (
-        <form onSubmit={save} className="space-y-3 rounded-xl border border-border bg-surface p-4">
+        <form onSubmit={save} className="space-y-3 border-2 border-rail bg-surface p-4">
           <Input
             placeholder={t('location.name')}
             value={name}
@@ -303,7 +301,7 @@ export function LocationTab() {
             onChange={(e) => setNotes(e.target.value)}
             maxLength={500}
             rows={3}
-            className="w-full rounded-lg border border-border bg-surface px-3 py-2 text-base text-ink placeholder-muted focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand sm:text-sm"
+            className="w-full border border-border bg-surface px-3 py-2 text-base text-ink placeholder-muted focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand sm:text-sm"
           />
           <Input
             placeholder={t('location.wifi')}
@@ -336,8 +334,8 @@ export function LocationTab() {
         </form>
       )}
 
-      <div className="space-y-3 rounded-xl border border-border bg-surface p-4">
-        <h2 className="flex items-center gap-2 text-sm font-semibold uppercase tracking-wide text-muted">
+      <div className="space-y-3 border border-border bg-surface p-4">
+        <h2 className="fineprint flex items-center gap-2 border-b-2 border-rail pb-1">
           <IconLock className="size-4" />
           {t('pin.manageTitle')}
         </h2>
@@ -352,10 +350,11 @@ export function LocationTab() {
                 placeholder={t('pin.field')}
                 value={pinInput}
                 onChange={(e) => setPinInput(e.target.value.replace(/\D/g, ''))}
-                className="max-w-[10rem]"
+                className="min-w-0 flex-1"
               />
               <Button
                 type="button"
+                className="shrink-0"
                 onClick={() => savePin(pinInput)}
                 disabled={pinBusy || pinInput.length < 4 || pinInput.length > 6}
               >
@@ -365,7 +364,7 @@ export function LocationTab() {
           </>
         ) : (
           <>
-            <p className="text-xs text-pos">{t('pin.hasPin')}</p>
+            <p className="fineprint text-pos!">{t('pin.hasPin')}</p>
             <div className="flex gap-2">
               <Input
                 type="password"
@@ -374,11 +373,12 @@ export function LocationTab() {
                 placeholder={t('pin.changeField')}
                 value={pinInput}
                 onChange={(e) => setPinInput(e.target.value.replace(/\D/g, ''))}
-                className="max-w-[10rem]"
+                className="min-w-0 flex-1"
               />
               <Button
                 type="button"
                 variant="secondary"
+                className="shrink-0"
                 onClick={() => savePin(pinInput)}
                 disabled={pinBusy || pinInput.length < 4 || pinInput.length > 6}
               >
@@ -389,14 +389,14 @@ export function LocationTab() {
               <button
                 type="button"
                 onClick={() => setConfirmRemovePin(true)}
-                className="text-xs text-danger hover:text-danger"
+                className="fineprint inline-flex min-h-11 items-center text-danger! hover:text-ink!"
                 disabled={pinBusy}
               >
                 {t('pin.removePin')}
               </button>
             ) : (
-              <div className="space-y-2 rounded border border-danger bg-danger-soft p-2">
-                <p className="text-xs text-danger-soft-fg">{t('pin.removeConfirm')}</p>
+              <div className="space-y-2 border-2 border-danger bg-danger-soft p-3">
+                <p className="text-sm text-danger-soft-fg">{t('pin.removeConfirm')}</p>
                 <div className="flex gap-2">
                   <Button
                     type="button"
@@ -421,12 +421,12 @@ export function LocationTab() {
               // Re-lock for this session: drop the unlocked PIN; the gate returns.
               setUnlockedPin(null)
             }}
-            className="text-xs text-muted hover:text-ink"
+            className="fineprint inline-flex min-h-11 items-center hover:text-ink!"
           >
             {t('pin.lockDevice')}
           </button>
         )}
-        {pinError && <p className="text-xs text-danger">{pinError}</p>}
+        {pinError && <p className="text-sm text-danger">{pinError}</p>}
         <p className="text-xs text-muted">{t('pin.manageHint')}</p>
         <p className="text-xs text-muted">{t('pin.ownerVerifiedHint')}</p>
       </div>
@@ -434,10 +434,8 @@ export function LocationTab() {
       {/* One single entry point for cloning, in the event's settings section: a
           clone button per tab would be the same flow repeated five times, each
           with its own subset and its own way to drift. */}
-      <div className="space-y-2 rounded-xl border border-border bg-surface p-4">
-        <h2 className="text-sm font-semibold uppercase tracking-wide text-muted">
-          {t('clone.title')}
-        </h2>
+      <div className="space-y-3 border border-border bg-surface p-4">
+        <h2 className="fineprint border-b-2 border-rail pb-1">{t('clone.title')}</h2>
         <Button type="button" variant="secondary" onClick={() => setCloning(true)}>
           {t('clone.open')}
         </Button>
@@ -445,18 +443,16 @@ export function LocationTab() {
 
       <CloneFromEventModal open={cloning} onClose={() => setCloning(false)} />
 
-      <div className="space-y-3 rounded-xl border border-danger bg-danger-soft p-4">
-        <h2 className="text-sm font-semibold uppercase tracking-wide text-danger-soft-fg">
-          {t('danger.title')}
-        </h2>
-        <p className="text-xs text-danger-soft-fg">{t('danger.deleteHint')}</p>
+      <div className="space-y-3 border-2 border-danger bg-danger-soft p-4">
+        <h2 className="fineprint text-danger-soft-fg!">{t('danger.title')}</h2>
+        <p className="text-sm text-danger-soft-fg">{t('danger.deleteHint')}</p>
         {!confirmDelete ? (
           <Button type="button" variant="secondary" onClick={() => setConfirmDelete(true)}>
             {t('danger.deleteEvent')}
           </Button>
         ) : (
           <div className="space-y-2">
-            <p className="text-xs font-semibold text-danger-soft-fg">{t('danger.deleteConfirm')}</p>
+            <p className="text-sm font-semibold text-danger-soft-fg">{t('danger.deleteConfirm')}</p>
             <div className="flex gap-2">
               <Button
                 type="button"
@@ -472,7 +468,7 @@ export function LocationTab() {
             </div>
           </div>
         )}
-        {deleteError && <p className="text-xs text-danger">{deleteError}</p>}
+        {deleteError && <p className="text-sm text-danger">{deleteError}</p>}
       </div>
     </div>
   )

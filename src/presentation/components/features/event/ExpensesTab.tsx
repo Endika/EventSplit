@@ -115,51 +115,51 @@ export function ExpensesTab() {
           onDirtyChange={setFormDirty}
         />
       )}
-      {visible.length === 0 && <p className="text-sm text-muted">{t('expenses.empty')}</p>}
-      <ul className="space-y-2">
+      {visible.length === 0 && <p className="fineprint">{t('expenses.empty')}</p>}
+      <ul className="border-t border-border">
         {visible.map((e) => (
           <li
             key={e.id}
-            className={`rounded-xl border bg-surface p-3 ${
-              editing?.id === e.id ? 'border-brand ring-1 ring-brand' : 'border-border'
+            className={`flex items-center justify-between gap-2 border-b border-border ${
+              editing?.id === e.id ? 'bg-brand-soft' : ''
             }`}
           >
-            <div className="flex items-start justify-between gap-2">
-              <button
-                type="button"
-                onClick={() => requestEdit(e)}
-                className="flex-1 rounded text-left hover:opacity-80"
-                aria-label={t('expenses.edit')}
-              >
-                <div className="flex items-center justify-between gap-2">
-                  <span className="inline-flex items-center gap-1.5 font-medium text-ink">
-                    {e.description}
-                    <IconPencil className="size-3.5 shrink-0 text-muted" />
-                  </span>
-                  <span className="text-sm text-ink">{formatMoney(e.cents)}</span>
-                </div>
-                <div className="text-xs text-muted">
+            <button
+              type="button"
+              onClick={() => requestEdit(e)}
+              className="flex min-h-11 min-w-0 flex-1 items-center gap-3 py-2 text-left"
+              aria-label={t('expenses.edit')}
+            >
+              <span className="min-w-0 flex-1">
+                <span className="flex min-w-0 items-center gap-1.5 font-semibold text-ink">
+                  <span className="truncate">{e.description}</span>
+                  <IconPencil className="size-3.5 shrink-0 text-muted" />
+                </span>
+                <span className="fineprint flex items-center">
                   {t('expenses.paidBy', { name: nameOf(e.paidBy) })}
                   <YouLabel userId={e.paidBy} />
-                </div>
+                </span>
                 {e.splitAmong.length > 0 && e.splitAmong.length < event.users.length && (
-                  <div className="mt-1 text-xs text-muted">
+                  <span className="fineprint block truncate">
                     {t('expenses.splitBetween', {
                       list: e.splitAmong.map(nameOf).join(', '),
                     })}
-                  </div>
+                  </span>
                 )}
-              </button>
-              <button
-                type="button"
-                onClick={() => setDeleting(e)}
-                className="inline-flex min-h-11 min-w-11 items-center justify-center text-muted hover:bg-elevated hover:text-danger"
-                aria-label={t('expenses.delete')}
-                title={t('expenses.delete')}
-              >
-                <IconTrash className="size-4" />
-              </button>
-            </div>
+              </span>
+              <span className="shrink-0 whitespace-nowrap text-right text-base font-semibold tabular-nums text-ink">
+                {formatMoney(e.cents)}
+              </span>
+            </button>
+            <button
+              type="button"
+              onClick={() => setDeleting(e)}
+              className="inline-flex size-11 shrink-0 items-center justify-center text-muted hover:bg-elevated hover:text-danger"
+              aria-label={t('expenses.delete')}
+              title={t('expenses.delete')}
+            >
+              <IconTrash className="size-4" />
+            </button>
           </li>
         ))}
       </ul>
@@ -171,25 +171,27 @@ export function ExpensesTab() {
           <button
             type="button"
             onClick={() => setShowDeleted((v) => !v)}
-            className="inline-flex min-h-11 items-center text-xs text-muted hover:text-ink"
+            className="fineprint inline-flex min-h-11 items-center hover:text-ink!"
           >
             <IconChevron dir={showDeleted ? 'down' : 'right'} className="mr-1.5 size-3.5" />
             {t('expenses.showDeleted', { count: deleted.length })}
           </button>
           {showDeleted && (
-            <ul className="mt-2 space-y-2">
+            <ul className="border-t border-border">
               {deleted.map((e) => (
                 <li
                   key={e.id}
-                  className="flex items-center justify-between gap-2 rounded-xl border border-border bg-surface/50 p-3 text-sm"
+                  className="flex items-center justify-between gap-2 border-b border-border text-sm"
                 >
-                  <span className="text-muted line-through">{e.description}</span>
-                  <span className="flex items-center gap-2">
-                    <span className="text-muted line-through">{formatMoney(e.cents)}</span>
+                  <span className="min-w-0 truncate text-muted line-through">{e.description}</span>
+                  <span className="flex shrink-0 items-center gap-2">
+                    <span className="tabular-nums text-muted line-through">
+                      {formatMoney(e.cents)}
+                    </span>
                     <button
                       type="button"
                       onClick={() => recover(e)}
-                      className="inline-flex min-h-11 items-center rounded px-2 py-1 text-xs text-brand hover:bg-elevated"
+                      className="fineprint inline-flex min-h-11 items-center px-2 text-brand! hover:text-ink!"
                     >
                       <IconUndo className="mr-1.5 size-3.5" />
                       {t('expenses.restore')}
@@ -209,7 +211,7 @@ export function ExpensesTab() {
           onClose={() => setPendingEdit(null)}
         >
           <div className="space-y-3">
-            <p className="text-sm text-muted">{t('common.unsavedBody')}</p>
+            <p className="text-sm text-ink">{t('common.unsavedBody')}</p>
             <div className="flex gap-2">
               <Button type="button" variant="secondary" onClick={() => setPendingEdit(null)}>
                 {t('common.keepEditing')}
@@ -233,7 +235,7 @@ export function ExpensesTab() {
       {deleting && (
         <Modal open title={t('expenses.deleteTitle')} dismissable onClose={() => setDeleting(null)}>
           <div className="space-y-3">
-            <p className="text-sm text-muted">
+            <p className="text-sm text-ink">
               {t('expenses.deleteConfirm', { desc: deleting.description })}
             </p>
             <div className="flex gap-2">

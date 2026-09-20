@@ -154,7 +154,7 @@ export function ExpenseForm({
                 return next
               })
             }
-            className="size-4 rounded border-border bg-elevated accent-brand"
+            className="size-5 border-border bg-elevated accent-brand"
           />
           <span className={done ? 'text-muted line-through' : 'text-ink'}>
             {p.item}{' '}
@@ -185,7 +185,7 @@ export function ExpenseForm({
               inputMode="decimal"
               value={links[p.id] ?? ''}
               onChange={(e) => setLinks((prev) => ({ ...prev, [p.id]: e.target.value }))}
-              className="w-20 rounded-xl border border-border bg-surface px-2 py-1 text-base text-ink focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand sm:text-sm"
+              className="min-h-11 w-24 border border-border bg-surface px-2 text-base tabular-nums text-ink focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand sm:text-sm"
             />
             <span className="text-xs text-muted">
               {remaining > 0
@@ -335,12 +335,12 @@ export function ExpenseForm({
       <form
         ref={rootRef}
         onSubmit={submit}
-        className="space-y-3 rounded-xl border border-border bg-surface p-4"
+        className="space-y-3 border-2 border-rail bg-surface p-4"
       >
         <label className="block text-sm text-muted">
           {t('expenses.form.paidBy')}
           <select
-            className="mt-1 block w-full rounded-xl border border-border bg-surface p-2 text-base text-ink sm:text-sm"
+            className="mt-1 block min-h-11 w-full border border-border bg-surface px-2 text-base text-ink sm:text-sm"
             required
             value={paidBy}
             onChange={(e) => setPaidBy(e.target.value)}
@@ -371,28 +371,26 @@ export function ExpenseForm({
           minLength={3}
           maxLength={100}
         />
-        <fieldset className="rounded-xl border border-border p-3">
-          <legend className="px-2 text-xs uppercase tracking-wide text-muted">
-            {t('expenses.form.splitBetween')}
-          </legend>
+        <fieldset className="border border-border p-3">
+          <legend className="fineprint px-2">{t('expenses.form.splitBetween')}</legend>
           <div className="mb-2 flex gap-2 text-xs">
             <button
               type="button"
               onClick={selectAll}
-              className="rounded px-2 py-1 text-muted hover:bg-elevated hover:text-ink"
+              className="inline-flex size-11 items-center justify-center text-muted hover:bg-elevated hover:text-ink"
             >
               {t('expenses.form.selectAll')}
             </button>
             <button
               type="button"
               onClick={selectNone}
-              className="rounded px-2 py-1 text-muted hover:bg-elevated hover:text-ink"
+              className="inline-flex size-11 items-center justify-center text-muted hover:bg-elevated hover:text-ink"
             >
               {t('expenses.form.selectNone')}
             </button>
           </div>
           {event.users.some((u) => !paysExpenses(u.kind)) && (
-            <p className="mb-1 text-xs text-muted">{t('expenses.form.dogsExcluded')}</p>
+            <p className="fineprint mb-1">{t('expenses.form.dogsExcluded')}</p>
           )}
           <div className="flex flex-wrap gap-2">
             {payingUsers(event.users).map((u) => (
@@ -401,8 +399,8 @@ export function ExpenseForm({
                 type="button"
                 onClick={() => toggleSplit(u.id)}
                 disabled={busy}
-                className={`rounded-full px-3 py-1 text-xs ${
-                  splitAmong.has(u.id) ? 'bg-brand text-white' : 'bg-elevated text-muted'
+                className={`inline-flex min-h-11 items-center px-3 text-xs font-semibold uppercase tracking-[0.08em] ${
+                  splitAmong.has(u.id) ? 'bg-brand text-white dark:text-bg' : 'bg-elevated text-ink'
                 }`}
               >
                 {u.alias ? `${u.name} (${u.alias})` : u.name}
@@ -411,16 +409,14 @@ export function ExpenseForm({
           </div>
         </fieldset>
         {listItems.length > 0 && (
-          <fieldset className="rounded-xl border border-border p-3">
-            <legend className="px-2 text-xs uppercase tracking-wide text-muted">
-              {t('expenses.form.markBought')}
-            </legend>
-            <label className="mb-2 flex cursor-pointer items-center gap-2 text-xs text-muted">
+          <fieldset className="border border-border p-3">
+            <legend className="fineprint px-2">{t('expenses.form.markBought')}</legend>
+            <label className="mb-2 flex min-h-11 cursor-pointer items-center gap-2 text-xs text-muted">
               <input
                 type="checkbox"
                 checked={onlyMine}
                 onChange={() => setOnlyMine((v) => !v)}
-                className="size-4 rounded border-border bg-elevated accent-brand"
+                className="size-5 border-border bg-elevated accent-brand"
               />
               {t('common.onlyMine')}
             </label>
@@ -431,7 +427,7 @@ export function ExpenseForm({
                     <button
                       type="button"
                       onClick={() => toggleCollapse(group)}
-                      className="flex w-full items-center gap-1.5 rounded-lg px-1 py-1.5 text-left text-xs font-semibold uppercase tracking-wide text-brand hover:bg-elevated/50"
+                      className="fineprint flex min-h-11 w-full items-center gap-1.5 border-b-2 border-rail text-left text-brand! hover:text-ink!"
                       aria-label={t('purchases.toggleGroup')}
                     >
                       <IconChevron
@@ -453,7 +449,7 @@ export function ExpenseForm({
                             <button
                               type="button"
                               onClick={() => toggleCollapse(subCollapseKey(group, subgroup))}
-                              className="flex w-full items-center gap-1.5 rounded-lg px-1 py-1 text-left text-[0.7rem] font-semibold uppercase tracking-wide text-brand hover:bg-elevated/50"
+                              className="fineprint flex min-h-11 w-full items-center gap-1.5 border-b border-border text-left text-ink! hover:text-brand!"
                               aria-label={t('purchases.toggleSubgroup')}
                             >
                               <IconChevron
@@ -478,7 +474,7 @@ export function ExpenseForm({
           </fieldset>
         )}
         {error && <p className="text-sm text-danger">{error}</p>}
-        <div className="sticky bottom-0 z-10 -mx-4 -mb-4 flex gap-2 rounded-b-xl border-t border-border bg-surface px-4 py-3">
+        <div className="sticky bottom-0 z-10 -mx-4 -mb-4 flex gap-2 border-t-2 border-rail bg-surface px-4 py-3">
           <Button
             type="button"
             variant="secondary"

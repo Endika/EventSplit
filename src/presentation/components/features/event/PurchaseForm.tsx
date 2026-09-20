@@ -332,14 +332,16 @@ export function PurchaseForm({
       <form
         ref={rootRef}
         onSubmit={submit}
-        className="space-y-3 rounded-xl border border-border bg-surface p-4"
+        className="space-y-3 border-2 border-rail bg-surface p-4"
       >
-        <div className="flex gap-1 rounded-lg bg-elevated p-1">
+        <div className="flex border border-border">
           <button
             type="button"
             onClick={() => switchMode('buy')}
-            className={`flex-1 rounded-md px-3 py-2 text-sm font-medium transition ${
-              mode === 'buy' ? 'bg-brand text-white' : 'bg-elevated text-ink hover:text-ink'
+            className={`flex min-h-11 flex-1 items-center justify-center px-3 text-[0.6875rem] font-semibold uppercase tracking-[0.08em] transition ${
+              mode === 'buy'
+                ? 'bg-brand text-white dark:text-bg'
+                : 'bg-elevated text-ink hover:bg-surface'
             }`}
           >
             {t('purchases.form.modeBuy')}
@@ -347,8 +349,10 @@ export function PurchaseForm({
           <button
             type="button"
             onClick={() => switchMode('bring')}
-            className={`flex-1 rounded-md px-3 py-2 text-sm font-medium transition ${
-              mode === 'bring' ? 'bg-brand text-white' : 'bg-elevated text-ink hover:text-ink'
+            className={`flex min-h-11 flex-1 items-center justify-center px-3 text-[0.6875rem] font-semibold uppercase tracking-[0.08em] transition ${
+              mode === 'bring'
+                ? 'bg-brand text-white dark:text-bg'
+                : 'bg-elevated text-ink hover:bg-surface'
             }`}
           >
             {t('purchases.form.modeBring')}
@@ -374,7 +378,7 @@ export function PurchaseForm({
         <label className="block text-sm text-ink">
           {t('purchases.form.group')}
           <input
-            className="mt-1 block w-full rounded-lg border border-border bg-surface px-3 py-2 text-base text-ink placeholder-muted focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand sm:text-sm"
+            className="mt-1 block min-h-11 w-full border border-border bg-surface px-3 py-2 text-base text-ink placeholder-muted focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand sm:text-sm"
             list="group-suggestions"
             value={group}
             onChange={(e) => setGroup(e.target.value)}
@@ -391,7 +395,7 @@ export function PurchaseForm({
           <label className="block text-sm text-ink">
             {t('purchases.form.subgroup')}
             <input
-              className="mt-1 block w-full rounded-lg border border-border bg-surface px-3 py-2 text-base text-ink placeholder-muted focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand sm:text-sm"
+              className="mt-1 block min-h-11 w-full border border-border bg-surface px-3 py-2 text-base text-ink placeholder-muted focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand sm:text-sm"
               list="subgroup-suggestions"
               value={subgroup}
               onChange={(e) => setSubgroup(e.target.value)}
@@ -421,7 +425,7 @@ export function PurchaseForm({
               <label className="block text-sm text-ink">
                 {t('purchases.form.unit')}
                 <select
-                  className="mt-1 block w-full rounded-lg border border-border bg-surface p-2 text-base text-ink sm:text-sm"
+                  className="mt-1 block min-h-11 w-full border border-border bg-surface px-2 text-base text-ink sm:text-sm"
                   value={unit}
                   onChange={(e) => setUnit(e.target.value)}
                 >
@@ -439,7 +443,7 @@ export function PurchaseForm({
             <label className="block text-sm text-ink">
               {t('purchases.form.broughtBy')}
               <select
-                className="mt-1 block w-full rounded-lg border border-border bg-surface p-2 text-base text-ink sm:text-sm"
+                className="mt-1 block min-h-11 w-full border border-border bg-surface px-2 text-base text-ink sm:text-sm"
                 value={broughtBy ?? ''}
                 onChange={(e) => setBroughtBy(e.target.value || null)}
               >
@@ -473,7 +477,7 @@ export function PurchaseForm({
               <label className="block text-sm text-ink">
                 {t('purchases.form.unit')}
                 <select
-                  className="mt-1 block w-full rounded-lg border border-border bg-surface p-2 text-base text-ink sm:text-sm"
+                  className="mt-1 block min-h-11 w-full border border-border bg-surface px-2 text-base text-ink sm:text-sm"
                   value={unit}
                   onChange={(e) => setUnit(e.target.value)}
                 >
@@ -516,14 +520,14 @@ export function PurchaseForm({
                       <button
                         type="button"
                         onClick={selectAllConsumers}
-                        className="rounded px-2 py-1 text-muted hover:bg-elevated hover:text-ink"
+                        className="inline-flex size-11 items-center justify-center text-muted hover:bg-elevated hover:text-ink"
                       >
                         {t('purchases.form.selectAll')}
                       </button>
                       <button
                         type="button"
                         onClick={selectNoConsumers}
-                        className="rounded px-2 py-1 text-muted hover:bg-elevated hover:text-ink"
+                        className="inline-flex size-11 items-center justify-center text-muted hover:bg-elevated hover:text-ink"
                       >
                         {t('purchases.form.selectNone')}
                       </button>
@@ -569,7 +573,7 @@ export function PurchaseForm({
                           )}
                           {selected && (
                             <select
-                              className="ml-auto min-h-11 rounded border border-border bg-surface p-1 text-base text-ink sm:text-sm"
+                              className="ml-auto min-h-11 max-w-[9rem] truncate border border-border bg-surface px-2 text-base text-ink sm:text-sm"
                               value={m}
                               onChange={(e) => setMultiplier(u.id, parseFloat(e.target.value))}
                             >
@@ -590,7 +594,7 @@ export function PurchaseForm({
             <label className="block text-sm text-ink">
               {t('purchases.form.assignedTo')}
               <select
-                className="mt-1 block w-full rounded-lg border border-border bg-surface p-2 text-base text-ink sm:text-sm"
+                className="mt-1 block min-h-11 w-full border border-border bg-surface px-2 text-base text-ink sm:text-sm"
                 value={assignedTo ?? ''}
                 onChange={(e) => setAssignedTo(e.target.value || null)}
               >
@@ -613,7 +617,7 @@ export function PurchaseForm({
                 const total = totalDaily * days
                 if (!Number.isFinite(total) || total <= 0) return null
                 return (
-                  <div className="rounded-lg bg-brand-soft px-3 py-2 text-sm text-brand-soft-fg">
+                  <div className="border-l-2 border-brand bg-brand-soft px-3 py-2 text-sm text-brand-soft-fg">
                     {t('purchases.form.totalPreview', {
                       n: Math.round(total * 100) / 100,
                       unit: UNITS.includes(unit as (typeof UNITS)[number])
@@ -652,7 +656,7 @@ export function PurchaseForm({
             </div>
           </Modal>
         )}
-        <div className="sticky bottom-0 z-10 -mx-4 -mb-4 flex gap-2 rounded-b-xl border-t border-border bg-surface px-4 py-3">
+        <div className="sticky bottom-0 z-10 -mx-4 -mb-4 flex gap-2 border-t-2 border-rail bg-surface px-4 py-3">
           <Button
             type="button"
             variant="secondary"

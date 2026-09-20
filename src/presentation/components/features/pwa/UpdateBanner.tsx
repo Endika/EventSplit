@@ -40,7 +40,7 @@ export function UpdateBanner() {
   return (
     <div
       role="alert"
-      className="fixed left-1/2 z-[70] flex -translate-x-1/2 items-center gap-3 rounded-xl border border-warn/30 bg-warn-soft px-4 py-3 text-sm text-warn-soft-fg shadow-lg"
+      className="fixed left-1/2 z-[70] flex -translate-x-1/2 items-center gap-3 border-2 border-rail bg-warn-soft px-4 py-3 text-sm text-warn-soft-fg shadow-lg"
       style={{ bottom: 'max(1rem, calc(env(safe-area-inset-bottom) + 0.5rem))' }}
     >
       <span>{t('updateRequired')}</span>

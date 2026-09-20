@@ -21,7 +21,7 @@ export function MapEmbed({ address, lat, lng }: MapEmbedProps) {
   return (
     <iframe
       title={t('location.openInMaps')}
-      className="h-48 w-full rounded-xl border border-border"
+      className="h-48 w-full border border-border"
       loading="lazy"
       referrerPolicy="no-referrer-when-downgrade"
       src={src}

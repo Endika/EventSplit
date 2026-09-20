@@ -34,11 +34,11 @@ export function ErrorBanner() {
   return (
     <div
       role="alert"
-      className="fixed inset-x-2 z-[60] rounded-xl border border-danger bg-danger-soft p-3 text-xs shadow-xl backdrop-blur"
+      className="fixed inset-x-2 z-[60] border-2 border-danger bg-danger-soft p-3 text-xs shadow-xl backdrop-blur"
       style={{ top: 'max(0.5rem, env(safe-area-inset-top))' }}
     >
       <div className="mb-1 flex items-center justify-between gap-2">
-        <span className="font-semibold text-danger-soft-fg">
+        <span className="fineprint text-danger-soft-fg!">
           {t('errorBanner.title')} · {error.context}
         </span>
         <button
@@ -57,7 +57,7 @@ export function ErrorBanner() {
         <button
           type="button"
           onClick={copy}
-          className="rounded bg-elevated px-2 py-1 text-danger-soft-fg hover:bg-border"
+          className="inline-flex min-h-11 items-center bg-elevated px-3 text-xs font-semibold uppercase tracking-[0.08em] text-danger-soft-fg hover:bg-border"
         >
           {copied ? t('errorBanner.copied') : t('errorBanner.copy')}
         </button>

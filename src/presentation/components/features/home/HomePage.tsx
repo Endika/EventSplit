@@ -74,8 +74,9 @@ export function HomePage() {
 
   return (
     <main className="mx-auto max-w-md p-4 md:p-6">
-      <h1 className="mb-2 text-3xl font-bold text-ink">{t('app.title')}</h1>
-      <p className="mb-6 text-muted">{t('home.tagline')}</p>
+      <h1 className="price text-[clamp(2.75rem,13vw,4rem)] text-ink">{t('app.title')}</h1>
+      <div className="rail mt-3" />
+      <p className="fineprint mb-6 mt-2">{t('home.tagline')}</p>
 
       {!creating ? (
         <Button onClick={() => setCreating(true)} className="mb-6 w-full">
@@ -83,10 +84,7 @@ export function HomePage() {
           {t('home.newEvent')}
         </Button>
       ) : (
-        <form
-          onSubmit={onSubmit}
-          className="mb-6 space-y-3 rounded-xl border border-border bg-surface p-4"
-        >
+        <form onSubmit={onSubmit} className="mb-6 space-y-3 border-2 border-rail bg-surface p-4">
           <Input
             placeholder={t('home.eventName')}
             value={name}

@@ -36,8 +36,8 @@ export function AllergyAlertModal({
       dismissable={false}
     >
       <div className="space-y-3">
-        <p className="text-sm text-muted">{t('allergyAlert.item', { item })}</p>
-        <ul className="space-y-2 rounded-lg border border-danger bg-danger-soft p-3 text-sm text-danger-soft-fg">
+        <p className="fineprint">{t('allergyAlert.item', { item })}</p>
+        <ul className="space-y-2 border-2 border-danger bg-danger-soft p-3 text-sm text-danger-soft-fg">
           {matches.map((m, i) => (
             <li key={`${m.userId}-${m.allergen}-${i}`} className="flex gap-2">
               <IconAlert className={`mt-0.5 size-4 shrink-0 ${SEVERITY_TONE[m.severity]}`} />

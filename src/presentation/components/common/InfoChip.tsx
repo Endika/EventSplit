@@ -36,7 +36,7 @@ export function InfoChip({
       {open && (
         <span
           onClick={() => setOpen(false)}
-          className="absolute bottom-full left-1/2 z-30 mb-1 max-w-[14rem] -translate-x-1/2 whitespace-normal rounded-md border border-border bg-elevated px-2 py-1 text-xs text-ink shadow-lg"
+          className="absolute bottom-full left-1/2 z-30 mb-1 max-w-[14rem] -translate-x-1/2 whitespace-normal border border-border bg-elevated px-2 py-1 text-xs text-ink shadow-lg"
         >
           {label}
         </span>

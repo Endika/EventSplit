@@ -148,35 +148,36 @@ export function ManualLiquidations() {
   }
 
   return (
-    <div className="space-y-3 rounded-xl border border-dashed border-border bg-surface p-4">
-      <div className="flex items-center justify-between">
-        <p className="text-xs font-medium uppercase text-muted">{t('liquidations.title')}</p>
-        {!adding && (
-          <Button variant="secondary" onClick={() => setAdding(true)}>
-            {t('liquidations.add')}
-          </Button>
-        )}
+    <div className="space-y-3 border border-border bg-surface p-4">
+      <div>
+        <p className="fineprint">{t('liquidations.title')}</p>
+        <div className="rail mt-1" />
       </div>
+      {!adding && (
+        <Button variant="secondary" onClick={() => setAdding(true)}>
+          {t('liquidations.add')}
+        </Button>
+      )}
 
       {adding && (
-        <div className="space-y-2 rounded-lg border border-border p-3">
+        <div className="space-y-2 border-2 border-rail p-3">
           <input
-            className="w-full rounded border border-border bg-elevated p-2 text-sm"
+            className="min-h-11 w-full border border-border bg-elevated px-2 text-base text-ink sm:text-sm"
             placeholder={t('liquidations.concept')}
             value={concept}
             onChange={(e) => setConcept(e.target.value)}
           />
           <input
-            className="w-full rounded border border-border bg-elevated p-2 text-sm"
+            className="min-h-11 w-full border border-border bg-elevated px-2 text-base text-ink sm:text-sm"
             type="number"
             inputMode="decimal"
             placeholder={t('liquidations.amount')}
             value={amount}
             onChange={(e) => setAmount(e.target.value)}
           />
-          <label className="block text-xs text-muted">{t('liquidations.paidByLabel')}</label>
+          <label className="fineprint block">{t('liquidations.paidByLabel')}</label>
           <select
-            className="w-full rounded border border-border bg-elevated p-2 text-sm"
+            className="min-h-11 w-full border border-border bg-elevated px-2 text-base text-ink sm:text-sm"
             value={paidBy}
             onChange={(e) => setPaidBy(e.target.value)}
           >
@@ -187,15 +188,17 @@ export function ManualLiquidations() {
               </option>
             ))}
           </select>
-          <label className="block text-xs text-muted">{t('liquidations.affects')}</label>
+          <label className="fineprint block">{t('liquidations.affects')}</label>
           <div className="flex flex-wrap gap-2">
             {payingUsers(event.users).map((u) => (
               <button
                 key={u.id}
                 type="button"
                 onClick={() => toggleAffect(u.id)}
-                className={`rounded-full px-3 py-1 text-xs ${
-                  affects.includes(u.id) ? 'bg-brand text-white' : 'bg-elevated text-muted'
+                className={`inline-flex min-h-11 items-center px-3 text-xs font-semibold uppercase tracking-[0.08em] ${
+                  affects.includes(u.id)
+                    ? 'bg-brand text-white dark:text-bg'
+                    : 'bg-elevated text-ink'
                 }`}
               >
                 {u.name}
@@ -211,9 +214,7 @@ export function ManualLiquidations() {
         </div>
       )}
 
-      {live.length === 0 && !adding && (
-        <p className="text-sm text-muted">{t('liquidations.empty')}</p>
-      )}
+      {live.length === 0 && !adding && <p className="fineprint">{t('liquidations.empty')}</p>}
 
       <ul className="space-y-3">
         {live.map((liq) => {
@@ -224,20 +225,24 @@ export function ManualLiquidations() {
           const isPending = liq.paidBy === null
           const perPersonCents = view.shares[0]?.cents ?? 0
           return (
-            <li key={liq.id} className="rounded-lg border border-border p-3">
-              <div className="flex items-start justify-between gap-2">
-                <div>
-                  <span className="font-medium text-ink">{liq.concept}</span>{' '}
-                  <span className="text-sm text-muted">{formatMoney(liq.cents)}</span>
+            <li key={liq.id} className="border-b border-border pb-2 last:border-0">
+              <div className="flex items-center justify-between gap-2">
+                <div className="min-w-0 flex-1">
+                  <div className="flex items-baseline justify-between gap-2">
+                    <span className="min-w-0 truncate font-semibold text-ink">{liq.concept}</span>
+                    <span className="shrink-0 text-base font-semibold tabular-nums text-ink">
+                      {formatMoney(liq.cents)}
+                    </span>
+                  </div>
                   <span
-                    className={`ml-2 rounded-full px-2 py-0.5 text-xs ${
+                    className={`mt-0.5 inline-flex items-center px-1.5 py-px text-[0.625rem] font-semibold uppercase tracking-[0.08em] ${
                       isPending ? 'bg-warn-soft text-warn-soft-fg' : 'bg-pos-soft text-pos-soft-fg'
                     }`}
                   >
                     {isPending ? t('liquidations.pendingBadge') : nameOf(liq.paidBy!)}
                   </span>
                 </div>
-                <div className="flex items-center">
+                <div className="flex shrink-0 items-center">
                   <button
                     type="button"
                     onClick={() => openEdit(liq)}
@@ -256,22 +261,31 @@ export function ManualLiquidations() {
                   </button>
                 </div>
               </div>
-              <p className="mt-1 text-xs text-muted">
+              <p className="fineprint mt-1">
                 {t('liquidations.perPerson', { amount: formatMoney(perPersonCents) })}
               </p>
-              <ul className="mt-2 space-y-1">
+              <ul className="mt-1 border-l-2 border-border pl-3">
                 {view.shares.map((s) => (
-                  <li key={s.userId} className="flex items-center gap-2 text-sm">
-                    <input
-                      type="checkbox"
-                      checked={s.paid}
-                      disabled={s.userId === liq.paidBy}
-                      onChange={() => toggleShare(liq.id, s.userId)}
-                      className="size-4 rounded border-border bg-elevated accent-pos"
-                    />
-                    <span className={s.paid ? 'text-muted line-through' : 'text-ink'}>
-                      {nameOf(s.userId)} · {formatMoney(s.cents)}
-                    </span>
+                  <li key={s.userId}>
+                    <label className="flex min-h-11 cursor-pointer items-center gap-2 text-sm">
+                      <input
+                        type="checkbox"
+                        checked={s.paid}
+                        disabled={s.userId === liq.paidBy}
+                        onChange={() => toggleShare(liq.id, s.userId)}
+                        className="size-5 shrink-0 border-border bg-elevated accent-pos"
+                      />
+                      <span
+                        className={`min-w-0 flex-1 truncate ${s.paid ? 'text-muted line-through' : 'text-ink'}`}
+                      >
+                        {nameOf(s.userId)}
+                      </span>
+                      <span
+                        className={`shrink-0 tabular-nums ${s.paid ? 'text-muted line-through' : 'text-ink'}`}
+                      >
+                        {formatMoney(s.cents)}
+                      </span>
+                    </label>
                   </li>
                 ))}
               </ul>
@@ -285,25 +299,25 @@ export function ManualLiquidations() {
           <button
             type="button"
             onClick={() => setShowDeleted((v) => !v)}
-            className="inline-flex min-h-11 items-center text-xs text-muted hover:text-ink"
+            className="fineprint inline-flex min-h-11 items-center hover:text-ink!"
           >
             <IconChevron dir={showDeleted ? 'down' : 'right'} className="mr-1.5 size-3.5" />
             {t('liquidations.showDeleted', { count: deleted.length })}
           </button>
           {showDeleted && (
-            <ul className="mt-2 space-y-2">
+            <ul className="mt-2 border-t border-border">
               {deleted.map((liq) => (
                 <li
                   key={liq.id}
-                  className="flex items-center justify-between gap-2 rounded-lg border border-border bg-surface/50 p-3 text-sm"
+                  className="flex items-center justify-between gap-2 border-b border-border text-sm"
                 >
-                  <span className="text-muted line-through">
+                  <span className="min-w-0 truncate text-muted line-through">
                     {liq.concept} · {formatMoney(liq.cents)}
                   </span>
                   <button
                     type="button"
                     onClick={() => recover(liq.id)}
-                    className="inline-flex min-h-11 items-center rounded px-2 py-1 text-xs text-brand hover:bg-elevated"
+                    className="fineprint inline-flex min-h-11 shrink-0 items-center px-2 text-brand! hover:text-ink!"
                   >
                     <IconUndo className="mr-1.5 size-3.5" />
                     {t('liquidations.restore')}
