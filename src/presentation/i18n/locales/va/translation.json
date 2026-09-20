@@ -51,6 +51,7 @@
     "availability": "Quan",
     "location": "On",
     "purchases": "Llista de la compra",
+    "purchasesShort": "Compra",
     "expenses": "Despeses",
     "history": "Historial",
     "openMenu": "Obri el menú",

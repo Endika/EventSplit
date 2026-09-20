@@ -62,6 +62,23 @@ export function EventTabs() {
 
   const activeIndex = tabs.findIndex((tab) => tab.key === active)
 
+  // Four fixed destinations in the thumb's arc, led by whatever the current
+  // phase is for; the rest live behind the menu. The app is used standing up,
+  // one-handed, so the common moves must not need a drawer.
+  const barKeys: Tab[] = [
+    ...new Set<Tab>([
+      defaultTabForStage(event?.stage),
+      'participants',
+      'purchases',
+      'expenses',
+      'availability',
+    ]),
+  ].slice(0, 4)
+  const barTabs = barKeys.map((key) => ({
+    key,
+    label: key === 'purchases' ? t('tabs.purchasesShort') : t(`tabs.${key}`),
+  }))
+
   function selectTab(key: Tab) {
     setActive(key)
     setDrawerOpen(false)
@@ -133,7 +150,7 @@ export function EventTabs() {
           type="button"
           onClick={() => setDrawerOpen(true)}
           aria-label={t('tabs.openMenu')}
-          className="rounded-xl p-2 text-ink hover:bg-elevated"
+          className="flex size-11 items-center justify-center text-ink hover:bg-elevated"
         >
           <svg
             width="20"
@@ -151,20 +168,13 @@ export function EventTabs() {
             <line x1="3" y1="18" x2="21" y2="18" />
           </svg>
         </button>
-        <div className="flex flex-1 flex-col truncate">
-          <h1 className="truncate text-base font-semibold text-ink">{event?.name ?? ''}</h1>
-          {event?.stage && (
-            <span className="text-[10px] uppercase tracking-wide text-brand">
-              {t(`stage.${event.stage}`)}
-            </span>
-          )}
-        </div>
+        <h1 className="flex-1 truncate text-base font-semibold text-ink">{event?.name ?? ''}</h1>
         <button
           type="button"
           onClick={shareEvent}
           aria-label={t('event.share')}
           title={t('event.share')}
-          className="rounded-xl p-2 text-ink hover:bg-elevated"
+          className="flex size-11 items-center justify-center text-ink hover:bg-elevated"
         >
           <IconShare />
         </button>
@@ -173,7 +183,7 @@ export function EventTabs() {
           onClick={goHome}
           aria-label={t('tabs.home')}
           title={t('tabs.home')}
-          className="rounded-xl p-2 text-ink hover:bg-elevated"
+          className="flex size-11 items-center justify-center text-ink hover:bg-elevated"
         >
           <IconHome />
         </button>
@@ -198,7 +208,7 @@ export function EventTabs() {
                 type="button"
                 onClick={() => setDrawerOpen(false)}
                 aria-label={t('tabs.closeMenu')}
-                className="rounded-xl p-1.5 text-muted hover:bg-elevated hover:text-ink"
+                className="flex size-11 items-center justify-center text-muted hover:bg-elevated hover:text-ink"
               >
                 <IconClose className="size-4" />
               </button>
@@ -245,16 +255,14 @@ export function EventTabs() {
       </div>
 
       {/* DESKTOP — horizontal nav */}
-      <nav className="mb-4 hidden gap-2 overflow-x-auto border-b border-border md:flex">
+      <nav className="mb-4 hidden gap-2 overflow-x-auto border-b-2 border-rail md:flex">
         {tabs.map((tab) => (
           <button
             key={tab.key}
             type="button"
             onClick={() => setActive(tab.key)}
             className={`whitespace-nowrap px-4 py-2.5 text-sm font-medium ${
-              active === tab.key
-                ? 'border-b-2 border-brand text-brand'
-                : 'text-muted hover:text-ink'
+              active === tab.key ? 'bg-brand text-white' : 'text-muted hover:text-ink'
             }`}
           >
             {tab.label}
@@ -262,21 +270,45 @@ export function EventTabs() {
         ))}
       </nav>
 
-      {/* MOBILE — swipe position dots */}
-      <div className="mb-3 flex justify-center gap-1.5 md:hidden">
-        {tabs.map((tab, i) => (
-          <span
-            key={tab.key}
-            aria-hidden="true"
-            className={`h-1.5 rounded-full transition-all ${
-              i === activeIndex ? 'w-4 bg-brand' : 'w-1.5 bg-elevated'
-            }`}
-          />
-        ))}
-      </div>
+      {/* MOBILE — fixed bottom bar, inside the thumb's arc */}
+      <nav
+        aria-label={t('tabs.menu')}
+        className="fixed inset-x-0 bottom-0 z-30 grid grid-cols-5 border-t-2 border-rail bg-surface pb-[var(--safe-bottom)] md:hidden"
+      >
+        {barTabs.map((tab) => {
+          const Mark = TAB_ICONS[tab.key]
+          const isActive = active === tab.key
+          return (
+            <button
+              key={tab.key}
+              type="button"
+              onClick={() => selectTab(tab.key)}
+              aria-current={isActive ? 'page' : undefined}
+              className={`flex min-h-14 flex-col items-center justify-center gap-0.5 px-1 py-2 ${
+                isActive ? 'bg-brand text-white' : 'text-muted hover:text-ink'
+              }`}
+            >
+              <Mark className="size-5 shrink-0" />
+              <span className="w-full truncate text-[10px] font-semibold uppercase tracking-wide">
+                {tab.label}
+              </span>
+            </button>
+          )
+        })}
+        <button
+          type="button"
+          onClick={() => setDrawerOpen(true)}
+          className="flex min-h-14 flex-col items-center justify-center gap-0.5 px-1 py-2 text-muted hover:text-ink"
+        >
+          <IconChevron dir="up" className="size-5 shrink-0" />
+          <span className="w-full truncate text-[10px] font-semibold uppercase tracking-wide">
+            {t('tabs.menu')}
+          </span>
+        </button>
+      </nav>
 
       {/* Tab content (swipe left/right to change tab on touch devices) */}
-      <div onTouchStart={onTouchStart} onTouchEnd={onTouchEnd}>
+      <div className="pb-24 md:pb-0" onTouchStart={onTouchStart} onTouchEnd={onTouchEnd}>
         <Suspense fallback={<div className="p-6 text-center text-muted">…</div>}>
           {active === 'participants' && <ParticipantsTab />}
           {active === 'availability' && <AvailabilityTab />}
