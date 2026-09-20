@@ -10,10 +10,12 @@ describe('toStoredSplit', () => {
     expect(toStoredSplit(new Set(['u1']), ['u1', 'u2'])).toEqual(['u1'])
   })
 
-  it('still says "everyone" when the event has a dog', () => {
-    // The dog is not a payer, so it never reaches the selection. Comparing
-    // against the guest list instead would return ['u1','u2'] here and quietly
-    // stop later arrivals from joining the expense.
+  it('can never collapse if the caller passes the guest list instead of the payers', () => {
+    // This is the shape of the regression: the selection can only ever hold
+    // payers, so a dog in the reference list makes the check unsatisfiable and
+    // freezes every split into a literal list — and whoever joins later stops
+    // being added to it. The call site must pass payingUsers(...), not users.
+    expect(toStoredSplit(new Set(['u1', 'u2']), ['u1', 'u2', 'd1'])).toEqual(['u1', 'u2'])
     expect(toStoredSplit(new Set(['u1', 'u2']), ['u1', 'u2'])).toEqual([])
   })
 

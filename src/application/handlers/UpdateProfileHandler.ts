@@ -2,6 +2,7 @@ import { UpdateProfileSchema, type UpdateProfileInput } from '@/application/dtos
 import { type EventSnapshot } from '@/domain/entities/Event'
 import { User } from '@/domain/entities/User'
 import { HistoryAppender } from '@/domain/services/HistoryAppender'
+import { canBecome } from '@/domain/services/participantRoles'
 import type { IEventRepository } from '@/domain/repositories/IEventRepository'
 import { withOptimisticRetry } from '@/application/support/withOptimisticRetry'
 
@@ -13,6 +14,12 @@ export class UpdateProfileHandler {
     const saved = await withOptimisticRetry(this.repo, parsed.eventId, (row) => {
       const existing = row.snapshot.users.find((u) => u.id === parsed.userId)
       if (!existing) throw new Error(`User ${parsed.userId} not in event`)
+      if (
+        parsed.kind !== undefined &&
+        !canBecome(parsed.kind, { expenses: row.snapshot.expenses, userId: parsed.userId })
+      ) {
+        throw new Error('This participant has paid for something and cannot become a dog')
+      }
 
       const updated = User.restore(existing).withProfile({
         name: parsed.name,
