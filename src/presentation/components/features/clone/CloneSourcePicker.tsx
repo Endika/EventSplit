@@ -42,7 +42,7 @@ export function CloneSourcePicker(props: {
               }`}
             >
               <span className="text-sm font-semibold">{s.name}</span>
-              <span className={`fineprint ${selected ? 'text-white! dark:text-bg!' : ''}`}>
+              <span className={`fineprint ${selected ? 'text-white dark:text-bg' : ''}`}>
                 {t('clone.sourceMeta', {
                   count: s.participantCount,
                   date: formatDate(s.updatedAt, i18n.language),
