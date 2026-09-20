@@ -1,5 +1,23 @@
 # Changelog
 
+## [3.7.0](https://github.com/Endika/EventSplit/compare/v3.6.0...v3.7.0) (2026-09-20)
+
+
+### Features
+
+* **expenses:** keep dogs out of every money split and person selector ([6f1c785](https://github.com/Endika/EventSplit/commit/6f1c7853c4953c7ce27deacd707bae18b51e49b5))
+* **participants:** add a dog participant kind with its own role rules ([8faf22b](https://github.com/Endika/EventSplit/commit/8faf22b9192debbcb1c85c028bfff350a033ab7b))
+* **participants:** let people register the dogs coming to the event ([e2489ce](https://github.com/Endika/EventSplit/commit/e2489cee46e6de2bae8046bae283adf6a338851b))
+* **purchases:** give each participant kind its own default ration ([d8e972d](https://github.com/Endika/EventSplit/commit/d8e972dc9ad375f2e4602140539d9cd9260bb80b))
+
+
+### Bug Fixes
+
+* **participants:** close gaps where a dog still paid, voted or carried ([b9e9cb1](https://github.com/Endika/EventSplit/commit/b9e9cb1023bcfc9d6e51bb723ffb02224f02d57a))
+* **participants:** stop a payer being turned into a dog ([115d534](https://github.com/Endika/EventSplit/commit/115d5340663452db406ce0629db746c0f7d858f4))
+* **persistence:** tolerate participant kinds this build doesn't know ([fa8b627](https://github.com/Endika/EventSplit/commit/fa8b627d65dd0133927304bc1d7bad860a73ffcc))
+* **ui:** make the kind badge readable and stop the row overflowing ([b7acdef](https://github.com/Endika/EventSplit/commit/b7acdef8c66739dbc5c712d6465d2916a6f68240))
+
 ## [3.6.0](https://github.com/Endika/EventSplit/compare/v3.5.0...v3.6.0) (2026-09-16)
 
 
