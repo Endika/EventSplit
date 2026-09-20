@@ -22,6 +22,7 @@ import { ExpenseSummary } from './ExpenseSummary'
 import { GeneralSummary } from './GeneralSummary'
 import { ManualLiquidations } from './ManualLiquidations'
 import { formatMoney } from '@/presentation/utils/money'
+import { PrimaryAction } from '@/presentation/components/common/PrimaryAction'
 
 export function ExpensesTab() {
   const { t } = useTranslation()
@@ -102,7 +103,13 @@ export function ExpensesTab() {
   return (
     <div className="space-y-4">
       {visible.length > 0 && !adding && !editing && <ExpenseSummary />}
-      {!adding && !editing && <Button onClick={() => setAdding(true)}>{t('expenses.add')}</Button>}
+      {!adding && !editing && (
+        <PrimaryAction>
+          <Button className="w-full" onClick={() => setAdding(true)}>
+            {t('expenses.add')}
+          </Button>
+        </PrimaryAction>
+      )}
       {adding && (
         <ExpenseForm
           key="new"

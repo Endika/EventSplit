@@ -282,7 +282,7 @@ export function EventTabs() {
       </nav>
 
       {/* Tab content (swipe left/right to change tab on touch devices) */}
-      <div className="pb-24 md:pb-0" onTouchStart={onTouchStart} onTouchEnd={onTouchEnd}>
+      <div className="pb-36 md:pb-0" onTouchStart={onTouchStart} onTouchEnd={onTouchEnd}>
         <Suspense fallback={<div className="p-6 text-center text-muted">…</div>}>
           {active === 'participants' && <ParticipantsTab />}
           {active === 'availability' && <AvailabilityTab />}
