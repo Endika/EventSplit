@@ -1,5 +1,12 @@
 # Changelog
 
+## [3.8.1](https://github.com/Endika/EventSplit/compare/v3.8.0...v3.8.1) (2026-09-20)
+
+
+### Bug Fixes
+
+* **pwa:** redraw the icons as a tear-off calendar in the label world ([54b8c8f](https://github.com/Endika/EventSplit/commit/54b8c8f47d7e5c93868bedd6862c2f3f1cb0ea4b))
+
 ## [3.8.0](https://github.com/Endika/EventSplit/compare/v3.7.0...v3.8.0) (2026-09-20)
 
 
