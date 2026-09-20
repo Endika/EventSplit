@@ -36,6 +36,18 @@ export const payingUsers = <T extends { kind: UserKind }>(users: readonly T[]): 
  * absent from every balance, so the expense they paid would stop being credited
  * to anybody and the balances would quietly stop summing to zero.
  */
+/** Only an adult of the event can be answerable for a child. */
+export const canBeGuardian = (kind: UserKind): boolean => kind === 'adult'
+
+/**
+ * An adult with children in their charge cannot stop being an adult: the
+ * children would be left pointing at somebody who can no longer carry them.
+ */
+export const hasDependants = (
+  userId: string,
+  users: readonly { id: string; guardianId: string | null }[],
+): boolean => users.some((u) => u.guardianId === userId)
+
 export const canBecome = (
   kind: UserKind,
   spending: { expenses: readonly { paidBy: string; deleted: boolean }[]; userId: string },

@@ -73,6 +73,7 @@ const ikerUser = {
   name: 'Iker',
   alias: null,
   kind: 'adult' as const,
+  guardianId: null,
   email: null,
   phone: null,
   dietary: null,

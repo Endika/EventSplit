@@ -346,7 +346,8 @@
       "inThis": "{{count}} gasto no que entras",
       "inThis_other": "{{count}} gastos nos que entras",
       "paidBy": "pagouno {{name}}",
-      "nobodyOwes": "Aínda non hai nada que saldar"
+      "nobodyOwes": "Aínda non hai nada que saldar",
+      "includes": "inclúe a {{names}}"
     },
     "settledWarnTitle": "Hai liquidacións xa marcadas como pagadas",
     "settledWarnBody": "Este gasto afecta a {{names}}, que xa teñen unha transferencia marcada como pagada. Engadilo cambiará os seus saldos, así que esa marca podería deixar de ser correcta. Continuar?",
@@ -372,7 +373,10 @@
     "removeConfirm": "Quitar a {{name}} deste evento?",
     "removeWarning": "Non se pode desfacer.",
     "removeYes": "Si, quitar",
-    "removeCancel": "Cancelar"
+    "removeCancel": "Cancelar",
+    "guardian": "Ao cargo de",
+    "guardianNone": "Sen asignar",
+    "guardianOf": "ao cargo de {{name}}"
   },
   "stage": {
     "title": "Fase",

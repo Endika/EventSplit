@@ -2,7 +2,8 @@ import { UpdateProfileSchema, type UpdateProfileInput } from '@/application/dtos
 import { type EventSnapshot } from '@/domain/entities/Event'
 import { User } from '@/domain/entities/User'
 import { HistoryAppender } from '@/domain/services/HistoryAppender'
-import { canBecome } from '@/domain/services/participantRoles'
+import { canBecome, hasDependants } from '@/domain/services/participantRoles'
+import { assertGuardianIsAnAdultOfTheEvent } from '@/application/support/assertGuardian'
 import type { IEventRepository } from '@/domain/repositories/IEventRepository'
 import { withOptimisticRetry } from '@/application/support/withOptimisticRetry'
 
@@ -21,6 +22,16 @@ export class UpdateProfileHandler {
         throw new Error('This participant has paid for something and cannot become a dog')
       }
 
+      // Turning an adult into anything else would strand the children pointing
+      // at them, so it is refused before the change is applied.
+      if (
+        parsed.kind !== undefined &&
+        parsed.kind !== 'adult' &&
+        hasDependants(parsed.userId, row.snapshot.users)
+      ) {
+        throw new Error('This adult has children in their charge and must stay an adult')
+      }
+
       const updated = User.restore(existing).withProfile({
         name: parsed.name,
         alias: parsed.alias,
@@ -29,12 +40,15 @@ export class UpdateProfileHandler {
         dietary: parsed.dietary,
         notes: parsed.notes,
         kind: parsed.kind,
+        guardianId: parsed.guardianId,
         allergies: parsed.allergies?.map((a) => ({
           name: a.name,
           severity: a.severity,
           notes: a.notes ?? null,
         })),
       })
+
+      assertGuardianIsAnAdultOfTheEvent(updated.guardianId, row.snapshot.users)
 
       const nextUsers = row.snapshot.users.map((u) =>
         u.id === parsed.userId ? updated.toSnapshot() : u,

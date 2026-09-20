@@ -45,6 +45,11 @@ export function ExpenseSummary() {
     // Dogs attend but never owe: they are kept out of the split entirely,
     // which also drops their id from any expense that still lists them.
     participantIds: payerIds,
+    // Nobody settles up with a child: their balance is carried by the adult
+    // answerable for them, so no transfer ever names a minor.
+    guardianOf: Object.fromEntries(
+      payers.flatMap((u) => (u.guardianId ? [[u.id, u.guardianId]] : [])),
+    ),
     expenses: live.map((e) => ({
       paidBy: e.paidBy,
       amount: Money.fromCents(e.cents),
@@ -67,6 +72,14 @@ export function ExpenseSummary() {
         return (split.length > 0 ? split : payerIds).includes(me.id)
       })
     : []
+
+  // Whose share this person is carrying, so a bigger figure than their own
+  // consumption never looks like an error.
+  const carriedNames = (payerId: string): string =>
+    event.users
+      .filter((u) => u.guardianId === payerId)
+      .map((u) => u.name)
+      .join(', ')
 
   const toneOf = (cents: number) =>
     cents > 0 ? 'text-pos' : cents < 0 ? 'text-warn' : 'text-muted'
@@ -180,6 +193,12 @@ export function ExpenseSummary() {
                         amount: formatMoney(tr.cents),
                         to: nameOf(tr.to),
                       })}
+                      {carriedNames(tr.from) && (
+                        <span className="text-muted">
+                          {' '}
+                          ({t('expenses.summary.includes', { names: carriedNames(tr.from) })})
+                        </span>
+                      )}
                     </span>
                   </label>
                 </li>
