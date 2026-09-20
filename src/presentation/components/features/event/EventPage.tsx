@@ -1,5 +1,4 @@
 import { useEffect } from 'react'
-import { useTranslation } from 'react-i18next'
 import { useContainer } from '@/presentation/context/ContainerProvider'
 import { useEventState } from '@/presentation/context/EventContext'
 import { useCurrentUser, useSetCurrentUser } from '@/presentation/context/UserContext'
@@ -13,9 +12,9 @@ import {
 import { EventTabs } from '@/presentation/components/features/event/EventTabs'
 import { EventPinGate } from '@/presentation/components/features/security/EventPinGate'
 import { useEditPin } from '@/presentation/context/EditPinContext'
+import { ShareButton } from '@/presentation/components/common/ShareButton'
 
 export function EventPage({ eventId }: { eventId: string }) {
-  const { t } = useTranslation()
   const container = useContainer()
   const { event, setEvent } = useEventState()
   const { pin: unlockedPin } = useEditPin()
@@ -80,43 +79,7 @@ export function EventPage({ eventId }: { eventId: string }) {
     <main className="mx-auto max-w-3xl p-4 md:p-6">
       <div className="mb-2 hidden items-center justify-between md:flex">
         <h1 className="text-2xl font-bold text-ink">{event.name}</h1>
-        <button
-          type="button"
-          onClick={async () => {
-            const url = window.location.href
-            try {
-              if (navigator.share) {
-                await navigator.share({ title: event.name, url })
-                return
-              }
-              await navigator.clipboard.writeText(url)
-              window.alert(t('event.shareCopied'))
-            } catch (err) {
-              if ((err as Error)?.name === 'AbortError') return
-              console.error('[Share]', err)
-            }
-          }}
-          className="flex min-h-11 items-center gap-1 border border-border bg-elevated px-3 text-sm text-ink hover:bg-surface"
-        >
-          <svg
-            width="14"
-            height="14"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            aria-hidden="true"
-          >
-            <circle cx="18" cy="5" r="3" />
-            <circle cx="6" cy="12" r="3" />
-            <circle cx="18" cy="19" r="3" />
-            <line x1="8.59" y1="13.51" x2="15.42" y2="17.49" />
-            <line x1="15.41" y1="6.51" x2="8.59" y2="10.49" />
-          </svg>
-          {t('event.share')}
-        </button>
+        <ShareButton eventName={event.name} className="border border-border bg-elevated px-3" />
       </div>
       {!me && (
         <IdentificationModal

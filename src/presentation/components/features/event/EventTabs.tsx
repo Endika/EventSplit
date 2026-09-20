@@ -2,6 +2,7 @@ import { lazy, Suspense, useRef, useState, type ComponentType } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useEventState } from '@/presentation/context/EventContext'
 import { StageSelector } from './StageSelector'
+import { ShareButton } from '@/presentation/components/common/ShareButton'
 import {
   IconCalendar,
   IconCart,
@@ -11,7 +12,6 @@ import {
   IconHome,
   IconLocation,
   IconMoney,
-  IconShare,
   IconUsers,
   type IconProps,
 } from '@/presentation/components/common/icons'
@@ -124,24 +124,6 @@ export function EventTabs() {
     window.dispatchEvent(new PopStateEvent('popstate'))
   }
 
-  async function shareEvent() {
-    const url = window.location.href
-    const title = event?.name ?? t('event.shareTitle')
-    try {
-      if (navigator.share) {
-        await navigator.share({ title, url })
-        return
-      }
-      await navigator.clipboard.writeText(url)
-      // Tiny toast fallback — use window.alert for MVP
-      window.alert(t('event.shareCopied'))
-    } catch (err) {
-      if ((err as Error)?.name === 'AbortError') return // user cancelled
-      console.error('[Share]', err)
-      window.alert(t('event.shareNotSupported'))
-    }
-  }
-
   return (
     <>
       {/* MOBILE — sticky top bar with hamburger */}
@@ -169,15 +151,7 @@ export function EventTabs() {
           </svg>
         </button>
         <h1 className="flex-1 truncate text-base font-semibold text-ink">{event?.name ?? ''}</h1>
-        <button
-          type="button"
-          onClick={shareEvent}
-          aria-label={t('event.share')}
-          title={t('event.share')}
-          className="flex size-11 items-center justify-center text-ink hover:bg-elevated"
-        >
-          <IconShare />
-        </button>
+        <ShareButton eventName={event?.name ?? ''} className="size-11 shrink-0" />
         <button
           type="button"
           onClick={goHome}
