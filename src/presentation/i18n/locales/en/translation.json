@@ -324,6 +324,7 @@
       "splitBetween": "Split between",
       "selectAll": "All",
       "selectNone": "None",
+      "dogsExcluded": "Dogs are on the guest list, never in the split.",
       "markBought": "What from the list did you buy?",
       "remainingHint": "{{n}} of {{total}} {{unit}} left"
     },

@@ -18,7 +18,7 @@ import { displayUnit } from '@/presentation/utils/units'
 import { friendlyError } from '@/presentation/utils/friendlyError'
 import { groupPurchases } from '@/presentation/utils/groupPurchases'
 import { isPurchaseDone, remainingToBuy } from '@/presentation/utils/purchaseProgress'
-import { payingUsers } from '@/domain/services/participantRoles'
+import { payingUsers, paysExpenses } from '@/domain/services/participantRoles'
 import { toStoredSplit } from '@/domain/services/splitScope'
 
 export function ExpenseForm({
@@ -388,6 +388,9 @@ export function ExpenseForm({
               {t('expenses.form.selectNone')}
             </button>
           </div>
+          {event.users.some((u) => !paysExpenses(u.kind)) && (
+            <p className="mb-1 text-xs text-muted">{t('expenses.form.dogsExcluded')}</p>
+          )}
           <div className="flex flex-wrap gap-2">
             {payingUsers(event.users).map((u) => (
               <button

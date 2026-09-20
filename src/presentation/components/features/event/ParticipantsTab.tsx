@@ -26,25 +26,29 @@ export function ParticipantsTab() {
         {event.users.map((u) => {
           const isMe = me?.id === u.id
           const label = u.alias ? `${u.name} (${u.alias})` : u.name
+          // Neutral, not coral: the brand tint already means "this row is me",
+          // and a kind is metadata, not state. bg-brand-soft here also failed
+          // AA at this size (4.19:1) and vanished on top of my own row.
           const kindBadge =
             u.kind === 'adult' ? null : (
-              <span className="ml-2 inline-flex items-center rounded-full bg-brand-soft px-2 py-0.5 text-xs font-medium text-brand-soft-fg">
-                {u.kind === 'dog' ? `\u{1F415} ${t('participants.dog')}` : t('participants.child')}
+              <span className="ml-2 inline-flex shrink-0 items-center rounded-full bg-elevated px-2 py-0.5 text-xs font-medium text-ink ring-1 ring-border">
+                {u.kind === 'dog' && <span aria-hidden="true">🐕&nbsp;</span>}
+                {t(u.kind === 'dog' ? 'participants.dog' : 'participants.child')}
               </span>
             )
           return (
-            <li key={u.id} className={`flex items-center ${isMe ? 'bg-brand-soft' : ''}`}>
+            <li key={u.id} className={`flex min-w-0 items-center ${isMe ? 'bg-brand-soft' : ''}`}>
               <button
                 type="button"
-                className="flex w-full items-center justify-between p-3 text-left text-ink hover:bg-elevated"
+                className="flex w-full min-w-0 items-center justify-between p-3 text-left text-ink hover:bg-elevated"
                 onClick={() => setEditing(u.id)}
               >
-                <span className="flex items-center">
-                  {label}
+                <span className="flex min-w-0 items-center">
+                  <span className="min-w-0 truncate">{label}</span>
                   <YouLabel userId={u.id} />
                   {kindBadge}
                 </span>
-                <span className="text-xs text-muted">✎</span>
+                <span className="ml-2 shrink-0 text-xs text-muted">✎</span>
               </button>
             </li>
           )

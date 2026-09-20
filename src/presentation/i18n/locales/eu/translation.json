@@ -324,6 +324,7 @@
       "splitBetween": "Banatu honen artean",
       "selectAll": "Denak",
       "selectNone": "Inor ez",
+      "dogsExcluded": "Txakurrak zerrendan daude, baina inoiz ez banaketan.",
       "markBought": "Zer erosi duzu zerrendatik?",
       "remainingHint": "{{n}}/{{total}} {{unit}} falta"
     },
