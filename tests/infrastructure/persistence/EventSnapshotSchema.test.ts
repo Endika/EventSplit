@@ -37,6 +37,37 @@ describe('EventSnapshotSchema', () => {
     expect(parsed.users[0]!.email).toBeNull()
   })
 
+  it('keeps a dog participant', () => {
+    const snapshot = {
+      id: 'abc123x',
+      name: 'Test',
+      createdBy: 'user1',
+      createdAt: '2026-01-01T00:00:00Z',
+      updatedAt: '2026-01-01T00:00:00Z',
+      users: [
+        { id: 'd1', name: 'Toby', alias: null, joinedAt: '2026-01-01T00:00:00Z', kind: 'dog' },
+      ],
+    }
+    expect(parseEventSnapshot(snapshot).users[0]!.kind).toBe('dog')
+  })
+
+  it('degrades an unknown kind to adult instead of losing the whole event', () => {
+    const snapshot = {
+      id: 'abc123x',
+      name: 'Test',
+      createdBy: 'user1',
+      createdAt: '2026-01-01T00:00:00Z',
+      updatedAt: '2026-01-01T00:00:00Z',
+      users: [
+        { id: 'u1', name: 'Iker', alias: null, joinedAt: '2026-01-01T00:00:00Z', kind: 'adult' },
+        { id: 'c1', name: 'Kirby', alias: null, joinedAt: '2026-01-01T00:00:00Z', kind: 'cat' },
+      ],
+    }
+    const parsed = parseEventSnapshot(snapshot)
+    expect(parsed.users.map((u) => u.kind)).toEqual(['adult', 'adult'])
+    expect(parsed.users[1]!.name).toBe('Kirby')
+  })
+
   it('fills expense splitAmong default', () => {
     const snapshot = {
       id: 'abc123x',
