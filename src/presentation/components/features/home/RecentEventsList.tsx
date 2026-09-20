@@ -33,19 +33,22 @@ export function RecentEventsList({
   }
 
   return (
-    <section className="space-y-2">
-      <h2 className="text-xs font-semibold uppercase tracking-wide text-muted">
-        {t('home.yourEvents')}
-      </h2>
-      <ul className="space-y-2">
+    <section>
+      <h2 className="fineprint">{t('home.yourEvents')}</h2>
+      <div className="rail mt-1" />
+      <ul>
         {items.map((e) => (
           <li
             key={e.id}
-            className="group flex items-center gap-2 rounded-xl border border-border bg-surface transition hover:border-border hover:bg-elevated"
+            className="group flex items-center gap-2 border-b border-border last:border-0"
           >
-            <button type="button" onClick={() => openEvent(e.id)} className="flex-1 p-3 text-left">
-              <div className="font-medium text-ink">{e.name}</div>
-              <div className="text-xs text-muted">
+            <button
+              type="button"
+              onClick={() => openEvent(e.id)}
+              className="min-w-0 flex-1 py-2.5 text-left"
+            >
+              <div className="truncate font-semibold text-ink">{e.name}</div>
+              <div className="fineprint mt-0.5">
                 {t('home.lastActivity', { when: formatRelative(e.updatedAt, i18n.language) })}
                 {' · '}
                 {t('home.participants', { count: e.participantCount })}

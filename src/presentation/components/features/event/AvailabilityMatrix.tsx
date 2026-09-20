@@ -48,9 +48,9 @@ export function AvailabilityMatrix(props: {
 
   return (
     <div className="space-y-2">
-      <div data-no-swipe className="overflow-x-auto rounded-xl border border-border bg-surface">
+      <div data-no-swipe className="overflow-x-auto border border-border bg-surface">
         <table className="w-full text-sm">
-          <thead className="text-xs uppercase text-muted">
+          <thead className="fineprint border-b-2 border-rail">
             <tr>
               <th className="p-3 text-left">&nbsp;</th>
               {shown.map(({ option, key }) => {
@@ -75,7 +75,7 @@ export function AvailabilityMatrix(props: {
                       </button>
                       {option.note && (
                         <span
-                          className="max-w-24 truncate text-[10px] normal-case text-muted"
+                          className="max-w-24 truncate text-[0.625rem] font-normal normal-case tracking-normal text-muted"
                           title={option.note}
                         >
                           {option.note}
@@ -101,8 +101,11 @@ export function AvailabilityMatrix(props: {
           </thead>
           <tbody>
             {users.map((u) => (
-              <tr key={u.id} className={meId === u.id ? 'bg-brand-soft/30' : ''}>
-                <td className="p-3 text-ink">
+              <tr
+                key={u.id}
+                className={`border-b border-border ${meId === u.id ? 'bg-brand-soft' : ''}`}
+              >
+                <td className="whitespace-nowrap p-3 font-semibold text-ink">
                   {u.alias ? `${u.name} (${u.alias})` : u.name}
                   <YouLabel userId={u.id} />
                 </td>
@@ -117,7 +120,7 @@ export function AvailabilityMatrix(props: {
                         checked={voteOf(u.id, key)}
                         onChange={(e) => onVote(u.id, key, e.target.checked)}
                         disabled={busy}
-                        className="size-4 rounded border-border bg-elevated accent-brand"
+                        className="size-5 border-border bg-elevated accent-brand"
                         aria-label={`${u.name} ${formatOptionLabel(option, i18n.language)}`}
                       />
                     </label>
@@ -127,8 +130,8 @@ export function AvailabilityMatrix(props: {
             ))}
           </tbody>
           <tfoot>
-            <tr className="border-t border-border text-xs text-muted">
-              <td className="p-3 font-medium">{t('availability.votes')}</td>
+            <tr className="border-t-2 border-rail">
+              <td className="fineprint p-3">{t('availability.votes')}</td>
               {shown.map(({ key }) => {
                 const count = users.reduce((n, u) => n + (voteOf(u.id, key) ? 1 : 0), 0)
                 return (
@@ -136,8 +139,8 @@ export function AvailabilityMatrix(props: {
                     key={key}
                     className={`p-3 text-center ${pins.includes(key) ? 'bg-brand-soft/20' : ''}`}
                   >
-                    <span className="font-semibold text-pos">{count}</span>
-                    <span className="text-muted">/{users.length}</span>
+                    <span className="text-sm font-semibold tabular-nums text-pos">{count}</span>
+                    <span className="text-sm tabular-nums text-muted">/{users.length}</span>
                   </td>
                 )
               })}
@@ -147,9 +150,7 @@ export function AvailabilityMatrix(props: {
       </div>
 
       {hiddenCount > 0 && (
-        <p className="text-xs text-muted">
-          {t('availability.hiddenOptions', { count: hiddenCount })}
-        </p>
+        <p className="fineprint">{t('availability.hiddenOptions', { count: hiddenCount })}</p>
       )}
     </div>
   )

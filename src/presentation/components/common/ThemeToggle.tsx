@@ -39,7 +39,7 @@ export function ThemeToggle({ className = '' }: { className?: string }) {
       onClick={toggle}
       aria-label={t('theme.switch', { mode: t(`theme.${pref}`) })}
       title={t('theme.switch', { mode: t(`theme.${pref}`) })}
-      className={`inline-flex size-10 items-center justify-center rounded-xl border border-border bg-surface text-ink transition hover:bg-elevated focus:outline-none focus-visible:ring-2 focus-visible:ring-brand ${className}`}
+      className={`inline-flex size-11 items-center justify-center border border-border bg-surface text-ink transition hover:bg-elevated focus:outline-none focus-visible:ring-2 focus-visible:ring-brand ${className}`}
     >
       {ICONS[pref]}
     </button>

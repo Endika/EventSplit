@@ -46,9 +46,10 @@ export function EventPinGate({ event, onUnlock }: { event: EventSnapshot; onUnlo
 
   return (
     <main className="mx-auto max-w-sm p-6">
-      <div className="rounded-2xl border border-border bg-surface p-6 text-center">
-        <IconLock className="mx-auto mb-2 size-8 text-muted" />
-        <h1 className="mb-1 text-lg font-semibold text-ink">{event.name}</h1>
+      <div className="border-2 border-rail bg-surface p-6 text-center">
+        <IconLock className="mx-auto mb-3 size-8 text-ink" />
+        <h1 className="mb-2 text-lg font-semibold text-ink">{event.name}</h1>
+        <div className="rail mb-3" />
         <p className="mb-4 text-sm text-muted">{t('pin.gateBody')}</p>
         <form onSubmit={submit} className="space-y-3">
           <Input

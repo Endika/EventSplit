@@ -25,7 +25,7 @@ export function NoticeBanner() {
   return (
     <div
       role="status"
-      className="fixed inset-x-2 z-[55] mx-auto max-w-md rounded-xl border border-border bg-pos-soft p-3 text-sm text-pos-soft-fg shadow-xl backdrop-blur"
+      className="fixed inset-x-2 z-[55] mx-auto max-w-md border-2 border-rail bg-pos-soft p-3 text-sm font-semibold text-pos-soft-fg shadow-xl backdrop-blur"
       style={{ bottom: 'max(0.75rem, env(safe-area-inset-bottom))' }}
     >
       {t(notice.key)}

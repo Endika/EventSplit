@@ -35,7 +35,7 @@ export function MonthGrid(props: {
   )
 
   return (
-    <div className="rounded-xl border border-border bg-surface p-2">
+    <div className="border border-border bg-surface p-2">
       <div className="flex items-center justify-between">
         <button
           type="button"
@@ -59,11 +59,7 @@ export function MonthGrid(props: {
       <div role="grid" className="mt-1">
         <div role="row" className="grid grid-cols-7">
           {weekdayNames(locale).map((name) => (
-            <div
-              key={name}
-              role="columnheader"
-              className="p-1 text-center text-[10px] uppercase text-muted"
-            >
+            <div key={name} role="columnheader" className="fineprint p-1 text-center">
               {name}
             </div>
           ))}

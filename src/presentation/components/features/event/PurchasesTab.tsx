@@ -276,7 +276,7 @@ export function PurchasesTab() {
 
   function renderItems(items: PurchaseSnapshot[]) {
     return (
-      <ul className="space-y-2">
+      <ul className="border-t border-border">
         {items.map((p) => {
           const hasLinks = p.kind !== 'bring' && linkedExpenses(p.id).length > 0
           const bought = hasLinks ? boughtQty(p.id) : 0
@@ -290,52 +290,59 @@ export function PurchasesTab() {
           return (
             <li
               key={p.id}
-              className={`rounded-xl border bg-surface p-3 ${
-                editing?.id === p.id ? 'border-brand ring-1 ring-brand' : 'border-border'
-              }`}
+              className={`border-b border-border ${editing?.id === p.id ? 'bg-brand-soft' : ''}`}
             >
-              <div className="flex items-start justify-between gap-2">
+              <div className="flex items-center justify-between gap-2">
                 <button
                   type="button"
                   onClick={() => requestEdit(p)}
-                  className="flex-1 rounded text-left hover:opacity-80"
+                  className="flex min-h-11 min-w-0 flex-1 items-center gap-3 py-2 text-left"
                   aria-label={t('purchases.edit')}
-                >
-                  <div className={`font-medium ${struck ? 'text-muted line-through' : 'text-ink'}`}>
-                    {p.kind === 'bring' && (
-                      <IconHome className="mr-1 inline size-4 align-[-0.2em]" />
-                    )}
-                    {p.item} <IconPencil className="inline size-3.5 align-[-0.2em] text-muted" />
-                  </div>
-                  <div className="text-sm text-muted">
-                    {t(p.kind === 'bring' ? 'purchases.totalToBring' : 'purchases.totalQuantity', {
-                      n: Math.round(p.totalQuantity * 100) / 100,
+                  title={t(
+                    p.kind === 'bring' ? 'purchases.totalToBring' : 'purchases.totalQuantity',
+                    {
+                      n: round2(p.totalQuantity),
                       unit: displayUnit(p.unit, t, p.totalQuantity),
-                    })}
-                  </div>
-                  <div className="text-xs text-muted">
-                    {t('purchases.createdBy', { name: userName(p.createdBy) })}
-                    <YouLabel userId={p.createdBy} />
-                  </div>
+                    },
+                  )}
+                >
+                  <span className="min-w-0 flex-1">
+                    <span
+                      className={`flex min-w-0 items-center gap-1 font-semibold ${
+                        struck ? 'text-muted line-through' : 'text-ink'
+                      }`}
+                    >
+                      {p.kind === 'bring' && <IconHome className="size-4 shrink-0" />}
+                      <span className="truncate">{p.item}</span>
+                      <IconPencil className="size-3.5 shrink-0 text-muted" />
+                    </span>
+                    <span className="fineprint flex items-center">
+                      {t('purchases.createdBy', { name: userName(p.createdBy) })}
+                      <YouLabel userId={p.createdBy} />
+                    </span>
+                  </span>
+                  <span className="shrink-0 whitespace-nowrap text-right text-sm font-semibold tabular-nums text-ink">
+                    {round2(p.totalQuantity)} {displayUnit(p.unit, t, p.totalQuantity)}
+                  </span>
                 </button>
                 <button
                   type="button"
                   onClick={() => askDelete(p)}
-                  className="inline-flex min-h-11 min-w-11 items-center justify-center text-muted hover:bg-elevated hover:text-danger"
+                  className="inline-flex size-11 shrink-0 items-center justify-center text-muted hover:bg-elevated hover:text-danger"
                   aria-label={t('purchases.delete')}
                   title={t('purchases.delete')}
                 >
                   <IconTrash className="size-4" />
                 </button>
               </div>
-              <div className="mt-2 flex flex-wrap items-center gap-2 border-t border-border pt-2 text-xs">
+              <div className="flex flex-wrap items-center gap-x-3 gap-y-1 pb-2 text-xs">
                 {p.kind === 'bring' ? (
-                  <label className="ml-auto flex items-center gap-1 text-muted">
+                  <label className="ml-auto flex min-h-11 items-center gap-1.5 text-muted">
                     {t('purchases.broughtByShort')}
                     <select
                       value={p.assignedTo ?? ''}
                       onChange={(e) => assignBringer(p, e.target.value || null)}
-                      className="min-h-11 rounded border border-border bg-surface p-1 text-base text-ink sm:text-sm"
+                      className="min-h-11 max-w-[9rem] truncate border border-border bg-surface px-2 text-base text-ink sm:text-sm"
                     >
                       <option value="">{t('purchases.unassigned')}</option>
                       {event!.users
@@ -348,9 +355,9 @@ export function PurchasesTab() {
                     </select>
                   </label>
                 ) : hasLinks ? (
-                  <div className="flex w-full flex-col gap-1.5">
+                  <div className="flex w-full flex-col gap-1.5 pt-1">
                     <div className="flex items-center justify-between gap-2">
-                      <span className="text-ink">
+                      <span className="text-sm font-semibold tabular-nums text-ink">
                         {t('purchases.boughtProgress', {
                           n: round2(bought),
                           total: round2(total),
@@ -358,35 +365,35 @@ export function PurchasesTab() {
                         })}
                       </span>
                     </div>
-                    <div className="h-1.5 w-full overflow-hidden rounded-full bg-elevated">
+                    <div className="h-2 w-full overflow-hidden bg-elevated">
                       <div
-                        className="h-full rounded-full bg-brand"
+                        className="h-full bg-brand"
                         style={{
                           width: `${total > 0 ? Math.min(100, (bought / total) * 100) : 100}%`,
                         }}
                       />
                     </div>
-                    <span className="text-muted">
+                    <span className="fineprint">
                       {t('purchases.boughtByMany', { names: buyerNames })}
                     </span>
                   </div>
                 ) : (
                   <>
-                    <label className="flex items-center gap-1 text-muted">
+                    <label className="flex min-h-11 cursor-pointer items-center gap-1.5 text-muted">
                       <input
                         type="checkbox"
                         checked={p.purchased}
                         onChange={(e) => toggleBought(p, e.target.checked)}
-                        className="size-4 rounded border-border bg-elevated accent-brand"
+                        className="size-5 border-border bg-elevated accent-brand"
                       />
                       {t('purchases.bought')}
                     </label>
-                    <label className="ml-auto flex items-center gap-1 text-muted">
+                    <label className="ml-auto flex min-h-11 items-center gap-1.5 text-muted">
                       {t('purchases.assignedShort')}
                       <select
                         value={p.assignedTo ?? ''}
                         onChange={(e) => assignBuyer(p, e.target.value || null)}
-                        className="min-h-11 rounded border border-border bg-surface p-1 text-base text-ink sm:text-sm"
+                        className="min-h-11 max-w-[9rem] truncate border border-border bg-surface px-2 text-base text-ink sm:text-sm"
                       >
                         <option value="">{t('purchases.unassigned')}</option>
                         {event!.users
@@ -420,12 +427,12 @@ export function PurchasesTab() {
             </Button>
           )}
           {hasMine && (
-            <label className="flex cursor-pointer items-center gap-2 text-xs text-muted">
+            <label className="flex min-h-11 cursor-pointer items-center gap-2 text-xs text-muted">
               <input
                 type="checkbox"
                 checked={onlyMine}
                 onChange={() => setOnlyMine((v) => !v)}
-                className="size-4 rounded border-border bg-elevated accent-brand"
+                className="size-5 border-border bg-elevated accent-brand"
               />
               {t('common.onlyMine')}
             </label>
@@ -453,27 +460,28 @@ export function PurchasesTab() {
           onDirtyChange={setFormDirty}
         />
       )}
-      {visible.length === 0 && <p className="text-sm text-muted">{t('purchases.empty')}</p>}
+      {visible.length === 0 && <p className="fineprint">{t('purchases.empty')}</p>}
       {grouped.map(({ group, items, subgroups }) => (
         <div key={group || '__none__'} className="space-y-2">
           {group !== '' && (
-            <div className="flex items-center gap-2 px-1">
+            <div className="flex items-center gap-1 border-b-2 border-rail">
               <button
                 type="button"
                 onClick={() => toggleCollapse(group)}
-                className="flex flex-1 items-center gap-1.5 rounded-lg py-2 text-left text-xs font-semibold uppercase tracking-wide text-brand hover:bg-elevated/50"
+                className="fineprint flex min-h-11 flex-1 items-center gap-1.5 text-left text-brand! hover:text-ink!"
                 aria-label={t('purchases.toggleGroup')}
               >
                 <IconChevron
                   dir={collapsed.has(group) ? 'right' : 'down'}
                   className="size-3.5 text-muted"
                 />
-                {group} <span className="text-muted">({items.length})</span>
+                <span className="truncate">{group}</span>
+                <span className="shrink-0 text-muted">({items.length})</span>
               </button>
               <button
                 type="button"
                 onClick={() => moveGroup(group, -1)}
-                className="flex size-11 items-center justify-center rounded-lg text-base text-muted hover:bg-elevated hover:text-ink"
+                className="flex size-11 shrink-0 items-center justify-center text-muted hover:bg-elevated hover:text-ink"
                 aria-label={t('purchases.moveUp')}
               >
                 <IconChevron dir="up" className="size-4" />
@@ -481,7 +489,7 @@ export function PurchasesTab() {
               <button
                 type="button"
                 onClick={() => moveGroup(group, 1)}
-                className="flex size-11 items-center justify-center rounded-lg text-base text-muted hover:bg-elevated hover:text-ink"
+                className="flex size-11 shrink-0 items-center justify-center text-muted hover:bg-elevated hover:text-ink"
                 aria-label={t('purchases.moveDown')}
               >
                 <IconChevron dir="down" className="size-4" />
@@ -492,7 +500,7 @@ export function PurchasesTab() {
                   setRenamingGroup(group)
                   setGroupNewName(group)
                 }}
-                className="flex size-11 items-center justify-center rounded-lg text-base text-muted hover:bg-elevated hover:text-ink"
+                className="flex size-11 shrink-0 items-center justify-center text-muted hover:bg-elevated hover:text-ink"
                 aria-label={t('purchases.renameGroup')}
               >
                 <IconPencil className="size-4" />
@@ -503,7 +511,7 @@ export function PurchasesTab() {
             <button
               type="button"
               onClick={() => toggleCollapse(group)}
-              className="flex w-full items-center gap-1.5 rounded-lg px-1 py-2 text-left text-xs font-semibold uppercase tracking-wide text-brand hover:bg-elevated/50"
+              className="fineprint flex min-h-11 w-full items-center gap-1.5 border-b-2 border-rail text-left text-brand! hover:text-ink!"
               aria-label={t('purchases.toggleGroup')}
             >
               <IconChevron
@@ -521,23 +529,24 @@ export function PurchasesTab() {
                   <div key="__nosub__">{renderItems(subItems)}</div>
                 ) : (
                   <div key={subgroup} className="space-y-2">
-                    <div className="flex items-center gap-2 pl-4 pr-1">
+                    <div className="flex items-center gap-1 border-b border-border pl-3">
                       <button
                         type="button"
                         onClick={() => toggleCollapse(subCollapseKey(group, subgroup))}
-                        className="flex flex-1 items-center gap-1.5 rounded-lg py-1.5 text-left text-[0.7rem] font-semibold uppercase tracking-wide text-brand hover:bg-elevated/50"
+                        className="fineprint flex min-h-11 flex-1 items-center gap-1.5 text-left text-ink! hover:text-brand!"
                         aria-label={t('purchases.toggleSubgroup')}
                       >
                         <IconChevron
                           dir={collapsed.has(subCollapseKey(group, subgroup)) ? 'right' : 'down'}
                           className="size-3 text-muted"
                         />
-                        {subgroup} <span className="text-muted">({subItems.length})</span>
+                        <span className="truncate">{subgroup}</span>
+                        <span className="shrink-0 text-muted">({subItems.length})</span>
                       </button>
                       <button
                         type="button"
                         onClick={() => moveSubgroup(group, subgroup, -1)}
-                        className="flex size-11 items-center justify-center rounded-lg text-sm text-muted hover:bg-elevated hover:text-ink"
+                        className="flex size-11 shrink-0 items-center justify-center text-muted hover:bg-elevated hover:text-ink"
                         aria-label={t('purchases.moveSubgroupUp')}
                       >
                         <IconChevron dir="up" className="size-3.5" />
@@ -545,7 +554,7 @@ export function PurchasesTab() {
                       <button
                         type="button"
                         onClick={() => moveSubgroup(group, subgroup, 1)}
-                        className="flex size-11 items-center justify-center rounded-lg text-sm text-muted hover:bg-elevated hover:text-ink"
+                        className="flex size-11 shrink-0 items-center justify-center text-muted hover:bg-elevated hover:text-ink"
                         aria-label={t('purchases.moveSubgroupDown')}
                       >
                         <IconChevron dir="down" className="size-3.5" />
@@ -556,14 +565,14 @@ export function PurchasesTab() {
                           setRenamingSubgroup({ group, subgroup })
                           setSubgroupNewName(subgroup)
                         }}
-                        className="flex size-11 items-center justify-center rounded-lg text-sm text-muted hover:bg-elevated hover:text-ink"
+                        className="flex size-11 shrink-0 items-center justify-center text-muted hover:bg-elevated hover:text-ink"
                         aria-label={t('purchases.renameSubgroup')}
                       >
                         <IconPencil className="size-3.5" />
                       </button>
                     </div>
                     {!collapsed.has(subCollapseKey(group, subgroup)) && (
-                      <div className="pl-4">{renderItems(subItems)}</div>
+                      <div className="pl-3">{renderItems(subItems)}</div>
                     )}
                   </div>
                 ),
@@ -577,23 +586,23 @@ export function PurchasesTab() {
           <button
             type="button"
             onClick={() => setShowDeleted((v) => !v)}
-            className="inline-flex min-h-11 items-center text-xs text-muted hover:text-ink"
+            className="fineprint inline-flex min-h-11 items-center hover:text-ink!"
           >
             <IconChevron dir={showDeleted ? 'down' : 'right'} className="mr-1.5 size-3.5" />
             {t('purchases.showDeleted', { count: deleted.length })}
           </button>
           {showDeleted && (
-            <ul className="mt-2 space-y-2">
+            <ul className="border-t border-border">
               {deleted.map((p) => (
                 <li
                   key={p.id}
-                  className="flex items-center justify-between rounded-xl border border-border bg-surface/50 p-3 text-sm"
+                  className="flex items-center justify-between gap-2 border-b border-border text-sm"
                 >
-                  <span className="text-muted line-through">{p.item}</span>
+                  <span className="min-w-0 truncate text-muted line-through">{p.item}</span>
                   <button
                     type="button"
                     onClick={() => recover(p)}
-                    className="inline-flex min-h-11 items-center rounded px-2 py-1 text-xs text-brand hover:bg-elevated"
+                    className="fineprint inline-flex min-h-11 shrink-0 items-center px-2 text-brand! hover:text-ink!"
                   >
                     <IconUndo className="mr-1.5 size-3.5" />
                     {t('purchases.restore')}

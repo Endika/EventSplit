@@ -63,22 +63,23 @@ export function IdentificationModal({
     <Modal open title={t('id.who', { eventName })} dismissable={false}>
       {mode === 'list' && (
         <div className="space-y-2">
-          <p className="text-sm text-muted">{t('id.pick')}</p>
-          <div className="max-h-[40vh] space-y-2 overflow-y-auto">
+          <p className="fineprint">{t('id.pick')}</p>
+          <ul className="max-h-[40vh] overflow-y-auto border-t border-border">
             {users
               .filter((u) => isSelectableAsSelf(u.kind))
               .map((u) => (
-                <Button
-                  key={u.id}
-                  variant="secondary"
-                  className="block w-full text-left"
-                  onClick={() => pick(u)}
-                  disabled={busy}
-                >
-                  {u.alias ? `${u.name} (${u.alias})` : u.name}
-                </Button>
+                <li key={u.id} className="border-b border-border">
+                  <button
+                    type="button"
+                    className="flex min-h-11 w-full items-center px-1 text-left text-sm font-semibold text-ink hover:bg-elevated disabled:opacity-50"
+                    onClick={() => pick(u)}
+                    disabled={busy}
+                  >
+                    <span className="truncate">{u.alias ? `${u.name} (${u.alias})` : u.name}</span>
+                  </button>
+                </li>
               ))}
-          </div>
+          </ul>
           <hr className="my-3 border-border" />
           <Button onClick={() => setMode('new')} disabled={busy}>
             {t('id.imNew')}

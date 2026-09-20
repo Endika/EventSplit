@@ -19,7 +19,7 @@ export function ConsumptionSummary({ userId }: { userId: string }) {
 
   if (event.purchases.filter((p) => !p.deleted).length === 0) {
     return (
-      <section className="mt-6 rounded-xl bg-surface/60 p-4 ring-1 ring-border">
+      <section className="mt-6 border border-border bg-surface p-4">
         <p className="text-sm text-ink">{t('consumption.noPurchases')}</p>
       </section>
     )
@@ -27,18 +27,18 @@ export function ConsumptionSummary({ userId }: { userId: string }) {
 
   if (blocks.mode === 'empty') {
     return (
-      <section className="mt-6 rounded-xl bg-surface/60 p-4 ring-1 ring-border">
+      <section className="mt-6 border border-border bg-surface p-4">
         <p className="text-sm text-ink">{blocks.emptyMessage}</p>
       </section>
     )
   }
 
   return (
-    <section className="mt-6 rounded-xl bg-surface/60 p-4 ring-1 ring-border">
+    <section className="mt-6 border border-border bg-surface p-4">
       {blocks.mode === 'full' && (
         <>
-          <h3 className="mb-2 text-sm font-semibold text-ink">{t('consumption.title')}</h3>
-          <hr className="mb-3 border-border" />
+          <h3 className="fineprint">{t('consumption.title')}</h3>
+          <div className="rail mb-3 mt-1" />
           {blocks.detail.length > 0 && (
             <ul className="mb-3 space-y-1 text-sm text-ink">
               {blocks.detail.map((d, idx) => (
@@ -53,9 +53,7 @@ export function ConsumptionSummary({ userId }: { userId: string }) {
 
       {blocks.brought.length > 0 && (
         <>
-          <p className="mb-1 text-xs uppercase tracking-wide text-muted">
-            {t('consumption.youBring')}
-          </p>
+          <p className="fineprint mb-1">{t('consumption.youBring')}</p>
           <ul className="mb-3 space-y-1 text-sm text-ink">
             {blocks.brought.map((b, idx) => (
               <li key={`${b.item}-${idx}`}>• {b.item}</li>
@@ -66,9 +64,7 @@ export function ConsumptionSummary({ userId }: { userId: string }) {
 
       {blocks.shared.length > 0 && (
         <>
-          <p className="mb-1 text-xs uppercase tracking-wide text-muted">
-            {t('consumption.groupShared')}
-          </p>
+          <p className="fineprint mb-1">{t('consumption.groupShared')}</p>
           <ul className="mb-3 space-y-1 text-sm text-ink">
             {blocks.shared.map((s, idx) => (
               <li key={`${s.item}-${idx}`}>• {s.item}</li>

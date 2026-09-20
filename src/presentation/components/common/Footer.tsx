@@ -6,7 +6,7 @@ import { Modal } from '@/presentation/components/common/Modal'
 // Flag emoji (🇬🇧/🇪🇸) don't render as flags on Windows, so we draw these inline too.
 function UnionJack() {
   return (
-    <svg viewBox="0 0 24 16" width="18" height="12" className="rounded-[2px]" aria-hidden="true">
+    <svg viewBox="0 0 24 16" width="18" height="12" aria-hidden="true">
       <rect width="24" height="16" fill="#012169" />
       <g stroke="#ffffff" strokeWidth="3">
         <line x1="0" y1="0" x2="24" y2="16" />
@@ -26,7 +26,7 @@ function UnionJack() {
 
 function SpainFlag() {
   return (
-    <svg viewBox="0 0 24 16" width="18" height="12" className="rounded-[2px]" aria-hidden="true">
+    <svg viewBox="0 0 24 16" width="18" height="12" aria-hidden="true">
       <rect width="24" height="16" fill="#AA151B" />
       <rect y="4" width="24" height="8" fill="#F1BF00" />
     </svg>
@@ -36,7 +36,7 @@ function SpainFlag() {
 // The Basque flag (ikurriña) has no Unicode emoji, so we draw it inline.
 function Ikurrina() {
   return (
-    <svg viewBox="0 0 24 16" width="18" height="12" className="rounded-[2px]" aria-hidden="true">
+    <svg viewBox="0 0 24 16" width="18" height="12" aria-hidden="true">
       <rect width="24" height="16" fill="#D52B1E" />
       <g stroke="#009B48" strokeWidth="2.4">
         <line x1="0" y1="0" x2="24" y2="16" />
@@ -53,7 +53,7 @@ function Ikurrina() {
 // The Catalan flag (senyera) has no Unicode emoji, so we draw it inline.
 function Senyera() {
   return (
-    <svg viewBox="0 0 24 16" width="18" height="12" className="rounded-[2px]" aria-hidden="true">
+    <svg viewBox="0 0 24 16" width="18" height="12" aria-hidden="true">
       <rect width="24" height="16" fill="#FCDD09" />
       <g fill="#DA121A">
         <rect y="1.78" width="24" height="1.78" />
@@ -68,7 +68,7 @@ function Senyera() {
 // The Valencian flag has no Unicode emoji, so we draw it inline.
 function ValenciaFlag() {
   return (
-    <svg viewBox="0 0 24 16" width="18" height="12" className="rounded-[2px]" aria-hidden="true">
+    <svg viewBox="0 0 24 16" width="18" height="12" aria-hidden="true">
       <rect width="24" height="16" fill="#FCDD09" />
       <g fill="#DA121A">
         <rect y="1.78" width="24" height="1.78" />
@@ -85,7 +85,7 @@ function ValenciaFlag() {
 // The Galician flag has no Unicode emoji, so we draw it inline.
 function GaliciaFlag() {
   return (
-    <svg viewBox="0 0 24 16" width="18" height="12" className="rounded-[2px]" aria-hidden="true">
+    <svg viewBox="0 0 24 16" width="18" height="12" aria-hidden="true">
       <rect width="24" height="16" fill="#ffffff" />
       <line x1="2" y1="-1" x2="24" y2="15" stroke="#0066CC" strokeWidth="3" />
     </svg>
@@ -120,8 +120,10 @@ export function Footer() {
               key={lang.code}
               type="button"
               onClick={() => changeTo(lang.code)}
-              className={`flex items-center gap-1.5 rounded px-2 py-1 text-xs font-medium ${
-                active ? 'bg-elevated text-ink' : 'text-muted hover:bg-surface hover:text-ink'
+              className={`flex min-h-11 items-center gap-1.5 px-2.5 text-xs font-semibold uppercase tracking-[0.08em] ${
+                active
+                  ? 'bg-brand text-white dark:text-bg'
+                  : 'text-muted hover:bg-elevated hover:text-ink'
               }`}
               aria-pressed={active}
               title={lang.label}
@@ -135,12 +137,12 @@ export function Footer() {
       <button
         type="button"
         onClick={() => setShowPrivacy(true)}
-        className="underline-offset-2 hover:text-ink hover:underline"
+        className="fineprint inline-flex min-h-11 items-center px-2 underline underline-offset-4 hover:text-ink!"
       >
         {t('privacy.link')}
       </button>
       <div className="flex items-center gap-2">
-        <span>v{__APP_VERSION__}</span>
+        <span className="fineprint">v{__APP_VERSION__}</span>
         <ThemeToggle />
       </div>
 

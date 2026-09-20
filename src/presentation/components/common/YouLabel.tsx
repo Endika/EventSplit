@@ -7,7 +7,7 @@ export function YouLabel({ userId }: { userId: string }) {
   if (!me || me.id !== userId) return null
   return (
     <span
-      className="ml-2 inline-flex shrink-0 items-center rounded-full bg-brand-soft px-2 py-0.5 text-xs font-semibold text-brand-soft-fg"
+      className="ml-2 inline-flex shrink-0 items-center bg-brand px-1.5 py-px text-[0.625rem] font-bold uppercase tracking-[0.08em] text-white dark:text-bg"
       aria-label={t('common.you')}
     >
       {t('common.you')}

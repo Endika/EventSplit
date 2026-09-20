@@ -30,7 +30,7 @@ function TriCheckbox(props: {
         }}
         onChange={(e) => onToggle(e.target.checked)}
         aria-label={label}
-        className="mt-1 size-4 shrink-0 rounded border-border bg-elevated accent-brand"
+        className="mt-1 size-4 shrink-0 border-border bg-elevated accent-brand"
       />
       <span className="min-w-0">
         <span className={`block text-sm ${bold ? 'font-semibold text-ink' : 'text-ink'}`}>

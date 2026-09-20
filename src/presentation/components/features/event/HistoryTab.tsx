@@ -91,34 +91,32 @@ export function HistoryTab() {
   const nameOf = (id: string) => event.users.find((u) => u.id === id)?.name ?? '?'
 
   return (
-    <div className="space-y-3">
-      <h2 className="text-sm font-semibold uppercase tracking-wide text-muted">
-        {t('history.title')}
-      </h2>
-      {entries.length === 0 && <p className="text-sm text-muted">{t('history.empty')}</p>}
-      <ul className="space-y-2">
+    <div>
+      <h2 className="fineprint">{t('history.title')}</h2>
+      <div className="rail mt-1" />
+      {entries.length === 0 && <p className="fineprint mt-3">{t('history.empty')}</p>}
+      <ul>
         {entries.map((h) => {
           const Mark = ICONS[h.type] ?? IconTag
           return (
-            <li
-              key={h.id}
-              className="flex items-start gap-3 rounded-xl border border-border bg-surface p-3"
-            >
+            <li key={h.id} className="flex items-start gap-3 border-b border-border py-2.5">
               <Mark
                 className={`mt-0.5 size-5 shrink-0 ${DANGER.has(h.type) ? 'text-danger' : 'text-muted'}`}
               />
-              <div className="flex-1">
-                <div className="text-sm text-ink">
-                  <span className="font-medium">{t(`history.types.${h.type}`)}</span>
-                  <span className="text-muted"> · v{h.version}</span>
+              <div className="min-w-0 flex-1">
+                <div className="flex items-baseline justify-between gap-2 text-sm">
+                  <span className="min-w-0 truncate font-semibold text-ink">
+                    {t(`history.types.${h.type}`)}
+                  </span>
+                  <span className="shrink-0 tabular-nums text-muted">v{h.version}</span>
                 </div>
-                <div className="text-xs text-muted">
+                <div className="fineprint flex flex-wrap items-center">
                   {t('history.by', { name: nameOf(h.userId) })}
                   <YouLabel userId={h.userId} />
                   {' · '}
                   <span title={h.timestamp}>{formatRelative(h.timestamp, i18n.language)}</span>
                 </div>
-                <div className="mt-1 text-xs text-muted">{h.description}</div>
+                <div className="mt-0.5 text-xs text-muted">{h.description}</div>
               </div>
             </li>
           )

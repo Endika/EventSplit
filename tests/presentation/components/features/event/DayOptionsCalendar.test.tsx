@@ -178,7 +178,7 @@ describe('DayOptionsCalendar', () => {
     expect(cell('2026-06-14')).toHaveAttribute('data-span', 'end')
   })
 
-  it('a single day is its own rounded cell', () => {
+  it('a single day is its own cell', () => {
     render(
       <DayOptionsCalendar
         options={[day('2026-06-05')]}

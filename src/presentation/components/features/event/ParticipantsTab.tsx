@@ -24,7 +24,7 @@ export function ParticipantsTab() {
           {t('participants.add')}
         </Button>
       </div>
-      <ul className="divide-y divide-border rounded-xl border border-border bg-surface">
+      <ul className="border-y border-border">
         {event.users.map((u) => {
           const isMe = me?.id === u.id
           const label = u.alias ? `${u.name} (${u.alias})` : u.name
@@ -33,20 +33,23 @@ export function ParticipantsTab() {
           // AA at this size (4.19:1) and vanished on top of my own row.
           const kindBadge =
             u.kind === 'adult' ? null : (
-              <span className="ml-2 inline-flex shrink-0 items-center rounded-full bg-elevated px-2 py-0.5 text-xs font-medium text-ink ring-1 ring-border">
+              <span className="ml-2 inline-flex shrink-0 items-center border border-border bg-elevated px-1.5 py-px text-[0.625rem] font-semibold uppercase tracking-[0.08em] text-ink">
                 {u.kind === 'dog' && <IconDog className="mr-1 size-3.5" />}
                 {t(u.kind === 'dog' ? 'participants.dog' : 'participants.child')}
               </span>
             )
           return (
-            <li key={u.id} className={`flex min-w-0 items-center ${isMe ? 'bg-brand-soft' : ''}`}>
+            <li
+              key={u.id}
+              className={`flex min-w-0 items-center border-b border-border last:border-0 ${isMe ? 'bg-brand-soft' : ''}`}
+            >
               <button
                 type="button"
-                className="flex w-full min-w-0 items-center justify-between p-3 text-left text-ink hover:bg-elevated"
+                className="flex min-h-11 w-full min-w-0 items-center justify-between px-3 py-2 text-left text-ink hover:bg-elevated"
                 onClick={() => setEditing(u.id)}
               >
                 <span className="flex min-w-0 items-center">
-                  <span className="min-w-0 truncate">{label}</span>
+                  <span className="min-w-0 truncate font-semibold">{label}</span>
                   <YouLabel userId={u.id} />
                   {kindBadge}
                 </span>

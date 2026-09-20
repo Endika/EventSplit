@@ -85,7 +85,7 @@ export function AddParticipantModal({ onClose }: { onClose: () => void }) {
         <label className="block text-sm text-muted">
           {t('participants.kind')}
           <select
-            className="mt-1 block w-full rounded-xl border border-border bg-surface p-2 text-base text-ink sm:text-sm"
+            className="mt-1 block min-h-11 w-full border border-border bg-surface px-2 text-base text-ink sm:text-sm"
             value={kind}
             onChange={(e) => setKind(e.target.value as UserKind)}
             disabled={busy}
@@ -116,7 +116,7 @@ export function AddParticipantModal({ onClose }: { onClose: () => void }) {
           </label>
         )}
         {error && (
-          <div className="space-y-1 rounded border border-danger bg-danger-soft p-2 text-xs">
+          <div className="space-y-1 border-2 border-danger bg-danger-soft p-3 text-sm">
             <div className="font-semibold text-danger-soft-fg">{error.name}</div>
             <div className="break-all text-danger-soft-fg">{error.message}</div>
           </div>

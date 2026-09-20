@@ -39,7 +39,7 @@ export function OptionVoteList(props: {
   const { t, i18n } = useTranslation()
 
   return (
-    <ul className="space-y-2">
+    <ul className="border-t border-border">
       {options.map((option, i) => {
         const key = optionKey(option)
         const label = formatOptionLabel(option, i18n.language)
@@ -50,23 +50,23 @@ export function OptionVoteList(props: {
             key={key}
             data-chosen={chosen}
             data-option={key}
-            className={`rounded-xl border bg-surface p-3 ${
-              chosen ? 'border-brand ring-1 ring-brand' : 'border-border'
-            }`}
+            className={`border-b border-border px-2 py-1 ${chosen ? 'bg-brand-soft' : ''}`}
           >
-            <div className="flex items-center gap-3">
+            <div className="flex min-h-11 items-center gap-3">
               <input
                 type="checkbox"
                 checked={myVotes[key] ?? false}
                 onChange={() => onToggleMine(key)}
                 disabled={!canVote}
                 aria-label={t('availability.myVote', { label })}
-                className="size-5 rounded border-border bg-elevated accent-brand"
+                className="size-5 shrink-0 border-border bg-elevated accent-brand"
               />
-              <span className="flex-1 text-sm font-medium text-ink">{label}</span>
-              <span className="text-xs text-muted">
-                <span className="font-semibold text-pos">{votes}</span>
-                <span>/{totalVoters}</span>
+              <span className="min-w-0 flex-1 truncate text-sm font-semibold text-ink">
+                {label}
+              </span>
+              <span className="shrink-0 tabular-nums">
+                <span className="text-base font-semibold text-pos">{votes}</span>
+                <span className="text-sm text-muted">/{totalVoters}</span>
               </span>
               <button
                 type="button"
@@ -87,7 +87,7 @@ export function OptionVoteList(props: {
               maxLength={MAX_NOTE_LEN}
               placeholder={t('availability.optionNotePlaceholder')}
               aria-label={t('availability.optionNoteAria', { label })}
-              className="mt-2 w-full rounded-lg border border-border bg-elevated px-2 py-1 text-xs text-ink placeholder-muted focus:border-brand focus:outline-none"
+              className="mb-1 min-h-11 w-full border border-border bg-elevated px-2 text-base text-ink placeholder-muted focus:border-brand focus:outline-none sm:text-sm"
             />
           </li>
         )
