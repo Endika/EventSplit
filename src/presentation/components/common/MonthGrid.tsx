@@ -1,5 +1,6 @@
 import type { ReactNode } from 'react'
 import { monthDays, monthOf, shiftMonth } from '@/presentation/utils/calendarMonth'
+import { IconChevron } from '@/presentation/components/common/icons'
 
 function atNoon(iso: string): Date {
   return new Date(iso + 'T12:00:00')
@@ -40,18 +41,18 @@ export function MonthGrid(props: {
           type="button"
           onClick={() => onMonthChange(shiftMonth(month, -1))}
           aria-label={labels?.prev ?? 'previous month'}
-          className="inline-flex min-h-11 min-w-11 items-center justify-center rounded-lg text-muted hover:bg-elevated hover:text-ink"
+          className="inline-flex min-h-11 min-w-11 items-center justify-center text-muted hover:bg-elevated hover:text-ink"
         >
-          ‹
+          <IconChevron dir="left" className="size-4" />
         </button>
         <span className="text-sm font-medium capitalize text-ink">{title}</span>
         <button
           type="button"
           onClick={() => onMonthChange(shiftMonth(month, 1))}
           aria-label={labels?.next ?? 'next month'}
-          className="inline-flex min-h-11 min-w-11 items-center justify-center rounded-lg text-muted hover:bg-elevated hover:text-ink"
+          className="inline-flex min-h-11 min-w-11 items-center justify-center text-muted hover:bg-elevated hover:text-ink"
         >
-          ›
+          <IconChevron dir="right" className="size-4" />
         </button>
       </div>
 

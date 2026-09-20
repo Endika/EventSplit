@@ -1,36 +1,67 @@
+import type { ComponentType } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useEventState } from '@/presentation/context/EventContext'
 import type { HistoryType } from '@/domain/entities/Event'
 import { YouLabel } from '@/presentation/components/common/YouLabel'
+import {
+  IconCalendar,
+  IconCart,
+  IconCheck,
+  IconLocation,
+  IconLock,
+  IconMinus,
+  IconMoney,
+  IconNote,
+  IconPencil,
+  IconSwap,
+  IconTag,
+  IconTrash,
+  IconUndo,
+  IconUnlock,
+  IconUsers,
+  type IconProps,
+} from '@/presentation/components/common/icons'
 
-const ICONS: Record<HistoryType, string> = {
-  event_created: '🎉',
-  user_joined: '👤',
-  user_removed: '🚪',
-  purchase_added: '🛒',
-  purchase_edited: '✏️',
-  purchase_deleted: '🗑️',
-  purchase_recovered: '↺',
-  expense_added: '💰',
-  expense_edited: '✏️',
-  expense_deleted: '🗑️',
-  expense_recovered: '↺',
-  availability_voted: '📅',
-  location_set: '📍',
-  notes_added: '📝',
-  days_set: '📆',
-  user_profile_updated: '👤',
-  edit_pin_set: '🔒',
-  edit_pin_cleared: '🔓',
-  stage_changed: '🔄',
-  settlement_toggled: '💸',
-  manual_liquidation_added: '🤝',
-  manual_liquidation_edited: '✏️',
-  manual_liquidation_deleted: '🗑️',
-  manual_liquidation_recovered: '↺',
-  manual_liquidation_share_toggled: '🔀',
-  cloned_from: '📋',
+/**
+ * The mark says what kind of change it was: the domain for a new thing, the
+ * verb for a change to one. The line beside it says the rest.
+ */
+const ICONS: Record<HistoryType, ComponentType<IconProps>> = {
+  event_created: IconTag,
+  user_joined: IconUsers,
+  user_removed: IconMinus,
+  purchase_added: IconCart,
+  purchase_edited: IconPencil,
+  purchase_deleted: IconTrash,
+  purchase_recovered: IconUndo,
+  expense_added: IconMoney,
+  expense_edited: IconPencil,
+  expense_deleted: IconTrash,
+  expense_recovered: IconUndo,
+  availability_voted: IconCalendar,
+  location_set: IconLocation,
+  notes_added: IconNote,
+  days_set: IconCalendar,
+  user_profile_updated: IconUsers,
+  edit_pin_set: IconLock,
+  edit_pin_cleared: IconUnlock,
+  stage_changed: IconSwap,
+  settlement_toggled: IconCheck,
+  manual_liquidation_added: IconSwap,
+  manual_liquidation_edited: IconPencil,
+  manual_liquidation_deleted: IconTrash,
+  manual_liquidation_recovered: IconUndo,
+  manual_liquidation_share_toggled: IconSwap,
+  cloned_from: IconNote,
 }
+
+/** Deleting is the one entry that gets to shout. */
+const DANGER: ReadonlySet<HistoryType> = new Set([
+  'purchase_deleted',
+  'expense_deleted',
+  'manual_liquidation_deleted',
+  'user_removed',
+])
 
 function formatRelative(iso: string, locale: string): string {
   const then = new Date(iso).getTime()
@@ -66,29 +97,32 @@ export function HistoryTab() {
       </h2>
       {entries.length === 0 && <p className="text-sm text-muted">{t('history.empty')}</p>}
       <ul className="space-y-2">
-        {entries.map((h) => (
-          <li
-            key={h.id}
-            className="flex items-start gap-3 rounded-xl border border-border bg-surface p-3"
-          >
-            <span className="text-xl" aria-hidden="true">
-              {ICONS[h.type] ?? '•'}
-            </span>
-            <div className="flex-1">
-              <div className="text-sm text-ink">
-                <span className="font-medium">{t(`history.types.${h.type}`)}</span>
-                <span className="text-muted"> · v{h.version}</span>
+        {entries.map((h) => {
+          const Mark = ICONS[h.type] ?? IconTag
+          return (
+            <li
+              key={h.id}
+              className="flex items-start gap-3 rounded-xl border border-border bg-surface p-3"
+            >
+              <Mark
+                className={`mt-0.5 size-5 shrink-0 ${DANGER.has(h.type) ? 'text-danger' : 'text-muted'}`}
+              />
+              <div className="flex-1">
+                <div className="text-sm text-ink">
+                  <span className="font-medium">{t(`history.types.${h.type}`)}</span>
+                  <span className="text-muted"> · v{h.version}</span>
+                </div>
+                <div className="text-xs text-muted">
+                  {t('history.by', { name: nameOf(h.userId) })}
+                  <YouLabel userId={h.userId} />
+                  {' · '}
+                  <span title={h.timestamp}>{formatRelative(h.timestamp, i18n.language)}</span>
+                </div>
+                <div className="mt-1 text-xs text-muted">{h.description}</div>
               </div>
-              <div className="text-xs text-muted">
-                {t('history.by', { name: nameOf(h.userId) })}
-                <YouLabel userId={h.userId} />
-                {' · '}
-                <span title={h.timestamp}>{formatRelative(h.timestamp, i18n.language)}</span>
-              </div>
-              <div className="mt-1 text-xs text-muted">{h.description}</div>
-            </div>
-          </li>
-        ))}
+            </li>
+          )
+        })}
       </ul>
     </div>
   )

@@ -21,6 +21,7 @@ import { Modal } from '@/presentation/components/common/Modal'
 import { Button } from '@/presentation/components/common/Button'
 import { Input } from '@/presentation/components/common/Input'
 import { ConsumptionSummary } from './ConsumptionSummary'
+import { IconPlus } from '@/presentation/components/common/icons'
 
 export function ProfileEditor({ userId, onClose }: { userId?: string; onClose: () => void }) {
   const { t } = useTranslation()
@@ -267,7 +268,7 @@ export function ProfileEditor({ userId, onClose }: { userId?: string; onClose: (
               onClick={() => setShowAllergyPicker(true)}
               disabled={busy}
             >
-              + {t('profile.addAllergy')}
+              <IconPlus className="size-4" /> {t('profile.addAllergy')}
             </Button>
           ) : (
             <div className="mt-2 space-y-2 rounded-xl border border-border bg-elevated/50 p-2">

@@ -10,6 +10,7 @@ import type { PurchaseSnapshot } from '@/domain/entities/Purchase'
 import { Button } from '@/presentation/components/common/Button'
 import { Input } from '@/presentation/components/common/Input'
 import { Modal } from '@/presentation/components/common/Modal'
+import { IconCart, IconCheck, IconChevron } from '@/presentation/components/common/icons'
 import { useOnlineStatus } from '@/presentation/context/SyncContext'
 import { useWriteGuard } from '@/presentation/context/WriteGuardContext'
 import { reportError } from '@/shared/utils/reportError'
@@ -162,16 +163,18 @@ export function ExpenseForm({
             </span>
             {assignee && (
               <span
-                className="ml-1 whitespace-nowrap text-xs text-brand"
+                className="ml-1 inline-flex items-center gap-1 whitespace-nowrap align-middle text-xs text-brand"
                 title={t('purchases.form.assignedTo')}
               >
-                🛒 {assignee.alias ? `${assignee.name} (${assignee.alias})` : assignee.name}
+                <IconCart className="size-3.5" />
+                {assignee.alias ? `${assignee.name} (${assignee.alias})` : assignee.name}
               </span>
             )}
           </span>
           {done && (
-            <span className="ml-1 whitespace-nowrap text-xs text-muted">
-              ✅ {t('purchases.bought')}
+            <span className="ml-1 inline-flex items-center gap-1 whitespace-nowrap align-middle text-xs text-pos">
+              <IconCheck className="size-3.5" />
+              {t('purchases.bought')}
             </span>
           )}
         </label>
@@ -431,7 +434,10 @@ export function ExpenseForm({
                       className="flex w-full items-center gap-1.5 rounded-lg px-1 py-1.5 text-left text-xs font-semibold uppercase tracking-wide text-brand hover:bg-elevated/50"
                       aria-label={t('purchases.toggleGroup')}
                     >
-                      <span className="text-sm text-muted">{collapsed.has(group) ? '▸' : '▾'}</span>
+                      <IconChevron
+                        dir={collapsed.has(group) ? 'right' : 'down'}
+                        className="size-3.5 text-muted"
+                      />
                       {group} <span className="text-muted">({items.length})</span>
                     </button>
                   )}
@@ -450,9 +456,12 @@ export function ExpenseForm({
                               className="flex w-full items-center gap-1.5 rounded-lg px-1 py-1 text-left text-[0.7rem] font-semibold uppercase tracking-wide text-brand hover:bg-elevated/50"
                               aria-label={t('purchases.toggleSubgroup')}
                             >
-                              <span className="text-xs text-muted">
-                                {collapsed.has(subCollapseKey(group, subgroup)) ? '▸' : '▾'}
-                              </span>
+                              <IconChevron
+                                dir={
+                                  collapsed.has(subCollapseKey(group, subgroup)) ? 'right' : 'down'
+                                }
+                                className="size-3 text-muted"
+                              />
                               {subgroup} <span className="text-muted">({subItems.length})</span>
                             </button>
                             {!collapsed.has(subCollapseKey(group, subgroup)) && (

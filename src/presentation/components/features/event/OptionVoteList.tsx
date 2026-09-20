@@ -6,6 +6,7 @@ import {
   type DayOption,
 } from '@/domain/value-objects/DayOption'
 import { formatOptionLabel } from '@/presentation/utils/formatOptionLabel'
+import { IconPin } from '@/presentation/components/common/icons'
 
 /**
  * The voting surface. Options may overlap, so a day does not identify one —
@@ -72,11 +73,11 @@ export function OptionVoteList(props: {
                 onClick={() => onTogglePin(key)}
                 aria-pressed={chosen}
                 aria-label={t('availability.chosenOption')}
-                className={`inline-flex min-h-11 min-w-11 items-center justify-center rounded-lg ${
+                className={`inline-flex min-h-11 min-w-11 items-center justify-center ${
                   chosen ? 'text-brand' : 'text-muted hover:text-ink'
                 }`}
               >
-                📌
+                <IconPin className="size-4" />
               </button>
             </div>
             <input

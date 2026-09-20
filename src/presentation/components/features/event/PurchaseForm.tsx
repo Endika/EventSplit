@@ -12,6 +12,7 @@ import { inferPurchaseDays, defaultConsumptionDays } from '@/domain/services/inf
 import { Button } from '@/presentation/components/common/Button'
 import { Input } from '@/presentation/components/common/Input'
 import { Modal } from '@/presentation/components/common/Modal'
+import { IconAlert, IconLeaf } from '@/presentation/components/common/icons'
 import { YouLabel } from '@/presentation/components/common/YouLabel'
 import { InfoChip } from '@/presentation/components/common/InfoChip'
 import { useOnlineStatus } from '@/presentation/context/SyncContext'
@@ -552,7 +553,7 @@ export function PurchaseForm({
                           <YouLabel userId={u.id} />
                           {allergens.length > 0 && (
                             <InfoChip
-                              icon="⚠️"
+                              icon={<IconAlert className="size-4" />}
                               tone={allergyMatchesItem ? 'rose' : 'amber'}
                               label={t('purchases.form.allergyChip', {
                                 list: allergens.map((a) => allergenLabel(a)).join(', '),
@@ -561,7 +562,7 @@ export function PurchaseForm({
                           )}
                           {u.dietary && (
                             <InfoChip
-                              icon="🥗"
+                              icon={<IconLeaf className="size-4" />}
                               tone="slate"
                               label={t('purchases.form.dietaryChip', { text: u.dietary })}
                             />

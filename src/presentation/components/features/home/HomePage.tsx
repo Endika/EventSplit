@@ -10,6 +10,7 @@ import type {
 } from '@/infrastructure/persistence/LocalStorageCache'
 import { Button } from '@/presentation/components/common/Button'
 import { Input } from '@/presentation/components/common/Input'
+import { IconPlus } from '@/presentation/components/common/icons'
 import { RecentEventsList } from './RecentEventsList'
 import { reportError } from '@/shared/utils/reportError'
 
@@ -78,7 +79,8 @@ export function HomePage() {
 
       {!creating ? (
         <Button onClick={() => setCreating(true)} className="mb-6 w-full">
-          + {t('home.newEvent')}
+          <IconPlus className="size-4" />
+          {t('home.newEvent')}
         </Button>
       ) : (
         <form

@@ -7,6 +7,7 @@ import { formatOptionLabel } from '@/presentation/utils/formatOptionLabel'
 import { MonthGrid } from '@/presentation/components/common/MonthGrid'
 import { Button } from '@/presentation/components/common/Button'
 import { Modal } from '@/presentation/components/common/Modal'
+import { IconPin } from '@/presentation/components/common/icons'
 
 /** Warm background per heat level. The count is always written too: colour alone never carries it. */
 const HEAT_CLASS = ['bg-elevated', 'bg-pos/15', 'bg-pos/30', 'bg-pos/50', 'bg-pos/70'] as const
@@ -117,9 +118,9 @@ export function VotingCalendar(props: {
               ].join(' ')}
             >
               <span>{Number(iso.slice(-2))}</span>
-              <span className="text-[9px] leading-none text-muted">
+              <span className="inline-flex items-center gap-0.5 text-[9px] leading-none text-muted">
                 {heat.votes}
-                {isChosen ? ' 📌' : ''}
+                {isChosen && <IconPin className="size-2.5 text-brand" />}
                 {noted ? ' •' : ''}
               </span>
             </button>

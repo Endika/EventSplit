@@ -2,6 +2,7 @@ import { useTranslation } from 'react-i18next'
 import { optionKey, type DayOption } from '@/domain/value-objects/DayOption'
 import { formatOptionLabel } from '@/presentation/utils/formatOptionLabel'
 import { YouLabel } from '@/presentation/components/common/YouLabel'
+import { IconClose, IconPin } from '@/presentation/components/common/icons'
 
 type MatrixUser = { id: string; name: string; alias: string | null }
 
@@ -70,7 +71,7 @@ export function AvailabilityMatrix(props: {
                         aria-pressed={isChosen}
                       >
                         <span>{formatOptionLabel(option, i18n.language)}</span>
-                        <span className={isChosen ? 'text-brand' : 'text-muted'}>📌</span>
+                        <IconPin className={`size-4 ${isChosen ? 'text-brand' : 'text-muted'}`} />
                       </button>
                       {option.note && (
                         <span
@@ -85,11 +86,11 @@ export function AvailabilityMatrix(props: {
                           type="button"
                           onClick={() => onRemove(key)}
                           disabled={busy}
-                          className="mt-1 inline-flex min-h-11 min-w-11 items-center justify-center text-[10px] text-muted hover:text-danger"
+                          className="mt-1 inline-flex min-h-11 min-w-11 items-center justify-center text-muted hover:text-danger"
                           title={t('availability.removeDay')}
                           aria-label={t('availability.removeDay')}
                         >
-                          ✕
+                          <IconClose className="size-3.5" />
                         </button>
                       )}
                     </div>

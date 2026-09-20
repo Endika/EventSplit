@@ -1,5 +1,6 @@
 import { useTranslation } from 'react-i18next'
 import type { CachedEventSummary } from '@/infrastructure/persistence/LocalStorageCache'
+import { IconClose } from '@/presentation/components/common/icons'
 
 function formatRelative(iso: string, locale: string): string {
   const then = new Date(iso).getTime()
@@ -53,11 +54,11 @@ export function RecentEventsList({
             <button
               type="button"
               onClick={() => onForget(e.id)}
-              className="px-3 py-3 text-sm text-muted hover:text-danger"
+              className="flex size-11 shrink-0 items-center justify-center text-muted hover:text-danger"
               aria-label={t('home.forget')}
               title={t('home.forget')}
             >
-              ✕
+              <IconClose className="size-4" />
             </button>
           </li>
         ))}

@@ -2,6 +2,7 @@ import { useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Modal } from '@/presentation/components/common/Modal'
 import { Button } from '@/presentation/components/common/Button'
+import { IconCheck } from '@/presentation/components/common/icons'
 import { formatShoppingListText } from '@/presentation/utils/formatShoppingListText'
 import type { EventSnapshot } from '@/domain/entities/Event'
 import { reportError } from '@/shared/utils/reportError'
@@ -17,14 +18,14 @@ export function ShareListModal({
 }) {
   const { t } = useTranslation()
   const text = useMemo(() => formatShoppingListText(event, t), [event, t])
-  const [copyLabel, setCopyLabel] = useState<string>(t('share.modal.copy'))
+  const [copied, setCopied] = useState(false)
   const canShare = typeof navigator !== 'undefined' && typeof navigator.share === 'function'
 
   async function handleCopy() {
     try {
       await navigator.clipboard.writeText(text)
-      setCopyLabel(`✓ ${t('share.modal.copied')}`)
-      window.setTimeout(() => setCopyLabel(t('share.modal.copy')), 1500)
+      setCopied(true)
+      window.setTimeout(() => setCopied(false), 1500)
     } catch (err) {
       reportError('ShareListModal.copy', err)
     }
@@ -52,7 +53,8 @@ export function ShareListModal({
           </Button>
         )}
         <Button variant="primary" onClick={handleCopy}>
-          {copyLabel}
+          {copied && <IconCheck className="size-4" />}
+          {copied ? t('share.modal.copied') : t('share.modal.copy')}
         </Button>
         <Button variant="secondary" onClick={onClose}>
           {t('share.modal.close')}
