@@ -26,4 +26,12 @@ void i18n
     detection: { order: ['localStorage', 'navigator'], caches: ['localStorage'] },
   })
 
+// The document must declare the language it is actually showing: six locales
+// behind a hardcoded lang attribute is a lie a screen reader reads out loud.
+function syncDocumentLang(lng: string): void {
+  if (typeof document !== 'undefined') document.documentElement.lang = lng
+}
+syncDocumentLang(i18n.language || 'es')
+i18n.on('languageChanged', syncDocumentLang)
+
 export default i18n

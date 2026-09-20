@@ -15,8 +15,7 @@ import { ExpenseForm } from './ExpenseForm'
 import { ExpenseSummary } from './ExpenseSummary'
 import { GeneralSummary } from './GeneralSummary'
 import { ManualLiquidations } from './ManualLiquidations'
-
-const fmt = (cents: number): string => (cents / 100).toFixed(2)
+import { formatMoney } from '@/presentation/utils/money'
 
 export function ExpensesTab() {
   const { t } = useTranslation()
@@ -130,7 +129,7 @@ export function ExpensesTab() {
                   <span className="font-medium text-ink">
                     {e.description} <span className="text-xs text-muted">✎</span>
                   </span>
-                  <span className="text-sm text-ink">€{fmt(e.cents)}</span>
+                  <span className="text-sm text-ink">{formatMoney(e.cents)}</span>
                 </div>
                 <div className="text-xs text-muted">
                   {t('expenses.paidBy', { name: nameOf(e.paidBy) })}
@@ -178,7 +177,7 @@ export function ExpensesTab() {
                 >
                   <span className="text-muted line-through">{e.description}</span>
                   <span className="flex items-center gap-2">
-                    <span className="text-muted line-through">€{fmt(e.cents)}</span>
+                    <span className="text-muted line-through">{formatMoney(e.cents)}</span>
                     <button
                       type="button"
                       onClick={() => recover(e)}

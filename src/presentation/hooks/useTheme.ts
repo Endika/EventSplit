@@ -3,7 +3,7 @@ import { useCallback, useEffect, useState } from 'react'
 export type ThemePref = 'light' | 'dark' | 'system'
 
 const STORAGE_KEY = 'eventsplit:theme'
-const THEME_COLOR = { light: '#fff8f5', dark: '#15110e' }
+const THEME_COLOR = { light: '#f2efe6', dark: '#131210' }
 
 function systemPrefersDark(): boolean {
   if (typeof window === 'undefined') return false
