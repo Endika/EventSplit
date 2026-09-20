@@ -46,6 +46,10 @@ export const UserSchema = z.object({
   // one participant to an adult instead of taking the whole event down in
   // parseEventSnapshot, the same way history[].type stays permissive.
   kind: z.enum(USER_KINDS).catch('adult'),
+  // The adult answerable for a child. Absent on every event written before this
+  // build, so it defaults to null and the child settles for themselves, exactly
+  // as they did then.
+  guardianId: z.string().nullable().catch(null).default(null),
 })
 
 const PurchaseConsumerSchema = z.object({

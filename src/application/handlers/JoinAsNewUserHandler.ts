@@ -3,6 +3,7 @@ import { Event, type EventSnapshot } from '@/domain/entities/Event'
 import { User } from '@/domain/entities/User'
 import type { IEventRepository } from '@/domain/repositories/IEventRepository'
 import { withOptimisticRetry } from '@/application/support/withOptimisticRetry'
+import { assertGuardianIsAnAdultOfTheEvent } from '@/application/support/assertGuardian'
 
 export interface JoinResult {
   event: EventSnapshot
@@ -19,9 +20,11 @@ export class JoinAsNewUserHandler {
       name: parsed.name,
       alias: parsed.alias ?? null,
       kind: parsed.kind,
+      guardianId: parsed.guardianId ?? null,
     })
 
     const saved = await withOptimisticRetry(this.repo, parsed.eventId, (row) => {
+      assertGuardianIsAnAdultOfTheEvent(newUser.guardianId, row.snapshot.users)
       return Event.restore(row.snapshot).addUser(newUser).toSnapshot()
     })
     return {

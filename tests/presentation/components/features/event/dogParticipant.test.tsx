@@ -16,9 +16,15 @@ import { IdentificationModal } from '@/presentation/components/features/identifi
 import type { EventSnapshot } from '@/domain/entities/Event'
 import type { UserSnapshot } from '@/domain/entities/User'
 
-const user = (id: string, name: string, kind: UserSnapshot['kind']): UserSnapshot => ({
+const user = (
+  id: string,
+  name: string,
+  kind: UserSnapshot['kind'],
+  guardianId: string | null = null,
+): UserSnapshot => ({
   id,
   name,
+  guardianId,
   alias: null,
   kind,
   joinedAt: '2026-01-01T00:00:00.000Z',

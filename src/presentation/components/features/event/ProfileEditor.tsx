@@ -13,6 +13,7 @@ import type { UpdateProfileHandler } from '@/application/handlers/UpdateProfileH
 import type { RemoveParticipantHandler } from '@/application/handlers/RemoveParticipantHandler'
 import type { LocalStorageCache } from '@/infrastructure/persistence/LocalStorageCache'
 import type { UserKind } from '@/domain/entities/User'
+import { canBeGuardian } from '@/domain/services/participantRoles'
 import { useWriteGuard } from '@/presentation/context/WriteGuardContext'
 import { reportError } from '@/shared/utils/reportError'
 import { friendlyError } from '@/presentation/utils/friendlyError'
@@ -39,6 +40,7 @@ export function ProfileEditor({ userId, onClose }: { userId?: string; onClose: (
   const [notes, setNotes] = useState(myRow?.notes ?? '')
   const [allergies, setAllergies] = useState<AllergenSnapshot[]>(myRow?.allergies ?? [])
   const [kind, setKind] = useState<UserKind>(myRow?.kind ?? 'adult')
+  const [guardianId, setGuardianId] = useState<string>(myRow?.guardianId ?? '')
 
   const [newAllergen, setNewAllergen] = useState<AllergenName>('gluten')
   const [newSeverity, setNewSeverity] = useState<AllergenSeverity>('mild')
@@ -88,6 +90,7 @@ export function ProfileEditor({ userId, onClose }: { userId?: string; onClose: (
           dietary: dietary.trim() || null,
           notes: notes.trim() || null,
           kind,
+          guardianId: kind === 'child' ? guardianId || null : null,
           allergies,
         })
         setEvent(result.event, result.version)
@@ -182,6 +185,26 @@ export function ProfileEditor({ userId, onClose }: { userId?: string; onClose: (
             {myRow?.kind === 'dog' && <option value="dog">{t('participants.dog')}</option>}
           </select>
         </label>
+        {kind === 'child' && (
+          <label className="block text-sm text-muted">
+            {t('participants.guardian')}
+            <select
+              className="mt-1 block w-full border border-border bg-surface p-2 text-base text-ink sm:text-sm"
+              value={guardianId}
+              onChange={(e) => setGuardianId(e.target.value)}
+              disabled={busy}
+            >
+              <option value="">{t('participants.guardianNone')}</option>
+              {(event?.users ?? [])
+                .filter((u) => canBeGuardian(u.kind) && u.id !== targetUserId)
+                .map((u) => (
+                  <option key={u.id} value={u.id}>
+                    {u.alias ? `${u.name} (${u.alias})` : u.name}
+                  </option>
+                ))}
+            </select>
+          </label>
+        )}
         <Input
           type="email"
           placeholder={t('profile.email')}

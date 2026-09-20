@@ -346,7 +346,8 @@
       "inThis": "{{count}} despesa en què entres",
       "inThis_other": "{{count}} despeses en què entres",
       "paidBy": "ho va pagar {{name}}",
-      "nobodyOwes": "Encara no hi ha res a saldar"
+      "nobodyOwes": "Encara no hi ha res a saldar",
+      "includes": "inclou {{names}}"
     },
     "settledWarnTitle": "Hi ha liquidacions ja marcades com a pagades",
     "settledWarnBody": "Aquesta despesa afecta {{names}}, que ja tenen una transferència marcada com a pagada. Afegir-la canviarà els seus saldos, així que aquesta marca podria deixar de ser correcta. Voleu continuar?",
@@ -372,7 +373,10 @@
     "removeConfirm": "Treure {{name}} d'aquest esdeveniment?",
     "removeWarning": "No es pot desfer.",
     "removeYes": "Sí, treu",
-    "removeCancel": "Cancel·la"
+    "removeCancel": "Cancel·la",
+    "guardian": "A càrrec de",
+    "guardianNone": "Sense assignar",
+    "guardianOf": "a càrrec de {{name}}"
   },
   "stage": {
     "title": "Fase",

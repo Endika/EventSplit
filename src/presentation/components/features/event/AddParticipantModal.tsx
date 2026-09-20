@@ -5,6 +5,7 @@ import { useEventState } from '@/presentation/context/EventContext'
 import { useWriteGuard } from '@/presentation/context/WriteGuardContext'
 import type { JoinAsNewUserHandler } from '@/application/handlers/JoinAsNewUserHandler'
 import type { UserKind } from '@/domain/entities/User'
+import { canBeGuardian } from '@/domain/services/participantRoles'
 import { Modal } from '@/presentation/components/common/Modal'
 import { Button } from '@/presentation/components/common/Button'
 import { Input } from '@/presentation/components/common/Input'
@@ -18,6 +19,7 @@ export function AddParticipantModal({ onClose }: { onClose: () => void }) {
   const [name, setName] = useState('')
   const [alias, setAlias] = useState('')
   const [kind, setKind] = useState<UserKind>('adult')
+  const [guardianId, setGuardianId] = useState<string>('')
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState<{ name: string; message: string } | null>(null)
 
@@ -37,6 +39,7 @@ export function AddParticipantModal({ onClose }: { onClose: () => void }) {
             name: name.trim(),
             alias: alias.trim() || null,
             kind,
+            guardianId: kind === 'child' ? guardianId || null : null,
           })
           setEvent(result.event, result.version)
           onClose()
@@ -92,6 +95,26 @@ export function AddParticipantModal({ onClose }: { onClose: () => void }) {
             <option value="dog">{t('participants.dog')}</option>
           </select>
         </label>
+        {kind === 'child' && (
+          <label className="block text-sm text-muted">
+            {t('participants.guardian')}
+            <select
+              className="mt-1 block w-full border border-border bg-surface p-2 text-base text-ink sm:text-sm"
+              value={guardianId}
+              onChange={(e) => setGuardianId(e.target.value)}
+              disabled={busy}
+            >
+              <option value="">{t('participants.guardianNone')}</option>
+              {event.users
+                .filter((u) => canBeGuardian(u.kind))
+                .map((u) => (
+                  <option key={u.id} value={u.id}>
+                    {u.alias ? `${u.name} (${u.alias})` : u.name}
+                  </option>
+                ))}
+            </select>
+          </label>
+        )}
         {error && (
           <div className="space-y-1 rounded border border-danger bg-danger-soft p-2 text-xs">
             <div className="font-semibold text-danger-soft-fg">{error.name}</div>

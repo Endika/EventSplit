@@ -346,7 +346,8 @@
       "inThis": "Zeu zauden gastu {{count}}",
       "inThis_other": "Zeu zauden {{count}} gastu",
       "paidBy": "{{name}}(e)k ordaindua",
-      "nobodyOwes": "Oraindik ez dago zer kitaturik"
+      "nobodyOwes": "Oraindik ez dago zer kitaturik",
+      "includes": "{{names}} barne"
     },
     "settledWarnTitle": "Badira jada ordaindutzat markatutako likidazioak",
     "settledWarnBody": "Gastu honek {{names}} ukitzen ditu, eta jada transferentzia bat ordaindutzat markatuta dute. Gehitzeak haien saldoak aldatuko ditu, beraz marka hori ez da zuzena izango. Jarraitu?",
@@ -372,7 +373,10 @@
     "removeConfirm": "Kendu {{name}} ekitalditik?",
     "removeWarning": "Ezin da desegin.",
     "removeYes": "Bai, kendu",
-    "removeCancel": "Utzi"
+    "removeCancel": "Utzi",
+    "guardian": "Noren ardurapean",
+    "guardianNone": "Esleitu gabe",
+    "guardianOf": "{{name}}(r)en ardurapean"
   },
   "stage": {
     "title": "Fasea",

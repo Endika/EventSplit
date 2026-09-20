@@ -16,6 +16,12 @@ export interface UserSnapshot {
   dietary: string | null
   notes: string | null
   kind: UserKind
+  /**
+   * The adult answerable for a child. A minor consumes, so they keep a balance
+   * of their own, but nobody settles up with a child: their debt is carried by
+   * this adult. Null on adults, on dogs, and on children nobody has assigned yet.
+   */
+  guardianId: string | null
 }
 
 export interface ProfileUpdate {
@@ -27,6 +33,7 @@ export interface ProfileUpdate {
   dietary?: string | null
   notes?: string | null
   kind?: UserKind
+  guardianId?: string | null
 }
 
 export class User {
@@ -41,9 +48,15 @@ export class User {
     readonly dietary: string | null,
     readonly notes: string | null,
     readonly kind: UserKind,
+    readonly guardianId: string | null,
   ) {}
 
-  static create(input: { name: string; alias?: string | null; kind?: UserKind }): User {
+  static create(input: {
+    name: string
+    alias?: string | null
+    kind?: UserKind
+    guardianId?: string | null
+  }): User {
     const name = input.name.trim()
     if (name.length < 2 || name.length > 50) throw new Error('User: name must be 2..50 chars')
     const aliasRaw = input.alias?.trim() ?? ''
@@ -51,6 +64,7 @@ export class User {
     const alias = aliasRaw === '' ? null : aliasRaw
     const kind = input.kind ?? 'adult'
     if (!USER_KINDS.includes(kind)) throw new Error(`User: invalid kind "${kind}"`)
+    const guardianId = kind === 'child' ? (input.guardianId ?? null) : null
     return new User(
       UserId.generate(),
       name,
@@ -62,13 +76,17 @@ export class User {
       null,
       null,
       kind,
+      guardianId,
     )
   }
 
   static restore(
     s:
       | UserSnapshot
-      | Omit<UserSnapshot, 'email' | 'phone' | 'allergies' | 'dietary' | 'notes' | 'kind'>,
+      | Omit<
+          UserSnapshot,
+          'email' | 'phone' | 'allergies' | 'dietary' | 'notes' | 'kind' | 'guardianId'
+        >,
   ): User {
     const full = s as UserSnapshot
     return new User(
@@ -82,6 +100,7 @@ export class User {
       full.dietary ?? null,
       full.notes ?? null,
       full.kind ?? 'adult',
+      full.guardianId ?? null,
     )
   }
 
@@ -115,6 +134,13 @@ export class User {
     const kind = update.kind === undefined ? this.kind : update.kind
     if (!USER_KINDS.includes(kind)) throw new Error(`User: invalid kind "${kind}"`)
 
+    const requested = update.guardianId === undefined ? this.guardianId : update.guardianId
+    // Only a child has one: stop being a child and the link goes with it, so a
+    // former child can never leave a dangling guardian behind.
+    const guardianId = kind === 'child' ? requested : null
+    if (guardianId !== null && guardianId === this.id.value)
+      throw new Error('User: guardian cannot be the child themselves')
+
     return new User(
       this.id,
       name,
@@ -126,6 +152,7 @@ export class User {
       dietary,
       notes,
       kind,
+      guardianId,
     )
   }
 
@@ -145,6 +172,7 @@ export class User {
       dietary: this.dietary,
       notes: this.notes,
       kind: this.kind,
+      guardianId: this.guardianId,
     }
   }
 }

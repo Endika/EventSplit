@@ -2,6 +2,14 @@ import { Money } from '@/domain/value-objects/Money'
 
 export interface SplitterInput {
   participantIds: string[]
+  /**
+   * childId -> the adult answerable for them. A minor consumes and keeps a
+   * balance of its own, but nobody settles up with a child: their balance is
+   * carried by this adult before the transfers are worked out. Entries pointing
+   * at somebody who is not a participant are ignored, so a stale link degrades
+   * to the old behaviour instead of losing the money.
+   */
+  guardianOf?: Record<string, string>
   expenses: {
     paidBy: string
     amount: Money
@@ -75,12 +83,28 @@ export const ExpenseSplitter = {
       balanceCents: (spent.get(id) ?? 0) - (owed.get(id) ?? 0),
     }))
 
+    // Settlement runs over adults: a child's balance is carried by whoever is
+    // answerable for them, so the transfer list never asks a minor to pay.
+    const carriedBy = (id: string): string => {
+      const guardian = input.guardianOf?.[id]
+      return guardian && guardian !== id && input.participantIds.includes(guardian) ? guardian : id
+    }
+    const settlement = new Map<string, number>()
+    for (const b of balances) {
+      const holder = carriedBy(b.userId)
+      settlement.set(holder, (settlement.get(holder) ?? 0) + b.balanceCents)
+    }
+    const settlementBalances = [...settlement].map(([userId, balanceCents]) => ({
+      userId,
+      balanceCents,
+    }))
+
     // Greedy settlement: largest debtor pays largest creditor
-    const debtors = balances
+    const debtors = settlementBalances
       .filter((b) => b.balanceCents < 0)
       .map((b) => ({ id: b.userId, owe: -b.balanceCents }))
       .sort((a, b) => b.owe - a.owe)
-    const creditors = balances
+    const creditors = settlementBalances
       .filter((b) => b.balanceCents > 0)
       .map((b) => ({ id: b.userId, get: b.balanceCents }))
       .sort((a, b) => b.get - a.get)

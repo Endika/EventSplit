@@ -6,6 +6,7 @@ export const JoinAsNewUserSchema = z.object({
   name: z.string().trim().min(2).max(50),
   alias: z.string().trim().max(50).optional().nullable(),
   kind: z.enum(USER_KINDS).optional(),
+  guardianId: z.string().nullable().optional(),
 })
 
 export type JoinAsNewUserInput = z.infer<typeof JoinAsNewUserSchema>

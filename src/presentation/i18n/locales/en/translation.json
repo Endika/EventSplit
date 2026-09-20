@@ -346,7 +346,8 @@
       "inThis": "{{count}} expense you are in",
       "inThis_other": "{{count}} expenses you are in",
       "paidBy": "paid by {{name}}",
-      "nobodyOwes": "Nothing to settle yet"
+      "nobodyOwes": "Nothing to settle yet",
+      "includes": "includes {{names}}"
     },
     "settledWarnTitle": "Some settlements are already marked paid",
     "settledWarnBody": "This expense affects {{names}}, who already have a transfer marked as paid. Adding it will change their balances, so that mark may no longer be correct. Continue?",
@@ -372,7 +373,10 @@
     "removeConfirm": "Remove {{name}} from this event?",
     "removeWarning": "This cannot be undone.",
     "removeYes": "Yes, remove",
-    "removeCancel": "Cancel"
+    "removeCancel": "Cancel",
+    "guardian": "In the charge of",
+    "guardianNone": "Not assigned",
+    "guardianOf": "in {{name}}'s charge"
   },
   "stage": {
     "title": "Stage",

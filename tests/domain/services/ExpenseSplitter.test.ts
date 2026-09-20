@@ -168,3 +168,36 @@ describe('ExpenseSplitter', () => {
     expect(byId.b).toBe(-500)
   })
 })
+
+describe('ExpenseSplitter with a guardian', () => {
+  // Ane pays 30,00 for the three of them. Nora is a child in Iker's charge, so
+  // the 10,00 Nora owes must be asked of Iker, never of Nora.
+  const base = {
+    participantIds: ['iker', 'ane', 'nora'],
+    expenses: [{ paidBy: 'ane', amount: Money.fromCents(3000), splitAmong: [] }],
+  }
+
+  it('asks the guardian, not the child', () => {
+    const r = ExpenseSplitter.compute({ ...base, guardianOf: { nora: 'iker' } })
+    expect(r.transfers).toEqual([{ from: 'iker', to: 'ane', cents: 2000 }])
+    // The child keeps a balance of her own: what she consumed stays visible.
+    expect(r.balances.find((b) => b.userId === 'nora')!.balanceCents).toBe(-1000)
+  })
+
+  it('leaves a child with no guardian settling for themselves', () => {
+    const r = ExpenseSplitter.compute(base)
+    expect(r.transfers.map((t) => t.from).sort()).toEqual(['iker', 'nora'])
+  })
+
+  it('ignores a guardian who is not in the split', () => {
+    const r = ExpenseSplitter.compute({ ...base, guardianOf: { nora: 'ghost' } })
+    expect(r.transfers.map((t) => t.from).sort()).toEqual(['iker', 'nora'])
+  })
+
+  it('never lets the transfers disagree with the balances', () => {
+    const r = ExpenseSplitter.compute({ ...base, guardianOf: { nora: 'iker' } })
+    const moved = r.transfers.reduce((n, t) => n + t.cents, 0)
+    const owed = r.balances.reduce((n, b) => n + Math.min(0, b.balanceCents), 0)
+    expect(moved).toBe(-owed)
+  })
+})
