@@ -2,7 +2,7 @@ import type { AllergenSnapshot } from '@/domain/value-objects/Allergen'
 import { Allergen } from '@/domain/value-objects/Allergen'
 import { UserId } from '@/domain/value-objects/UserId'
 
-export const USER_KINDS = ['adult', 'child'] as const
+export const USER_KINDS = ['adult', 'child', 'dog'] as const
 export type UserKind = (typeof USER_KINDS)[number]
 
 export interface UserSnapshot {
