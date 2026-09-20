@@ -94,12 +94,14 @@ export function ExpenseSummary() {
     return guardianId ? nameOf(guardianId) : ''
   }
 
-  const toneOf = (cents: number) =>
-    cents > 0 ? 'text-pos' : cents < 0 ? 'text-warn' : 'text-muted'
+  // One ink, by decision: the sign and the fine print carry the meaning. This
+  // deliberately overrides the pos/warn semantic pair for this surface — green
+  // and red balances at display scale are the convention this world refuses.
+  const toneOf = (cents: number) => (cents === 0 ? 'text-muted' : 'text-ink')
 
   return (
     <div className="space-y-6">
-      <section className="border border-border bg-surface px-4 pb-4 pt-5">
+      <section className="-mx-4 border-y-2 border-rail bg-surface px-4 pb-4 pt-5 md:mx-0">
         {mine ? (
           <>
             <button
@@ -108,7 +110,7 @@ export function ExpenseSummary() {
               aria-expanded={unfolded}
               className="block w-full text-left"
             >
-              <span className={`price block text-[clamp(3.5rem,19vw,6rem)] ${toneOf(myCarried)}`}>
+              <span className={`price block text-[clamp(4.5rem,24vw,7rem)] ${toneOf(myCarried)}`}>
                 {formatSignedMoney(myCarried)}
               </span>
               <span className="fineprint mt-2 block">

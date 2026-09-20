@@ -93,6 +93,7 @@ export function ExpensesTab() {
 
   return (
     <div className="space-y-4">
+      {visible.length > 0 && !adding && !editing && <ExpenseSummary />}
       {!adding && !editing && <Button onClick={() => setAdding(true)}>{t('expenses.add')}</Button>}
       {adding && (
         <ExpenseForm
@@ -163,7 +164,6 @@ export function ExpensesTab() {
           </li>
         ))}
       </ul>
-      {visible.length > 0 && <ExpenseSummary />}
       <ManualLiquidations />
       <GeneralSummary />
       {deleted.length > 0 && (
