@@ -6,6 +6,7 @@ import { useCurrentUser } from '@/presentation/context/UserContext'
 import { useWriteGuard } from '@/presentation/context/WriteGuardContext'
 import { Button } from '@/presentation/components/common/Button'
 import { ManualLiquidationSplitter } from '@/domain/services/ManualLiquidationSplitter'
+import { payingUsers } from '@/domain/services/participantRoles'
 import type { AddManualLiquidationHandler } from '@/application/handlers/AddManualLiquidationHandler'
 import type { EditManualLiquidationHandler } from '@/application/handlers/EditManualLiquidationHandler'
 import type { DeleteManualLiquidationHandler } from '@/application/handlers/DeleteManualLiquidationHandler'
@@ -175,7 +176,7 @@ export function ManualLiquidations() {
             onChange={(e) => setPaidBy(e.target.value)}
           >
             <option value="">{t('liquidations.noPayer')}</option>
-            {event.users.map((u) => (
+            {payingUsers(event.users).map((u) => (
               <option key={u.id} value={u.id}>
                 {u.name}
               </option>
@@ -183,7 +184,7 @@ export function ManualLiquidations() {
           </select>
           <label className="block text-xs text-muted">{t('liquidations.affects')}</label>
           <div className="flex flex-wrap gap-2">
-            {event.users.map((u) => (
+            {payingUsers(event.users).map((u) => (
               <button
                 key={u.id}
                 type="button"
@@ -213,7 +214,7 @@ export function ManualLiquidations() {
         {live.map((liq) => {
           const view = ManualLiquidationSplitter.compute(
             liq,
-            event.users.map((u) => u.id),
+            payingUsers(event.users).map((u) => u.id),
           )
           const isPending = liq.paidBy === null
           const perPersonCents = view.shares[0]?.cents ?? 0
