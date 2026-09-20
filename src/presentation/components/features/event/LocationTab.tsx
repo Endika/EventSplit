@@ -14,6 +14,7 @@ import { Button } from '@/presentation/components/common/Button'
 import { reportError } from '@/shared/utils/reportError'
 import { friendlyError } from '@/presentation/utils/friendlyError'
 import { Input } from '@/presentation/components/common/Input'
+import { IconLock } from '@/presentation/components/common/icons'
 import { CloneFromEventModal } from '@/presentation/components/features/clone/CloneFromEventModal'
 import { AddressAutocomplete } from './AddressAutocomplete'
 import { MapEmbed } from './MapEmbed'
@@ -336,8 +337,9 @@ export function LocationTab() {
       )}
 
       <div className="space-y-3 rounded-xl border border-border bg-surface p-4">
-        <h2 className="text-sm font-semibold uppercase tracking-wide text-muted">
-          🔒 {t('pin.manageTitle')}
+        <h2 className="flex items-center gap-2 text-sm font-semibold uppercase tracking-wide text-muted">
+          <IconLock className="size-4" />
+          {t('pin.manageTitle')}
         </h2>
         {!hasPin ? (
           <>

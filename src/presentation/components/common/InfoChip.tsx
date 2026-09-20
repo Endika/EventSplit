@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, type ReactNode } from 'react'
 
 type Tone = 'slate' | 'amber' | 'rose'
 
@@ -17,7 +17,7 @@ export function InfoChip({
   label,
   tone = 'slate',
 }: {
-  icon: string
+  icon: ReactNode
   label: string
   tone?: Tone
 }) {
@@ -29,7 +29,7 @@ export function InfoChip({
         title={label}
         aria-label={label}
         onClick={() => setOpen((v) => !v)}
-        className={`text-sm leading-none ${TONES[tone]} hover:opacity-80`}
+        className={`flex size-11 items-center justify-center leading-none ${TONES[tone]} hover:opacity-80`}
       >
         {icon}
       </button>

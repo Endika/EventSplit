@@ -8,6 +8,14 @@ import { Button } from '@/presentation/components/common/Button'
 import { Input } from '@/presentation/components/common/Input'
 import { Modal } from '@/presentation/components/common/Modal'
 import { YouLabel } from '@/presentation/components/common/YouLabel'
+import {
+  IconChevron,
+  IconHome,
+  IconPencil,
+  IconShare,
+  IconTrash,
+  IconUndo,
+} from '@/presentation/components/common/icons'
 import type { PurchaseSnapshot } from '@/domain/entities/Purchase'
 import type { AssignPurchaseHandler } from '@/application/handlers/AssignPurchaseHandler'
 import type { DeletePurchaseHandler } from '@/application/handlers/DeletePurchaseHandler'
@@ -294,8 +302,10 @@ export function PurchasesTab() {
                   aria-label={t('purchases.edit')}
                 >
                   <div className={`font-medium ${struck ? 'text-muted line-through' : 'text-ink'}`}>
-                    {p.kind === 'bring' && <span title={t('purchases.form.modeBring')}>🏠 </span>}
-                    {p.item} <span className="text-xs text-muted">✎</span>
+                    {p.kind === 'bring' && (
+                      <IconHome className="mr-1 inline size-4 align-[-0.2em]" />
+                    )}
+                    {p.item} <IconPencil className="inline size-3.5 align-[-0.2em] text-muted" />
                   </div>
                   <div className="text-sm text-muted">
                     {t(p.kind === 'bring' ? 'purchases.totalToBring' : 'purchases.totalQuantity', {
@@ -311,11 +321,11 @@ export function PurchasesTab() {
                 <button
                   type="button"
                   onClick={() => askDelete(p)}
-                  className="inline-flex min-h-11 min-w-11 items-center justify-center rounded text-xs text-muted hover:bg-elevated hover:text-danger"
+                  className="inline-flex min-h-11 min-w-11 items-center justify-center text-muted hover:bg-elevated hover:text-danger"
                   aria-label={t('purchases.delete')}
                   title={t('purchases.delete')}
                 >
-                  🗑️
+                  <IconTrash className="size-4" />
                 </button>
               </div>
               <div className="mt-2 flex flex-wrap items-center gap-2 border-t border-border pt-2 text-xs">
@@ -405,7 +415,8 @@ export function PurchasesTab() {
           <Button onClick={() => setAdding(true)}>{t('purchases.add')}</Button>
           {visible.length > 0 && (
             <Button variant="secondary" onClick={() => setSharing(true)}>
-              📤 {t('share.button')}
+              <IconShare className="size-4" />
+              {t('share.button')}
             </Button>
           )}
           {hasMine && (
@@ -453,7 +464,10 @@ export function PurchasesTab() {
                 className="flex flex-1 items-center gap-1.5 rounded-lg py-2 text-left text-xs font-semibold uppercase tracking-wide text-brand hover:bg-elevated/50"
                 aria-label={t('purchases.toggleGroup')}
               >
-                <span className="text-sm text-muted">{collapsed.has(group) ? '▸' : '▾'}</span>
+                <IconChevron
+                  dir={collapsed.has(group) ? 'right' : 'down'}
+                  className="size-3.5 text-muted"
+                />
                 {group} <span className="text-muted">({items.length})</span>
               </button>
               <button
@@ -462,7 +476,7 @@ export function PurchasesTab() {
                 className="flex size-11 items-center justify-center rounded-lg text-base text-muted hover:bg-elevated hover:text-ink"
                 aria-label={t('purchases.moveUp')}
               >
-                ↑
+                <IconChevron dir="up" className="size-4" />
               </button>
               <button
                 type="button"
@@ -470,7 +484,7 @@ export function PurchasesTab() {
                 className="flex size-11 items-center justify-center rounded-lg text-base text-muted hover:bg-elevated hover:text-ink"
                 aria-label={t('purchases.moveDown')}
               >
-                ↓
+                <IconChevron dir="down" className="size-4" />
               </button>
               <button
                 type="button"
@@ -481,7 +495,7 @@ export function PurchasesTab() {
                 className="flex size-11 items-center justify-center rounded-lg text-base text-muted hover:bg-elevated hover:text-ink"
                 aria-label={t('purchases.renameGroup')}
               >
-                ✎
+                <IconPencil className="size-4" />
               </button>
             </div>
           )}
@@ -492,7 +506,10 @@ export function PurchasesTab() {
               className="flex w-full items-center gap-1.5 rounded-lg px-1 py-2 text-left text-xs font-semibold uppercase tracking-wide text-brand hover:bg-elevated/50"
               aria-label={t('purchases.toggleGroup')}
             >
-              <span className="text-sm text-muted">{collapsed.has(group) ? '▸' : '▾'}</span>
+              <IconChevron
+                dir={collapsed.has(group) ? 'right' : 'down'}
+                className="size-3.5 text-muted"
+              />
               {t('purchases.noGroup')} <span className="text-muted">({items.length})</span>
             </button>
           )}
@@ -511,9 +528,10 @@ export function PurchasesTab() {
                         className="flex flex-1 items-center gap-1.5 rounded-lg py-1.5 text-left text-[0.7rem] font-semibold uppercase tracking-wide text-brand hover:bg-elevated/50"
                         aria-label={t('purchases.toggleSubgroup')}
                       >
-                        <span className="text-xs text-muted">
-                          {collapsed.has(subCollapseKey(group, subgroup)) ? '▸' : '▾'}
-                        </span>
+                        <IconChevron
+                          dir={collapsed.has(subCollapseKey(group, subgroup)) ? 'right' : 'down'}
+                          className="size-3 text-muted"
+                        />
                         {subgroup} <span className="text-muted">({subItems.length})</span>
                       </button>
                       <button
@@ -522,7 +540,7 @@ export function PurchasesTab() {
                         className="flex size-11 items-center justify-center rounded-lg text-sm text-muted hover:bg-elevated hover:text-ink"
                         aria-label={t('purchases.moveSubgroupUp')}
                       >
-                        ↑
+                        <IconChevron dir="up" className="size-3.5" />
                       </button>
                       <button
                         type="button"
@@ -530,7 +548,7 @@ export function PurchasesTab() {
                         className="flex size-11 items-center justify-center rounded-lg text-sm text-muted hover:bg-elevated hover:text-ink"
                         aria-label={t('purchases.moveSubgroupDown')}
                       >
-                        ↓
+                        <IconChevron dir="down" className="size-3.5" />
                       </button>
                       <button
                         type="button"
@@ -541,7 +559,7 @@ export function PurchasesTab() {
                         className="flex size-11 items-center justify-center rounded-lg text-sm text-muted hover:bg-elevated hover:text-ink"
                         aria-label={t('purchases.renameSubgroup')}
                       >
-                        ✎
+                        <IconPencil className="size-3.5" />
                       </button>
                     </div>
                     {!collapsed.has(subCollapseKey(group, subgroup)) && (
@@ -561,7 +579,8 @@ export function PurchasesTab() {
             onClick={() => setShowDeleted((v) => !v)}
             className="inline-flex min-h-11 items-center text-xs text-muted hover:text-ink"
           >
-            {showDeleted ? '▾' : '▸'} {t('purchases.showDeleted', { count: deleted.length })}
+            <IconChevron dir={showDeleted ? 'down' : 'right'} className="mr-1.5 size-3.5" />
+            {t('purchases.showDeleted', { count: deleted.length })}
           </button>
           {showDeleted && (
             <ul className="mt-2 space-y-2">
@@ -576,7 +595,8 @@ export function PurchasesTab() {
                     onClick={() => recover(p)}
                     className="inline-flex min-h-11 items-center rounded px-2 py-1 text-xs text-brand hover:bg-elevated"
                   >
-                    ↺ {t('purchases.restore')}
+                    <IconUndo className="mr-1.5 size-3.5" />
+                    {t('purchases.restore')}
                   </button>
                 </li>
               ))}

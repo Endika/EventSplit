@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { ERROR_EVENT, type ReportedError } from '@/shared/utils/reportError'
+import { IconClose } from '@/presentation/components/common/icons'
 
 export function ErrorBanner() {
   const { t } = useTranslation()
@@ -44,9 +45,9 @@ export function ErrorBanner() {
           type="button"
           onClick={() => setError(null)}
           aria-label={t('errorBanner.dismiss')}
-          className="rounded px-2 py-0.5 text-danger hover:bg-elevated hover:text-ink"
+          className="-my-1 -mr-1 flex size-11 shrink-0 items-center justify-center text-danger hover:bg-elevated hover:text-ink"
         >
-          ✕
+          <IconClose className="size-4" />
         </button>
       </div>
       <div className="break-all text-danger-soft-fg">

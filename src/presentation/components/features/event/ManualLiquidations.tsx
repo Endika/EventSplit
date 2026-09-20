@@ -5,6 +5,12 @@ import { useContainer } from '@/presentation/context/ContainerProvider'
 import { useCurrentUser } from '@/presentation/context/UserContext'
 import { useWriteGuard } from '@/presentation/context/WriteGuardContext'
 import { Button } from '@/presentation/components/common/Button'
+import {
+  IconChevron,
+  IconPencil,
+  IconTrash,
+  IconUndo,
+} from '@/presentation/components/common/icons'
 import { ManualLiquidationSplitter } from '@/domain/services/ManualLiquidationSplitter'
 import { payingUsers } from '@/domain/services/participantRoles'
 import type { AddManualLiquidationHandler } from '@/application/handlers/AddManualLiquidationHandler'
@@ -235,18 +241,18 @@ export function ManualLiquidations() {
                   <button
                     type="button"
                     onClick={() => openEdit(liq)}
-                    className="inline-flex min-h-11 min-w-11 items-center justify-center rounded text-xs text-muted hover:text-ink"
+                    className="inline-flex min-h-11 min-w-11 items-center justify-center text-muted hover:text-ink"
                     aria-label={t('liquidations.edit')}
                   >
-                    ✎
+                    <IconPencil className="size-4" />
                   </button>
                   <button
                     type="button"
                     onClick={() => remove(liq.id)}
-                    className="inline-flex min-h-11 min-w-11 items-center justify-center rounded text-xs text-muted hover:text-danger"
+                    className="inline-flex min-h-11 min-w-11 items-center justify-center text-muted hover:text-danger"
                     aria-label={t('liquidations.delete')}
                   >
-                    🗑️
+                    <IconTrash className="size-4" />
                   </button>
                 </div>
               </div>
@@ -281,7 +287,8 @@ export function ManualLiquidations() {
             onClick={() => setShowDeleted((v) => !v)}
             className="inline-flex min-h-11 items-center text-xs text-muted hover:text-ink"
           >
-            {showDeleted ? '▾' : '▸'} {t('liquidations.showDeleted', { count: deleted.length })}
+            <IconChevron dir={showDeleted ? 'down' : 'right'} className="mr-1.5 size-3.5" />
+            {t('liquidations.showDeleted', { count: deleted.length })}
           </button>
           {showDeleted && (
             <ul className="mt-2 space-y-2">
@@ -298,7 +305,8 @@ export function ManualLiquidations() {
                     onClick={() => recover(liq.id)}
                     className="inline-flex min-h-11 items-center rounded px-2 py-1 text-xs text-brand hover:bg-elevated"
                   >
-                    ↺ {t('liquidations.restore')}
+                    <IconUndo className="mr-1.5 size-3.5" />
+                    {t('liquidations.restore')}
                   </button>
                 </li>
               ))}

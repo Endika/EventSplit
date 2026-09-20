@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Button } from '@/presentation/components/common/Button'
+import { IconClose } from '@/presentation/components/common/icons'
 
 interface BeforeInstallPromptEvent extends Event {
   prompt: () => Promise<void>
@@ -69,9 +70,9 @@ export function InstallPrompt() {
           type="button"
           onClick={dismiss}
           aria-label={t('install.dismiss')}
-          className="rounded px-2 py-1 text-brand-soft-fg/70 hover:bg-brand/10"
+          className="flex size-11 shrink-0 items-center justify-center text-brand-soft-fg/70 hover:bg-brand/10"
         >
-          ✕
+          <IconClose className="size-4" />
         </button>
       </div>
     )
@@ -90,9 +91,9 @@ export function InstallPrompt() {
           type="button"
           onClick={dismiss}
           aria-label={t('install.dismiss')}
-          className="rounded px-2 py-1 text-muted hover:bg-surface"
+          className="flex size-11 shrink-0 items-center justify-center text-muted hover:bg-surface"
         >
-          ✕
+          <IconClose className="size-4" />
         </button>
       </div>
     )

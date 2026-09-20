@@ -119,7 +119,11 @@ describe('ShareListModal', () => {
   it('calls onClose when Close is clicked', () => {
     const onClose = vi.fn()
     render(<ShareListModal open event={makeEvent()} onClose={onClose} />)
-    fireEvent.click(screen.getByRole('button', { name: /Close|Cerrar|Itxi|Tancar|Pechar/i }))
+    // The dialog chrome now carries a close button of its own, so both the
+    // header one and the body one answer to this name. Either must close it.
+    const closers = screen.getAllByRole('button', { name: /Close|Cerrar|Itxi|Tancar|Pechar/i })
+    expect(closers).toHaveLength(2)
+    fireEvent.click(closers[closers.length - 1]!)
     expect(onClose).toHaveBeenCalled()
   })
 })

@@ -4,6 +4,7 @@ import { useEventState } from '@/presentation/context/EventContext'
 import { useCurrentUser } from '@/presentation/context/UserContext'
 import { YouLabel } from '@/presentation/components/common/YouLabel'
 import { Button } from '@/presentation/components/common/Button'
+import { IconDog, IconPencil, IconPlus } from '@/presentation/components/common/icons'
 import { ProfileEditor } from './ProfileEditor'
 import { AddParticipantModal } from './AddParticipantModal'
 
@@ -19,7 +20,8 @@ export function ParticipantsTab() {
     <>
       <div className="mb-3 flex justify-end">
         <Button variant="secondary" onClick={() => setAdding(true)}>
-          + {t('participants.add')}
+          <IconPlus className="size-4" />
+          {t('participants.add')}
         </Button>
       </div>
       <ul className="divide-y divide-border rounded-xl border border-border bg-surface">
@@ -32,7 +34,7 @@ export function ParticipantsTab() {
           const kindBadge =
             u.kind === 'adult' ? null : (
               <span className="ml-2 inline-flex shrink-0 items-center rounded-full bg-elevated px-2 py-0.5 text-xs font-medium text-ink ring-1 ring-border">
-                {u.kind === 'dog' && <span aria-hidden="true">🐕&nbsp;</span>}
+                {u.kind === 'dog' && <IconDog className="mr-1 size-3.5" />}
                 {t(u.kind === 'dog' ? 'participants.dog' : 'participants.child')}
               </span>
             )
@@ -48,7 +50,7 @@ export function ParticipantsTab() {
                   <YouLabel userId={u.id} />
                   {kindBadge}
                 </span>
-                <span className="ml-2 shrink-0 text-xs text-muted">✎</span>
+                <IconPencil className="ml-2 size-4 shrink-0 text-muted" />
               </button>
             </li>
           )

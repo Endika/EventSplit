@@ -6,6 +6,12 @@ import { useCurrentUser } from '@/presentation/context/UserContext'
 import { useWriteGuard } from '@/presentation/context/WriteGuardContext'
 import { Button } from '@/presentation/components/common/Button'
 import { Modal } from '@/presentation/components/common/Modal'
+import {
+  IconChevron,
+  IconPencil,
+  IconTrash,
+  IconUndo,
+} from '@/presentation/components/common/icons'
 import { YouLabel } from '@/presentation/components/common/YouLabel'
 import type { ExpenseSnapshot } from '@/domain/entities/Expense'
 import type { DeleteExpenseHandler } from '@/application/handlers/DeleteExpenseHandler'
@@ -126,8 +132,9 @@ export function ExpensesTab() {
                 aria-label={t('expenses.edit')}
               >
                 <div className="flex items-center justify-between gap-2">
-                  <span className="font-medium text-ink">
-                    {e.description} <span className="text-xs text-muted">✎</span>
+                  <span className="inline-flex items-center gap-1.5 font-medium text-ink">
+                    {e.description}
+                    <IconPencil className="size-3.5 shrink-0 text-muted" />
                   </span>
                   <span className="text-sm text-ink">{formatMoney(e.cents)}</span>
                 </div>
@@ -146,11 +153,11 @@ export function ExpensesTab() {
               <button
                 type="button"
                 onClick={() => setDeleting(e)}
-                className="inline-flex min-h-11 min-w-11 items-center justify-center rounded text-xs text-muted hover:bg-elevated hover:text-danger"
+                className="inline-flex min-h-11 min-w-11 items-center justify-center text-muted hover:bg-elevated hover:text-danger"
                 aria-label={t('expenses.delete')}
                 title={t('expenses.delete')}
               >
-                🗑️
+                <IconTrash className="size-4" />
               </button>
             </div>
           </li>
@@ -166,7 +173,8 @@ export function ExpensesTab() {
             onClick={() => setShowDeleted((v) => !v)}
             className="inline-flex min-h-11 items-center text-xs text-muted hover:text-ink"
           >
-            {showDeleted ? '▾' : '▸'} {t('expenses.showDeleted', { count: deleted.length })}
+            <IconChevron dir={showDeleted ? 'down' : 'right'} className="mr-1.5 size-3.5" />
+            {t('expenses.showDeleted', { count: deleted.length })}
           </button>
           {showDeleted && (
             <ul className="mt-2 space-y-2">
@@ -183,7 +191,8 @@ export function ExpensesTab() {
                       onClick={() => recover(e)}
                       className="inline-flex min-h-11 items-center rounded px-2 py-1 text-xs text-brand hover:bg-elevated"
                     >
-                      ↺ {t('expenses.restore')}
+                      <IconUndo className="mr-1.5 size-3.5" />
+                      {t('expenses.restore')}
                     </button>
                   </span>
                 </li>

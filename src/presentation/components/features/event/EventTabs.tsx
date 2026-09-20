@@ -1,7 +1,20 @@
-import { lazy, Suspense, useRef, useState } from 'react'
+import { lazy, Suspense, useRef, useState, type ComponentType } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useEventState } from '@/presentation/context/EventContext'
 import { StageSelector } from './StageSelector'
+import {
+  IconCalendar,
+  IconCart,
+  IconChevron,
+  IconClose,
+  IconHistory,
+  IconHome,
+  IconLocation,
+  IconMoney,
+  IconShare,
+  IconUsers,
+  type IconProps,
+} from '@/presentation/components/common/icons'
 
 const ParticipantsTab = lazy(() =>
   import('./ParticipantsTab').then((m) => ({ default: m.ParticipantsTab })),
@@ -23,13 +36,13 @@ function defaultTabForStage(stage: string | undefined): Tab {
   return 'participants'
 }
 
-const TAB_ICONS: Record<Tab, string> = {
-  participants: '👥',
-  availability: '📅',
-  location: '📍',
-  purchases: '🛒',
-  expenses: '💰',
-  history: '📜',
+const TAB_ICONS: Record<Tab, ComponentType<IconProps>> = {
+  participants: IconUsers,
+  availability: IconCalendar,
+  location: IconLocation,
+  purchases: IconCart,
+  expenses: IconMoney,
+  history: IconHistory,
 }
 
 export function EventTabs() {
@@ -153,23 +166,7 @@ export function EventTabs() {
           title={t('event.share')}
           className="rounded-xl p-2 text-ink hover:bg-elevated"
         >
-          <svg
-            width="20"
-            height="20"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            aria-hidden="true"
-          >
-            <circle cx="18" cy="5" r="3" />
-            <circle cx="6" cy="12" r="3" />
-            <circle cx="18" cy="19" r="3" />
-            <line x1="8.59" y1="13.51" x2="15.42" y2="17.49" />
-            <line x1="15.41" y1="6.51" x2="8.59" y2="10.49" />
-          </svg>
+          <IconShare />
         </button>
         <button
           type="button"
@@ -178,19 +175,7 @@ export function EventTabs() {
           title={t('tabs.home')}
           className="rounded-xl p-2 text-ink hover:bg-elevated"
         >
-          <svg
-            width="20"
-            height="20"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            aria-hidden="true"
-          >
-            <path d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
-          </svg>
+          <IconHome />
         </button>
       </header>
 
@@ -215,20 +200,7 @@ export function EventTabs() {
                 aria-label={t('tabs.closeMenu')}
                 className="rounded-xl p-1.5 text-muted hover:bg-elevated hover:text-ink"
               >
-                <svg
-                  width="18"
-                  height="18"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  aria-hidden="true"
-                >
-                  <line x1="18" y1="6" x2="6" y2="18" />
-                  <line x1="6" y1="6" x2="18" y2="18" />
-                </svg>
+                <IconClose className="size-4" />
               </button>
             </div>
             <div className="border-b border-border px-4 py-3">
@@ -237,6 +209,7 @@ export function EventTabs() {
             <nav className="py-2">
               {tabs.map((tab) => {
                 const isActive = active === tab.key
+                const Mark = TAB_ICONS[tab.key]
                 return (
                   <button
                     key={tab.key}
@@ -246,11 +219,9 @@ export function EventTabs() {
                       isActive ? 'bg-brand-soft text-brand-soft-fg' : 'text-ink hover:bg-elevated'
                     }`}
                   >
-                    <span className="text-lg" aria-hidden="true">
-                      {TAB_ICONS[tab.key]}
-                    </span>
+                    <Mark className="size-5 shrink-0" />
                     <span className="flex-1">{tab.label}</span>
-                    {isActive && <span aria-hidden="true">›</span>}
+                    {isActive && <IconChevron className="size-4 shrink-0" />}
                   </button>
                 )
               })}
@@ -260,9 +231,7 @@ export function EventTabs() {
                 onClick={goHome}
                 className="flex w-full items-center gap-3 px-4 py-3 text-left text-sm text-muted hover:bg-elevated"
               >
-                <span className="text-lg" aria-hidden="true">
-                  🏠
-                </span>
+                <IconHome className="size-5 shrink-0" />
                 <span>{t('tabs.home')}</span>
               </button>
             </nav>

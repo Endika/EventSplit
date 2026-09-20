@@ -7,6 +7,7 @@ import { useContainer } from '@/presentation/context/ContainerProvider'
 import { useEditPin } from '@/presentation/context/EditPinContext'
 import { Button } from '@/presentation/components/common/Button'
 import { Input } from '@/presentation/components/common/Input'
+import { IconLock } from '@/presentation/components/common/icons'
 
 export function EventPinGate({ event, onUnlock }: { event: EventSnapshot; onUnlock: () => void }) {
   const { t } = useTranslation()
@@ -46,7 +47,7 @@ export function EventPinGate({ event, onUnlock }: { event: EventSnapshot; onUnlo
   return (
     <main className="mx-auto max-w-sm p-6">
       <div className="rounded-2xl border border-border bg-surface p-6 text-center">
-        <div className="mb-2 text-3xl">🔒</div>
+        <IconLock className="mx-auto mb-2 size-8 text-muted" />
         <h1 className="mb-1 text-lg font-semibold text-ink">{event.name}</h1>
         <p className="mb-4 text-sm text-muted">{t('pin.gateBody')}</p>
         <form onSubmit={submit} className="space-y-3">
