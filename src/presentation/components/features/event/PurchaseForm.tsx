@@ -23,7 +23,11 @@ import { friendlyError } from '@/presentation/utils/friendlyError'
 import { parseDecimal } from '@/shared/utils/parseDecimal'
 import { SHARED_UNIT } from '@/domain/entities/Purchase'
 import { SELECTABLE_UNITS as UNITS } from '@/presentation/utils/units'
-import { canBeAssigned } from '@/domain/services/participantRoles'
+import {
+  canBeAssigned,
+  defaultMultiplier,
+  isDefaultConsumer,
+} from '@/domain/services/participantRoles'
 
 export function PurchaseForm({
   onDone,
@@ -61,10 +65,12 @@ export function PurchaseForm({
       for (const c of purchase.consumers) map[c.userId] = c.multiplier
       return map
     }
-    // New purchase: pre-select everyone at their default multiplier
+    // New purchase: pre-select everyone at their default multiplier. Dogs are
+    // left out — they eat dog food, not the shopping list — but can be ticked
+    // by hand for the bag of kibble.
     const map: Record<string, number> = {}
     for (const u of event?.users ?? []) {
-      map[u.id] = u.kind === 'child' ? 0.5 : 1
+      if (isDefaultConsumer(u.kind)) map[u.id] = defaultMultiplier(u.kind)
     }
     return map
   })
@@ -121,7 +127,7 @@ export function PurchaseForm({
   function selectAllConsumers() {
     const map: Record<string, number> = {}
     for (const u of event?.users ?? []) {
-      map[u.id] = u.kind === 'child' ? 0.5 : 1
+      map[u.id] = defaultMultiplier(u.kind)
     }
     setConsumers(map)
   }
@@ -137,7 +143,7 @@ export function PurchaseForm({
         delete copy[id]
       } else {
         const user = event?.users.find((u) => u.id === id)
-        copy[id] = user?.kind === 'child' ? 0.5 : 1
+        copy[id] = user ? defaultMultiplier(user.kind) : 1
       }
       return copy
     })
