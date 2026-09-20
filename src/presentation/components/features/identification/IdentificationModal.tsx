@@ -4,6 +4,7 @@ import type { UserSnapshot } from '@/domain/entities/User'
 import { Modal } from '@/presentation/components/common/Modal'
 import { Button } from '@/presentation/components/common/Button'
 import { Input } from '@/presentation/components/common/Input'
+import { isSelectableAsSelf } from '@/domain/services/participantRoles'
 
 export interface IdentificationResult {
   kind: 'pick' | 'new'
@@ -64,17 +65,19 @@ export function IdentificationModal({
         <div className="space-y-2">
           <p className="text-sm text-muted">{t('id.pick')}</p>
           <div className="max-h-[40vh] space-y-2 overflow-y-auto">
-            {users.map((u) => (
-              <Button
-                key={u.id}
-                variant="secondary"
-                className="block w-full text-left"
-                onClick={() => pick(u)}
-                disabled={busy}
-              >
-                {u.alias ? `${u.name} (${u.alias})` : u.name}
-              </Button>
-            ))}
+            {users
+              .filter((u) => isSelectableAsSelf(u.kind))
+              .map((u) => (
+                <Button
+                  key={u.id}
+                  variant="secondary"
+                  className="block w-full text-left"
+                  onClick={() => pick(u)}
+                  disabled={busy}
+                >
+                  {u.alias ? `${u.name} (${u.alias})` : u.name}
+                </Button>
+              ))}
           </div>
           <hr className="my-3 border-border" />
           <Button onClick={() => setMode('new')} disabled={busy}>

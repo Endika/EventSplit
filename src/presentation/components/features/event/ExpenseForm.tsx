@@ -19,6 +19,7 @@ import { friendlyError } from '@/presentation/utils/friendlyError'
 import { groupPurchases } from '@/presentation/utils/groupPurchases'
 import { isPurchaseDone, remainingToBuy } from '@/presentation/utils/purchaseProgress'
 import { payingUsers } from '@/domain/services/participantRoles'
+import { toStoredSplit } from '@/domain/services/splitScope'
 
 export function ExpenseForm({
   onDone,
@@ -220,10 +221,12 @@ export function ExpenseForm({
       setBusy(true)
       setError(null)
       try {
-        const allUserIds = event.users.map((u) => u.id)
-        // Store [] ("everyone") only if every CURRENT user is selected — recompute
-        // against live users so a realtime join/leave can't silently mis-scope it.
-        const split = allUserIds.every((id) => splitAmong.has(id)) ? [] : [...splitAmong]
+        // Recomputed against live users so a realtime join/leave can't silently
+        // mis-scope it.
+        const split = toStoredSplit(
+          splitAmong,
+          payingUsers(event.users).map((u) => u.id),
+        )
         const purchaseLinks = Object.entries(links)
           .map(([purchaseId, q]) => ({ purchaseId, quantity: parseDecimal(q) }))
           .filter((l) => Number.isFinite(l.quantity) && l.quantity > 0)

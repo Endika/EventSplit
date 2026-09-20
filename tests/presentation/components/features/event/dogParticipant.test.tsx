@@ -128,9 +128,13 @@ describe('dog participants', () => {
     expect(screen.queryByText('+€6.67')).not.toBeInTheDocument()
   })
 
-  it('keeps the dog out of the availability matrix', async () => {
+  it('keeps the dog out of the availability matrix even when children are shown', async () => {
+    // A child makes the show-children toggle appear; that "on" branch is the one
+    // this feature changed, and with it off the test would pass either way.
+    const event = makeEvent([])
+    event.users = [...event.users, user('c1', 'Nora', 'child')]
     render(
-      <Wrap event={makeEvent([])}>
+      <Wrap event={event}>
         <AvailabilityTab />
       </Wrap>,
     )
@@ -138,6 +142,29 @@ describe('dog participants', () => {
     await waitFor(() => expect(tableButton()).toBeInTheDocument())
     fireEvent.click(tableButton())
     await waitFor(() => expect(screen.getByText('Iker')).toBeInTheDocument())
+    expect(screen.queryByText('Nora')).not.toBeInTheDocument()
     expect(screen.queryByText('Toby')).not.toBeInTheDocument()
+
+    fireEvent.click(screen.getByRole('checkbox', { name: /nora|1/i }))
+    await waitFor(() => expect(screen.getByText('Nora')).toBeInTheDocument())
+    expect(screen.queryByText('Toby')).not.toBeInTheDocument()
+  })
+
+  it('does not let a dog vote left in the blob lock a day option', async () => {
+    const event = makeEvent([])
+    // Only the dog voted. The option must read as having no votes, which is
+    // what makes it still deletable — a counted dog vote would freeze it.
+    event.availability = { d1: [true] }
+    render(
+      <Wrap event={event}>
+        <AvailabilityTab />
+      </Wrap>,
+    )
+    await waitFor(() => expect(tableButton()).toBeInTheDocument())
+    fireEvent.click(tableButton())
+    await waitFor(() => expect(screen.getByText('Iker')).toBeInTheDocument())
+    expect(
+      screen.getByRole('button', { name: /quitar|remove|kendu|treure|eliminar/i }),
+    ).toBeInTheDocument()
   })
 })

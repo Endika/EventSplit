@@ -176,6 +176,7 @@ export function ProfileEditor({ userId, onClose }: { userId?: string; onClose: (
           >
             <option value="adult">{t('participants.adult')}</option>
             <option value="child">{t('participants.child')}</option>
+            <option value="dog">{t('participants.dog')}</option>
           </select>
         </label>
         <Input

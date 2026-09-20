@@ -16,6 +16,9 @@ export const canVote = (kind: UserKind): boolean => kind !== 'dog'
 /** Only adults can be the buyer of a purchase or the payer of an expense. */
 export const canBeAssigned = (kind: UserKind): boolean => kind === 'adult'
 
+/** A child can carry the crisps; a dog cannot be put in charge of an item. */
+export const canBring = (kind: UserKind): boolean => kind !== 'dog'
+
 /** Nobody identifies themselves as the dog when joining an event. */
 export const isSelectableAsSelf = (kind: UserKind): boolean => kind !== 'dog'
 
