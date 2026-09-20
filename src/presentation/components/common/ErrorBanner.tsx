@@ -38,7 +38,7 @@ export function ErrorBanner() {
       style={{ top: 'max(0.5rem, env(safe-area-inset-top))' }}
     >
       <div className="mb-1 flex items-center justify-between gap-2">
-        <span className="fineprint text-danger-soft-fg!">
+        <span className="fineprint text-danger-soft-fg">
           {t('errorBanner.title')} · {error.context}
         </span>
         <button

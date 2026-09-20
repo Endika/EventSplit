@@ -364,7 +364,7 @@ export function LocationTab() {
           </>
         ) : (
           <>
-            <p className="fineprint text-pos!">{t('pin.hasPin')}</p>
+            <p className="fineprint text-pos">{t('pin.hasPin')}</p>
             <div className="flex gap-2">
               <Input
                 type="password"
@@ -389,7 +389,7 @@ export function LocationTab() {
               <button
                 type="button"
                 onClick={() => setConfirmRemovePin(true)}
-                className="fineprint inline-flex min-h-11 items-center text-danger! hover:text-ink!"
+                className="fineprint inline-flex min-h-11 items-center text-danger hover:text-ink"
                 disabled={pinBusy}
               >
                 {t('pin.removePin')}
@@ -421,7 +421,7 @@ export function LocationTab() {
               // Re-lock for this session: drop the unlocked PIN; the gate returns.
               setUnlockedPin(null)
             }}
-            className="fineprint inline-flex min-h-11 items-center hover:text-ink!"
+            className="fineprint inline-flex min-h-11 items-center hover:text-ink"
           >
             {t('pin.lockDevice')}
           </button>
@@ -444,7 +444,7 @@ export function LocationTab() {
       <CloneFromEventModal open={cloning} onClose={() => setCloning(false)} />
 
       <div className="space-y-3 border-2 border-danger bg-danger-soft p-4">
-        <h2 className="fineprint text-danger-soft-fg!">{t('danger.title')}</h2>
+        <h2 className="fineprint text-danger-soft-fg">{t('danger.title')}</h2>
         <p className="text-sm text-danger-soft-fg">{t('danger.deleteHint')}</p>
         {!confirmDelete ? (
           <Button type="button" variant="secondary" onClick={() => setConfirmDelete(true)}>

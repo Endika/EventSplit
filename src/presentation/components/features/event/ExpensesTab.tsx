@@ -171,7 +171,7 @@ export function ExpensesTab() {
           <button
             type="button"
             onClick={() => setShowDeleted((v) => !v)}
-            className="fineprint inline-flex min-h-11 items-center hover:text-ink!"
+            className="fineprint inline-flex min-h-11 items-center hover:text-ink"
           >
             <IconChevron dir={showDeleted ? 'down' : 'right'} className="mr-1.5 size-3.5" />
             {t('expenses.showDeleted', { count: deleted.length })}
@@ -191,7 +191,7 @@ export function ExpensesTab() {
                     <button
                       type="button"
                       onClick={() => recover(e)}
-                      className="fineprint inline-flex min-h-11 items-center px-2 text-brand! hover:text-ink!"
+                      className="fineprint inline-flex min-h-11 items-center px-2 text-brand hover:text-ink"
                     >
                       <IconUndo className="mr-1.5 size-3.5" />
                       {t('expenses.restore')}

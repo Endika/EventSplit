@@ -299,7 +299,7 @@ export function ManualLiquidations() {
           <button
             type="button"
             onClick={() => setShowDeleted((v) => !v)}
-            className="fineprint inline-flex min-h-11 items-center hover:text-ink!"
+            className="fineprint inline-flex min-h-11 items-center hover:text-ink"
           >
             <IconChevron dir={showDeleted ? 'down' : 'right'} className="mr-1.5 size-3.5" />
             {t('liquidations.showDeleted', { count: deleted.length })}
@@ -317,7 +317,7 @@ export function ManualLiquidations() {
                   <button
                     type="button"
                     onClick={() => recover(liq.id)}
-                    className="fineprint inline-flex min-h-11 shrink-0 items-center px-2 text-brand! hover:text-ink!"
+                    className="fineprint inline-flex min-h-11 shrink-0 items-center px-2 text-brand hover:text-ink"
                   >
                     <IconUndo className="mr-1.5 size-3.5" />
                     {t('liquidations.restore')}

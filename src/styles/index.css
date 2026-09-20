@@ -129,31 +129,36 @@ body {
   font-variant-numeric: tabular-nums;
 }
 
-/* ── The price ──────────────────────────────────────────────────
-   The one piece of type this product owns. Condensed to the width a label
-   prints at, tracked in, and locked to tabular figures so a changing total
-   never reflows the line under it. */
-.price {
-  font-stretch: 68%;
-  font-weight: 800;
-  letter-spacing: -0.04em;
-  font-variant-numeric: tabular-nums;
-  line-height: 0.86;
-}
+/* These three are the world's own type and rule. They live in the components
+   layer on purpose: unlayered rules beat every Tailwind utility, so `.fineprint
+   text-brand` silently did nothing and the only way out was `text-brand!`.
+   Inside the layer a utility wins normally, which is what everyone expects. */
+@layer components {
+  /* The price — the one piece of type this product owns. Condensed to the
+     width a label prints at, tracked in, and locked to tabular figures so a
+     changing total never reflows the line under it. */
+  .price {
+    font-stretch: 68%;
+    font-weight: 800;
+    letter-spacing: -0.04em;
+    font-variant-numeric: tabular-nums;
+    line-height: 0.86;
+  }
 
-/* The line of fine print that says what a figure is made of. */
-.fineprint {
-  font-stretch: 88%;
-  font-weight: 600;
-  font-size: 0.6875rem;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: var(--c-muted);
-}
+  /* The line of fine print that says what a figure is made of. */
+  .fineprint {
+    font-stretch: 88%;
+    font-weight: 600;
+    font-size: 0.6875rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--c-muted);
+  }
 
-/* The rule between a figure and its explanation. */
-.rail {
-  border-bottom: 2px solid var(--c-rail);
+  /* The rule between a figure and its explanation. */
+  .rail {
+    border-bottom: 2px solid var(--c-rail);
+  }
 }
 
 /* ── Browser surfaces ───────────────────────────────────────────

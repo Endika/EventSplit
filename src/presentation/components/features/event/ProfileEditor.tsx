@@ -251,7 +251,7 @@ export function ProfileEditor({ userId, onClose }: { userId?: string; onClose: (
                 </span>
                 <button
                   type="button"
-                  className="fineprint inline-flex min-h-11 shrink-0 items-center px-1 text-danger! hover:text-ink!"
+                  className="fineprint inline-flex min-h-11 shrink-0 items-center px-1 text-danger hover:text-ink"
                   onClick={() => removeAllergy(index)}
                   disabled={busy}
                 >
@@ -400,7 +400,7 @@ export function ProfileEditor({ userId, onClose }: { userId?: string; onClose: (
               <button
                 type="button"
                 onClick={() => setConfirmSwitch(true)}
-                className="fineprint inline-flex min-h-11 items-center hover:text-danger!"
+                className="fineprint inline-flex min-h-11 items-center hover:text-danger"
                 disabled={busy}
               >
                 {t('participants.switchUser')}
