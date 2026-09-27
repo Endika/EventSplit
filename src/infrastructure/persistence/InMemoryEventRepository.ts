@@ -1,6 +1,7 @@
 import type { EventSnapshot } from '@/domain/entities/Event'
 import {
   type IEventRepository,
+  type LockedEvent,
   type ReadResult,
   type SaveResult,
   VersionConflictError,
@@ -59,10 +60,22 @@ export class InMemoryEventRepository implements IEventRepository {
     return { ...structuredClone(row.snapshot), hasPin: row.pin !== null }
   }
 
-  async findById(id: string): Promise<ReadResult | null> {
+  /** Mirrors get_event(p_id, p_pin): no PIN offered is not a guess, a wrong one is. */
+  async findById(id: string, pin: string | null = null): Promise<ReadResult | LockedEvent | null> {
     this.findByIdCalls++
     const row = this.rows.get(id)
-    return row ? { snapshot: this.read(row), version: row.version, hasPin: row.pin !== null } : null
+    if (!row) return null
+    if (row.pin !== null) {
+      const locked: LockedEvent = { id, locked: true, hasPin: true }
+      if (pin === null) return locked
+      this.pinGuard(id)
+      if (pin !== row.pin) {
+        this.pinFails.set(id, (this.pinFails.get(id) ?? 0) + 1)
+        return locked
+      }
+      this.pinFails.delete(id)
+    }
+    return { snapshot: this.read(row), version: row.version, hasPin: row.pin !== null }
   }
 
   async getVersion(id: string): Promise<number | null> {

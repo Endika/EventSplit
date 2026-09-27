@@ -3,13 +3,14 @@ import { InMemoryEventRepository } from '@/infrastructure/persistence/InMemoryEv
 import { Event } from '@/domain/entities/Event'
 import { User } from '@/domain/entities/User'
 import { VersionConflictError } from '@/domain/repositories/IEventRepository'
+import { readEvent } from '../../support/readEvent'
 
 const makeEvent = () => Event.create({ name: 'Trip', creator: User.create({ name: 'John' }) })
 
 describe('InMemoryEventRepository', () => {
   it('returns null for missing id', async () => {
     const repo = new InMemoryEventRepository()
-    expect(await repo.findById('missing')).toBeNull()
+    expect(await readEvent(repo, 'missing')).toBeNull()
   })
 
   it('round-trips create + findById', async () => {
@@ -17,7 +18,7 @@ describe('InMemoryEventRepository', () => {
     const e = makeEvent()
     const created = await repo.create(e.toSnapshot())
     expect(created.version).toBe(1)
-    const found = await repo.findById(e.toSnapshot().id)
+    const found = await readEvent(repo, e.toSnapshot().id)
     expect(found?.version).toBe(1)
     expect(found?.snapshot.name).toBe('Trip')
   })

@@ -1,6 +1,7 @@
 import { describe, it, expect } from 'vitest'
 import { CreateEventHandler } from '@/application/handlers/CreateEventHandler'
 import { InMemoryEventRepository } from '@/infrastructure/persistence/InMemoryEventRepository'
+import { readEvent } from '../../support/readEvent'
 
 describe('CreateEventHandler', () => {
   it('rejects invalid input via Zod', async () => {
@@ -19,7 +20,7 @@ describe('CreateEventHandler', () => {
     expect(result.event.name).toBe('Mountain trip')
     expect(result.creator.displayName).toBe('John (cousin)')
     expect(result.version).toBe(1)
-    const found = await repo.findById(result.event.id)
+    const found = await readEvent(repo, result.event.id)
     expect(found?.snapshot.users[0]!.name).toBe('John')
   })
 })

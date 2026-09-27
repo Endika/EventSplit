@@ -27,7 +27,7 @@ export function LocationTab() {
 
   const me = useCurrentUser()
   const { guardedExecute } = useWriteGuard()
-  const { pin: unlockedPin, setPin: setUnlockedPin } = useEditPin()
+  const { pin: unlockedPin, setPin: setUnlockedPin } = useEditPin(event?.id)
   const [editing, setEditing] = useState(false)
   const nameRef = useRef<HTMLInputElement>(null)
   const [cloning, setCloning] = useState(false)
@@ -136,6 +136,7 @@ export function LocationTab() {
     const refresh = container.resolve<RefreshEventHandler>('refreshEvent')
     // Force a full re-read so the derived hasPin flag reflects the change.
     const result = await refresh.execute({ eventId: event.id, local: null })
+    // 'locked' leaves the event as it is; the gate handles an unreadable event.
     if (result.status === 'updated' || result.status === 'unchanged') {
       setEvent(result.snapshot, result.version)
       cache.set(event.id, { snapshot: result.snapshot, version: result.version })
@@ -152,8 +153,8 @@ export function LocationTab() {
         // Changing or removing an existing PIN requires the current (unlocked) one.
         const currentPin = hasPin ? unlockedPin : null
         await handler.execute({ eventId: event.id, userId: me.id, pin, currentPin })
-        // Keep the new PIN unlocked for this session so the host who just set it
-        // isn't immediately locked out (and can pass it to later privileged ops).
+        // Remember the new PIN on this device so the host who just set it isn't
+        // locked out of reading it (and can pass it to later privileged ops).
         setUnlockedPin(pin)
         await refreshFromServer()
         setPinInput('')
@@ -175,10 +176,9 @@ export function LocationTab() {
       try {
         const handler = container.resolve<DeleteEventHandler>('deleteEvent')
         await handler.execute(event.id, hasPin ? unlockedPin : null)
-        // Wipe every local trace of this event, then go home.
+        // Wipe every local trace of this event (its PIN included), then go home.
         const cache = container.resolve<LocalStorageCache>('cache')
         cache.remove(event.id)
-        setUnlockedPin(null)
         window.location.assign(window.location.pathname)
       } catch (err) {
         reportError('LocationTab', err)
@@ -418,7 +418,8 @@ export function LocationTab() {
           <button
             type="button"
             onClick={() => {
-              // Re-lock for this session: drop the unlocked PIN; the gate returns.
+              // Forget the PIN and the copy it unlocked; the gate returns.
+              container.resolve<LocalStorageCache>('cache').removeSnapshot(event.id)
               setUnlockedPin(null)
             }}
             className="fineprint inline-flex min-h-11 items-center hover:text-ink"

@@ -21,13 +21,13 @@ const Ctx = createContext<WriteGuardState | null>(null)
 
 export function WriteGuardProvider({ children }: { children: ReactNode }) {
   const { event } = useEventState()
-  const { pin: unlockedPin } = useEditPin()
+  const { pin: unlockedPin } = useEditPin(event?.id)
   const [pending, setPending] = useState<PendingExecution | null>(null)
 
   const isLocked = !!event?.hasPin
-  // Verified for this session once the in-memory edit PIN is unlocked (at the
-  // gate or prompt). Server-side enforcement needs the plaintext PIN to pass it
-  // on every privileged write, so verification is session-scoped, not persisted.
+  // Verified once this event's edit PIN is unlocked on this device (at the gate
+  // or prompt). Server-side enforcement needs the plaintext PIN to pass it on
+  // every privileged write, so the verification is the remembered PIN itself.
   const verified = !isLocked || unlockedPin !== null
 
   function guardedExecute(

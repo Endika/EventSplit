@@ -17,10 +17,10 @@ import { ShareButton } from '@/presentation/components/common/ShareButton'
 export function EventPage({ eventId }: { eventId: string }) {
   const container = useContainer()
   const { event, setEvent } = useEventState()
-  const { pin: unlockedPin } = useEditPin()
+  const { pin: unlockedPin } = useEditPin(eventId)
   const me = useCurrentUser()
   const setMe = useSetCurrentUser()
-  const { loading, error } = useEventSync(eventId)
+  const { loading, error, locked, refetch } = useEventSync(eventId)
 
   // Restore a previously chosen identity for this event from the local cache.
   useEffect(() => {
@@ -65,14 +65,15 @@ export function EventPage({ eventId }: { eventId: string }) {
     }
   }
 
+  // The server sent nothing but "locked", so the gate works from the id alone.
+  if (locked) return <EventPinGate event={{ id: eventId, hasPin: true }} onUnlock={refetch} />
   if (loading) return <main className="p-6 text-muted">…</main>
   if (error) return <main className="p-6 text-danger">{error}</main>
   if (!event) return <main className="p-6 text-muted">…</main>
 
-  const needsPin = !!event.hasPin && unlockedPin === null
-  if (needsPin) {
-    // Unlocking sets the session PIN in EditPinContext, which re-renders this.
-    return <EventPinGate event={event} onUnlock={() => {}} />
+  // "Lock this device" drops the PIN while the event is still on screen.
+  if (event.hasPin && unlockedPin === null) {
+    return <EventPinGate event={{ id: eventId, hasPin: true }} onUnlock={refetch} />
   }
 
   return (

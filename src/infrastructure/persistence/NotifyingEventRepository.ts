@@ -2,6 +2,7 @@ import type { EventSnapshot } from '@/domain/entities/Event'
 import type { IEventChangeNotifier } from '@/domain/ports/IEventChangeNotifier'
 import type {
   IEventRepository,
+  LockedEvent,
   ReadResult,
   SaveResult,
 } from '@/domain/repositories/IEventRepository'
@@ -18,8 +19,8 @@ export class NotifyingEventRepository implements IEventRepository {
     private readonly notifier: IEventChangeNotifier,
   ) {}
 
-  findById(id: string): Promise<ReadResult | null> {
-    return this.inner.findById(id)
+  findById(id: string, pin?: string | null): Promise<ReadResult | LockedEvent | null> {
+    return this.inner.findById(id, pin)
   }
 
   getVersion(id: string): Promise<number | null> {

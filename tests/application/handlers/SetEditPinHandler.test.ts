@@ -3,12 +3,13 @@ import { CreateEventHandler } from '@/application/handlers/CreateEventHandler'
 import { SetEditPinHandler } from '@/application/handlers/SetEditPinHandler'
 import { InMemoryEventRepository } from '@/infrastructure/persistence/InMemoryEventRepository'
 import { WrongPinError } from '@/domain/repositories/IEventRepository'
+import { readEvent } from '../../support/readEvent'
 
 describe('SetEditPinHandler', () => {
   it('sets a PIN server-side (never in the blob) and flips hasPin', async () => {
     const repo = new InMemoryEventRepository()
     const create = await new CreateEventHandler(repo).execute({ name: 'Trip', creatorName: 'John' })
-    expect((await repo.findById(create.event.id))?.hasPin).toBe(false)
+    expect((await readEvent(repo, create.event.id))?.hasPin).toBe(false)
 
     await new SetEditPinHandler(repo).execute({
       eventId: create.event.id,
@@ -16,7 +17,7 @@ describe('SetEditPinHandler', () => {
       pin: '1234',
     })
 
-    const read = await repo.findById(create.event.id)
+    const read = await readEvent(repo, create.event.id, '1234')
     expect(read?.hasPin).toBe(true)
     expect(read?.snapshot.hasPin).toBe(true)
     // The plaintext PIN never appears in the snapshot blob. Quoted: a bare 1234
@@ -39,7 +40,7 @@ describe('SetEditPinHandler', () => {
       pin: null,
       currentPin: '1234',
     })
-    expect((await repo.findById(create.event.id))?.hasPin).toBe(false)
+    expect((await readEvent(repo, create.event.id))?.hasPin).toBe(false)
   })
 
   it('requires the current PIN to change an existing PIN', async () => {

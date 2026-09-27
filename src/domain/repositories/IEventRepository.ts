@@ -15,6 +15,20 @@ export interface ReadResult {
   hasPin: boolean
 }
 
+/**
+ * What a read of a PIN-protected event returns without the right PIN: no data,
+ * no name, no version. A marker rather than an error so callers must handle it.
+ */
+export interface LockedEvent {
+  id: string
+  locked: true
+  hasPin: true
+}
+
+export function isLockedEvent(read: ReadResult | LockedEvent | null): read is LockedEvent {
+  return read !== null && 'locked' in read
+}
+
 export class VersionConflictError extends Error {
   constructor(readonly currentVersion: number) {
     super(`Version conflict: server is at ${currentVersion}`)
@@ -77,7 +91,12 @@ export class RateLimitedError extends Error {
 }
 
 export interface IEventRepository {
-  findById(id: string): Promise<ReadResult | null>
+  /**
+   * PIN-gated read: a PIN-protected event comes back as {@link LockedEvent} unless
+   * `pin` is right. A wrong PIN counts toward the throttle (RateLimitedError); a
+   * missing one does not.
+   */
+  findById(id: string, pin?: string | null): Promise<ReadResult | LockedEvent | null>
   /** Cheap version probe: avoids downloading the full snapshot when nothing changed. */
   getVersion(id: string): Promise<number | null>
   create(snapshot: EventSnapshot): Promise<SaveResult>

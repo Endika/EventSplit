@@ -4,8 +4,15 @@ import { buildContainer } from '@/shared/di/wiring'
 
 const Ctx = createContext<Container | null>(null)
 
-export function ContainerProvider({ children }: { children: ReactNode }) {
-  const container = useMemo(() => buildContainer(), [])
+/** `container` lets tests supply one wired to in-memory fakes. */
+export function ContainerProvider({
+  children,
+  container: given,
+}: {
+  children: ReactNode
+  container?: Container
+}) {
+  const container = useMemo(() => given ?? buildContainer(), [given])
   return <Ctx.Provider value={container}>{children}</Ctx.Provider>
 }
 

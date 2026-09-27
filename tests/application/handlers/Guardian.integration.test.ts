@@ -3,6 +3,7 @@ import { CreateEventHandler } from '@/application/handlers/CreateEventHandler'
 import { JoinAsNewUserHandler } from '@/application/handlers/JoinAsNewUserHandler'
 import { UpdateProfileHandler } from '@/application/handlers/UpdateProfileHandler'
 import { InMemoryEventRepository } from '@/infrastructure/persistence/InMemoryEventRepository'
+import { readEvent } from '../../support/readEvent'
 
 async function event() {
   const repo = new InMemoryEventRepository()
@@ -21,7 +22,7 @@ describe('a child in an adult’s charge', () => {
       guardianId: ekin.id,
     })
     expect(joined.event.users.find((u) => u.name === 'Nora')!.guardianId).toBe(ekin.id)
-    const reloaded = await repo.findById(eventId)
+    const reloaded = await readEvent(repo, eventId)
     expect(reloaded!.snapshot.users.find((u) => u.name === 'Nora')!.guardianId).toBe(ekin.id)
   })
 

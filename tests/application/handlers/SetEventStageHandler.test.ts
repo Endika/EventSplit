@@ -2,6 +2,8 @@ import { describe, it, expect } from 'vitest'
 import { CreateEventHandler } from '@/application/handlers/CreateEventHandler'
 import { SetEventStageHandler } from '@/application/handlers/SetEventStageHandler'
 import { InMemoryEventRepository } from '@/infrastructure/persistence/InMemoryEventRepository'
+import { SetEditPinHandler } from '@/application/handlers/SetEditPinHandler'
+import { WrongPinError } from '@/domain/repositories/IEventRepository'
 
 describe('SetEventStageHandler', () => {
   it('moves event from doodle to shopping', async () => {
@@ -37,5 +39,22 @@ describe('SetEventStageHandler', () => {
       stage: 'doodle', // already doodle
     })
     expect(result.version).toBe(create.version) // unchanged
+  })
+
+  it('refuses to move a PIN-protected event it cannot read', async () => {
+    const repo = new InMemoryEventRepository()
+    const create = await new CreateEventHandler(repo).execute({ name: 'Trip', creatorName: 'John' })
+    await new SetEditPinHandler(repo).execute({
+      eventId: create.event.id,
+      userId: create.creator.id,
+      pin: '1234',
+    })
+    await expect(
+      new SetEventStageHandler(repo).execute({
+        eventId: create.event.id,
+        userId: create.creator.id,
+        stage: 'shopping',
+      }),
+    ).rejects.toBeInstanceOf(WrongPinError)
   })
 })

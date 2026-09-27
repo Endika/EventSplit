@@ -2,8 +2,10 @@ import type { EventSnapshot } from '@/domain/entities/Event'
 import {
   ConcurrencyLimitError,
   type IEventRepository,
+  isLockedEvent,
   type SaveResult,
   VersionConflictError,
+  WrongPinError,
 } from '@/domain/repositories/IEventRepository'
 
 const DEFAULT_MAX_RETRIES = 6
@@ -54,7 +56,8 @@ export async function withOptimisticRetry(
   const pin = opts.pin ?? null
 
   for (let attempt = 0; attempt < maxRetries; attempt++) {
-    const row = await repo.findById(eventId)
+    const row = await repo.findById(eventId, pin)
+    if (isLockedEvent(row)) throw new WrongPinError()
     if (!row) throw new Error('Event not found')
     const next = mutate(row)
     try {

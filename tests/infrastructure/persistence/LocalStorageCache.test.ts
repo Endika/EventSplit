@@ -2,6 +2,7 @@ import { describe, it, expect, beforeEach } from 'vitest'
 import { LocalStorageCache } from '@/infrastructure/persistence/LocalStorageCache'
 import { Event } from '@/domain/entities/Event'
 import { User } from '@/domain/entities/User'
+import { UnlockedPinHolder } from '@/shared/di/UnlockedPinHolder'
 
 describe('LocalStorageCache', () => {
   beforeEach(() => localStorage.clear())
@@ -78,5 +79,32 @@ describe('LocalStorageCache', () => {
     cache.remove(e.id)
     expect(cache.get(e.id)).toBeNull()
     expect(cache.getIdentity(e.id)).toBeNull()
+  })
+
+  it('forgetting an event also forgets the PIN remembered for it, and only that one', () => {
+    const cache = new LocalStorageCache()
+    const pins = new UnlockedPinHolder()
+    const s = sample()
+    cache.set(s.id, { snapshot: s, version: 1 })
+    pins.set(s.id, '1234')
+    pins.set('other12', '5678')
+
+    cache.remove(s.id)
+
+    expect(pins.get(s.id)).toBeNull()
+    expect(pins.get('other12')).toBe('5678')
+  })
+
+  it('dropping only the snapshot keeps the identity for that event', () => {
+    const cache = new LocalStorageCache()
+    const s = sample()
+    cache.set(s.id, { snapshot: s, version: 1 })
+    cache.setIdentity(s.id, { id: 'uid', name: 'John', alias: null })
+
+    cache.removeSnapshot(s.id)
+
+    expect(cache.get(s.id)).toBeNull()
+    expect(cache.listAll()).toEqual([])
+    expect(cache.getIdentity(s.id)?.name).toBe('John')
   })
 })

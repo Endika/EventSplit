@@ -2,6 +2,7 @@ import { describe, it, expect } from 'vitest'
 import { CreateEventHandler } from '@/application/handlers/CreateEventHandler'
 import { JoinAsNewUserHandler } from '@/application/handlers/JoinAsNewUserHandler'
 import { InMemoryEventRepository } from '@/infrastructure/persistence/InMemoryEventRepository'
+import { readEvent } from '../../support/readEvent'
 
 describe('AddParticipant via JoinAsNewUserHandler (UI shape)', () => {
   it('adds participant with name+alias+kind exactly as the modal sends', async () => {
@@ -28,7 +29,7 @@ describe('AddParticipant via JoinAsNewUserHandler (UI shape)', () => {
       kind: 'dog',
     })
     expect(result.event.users.find((u) => u.name === 'Toby')!.kind).toBe('dog')
-    const reloaded = await repo.findById(create.event.id)
+    const reloaded = await readEvent(repo, create.event.id)
     expect(reloaded!.snapshot.users.find((u) => u.name === 'Toby')!.kind).toBe('dog')
   })
 
@@ -69,7 +70,7 @@ describe('AddParticipant via JoinAsNewUserHandler (UI shape)', () => {
       name: 'Sofía',
       kind: 'child',
     })
-    const final = await repo.findById(create.event.id)
+    const final = await readEvent(repo, create.event.id)
     expect(final?.snapshot.users.map((u) => u.name)).toEqual(['John', 'Maria', 'Sofía'])
   })
 })

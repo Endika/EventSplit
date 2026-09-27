@@ -1,6 +1,11 @@
 import { SetEventStageSchema, type SetEventStageInput } from '@/application/dtos/SetEventStageDTO'
 import { Event, type EventSnapshot } from '@/domain/entities/Event'
-import { type IEventRepository, VersionConflictError } from '@/domain/repositories/IEventRepository'
+import {
+  type IEventRepository,
+  isLockedEvent,
+  VersionConflictError,
+  WrongPinError,
+} from '@/domain/repositories/IEventRepository'
 
 const MAX_RETRIES = 3
 
@@ -11,6 +16,7 @@ export class SetEventStageHandler {
     const parsed = SetEventStageSchema.parse(input)
     for (let attempt = 0; attempt < MAX_RETRIES; attempt++) {
       const row = await this.repo.findById(parsed.eventId)
+      if (isLockedEvent(row)) throw new WrongPinError()
       if (!row) throw new Error('Event not found')
       const next = Event.restore(row.snapshot).setStage({
         stage: parsed.stage,

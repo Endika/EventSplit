@@ -7,6 +7,8 @@ import { AddPurchaseHandler } from '@/application/handlers/AddPurchaseHandler'
 import { CloneIntoEventHandler } from '@/application/handlers/CloneIntoEventHandler'
 import { UpdateProfileHandler } from '@/application/handlers/UpdateProfileHandler'
 import { InMemoryEventRepository } from '@/infrastructure/persistence/InMemoryEventRepository'
+import { PinForwardingEventRepository } from '@/infrastructure/persistence/PinForwardingEventRepository'
+import { UnlockedPinHolder } from '@/shared/di/UnlockedPinHolder'
 import { CountingRepository } from '../../support/CountingRepository'
 import { optionKey } from '@/domain/value-objects/DayOption'
 import type { CloneSelection } from '@/domain/services/buildClonePatch'
@@ -195,6 +197,24 @@ describe('CloneIntoEventHandler', () => {
     const repo = new InMemoryEventRepository()
     const ctx = await seed(repo)
     await repo.setPin(ctx.sourceId, '1234', null)
+
+    await expect(
+      new CloneIntoEventHandler(repo).execute({
+        targetEventId: ctx.targetId,
+        sourceEventId: ctx.sourceId,
+        clonedBy: ctx.me,
+        selection: sel({ dayOptions: true }),
+      }),
+    ).rejects.toThrow(/pin/i)
+  })
+
+  it('refuses a PIN source even when this device has unlocked it', async () => {
+    const inner = new InMemoryEventRepository()
+    const ctx = await seed(inner)
+    await inner.setPin(ctx.sourceId, '1234', null)
+    const holder = new UnlockedPinHolder()
+    holder.set(ctx.sourceId, '1234')
+    const repo = new PinForwardingEventRepository(inner, holder)
 
     await expect(
       new CloneIntoEventHandler(repo).execute({
