@@ -29,7 +29,8 @@ begin
     perform public.eventsplit_pin_fail(p_id);
     return jsonb_build_object('locked', true, 'hasPin', true);
   end if;
-  perform public.eventsplit_pin_ok(p_id);
+  -- No eventsplit_pin_ok: a device syncing with its stored PIN would keep clearing
+  -- the fails and hand a guesser unlimited tries. Only verify_event_pin resets.
   return jsonb_build_object('data', v_row.data - 'editPin', 'version', v_row.version,
                             'hasPin', true);
 end;

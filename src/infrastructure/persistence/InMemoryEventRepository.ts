@@ -44,7 +44,10 @@ export class InMemoryEventRepository implements IEventRepository {
     if ((this.pinFails.get(id) ?? 0) >= PIN_ATTEMPT_LIMIT) throw new RateLimitedError()
   }
 
-  /** Verify the supplied pin against a PIN-protected row, recording the attempt. */
+  /**
+   * Verify the supplied pin against a PIN-protected row, recording a wrong one.
+   * A right one does not clear the fails: only verifyPin does, like the SQL.
+   */
   private checkPin(row: Row, id: string, pin: string | null): void {
     if (row.pin === null) return
     this.pinGuard(id)
@@ -52,7 +55,6 @@ export class InMemoryEventRepository implements IEventRepository {
       this.pinFails.set(id, (this.pinFails.get(id) ?? 0) + 1)
       throw new WrongPinError()
     }
-    this.pinFails.delete(id)
   }
 
   /** Read snapshot reflects the derived `hasPin` flag, like the get_event RPC. */
@@ -73,7 +75,6 @@ export class InMemoryEventRepository implements IEventRepository {
         this.pinFails.set(id, (this.pinFails.get(id) ?? 0) + 1)
         return locked
       }
-      this.pinFails.delete(id)
     }
     return { snapshot: this.read(row), version: row.version, hasPin: row.pin !== null }
   }

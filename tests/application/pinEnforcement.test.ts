@@ -185,3 +185,57 @@ describe('PIN-gated reads', () => {
     expect((await readEvent(repo, id, '1234'))?.snapshot.name).toBe('Trip')
   })
 })
+
+describe('PIN throttle across reads and writes', () => {
+  async function pinned(repo: InMemoryEventRepository) {
+    const { id, userId } = await freshEvent(repo)
+    await new SetEditPinHandler(repo).execute({ eventId: id, userId, pin: '1234' })
+    return id
+  }
+
+  async function wrongWrite(repo: InMemoryEventRepository, id: string, i: number) {
+    const row = await readEvent(repo, id, '1234')
+    const attempts = [
+      () => repo.update(id, row!.snapshot, row!.version, '0000'),
+      () => repo.setPin(id, '5678', '0000'),
+      () => repo.deleteEvent(id, '0000'),
+    ]
+    await expect(attempts[i % attempts.length]!()).rejects.toBeInstanceOf(WrongPinError)
+  }
+
+  it('counts wrong PINs on writes and throttles at the tenth', async () => {
+    const repo = new InMemoryEventRepository()
+    const id = await pinned(repo)
+    for (let i = 0; i < 10; i++) await wrongWrite(repo, id, i)
+    await expect(repo.deleteEvent(id, '0000')).rejects.toBeInstanceOf(RateLimitedError)
+    await expect(repo.verifyPin(id, '1234')).rejects.toBeInstanceOf(RateLimitedError)
+  })
+
+  it('does not clear the count on a correct-PIN read', async () => {
+    const repo = new InMemoryEventRepository()
+    const id = await pinned(repo)
+    for (let i = 0; i < 9; i++) await wrongWrite(repo, id, i)
+    await readEvent(repo, id, '1234')
+    await expect(repo.setPin(id, '5678', '0000')).rejects.toBeInstanceOf(WrongPinError)
+    await expect(repo.findById(id, '1234')).rejects.toBeInstanceOf(RateLimitedError)
+  })
+
+  it('does not clear the count on a correct-PIN write', async () => {
+    const repo = new InMemoryEventRepository()
+    const id = await pinned(repo)
+    for (let i = 0; i < 9; i++) expect(await repo.verifyPin(id, '0000')).toBe(false)
+    const row = await readEvent(repo, id, '1234')
+    await repo.update(id, { ...row!.snapshot, name: 'Renamed' }, row!.version, '1234')
+    expect(await repo.verifyPin(id, '0000')).toBe(false)
+    await expect(repo.verifyPin(id, '1234')).rejects.toBeInstanceOf(RateLimitedError)
+  })
+
+  it('clears the count when someone types the right PIN at verify', async () => {
+    const repo = new InMemoryEventRepository()
+    const id = await pinned(repo)
+    for (let i = 0; i < 9; i++) await wrongWrite(repo, id, i)
+    expect(await repo.verifyPin(id, '1234')).toBe(true)
+    for (let i = 0; i < 9; i++) await wrongWrite(repo, id, i)
+    expect(isLockedEvent(await repo.findById(id, '1234'))).toBe(false)
+  })
+})
