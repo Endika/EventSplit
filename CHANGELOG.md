@@ -1,5 +1,13 @@
 # Changelog
 
+## [3.9.1](https://github.com/Endika/EventSplit/compare/v3.9.0...v3.9.1) (2026-09-27)
+
+
+### Bug Fixes
+
+* **db:** drop the one-arg get_event overload ([b13c2ca](https://github.com/Endika/EventSplit/commit/b13c2ca266335099229e1bd125ada3785c5dc25c))
+* **pin:** drop cached PIN-event copies this device can't unlock ([f6aa534](https://github.com/Endika/EventSplit/commit/f6aa534baf1c508a42ce051dea78196ec9568526))
+
 ## [3.9.0](https://github.com/Endika/EventSplit/compare/v3.8.1...v3.9.0) (2026-09-27)
 
 
