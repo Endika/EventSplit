@@ -1,3 +1,5 @@
+import { GeoLookupError } from './errors'
+
 export interface AddressSuggestion {
   label: string
   lat: number
@@ -23,14 +25,15 @@ export async function searchAddresses(query: string, lang = 'en'): Promise<Addre
     const res = await fetch(
       `https://photon.komoot.io/api/?q=${encodeURIComponent(q)}&lang=${photonLang}&limit=5`,
     )
-    if (!res.ok) return []
+    if (!res.ok) throw new GeoLookupError(`Photon search failed with status ${res.status}`)
     const data = (await res.json()) as { features?: PhotonFeature[] }
     return (data.features ?? []).map((f) => ({
       label: toLabel(f.properties),
       lat: f.geometry.coordinates[1],
       lng: f.geometry.coordinates[0],
     }))
-  } catch {
-    return []
+  } catch (err) {
+    if (err instanceof GeoLookupError) throw err
+    throw new GeoLookupError('Photon search request failed')
   }
 }

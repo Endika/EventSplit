@@ -1,3 +1,5 @@
+import { GeoLookupError } from './errors'
+
 export interface PlaceSuggestion {
   placeId: string
   label: string
@@ -14,7 +16,8 @@ export async function googleAutocomplete(query: string, key: string): Promise<Pl
       },
       body: JSON.stringify({ input: query }),
     })
-    if (!res.ok) return []
+    if (!res.ok)
+      throw new GeoLookupError(`Google Places autocomplete failed with status ${res.status}`)
     const data = (await res.json()) as {
       suggestions?: Array<{
         placePrediction?: { placeId?: string; text?: { text?: string } }
@@ -27,8 +30,9 @@ export async function googleAutocomplete(query: string, key: string): Promise<Pl
         return { placeId: pp.placeId, label: pp.text.text }
       })
       .filter((x): x is PlaceSuggestion => x !== null)
-  } catch {
-    return []
+  } catch (err) {
+    if (err instanceof GeoLookupError) throw err
+    throw new GeoLookupError('Google Places autocomplete request failed')
   }
 }
 
@@ -43,12 +47,13 @@ export async function googlePlaceDetails(
         'X-Goog-FieldMask': 'location,formattedAddress,displayName',
       },
     })
-    if (!res.ok) return null
+    if (!res.ok) throw new GeoLookupError(`Google Place details failed with status ${res.status}`)
     const data = (await res.json()) as {
       location?: { latitude?: number; longitude?: number }
       formattedAddress?: string
       displayName?: { text?: string }
     }
+    // 200 OK but the place genuinely has no coordinates/address — a real "not found".
     if (!data.location?.latitude || !data.location?.longitude || !data.formattedAddress) return null
     return {
       label: data.formattedAddress,
@@ -56,7 +61,8 @@ export async function googlePlaceDetails(
       lat: data.location.latitude,
       lng: data.location.longitude,
     }
-  } catch {
-    return null
+  } catch (err) {
+    if (err instanceof GeoLookupError) throw err
+    throw new GeoLookupError('Google Place details request failed')
   }
 }
