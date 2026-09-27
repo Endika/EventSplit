@@ -1,5 +1,19 @@
 # Changelog
 
+## [3.9.0](https://github.com/Endika/EventSplit/compare/v3.8.1...v3.9.0) (2026-09-27)
+
+
+### Features
+
+* **db:** gate get_event reads behind the edit PIN ([3c351d6](https://github.com/Endika/EventSplit/commit/3c351d6959161c869f9fbda21f9c9cb38ce40c22))
+
+
+### Bug Fixes
+
+* **db:** serialize PIN guesses per event with a row lock ([f2b9e51](https://github.com/Endika/EventSplit/commit/f2b9e51d5dfc4186b371c94e0df55451f46eefb1))
+* **pin:** make wrong write PINs count and only verify reset them ([528acd4](https://github.com/Endika/EventSplit/commit/528acd48c069e221f5907813f40791bed7557d55))
+* **pin:** read PIN-protected events only with their remembered PIN ([6503c4d](https://github.com/Endika/EventSplit/commit/6503c4de2d0567a4597d1dbf73092bdca75ea78b))
+
 ## [3.8.1](https://github.com/Endika/EventSplit/compare/v3.8.0...v3.8.1) (2026-09-20)
 
 
