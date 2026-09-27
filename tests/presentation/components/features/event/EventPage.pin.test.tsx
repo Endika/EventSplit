@@ -177,6 +177,20 @@ describe('EventPage behind an edit PIN', () => {
     expect(new UnlockedPinHolder().get(id)).toBe('1234')
   })
 
+  it('drops a remembered PIN the host has since changed and shows the gate', async () => {
+    const repo = new InMemoryEventRepository()
+    const id = await seed(repo, 'Casa rural', '1234')
+    const pins = new UnlockedPinHolder()
+    pins.set(id, '1234')
+    await repo.setPin(id, '5678', '1234') // changed from another device
+
+    openEvent(repo, id)
+
+    expect(await findGate()).toBeInTheDocument()
+    await waitFor(() => expect(pins.get(id)).toBeNull())
+    expect(screen.queryByText('Casa rural')).toBeNull()
+  })
+
   it('opens a PIN-less event with no gate at all', async () => {
     const repo = new InMemoryEventRepository()
     const id = await seed(repo, 'Casa rural', null)
