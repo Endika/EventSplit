@@ -5,7 +5,6 @@ import {
   RateLimitedError,
   WrongPinError,
 } from '@/domain/repositories/IEventRepository'
-import { GeoLookupError } from '@/infrastructure/geo/errors'
 
 /**
  * Maps a thrown error to a user-facing, translated message. Known typed errors
@@ -18,7 +17,6 @@ export function friendlyError(err: unknown, t: TFunction): string {
   if (err instanceof PayloadTooLargeError) return t('errors.tooLarge')
   if (err instanceof RateLimitedError) return t('pin.tooManyAttempts')
   if (err instanceof WrongPinError) return t('pin.wrongPin')
-  if (err instanceof GeoLookupError) return t('errors.generic')
   if (err instanceof Error) return err.message
   return t('errors.generic')
 }
