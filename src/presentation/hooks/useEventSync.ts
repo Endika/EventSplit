@@ -10,6 +10,8 @@ import { RateLimitedError } from '@/domain/repositories/IEventRepository'
 import type { RefreshEventHandler, RefreshResult } from '@/application/handlers/RefreshEventHandler'
 import type { UnlockedPinHolder } from '@/shared/di/UnlockedPinHolder'
 import { notify } from '@/shared/utils/notify'
+import { reportError } from '@/shared/utils/reportError'
+import { friendlyError } from '@/presentation/utils/friendlyError'
 
 /**
  * Keeps the event in {@link useEventState} in sync with the server while
@@ -52,8 +54,15 @@ export function useEventSync(eventId: string): {
           setLockedId(eventId)
           return
         }
-        throw err
+        reportError('useEventSync', err)
+        // No copy on screen to fall back on: this reconcile is all the user
+        // has, so show the app's error instead of spinning forever. With a
+        // copy already showing, keep it — this was a background reconcile
+        // (realtime ping, refocus, reconnect) and must not throw further.
+        if (!local) setError(friendlyError(err, t))
+        return
       }
+      setError(null)
       if (result.status === 'locked') {
         cache.removeSnapshot(eventId)
         // A held PIN the server refused was changed elsewhere; keeping it would
