@@ -60,7 +60,8 @@ describe('useEventSync surfacing a failed reconcile', () => {
 
     openEvent(repo, id)
 
-    expect(await screen.findByText('simulated network failure')).toBeInTheDocument()
+    expect(await screen.findByText(i18n.t('errors.generic'))).toBeInTheDocument()
+    expect(screen.queryByText('simulated network failure')).toBeNull()
     expect(screen.queryByText('Casa rural')).toBeNull()
   })
 

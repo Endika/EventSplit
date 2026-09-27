@@ -11,7 +11,6 @@ import type { RefreshEventHandler, RefreshResult } from '@/application/handlers/
 import type { UnlockedPinHolder } from '@/shared/di/UnlockedPinHolder'
 import { notify } from '@/shared/utils/notify'
 import { reportError } from '@/shared/utils/reportError'
-import { friendlyError } from '@/presentation/utils/friendlyError'
 
 /**
  * Keeps the event in {@link useEventState} in sync with the server while
@@ -59,7 +58,11 @@ export function useEventSync(eventId: string): {
         // has, so show the app's error instead of spinning forever. With a
         // copy already showing, keep it — this was a background reconcile
         // (realtime ping, refocus, reconnect) and must not throw further.
-        if (!local) setError(friendlyError(err, t))
+        // A read here only ever fails with a network/transport error (no
+        // domain-validation error carries a meaningful message to show
+        // instead), so this is always the generic translated message, never
+        // the thrown error's own (untranslated) text.
+        if (!local) setError(t('errors.generic'))
         return
       }
       setError(null)
