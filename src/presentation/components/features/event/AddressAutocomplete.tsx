@@ -3,6 +3,8 @@ import { useTranslation } from 'react-i18next'
 import { Input } from '@/presentation/components/common/Input'
 import { searchAddresses } from '@/infrastructure/geo/photonSearch'
 import { googleAutocomplete, googlePlaceDetails } from '@/infrastructure/geo/googlePlaces'
+import { reportError } from '@/shared/utils/reportError'
+import { friendlyError } from '@/presentation/utils/friendlyError'
 
 export interface AddressPick {
   address: string
@@ -30,8 +32,9 @@ interface Suggestion {
  * Picking a Google suggestion returns coords + the venue display name.
  */
 export function AddressAutocomplete({ value, onChange, placeholder }: Props) {
-  const { i18n } = useTranslation()
+  const { t, i18n } = useTranslation()
   const [suggestions, setSuggestions] = useState<Suggestion[]>([])
+  const [error, setError] = useState<string | null>(null)
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const mountedRef = useRef(true)
   const latestQueryRef = useRef('')
@@ -46,54 +49,70 @@ export function AddressAutocomplete({ value, onChange, placeholder }: Props) {
     }
   }, [])
 
+  async function runSearch(query: string, lang: string) {
+    try {
+      let results: Suggestion[]
+      if (key) {
+        try {
+          const google = await googleAutocomplete(query, key)
+          results =
+            google.length > 0
+              ? google.map((r) => ({ label: r.label, placeId: r.placeId }))
+              : await searchAddresses(query, lang)
+        } catch {
+          // Google failed outright (bad/expired key, quota, no network): fall
+          // back to the keyless Photon search instead of showing nothing.
+          results = await searchAddresses(query, lang)
+        }
+      } else {
+        results = await searchAddresses(query, lang)
+      }
+      if (!mountedRef.current || query !== latestQueryRef.current) return
+      setSuggestions(results)
+      setError(null)
+    } catch (err) {
+      if (!mountedRef.current || query !== latestQueryRef.current) return
+      setSuggestions([])
+      reportError('AddressAutocomplete', err)
+      setError(friendlyError(err, t))
+    }
+  }
+
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const text = e.target.value
     onChange({ address: text, lat: null, lng: null })
+    setError(null)
 
     if (timerRef.current !== null) clearTimeout(timerRef.current)
     latestQueryRef.current = text
     timerRef.current = setTimeout(() => {
-      const query = text
-      const lang = i18n.language
-
-      if (key) {
-        void googleAutocomplete(query, key)
-          .then(async (results) => {
-            if (!mountedRef.current || query !== latestQueryRef.current) return
-            if (results.length > 0) {
-              setSuggestions(results.map((r) => ({ label: r.label, placeId: r.placeId })))
-            } else {
-              const fallback = await searchAddresses(query, lang)
-              if (mountedRef.current && query === latestQueryRef.current) setSuggestions(fallback)
-            }
-          })
-          .catch(() => {
-            void searchAddresses(query, lang).then((fallback) => {
-              if (mountedRef.current && query === latestQueryRef.current) setSuggestions(fallback)
-            })
-          })
-      } else {
-        void searchAddresses(query, lang).then((results) => {
-          if (mountedRef.current && query === latestQueryRef.current) setSuggestions(results)
-        })
-      }
+      void runSearch(text, i18n.language)
     }, 300)
   }
 
   const handlePick = (s: Suggestion) => {
     if (s.placeId && key) {
-      void googlePlaceDetails(s.placeId, key).then((details) => {
-        if (details) {
-          onChange({
-            address: details.label,
-            lat: details.lat,
-            lng: details.lng,
-            name: details.name,
-          })
-        } else {
-          onChange({ address: s.label, lat: null, lng: null })
-        }
-      })
+      setError(null)
+      void googlePlaceDetails(s.placeId, key)
+        .then((details) => {
+          if (details) {
+            onChange({
+              address: details.label,
+              lat: details.lat,
+              lng: details.lng,
+              name: details.name,
+            })
+          } else {
+            // 200 OK but no coordinates/address for this place: saving it as
+            // typed would look fine while silently dropping the map pin.
+            // Keep whatever is already typed and say the pick failed instead.
+            setError(t('errors.generic'))
+          }
+        })
+        .catch((err: unknown) => {
+          reportError('AddressAutocomplete', err)
+          setError(friendlyError(err, t))
+        })
     } else {
       onChange({ address: s.label, lat: s.lat ?? null, lng: s.lng ?? null })
     }
@@ -125,6 +144,7 @@ export function AddressAutocomplete({ value, onChange, placeholder }: Props) {
           ))}
         </ul>
       )}
+      {error && <p className="text-xs text-danger">{error}</p>}
     </div>
   )
 }
