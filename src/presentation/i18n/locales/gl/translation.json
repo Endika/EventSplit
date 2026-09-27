@@ -212,6 +212,8 @@
     "wifi": "Contrasinal WiFi",
     "emergency": "Contacto de emerxencia",
     "searchHint": "Busca o lugar para autocompletar o nome, o enderezo e o mapa.",
+    "addressSearchError": "Non se puideron buscar enderezos. Comproba a conexión e téntao de novo.",
+    "addressDetailsError": "Non se puido obter a localización no mapa dese enderezo. Téntao de novo.",
     "nameRequired": "Ponlle nome ao sitio para poder gardar. Non se perdeu nada do que escribiches."
   },
   "purchases": {

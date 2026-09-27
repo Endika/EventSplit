@@ -212,6 +212,8 @@
     "wifi": "WiFi password",
     "emergency": "Emergency contact",
     "searchHint": "Search the place to autofill its name, address and map.",
+    "addressSearchError": "Couldn't search for addresses. Check your connection and try again.",
+    "addressDetailsError": "Couldn't get the map location for that address. Try picking it again.",
     "nameRequired": "Give the place a name to save. Nothing you typed has been lost."
   },
   "purchases": {
