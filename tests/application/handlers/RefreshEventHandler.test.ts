@@ -2,13 +2,21 @@ import { describe, it, expect } from 'vitest'
 import { CreateEventHandler } from '@/application/handlers/CreateEventHandler'
 import { RefreshEventHandler } from '@/application/handlers/RefreshEventHandler'
 import { InMemoryEventRepository } from '@/infrastructure/persistence/InMemoryEventRepository'
+import { SetEditPinHandler } from '@/application/handlers/SetEditPinHandler'
+import { readEvent } from '../../support/readEvent'
 
 async function setup() {
   const repo = new InMemoryEventRepository()
   const create = await new CreateEventHandler(repo).execute({ name: 'Trip', creatorName: 'John' })
-  const row = (await repo.findById(create.event.id))!
+  const row = (await readEvent(repo, create.event.id))!
   repo.findByIdCalls = 0 // reset counter after setup
-  return { repo, eventId: create.event.id, snapshot: row.snapshot, version: row.version }
+  return {
+    repo,
+    eventId: create.event.id,
+    creatorId: create.creator.id,
+    snapshot: row.snapshot,
+    version: row.version,
+  }
 }
 
 describe('RefreshEventHandler', () => {
@@ -66,5 +74,33 @@ describe('RefreshEventHandler', () => {
     })
     expect(result.status).toBe('unchanged')
     expect(ctx.repo.findByIdCalls).toBe(0)
+  })
+
+  it('reports locked, with nothing read, for a PIN event and no local copy', async () => {
+    const ctx = await setup()
+    await new SetEditPinHandler(ctx.repo).execute({
+      eventId: ctx.eventId,
+      userId: ctx.creatorId,
+      pin: '1234',
+    })
+    const result = await new RefreshEventHandler(ctx.repo).execute({
+      eventId: ctx.eventId,
+      local: null,
+    })
+    expect(result).toEqual({ status: 'locked' })
+  })
+
+  it('reports locked when a copy cached before the PIN was set goes stale', async () => {
+    const ctx = await setup()
+    await new SetEditPinHandler(ctx.repo).execute({
+      eventId: ctx.eventId,
+      userId: ctx.creatorId,
+      pin: '1234',
+    })
+    const result = await new RefreshEventHandler(ctx.repo).execute({
+      eventId: ctx.eventId,
+      local: { snapshot: ctx.snapshot, version: ctx.version },
+    })
+    expect(result).toEqual({ status: 'locked' })
   })
 })

@@ -16,7 +16,7 @@ export function PinPromptModal() {
   const container = useContainer()
   const { event } = useEventState()
   const { pending, clearPending } = useWriteGuard()
-  const { setPin: setUnlockedPin } = useEditPin()
+  const { setPin: setUnlockedPin } = useEditPin(event?.id)
   const [pin, setPin] = useState('')
   const [error, setError] = useState<string | null>(null)
   const [busy, setBusy] = useState(false)

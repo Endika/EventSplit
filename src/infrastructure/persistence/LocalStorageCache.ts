@@ -1,5 +1,6 @@
 import type { EventSnapshot } from '@/domain/entities/Event'
 import { parseEventSnapshot } from '@/infrastructure/persistence/EventSnapshotSchema'
+import { PIN_KEY } from '@/shared/di/UnlockedPinHolder'
 
 const EVENT_KEY = (id: string) => `eventsplit.event.${id}`
 const IDENT_KEY = (id: string) => `eventsplit.identity.${id}`
@@ -83,8 +84,15 @@ export class LocalStorageCache {
     localStorage.removeItem(IDENT_KEY(eventId))
   }
 
+  /** Drop only the cached event data, keeping who this device is in it. */
+  removeSnapshot(eventId: string): void {
+    localStorage.removeItem(EVENT_KEY(eventId))
+  }
+
+  /** Forget the event entirely on this device, its remembered PIN included. */
   remove(eventId: string): void {
     localStorage.removeItem(EVENT_KEY(eventId))
     localStorage.removeItem(IDENT_KEY(eventId))
+    localStorage.removeItem(PIN_KEY(eventId))
   }
 }

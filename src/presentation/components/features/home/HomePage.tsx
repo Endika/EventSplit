@@ -2,6 +2,7 @@ import { type FormEvent, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useContainer } from '@/presentation/context/ContainerProvider'
 import { useOnlineStatus } from '@/presentation/context/SyncContext'
+import { useEditPins } from '@/presentation/context/EditPinContext'
 import type { CreateEventHandler } from '@/application/handlers/CreateEventHandler'
 import type { SetEditPinHandler } from '@/application/handlers/SetEditPinHandler'
 import type {
@@ -18,6 +19,7 @@ export function HomePage() {
   const { t } = useTranslation()
   const container = useContainer()
   const online = useOnlineStatus()
+  const { setPin: rememberPin } = useEditPins()
   const cache = container.resolve<LocalStorageCache>('cache')
 
   const [items, setItems] = useState<CachedEventSummary[]>(() => cache.listAll())
@@ -60,6 +62,13 @@ export function HomePage() {
           eventId: result.event.id,
           userId: result.creator.id,
           pin,
+        })
+        // The creator must not meet their own gate; set_event_pin bumped the
+        // version once, and caching the old one would cost a full re-download.
+        rememberPin(result.event.id, pin)
+        cache.set(result.event.id, {
+          snapshot: { ...result.event, hasPin: true },
+          version: result.version + 1,
         })
       }
       window.history.pushState({}, '', `${import.meta.env.BASE_URL}?event=${result.event.id}`)

@@ -3,6 +3,7 @@ import { CreateEventHandler } from '@/application/handlers/CreateEventHandler'
 import { SetDayOptionsHandler } from '@/application/handlers/SetDayOptionsHandler'
 import { SetAvailabilityMetaHandler } from '@/application/handlers/SetAvailabilityMetaHandler'
 import { InMemoryEventRepository } from '@/infrastructure/persistence/InMemoryEventRepository'
+import { readEvent } from '../../support/readEvent'
 
 async function setup() {
   const repo = new InMemoryEventRepository()
@@ -29,7 +30,7 @@ describe('SetAvailabilityMetaHandler', () => {
     expect(result.event.availabilityNote).toBe('Weekends only')
     expect(result.event.chosenOptions).toEqual(['2026-06-06..2026-06-06'])
 
-    const row = await repo.findById(eventId)
+    const row = await readEvent(repo, eventId)
     expect(row?.snapshot.availabilityNote).toBe('Weekends only')
     expect(row?.snapshot.chosenOptions).toEqual(['2026-06-06..2026-06-06'])
   })

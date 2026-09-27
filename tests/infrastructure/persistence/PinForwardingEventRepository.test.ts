@@ -1,11 +1,11 @@
-import { describe, it, expect } from 'vitest'
+import { describe, it, expect, beforeEach } from 'vitest'
 import { CreateEventHandler } from '@/application/handlers/CreateEventHandler'
 import { SetEditPinHandler } from '@/application/handlers/SetEditPinHandler'
 import { AddExpenseHandler } from '@/application/handlers/AddExpenseHandler'
 import { InMemoryEventRepository } from '@/infrastructure/persistence/InMemoryEventRepository'
 import { PinForwardingEventRepository } from '@/infrastructure/persistence/PinForwardingEventRepository'
 import { UnlockedPinHolder } from '@/shared/di/UnlockedPinHolder'
-import { WrongPinError } from '@/domain/repositories/IEventRepository'
+import { isLockedEvent, WrongPinError } from '@/domain/repositories/IEventRepository'
 
 /**
  * Regression guard for the hardening bug: collaborative write handlers go
@@ -17,6 +17,64 @@ import { WrongPinError } from '@/domain/repositories/IEventRepository'
  * Without the decorator (handler over the bare InMemory repo) the success case
  * below fails with WrongPinError — that is the regression these tests pin down.
  */
+describe('PinForwardingEventRepository (PIN-gated reads)', () => {
+  beforeEach(() => localStorage.clear())
+
+  async function pinned(inner: InMemoryEventRepository, pin: string) {
+    const create = await new CreateEventHandler(inner).execute({
+      name: 'Trip',
+      creatorName: 'John',
+    })
+    await new SetEditPinHandler(inner).execute({
+      eventId: create.event.id,
+      userId: create.creator.id,
+      pin,
+    })
+    return create.event.id
+  }
+
+  it('reads through with the PIN remembered for that event', async () => {
+    const inner = new InMemoryEventRepository()
+    const id = await pinned(inner, '1234')
+    const holder = new UnlockedPinHolder()
+    holder.set(id, '1234')
+
+    const read = await new PinForwardingEventRepository(inner, holder).findById(id)
+    expect(isLockedEvent(read)).toBe(false)
+  })
+
+  it('still knows the PIN after a reload (a brand-new holder)', async () => {
+    const inner = new InMemoryEventRepository()
+    const id = await pinned(inner, '1234')
+    new UnlockedPinHolder().set(id, '1234')
+
+    const read = await new PinForwardingEventRepository(inner, new UnlockedPinHolder()).findById(id)
+    expect(isLockedEvent(read)).toBe(false)
+  })
+
+  it('never lends one event its PIN for another', async () => {
+    const inner = new InMemoryEventRepository()
+    const first = await pinned(inner, '1234')
+    const second = await pinned(inner, '1234')
+    const holder = new UnlockedPinHolder()
+    holder.set(first, '1234')
+
+    const read = await new PinForwardingEventRepository(inner, holder).findById(second)
+    expect(isLockedEvent(read)).toBe(true)
+  })
+
+  it('reads locked once the PIN is forgotten', async () => {
+    const inner = new InMemoryEventRepository()
+    const id = await pinned(inner, '1234')
+    const holder = new UnlockedPinHolder()
+    holder.set(id, '1234')
+    holder.set(id, null)
+
+    const read = await new PinForwardingEventRepository(inner, holder).findById(id)
+    expect(isLockedEvent(read)).toBe(true)
+  })
+})
+
 describe('PinForwardingEventRepository (collaborative write on a PIN-protected event)', () => {
   async function setup() {
     const inner = new InMemoryEventRepository()
@@ -37,7 +95,7 @@ describe('PinForwardingEventRepository (collaborative write on a PIN-protected e
   it('SUCCEEDS when the holder carries the correct unlocked PIN', async () => {
     const { inner, eventId, payerId } = await setup()
     const holder = new UnlockedPinHolder()
-    holder.set('1234')
+    holder.set(eventId, '1234')
     const repo = new PinForwardingEventRepository(inner, holder)
 
     const result = await new AddExpenseHandler(repo).execute({
@@ -69,7 +127,7 @@ describe('PinForwardingEventRepository (collaborative write on a PIN-protected e
   it('throws WrongPinError when the holder carries the wrong PIN', async () => {
     const { inner, eventId, payerId } = await setup()
     const holder = new UnlockedPinHolder()
-    holder.set('9999')
+    holder.set(eventId, '9999')
     const repo = new PinForwardingEventRepository(inner, holder)
 
     await expect(

@@ -1,5 +1,5 @@
 import type { EventSnapshot } from '@/domain/entities/Event'
-import type { IEventRepository } from '@/domain/repositories/IEventRepository'
+import { type IEventRepository, isLockedEvent } from '@/domain/repositories/IEventRepository'
 
 export interface CachedEvent {
   snapshot: EventSnapshot
@@ -10,6 +10,8 @@ export type RefreshResult =
   | { status: 'updated'; snapshot: EventSnapshot; version: number }
   | { status: 'unchanged'; snapshot: EventSnapshot; version: number }
   | { status: 'not_found' }
+  /** PIN-protected and this device holds no (or a wrong) PIN: nothing was read. */
+  | { status: 'locked' }
 
 /**
  * Reconciles the local copy with the server while spending as little egress as
@@ -25,6 +27,7 @@ export class RefreshEventHandler {
 
     if (!local) {
       const row = await this.repo.findById(eventId)
+      if (isLockedEvent(row)) return { status: 'locked' }
       return row ? { status: 'updated', ...row } : { status: 'not_found' }
     }
 
@@ -34,6 +37,7 @@ export class RefreshEventHandler {
     }
 
     const row = await this.repo.findById(eventId)
+    if (isLockedEvent(row)) return { status: 'locked' }
     if (!row || row.version <= local.version) {
       return { status: 'unchanged', snapshot: local.snapshot, version: local.version }
     }

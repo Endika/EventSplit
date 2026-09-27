@@ -9,10 +9,16 @@ import { Button } from '@/presentation/components/common/Button'
 import { Input } from '@/presentation/components/common/Input'
 import { IconLock } from '@/presentation/components/common/icons'
 
-export function EventPinGate({ event, onUnlock }: { event: EventSnapshot; onUnlock: () => void }) {
+export function EventPinGate({
+  event,
+  onUnlock,
+}: {
+  event: Pick<EventSnapshot, 'id' | 'hasPin'>
+  onUnlock: () => void
+}) {
   const { t } = useTranslation()
   const container = useContainer()
-  const { setPin: setUnlockedPin } = useEditPin()
+  const { setPin: setUnlockedPin } = useEditPin(event.id)
   const [pin, setPin] = useState('')
   const [error, setError] = useState<string | null>(null)
   const [busy, setBusy] = useState(false)
@@ -32,8 +38,8 @@ export function EventPinGate({ event, onUnlock }: { event: EventSnapshot; onUnlo
         setPin('')
         return
       }
-      // Keep the verified PIN for the session so privileged actions can pass it
-      // server-side; this also flips EventPage's gate (no localStorage flag).
+      // Remember the verified PIN for this event on this device: reads and
+      // privileged actions pass it server-side, and onUnlock reads with it.
       setUnlockedPin(pin)
       onUnlock()
     } catch (err) {
@@ -48,7 +54,7 @@ export function EventPinGate({ event, onUnlock }: { event: EventSnapshot; onUnlo
     <main className="mx-auto max-w-sm p-6">
       <div className="border-2 border-rail bg-surface p-6 text-center">
         <IconLock className="mx-auto mb-3 size-8 text-ink" />
-        <h1 className="mb-2 text-lg font-semibold text-ink">{event.name}</h1>
+        <h1 className="mb-2 text-lg font-semibold text-ink">{t('pin.manageTitle')}</h1>
         <div className="rail mb-3" />
         <p className="mb-4 text-sm text-muted">{t('pin.gateBody')}</p>
         <form onSubmit={submit} className="space-y-3">

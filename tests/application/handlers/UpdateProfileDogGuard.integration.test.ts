@@ -4,6 +4,7 @@ import { JoinAsNewUserHandler } from '@/application/handlers/JoinAsNewUserHandle
 import { AddExpenseHandler } from '@/application/handlers/AddExpenseHandler'
 import { UpdateProfileHandler } from '@/application/handlers/UpdateProfileHandler'
 import { InMemoryEventRepository } from '@/infrastructure/persistence/InMemoryEventRepository'
+import { readEvent } from '../../support/readEvent'
 
 async function eventWithTwoPeople() {
   const repo = new InMemoryEventRepository()
@@ -37,7 +38,7 @@ describe('turning a participant into a dog', () => {
       }),
     ).rejects.toThrow(/dog/)
 
-    const row = await repo.findById(eventId)
+    const row = await readEvent(repo, eventId)
     expect(row!.snapshot.users.find((u) => u.id === ane.id)!.kind).toBe('adult')
   })
 

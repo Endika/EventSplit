@@ -2,6 +2,7 @@ import type { SupabaseClient } from '@supabase/supabase-js'
 import type { EventSnapshot } from '@/domain/entities/Event'
 import {
   type IEventRepository,
+  type LockedEvent,
   type ReadResult,
   type SaveResult,
   VersionConflictError,
@@ -30,11 +31,9 @@ function mapRpcError(error: { code?: string } | null): Error | null {
   }
 }
 
-interface GetEventPayload {
-  data: unknown
-  version: number
-  hasPin: boolean
-}
+type GetEventPayload =
+  | { locked: true; hasPin: true }
+  | { locked?: undefined; data: unknown; version: number; hasPin: boolean }
 
 /**
  * Build the JSONB blob for a write. `hasPin` is a derived read field — the PIN
@@ -50,11 +49,15 @@ function toWriteBlob(snapshot: EventSnapshot): Record<string, unknown> {
 export class SupabaseEventRepository implements IEventRepository {
   constructor(private readonly client: SupabaseClient) {}
 
-  async findById(id: string): Promise<ReadResult | null> {
-    const { data, error } = await this.client.rpc('get_event', { p_id: id })
-    if (error) throw error
+  async findById(id: string, pin: string | null = null): Promise<ReadResult | LockedEvent | null> {
+    // p_pin is always sent, even as null: it is what makes PostgREST pick the
+    // PIN-gated overload instead of the legacy one-argument get_event.
+    const { data, error } = await this.client.rpc('get_event', { p_id: id, p_pin: pin })
+    const mapped = mapRpcError(error)
+    if (mapped) throw mapped
     if (!data) return null
     const payload = data as GetEventPayload
+    if (payload.locked) return { id, locked: true, hasPin: true }
     const snapshot = parseEventSnapshot(payload.data)
     snapshot.hasPin = payload.hasPin
     return { snapshot, version: payload.version, hasPin: payload.hasPin }

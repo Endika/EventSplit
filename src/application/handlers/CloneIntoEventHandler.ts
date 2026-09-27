@@ -6,7 +6,7 @@ import type { EventSnapshot } from '@/domain/entities/Event'
 import { User, type ProfileUpdate } from '@/domain/entities/User'
 import { HistoryAppender } from '@/domain/services/HistoryAppender'
 import { buildClonePatch, type CloneSelection } from '@/domain/services/buildClonePatch'
-import type { IEventRepository } from '@/domain/repositories/IEventRepository'
+import { type IEventRepository, isLockedEvent } from '@/domain/repositories/IEventRepository'
 import { withOptimisticRetry } from '@/application/support/withOptimisticRetry'
 import { MAX_OPTIONS, optionKey, sortOptions } from '@/domain/value-objects/DayOption'
 
@@ -61,7 +61,8 @@ export class CloneIntoEventHandler {
     // read of an event is a full blob download.
     const source = await this.repo.findById(parsed.sourceEventId)
     if (!source) throw new Error(`Source event ${parsed.sourceEventId} not found`)
-    if (source.hasPin) throw new Error('Source event is PIN-protected and cannot be cloned')
+    if (isLockedEvent(source) || source.hasPin)
+      throw new Error('Source event is PIN-protected and cannot be cloned')
 
     const saved = await withOptimisticRetry(this.repo, parsed.targetEventId, (row) => {
       if (!row.snapshot.users.some((u) => u.id === parsed.clonedBy))

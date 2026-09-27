@@ -3,6 +3,7 @@ import { CreateEventHandler } from '@/application/handlers/CreateEventHandler'
 import { SetDayOptionsHandler } from '@/application/handlers/SetDayOptionsHandler'
 import { InMemoryEventRepository } from '@/infrastructure/persistence/InMemoryEventRepository'
 import { optionKey, type DayOption } from '@/domain/value-objects/DayOption'
+import { readEvent } from '../../support/readEvent'
 
 const day = (d: string, note: string | null = null): DayOption => ({ start: d, end: d, note })
 
@@ -40,7 +41,7 @@ describe('SetDayOptionsHandler', () => {
       day('2026-06-05'),
       { start: '2026-06-12', end: '2026-06-14', note: null },
     ])
-    const row = await repo.findById(eventId)
+    const row = await readEvent(repo, eventId)
     if (!row) throw new Error('unexpected')
     row.snapshot.availability[userId] = [true, true]
     await repo.update(eventId, row.snapshot, row.version, null)
@@ -82,7 +83,7 @@ describe('SetDayOptionsHandler', () => {
       day('2026-06-05'),
       { start: '2026-06-12', end: '2026-06-14', note: null },
     ])
-    const row = await repo.findById(eventId)
+    const row = await readEvent(repo, eventId)
     if (!row) throw new Error('unexpected')
     row.snapshot.chosenOptions = ['2026-06-05..2026-06-05', '2026-06-12..2026-06-14']
     await repo.update(eventId, row.snapshot, row.version, null)
@@ -150,7 +151,7 @@ describe('SetDayOptionsHandler', () => {
     const { repo, handler, eventId, userId } = await setup([
       { start: '2026-06-12', end: '2026-06-14', note: null },
     ])
-    const row = await repo.findById(eventId)
+    const row = await readEvent(repo, eventId)
     if (!row) throw new Error('unexpected')
     row.snapshot.availability[userId] = [true]
     await repo.update(eventId, row.snapshot, row.version, null)

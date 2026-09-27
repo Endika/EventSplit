@@ -6,6 +6,7 @@ import type { EventSnapshot } from '@/domain/entities/Event'
 import {
   ConcurrencyLimitError,
   type IEventRepository,
+  type LockedEvent,
   type ReadResult,
   type SaveResult,
   VersionConflictError,
@@ -34,8 +35,8 @@ class ConflictingRepository implements IEventRepository {
     private readonly conflictsBeforeSuccess: number,
   ) {}
 
-  findById(id: string): Promise<ReadResult | null> {
-    return this.inner.findById(id)
+  findById(id: string, pin?: string | null): Promise<ReadResult | LockedEvent | null> {
+    return this.inner.findById(id, pin)
   }
   getVersion(id: string) {
     return this.inner.getVersion(id)

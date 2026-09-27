@@ -4,6 +4,7 @@ import { AddExpenseHandler } from '@/application/handlers/AddExpenseHandler'
 import { DeleteExpenseHandler } from '@/application/handlers/DeleteExpenseHandler'
 import { RecoverExpenseHandler } from '@/application/handlers/RecoverExpenseHandler'
 import { InMemoryEventRepository } from '@/infrastructure/persistence/InMemoryEventRepository'
+import { readEvent } from '../../support/readEvent'
 
 async function setup() {
   const repo = new InMemoryEventRepository()
@@ -61,7 +62,7 @@ describe('RecoverExpenseHandler', () => {
   it('rejects recovering an expense whose payer is no longer in the event', async () => {
     const repo = new InMemoryEventRepository()
     const create = await new CreateEventHandler(repo).execute({ name: 'Trip', creatorName: 'John' })
-    const row = await repo.findById(create.event.id)
+    const row = await readEvent(repo, create.event.id)
     if (!row) throw new Error('unexpected')
     row.snapshot.expenses.push({
       id: '01900000-0000-7000-8000-000000000098',

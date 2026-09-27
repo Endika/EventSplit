@@ -1,6 +1,7 @@
 import type { EventSnapshot } from '@/domain/entities/Event'
 import type {
   IEventRepository,
+  LockedEvent,
   ReadResult,
   SaveResult,
 } from '@/domain/repositories/IEventRepository'
@@ -16,9 +17,9 @@ export class CountingRepository implements IEventRepository {
 
   constructor(private readonly inner: IEventRepository) {}
 
-  findById(id: string): Promise<ReadResult | null> {
+  findById(id: string, pin?: string | null): Promise<ReadResult | LockedEvent | null> {
     this.reads += 1
-    return this.inner.findById(id)
+    return this.inner.findById(id, pin)
   }
   getVersion(id: string): Promise<number | null> {
     return this.inner.getVersion(id)
