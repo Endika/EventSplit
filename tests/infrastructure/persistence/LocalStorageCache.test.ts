@@ -126,6 +126,82 @@ describe('LocalStorageCache', () => {
     expect(list[0]!.name).toBe('Trip')
   })
 
+  it('loads a hardcoded event snapshot literal in the shape the current version writes', () => {
+    const literal = JSON.stringify({
+      snapshot: {
+        id: 'lit0001',
+        name: 'Camping trip',
+        createdBy: 'usr0001',
+        description: null,
+        location: null,
+        generalNotes: null,
+        wifiPassword: null,
+        emergencyContact: null,
+        users: [
+          {
+            id: 'usr0001',
+            name: 'John',
+            alias: null,
+            joinedAt: '2026-01-01T10:00:00Z',
+            email: null,
+            phone: null,
+            allergies: [],
+            dietary: null,
+            notes: null,
+            kind: 'adult',
+            guardianId: null,
+          },
+        ],
+        availability: {},
+        availabilityNote: null,
+        chosenOptions: [],
+        dayOptions: [],
+        purchases: [],
+        groupOrder: [],
+        subgroupOrder: {},
+        expenses: [],
+        hasPin: false,
+        stage: 'doodle',
+        settledTransfers: [],
+        manualLiquidations: [],
+        history: [
+          {
+            id: 'hist0001',
+            version: 1,
+            timestamp: '2026-01-01T10:00:00Z',
+            type: 'event_created',
+            userId: 'usr0001',
+            description: 'Event created: Camping trip',
+          },
+        ],
+        createdAt: '2026-01-01T10:00:00Z',
+        updatedAt: '2026-01-01T10:00:00Z',
+      },
+      version: 3,
+    })
+    localStorage.setItem('eventsplit.event.lit0001', literal)
+
+    const loaded = new LocalStorageCache().get('lit0001')
+
+    expect(loaded?.version).toBe(3)
+    expect(loaded?.snapshot.name).toBe('Camping trip')
+    expect(loaded?.snapshot.users).toHaveLength(1)
+    expect(loaded?.snapshot.history).toHaveLength(1)
+  })
+
+  it('loads a hardcoded identity literal in the shape the current version writes', () => {
+    localStorage.setItem(
+      'eventsplit.identity.lit0002',
+      JSON.stringify({ id: 'usr0002', name: 'Ana', alias: 'Anita' }),
+    )
+
+    expect(new LocalStorageCache().getIdentity('lit0002')).toEqual({
+      id: 'usr0002',
+      name: 'Ana',
+      alias: 'Anita',
+    })
+  })
+
   it('dropping only the snapshot keeps the identity for that event', () => {
     const cache = new LocalStorageCache()
     const s = sample()
