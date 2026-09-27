@@ -8,6 +8,7 @@
 -- p_pin has no default on purpose: PostgREST picks an overload by argument names, and a
 -- default would make {p_id} alone ambiguous between the two signatures.
 
+-- Must stay VOLATILE (the default): it writes the fail, and PostgREST runs STABLE functions read-only.
 create or replace function public.get_event(p_id text, p_pin text)
 returns jsonb language plpgsql security definer set search_path = '' as $$
 declare v_row public.events%rowtype;
