@@ -57,14 +57,23 @@ export class LocalStorageCache {
 
   listAll(): CachedEventSummary[] {
     const summaries: CachedEventSummary[] = []
+    const keys: string[] = []
     for (let i = 0; i < localStorage.length; i++) {
       const key = localStorage.key(i)
-      if (!key || !key.startsWith('eventsplit.event.')) continue
+      if (key && key.startsWith('eventsplit.event.')) keys.push(key)
+    }
+    for (const key of keys) {
       const raw = localStorage.getItem(key)
       if (!raw) continue
       try {
         const json = JSON.parse(raw) as { snapshot: unknown; version: number }
         const cached = { snapshot: parseEventSnapshot(json.snapshot), version: json.version }
+        // Memory-era copy of a now PIN-protected event this device holds no PIN for:
+        // drop it instead of leaking its name on Home.
+        if (cached.snapshot.hasPin && localStorage.getItem(PIN_KEY(cached.snapshot.id)) === null) {
+          localStorage.removeItem(key)
+          continue
+        }
         summaries.push({
           id: cached.snapshot.id,
           name: cached.snapshot.name,
