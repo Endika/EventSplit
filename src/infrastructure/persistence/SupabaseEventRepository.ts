@@ -14,6 +14,13 @@ import {
 import { parseEventSnapshot } from '@/infrastructure/persistence/EventSnapshotSchema'
 import { SCHEMA_VERSION } from '@/infrastructure/persistence/schemaVersion'
 
+/**
+ * A wrong PIN on a write is a return value, not a raise, so the server's fail
+ * record commits (a raise would roll it back). update_event signals it with 0,
+ * a version that never exists; set_event_pin and delete_event with false.
+ */
+const WRONG_PIN_VERSION = 0
+
 /** Map a PostgREST error (PTxyz SQLSTATE) raised by the RPCs to a domain error. */
 function mapRpcError(error: { code?: string } | null): Error | null {
   if (!error) return null
@@ -104,17 +111,19 @@ export class SupabaseEventRepository implements IEventRepository {
       const mapped = mapRpcError(error)
       if (mapped) throw mapped
     }
+    if (data === WRONG_PIN_VERSION) throw new WrongPinError()
     return { snapshot, version: (data as number) ?? expectedVersion + 1 }
   }
 
   async setPin(id: string, newPin: string | null, currentPin: string | null): Promise<void> {
-    const { error } = await this.client.rpc('set_event_pin', {
+    const { data, error } = await this.client.rpc('set_event_pin', {
       p_id: id,
       p_new_pin: newPin,
       p_current_pin: currentPin,
     })
     const mapped = mapRpcError(error)
     if (mapped) throw mapped
+    if (data === false) throw new WrongPinError()
   }
 
   async verifyPin(id: string, pin: string): Promise<boolean> {
@@ -125,8 +134,9 @@ export class SupabaseEventRepository implements IEventRepository {
   }
 
   async deleteEvent(id: string, pin: string | null): Promise<void> {
-    const { error } = await this.client.rpc('delete_event', { p_id: id, p_pin: pin })
+    const { data, error } = await this.client.rpc('delete_event', { p_id: id, p_pin: pin })
     const mapped = mapRpcError(error)
     if (mapped) throw mapped
+    if (data === false) throw new WrongPinError()
   }
 }
