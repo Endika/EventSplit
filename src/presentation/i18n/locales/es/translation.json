@@ -212,6 +212,8 @@
     "wifi": "Contraseña WiFi",
     "emergency": "Contacto de emergencia",
     "searchHint": "Busca el sitio para autocompletar el nombre, la dirección y el mapa.",
+    "addressSearchError": "No se han podido buscar direcciones. Comprueba tu conexión e inténtalo de nuevo.",
+    "addressDetailsError": "No se ha podido obtener la ubicación en el mapa de esa dirección. Vuelve a intentarlo.",
     "nameRequired": "Ponle nombre al sitio para poder guardar. No se ha perdido nada de lo que has escrito."
   },
   "purchases": {

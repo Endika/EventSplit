@@ -2,9 +2,12 @@ import { useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Input } from '@/presentation/components/common/Input'
 import { searchAddresses } from '@/infrastructure/geo/photonSearch'
-import { googleAutocomplete, googlePlaceDetails } from '@/infrastructure/geo/googlePlaces'
+import {
+  googleAutocomplete,
+  googlePlaceDetails,
+  type PlaceSuggestion,
+} from '@/infrastructure/geo/googlePlaces'
 import { reportError } from '@/shared/utils/reportError'
-import { friendlyError } from '@/presentation/utils/friendlyError'
 
 export interface AddressPick {
   address: string
@@ -53,17 +56,21 @@ export function AddressAutocomplete({ value, onChange, placeholder }: Props) {
     try {
       let results: Suggestion[]
       if (key) {
+        let google: PlaceSuggestion[] | null
         try {
-          const google = await googleAutocomplete(query, key)
-          results =
-            google.length > 0
-              ? google.map((r) => ({ label: r.label, placeId: r.placeId }))
-              : await searchAddresses(query, lang)
+          google = await googleAutocomplete(query, key)
         } catch {
           // Google failed outright (bad/expired key, quota, no network): fall
           // back to the keyless Photon search instead of showing nothing.
-          results = await searchAddresses(query, lang)
+          google = null
         }
+        // Empty (genuinely no matches, or Google failed) still gets one Photon
+        // try; if that one throws, it must reach the outer catch directly —
+        // not get treated as "Google failed" and retried a second time.
+        results =
+          google !== null && google.length > 0
+            ? google.map((r) => ({ label: r.label, placeId: r.placeId }))
+            : await searchAddresses(query, lang)
       } else {
         results = await searchAddresses(query, lang)
       }
@@ -74,7 +81,7 @@ export function AddressAutocomplete({ value, onChange, placeholder }: Props) {
       if (!mountedRef.current || query !== latestQueryRef.current) return
       setSuggestions([])
       reportError('AddressAutocomplete', err)
-      setError(friendlyError(err, t))
+      setError(t('location.addressSearchError'))
     }
   }
 
@@ -95,6 +102,7 @@ export function AddressAutocomplete({ value, onChange, placeholder }: Props) {
       setError(null)
       void googlePlaceDetails(s.placeId, key)
         .then((details) => {
+          if (!mountedRef.current) return
           if (details) {
             onChange({
               address: details.label,
@@ -106,12 +114,13 @@ export function AddressAutocomplete({ value, onChange, placeholder }: Props) {
             // 200 OK but no coordinates/address for this place: saving it as
             // typed would look fine while silently dropping the map pin.
             // Keep whatever is already typed and say the pick failed instead.
-            setError(t('errors.generic'))
+            setError(t('location.addressDetailsError'))
           }
         })
         .catch((err: unknown) => {
+          if (!mountedRef.current) return
           reportError('AddressAutocomplete', err)
-          setError(friendlyError(err, t))
+          setError(t('location.addressDetailsError'))
         })
     } else {
       onChange({ address: s.label, lat: s.lat ?? null, lng: s.lng ?? null })

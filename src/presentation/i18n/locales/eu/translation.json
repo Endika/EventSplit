@@ -212,6 +212,8 @@
     "wifi": "WiFi pasahitza",
     "emergency": "Larrialdiko kontaktua",
     "searchHint": "Bilatu lekua izena, helbidea eta mapa automatikoki betetzeko.",
+    "addressSearchError": "Ezin izan dira helbideak bilatu. Egiaztatu konexioa eta saiatu berriro.",
+    "addressDetailsError": "Ezin izan da helbide horren kokapena mapan lortu. Saiatu berriro.",
     "nameRequired": "Eman lekuari izena gordetzeko. Idatzi duzuna ez da galdu."
   },
   "purchases": {
