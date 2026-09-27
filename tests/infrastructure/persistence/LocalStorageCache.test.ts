@@ -95,6 +95,37 @@ describe('LocalStorageCache', () => {
     expect(pins.get('other12')).toBe('5678')
   })
 
+  it('listAll drops a PIN-protected event this device holds no PIN for', () => {
+    const cache = new LocalStorageCache()
+    const s = { ...sample(), hasPin: true }
+    cache.set(s.id, { snapshot: s, version: 1 })
+
+    expect(cache.listAll()).toEqual([])
+    expect(cache.get(s.id)).toBeNull()
+  })
+
+  it('listAll keeps a PIN-protected event this device has the PIN for', () => {
+    const cache = new LocalStorageCache()
+    const pins = new UnlockedPinHolder()
+    const s = { ...sample(), hasPin: true }
+    cache.set(s.id, { snapshot: s, version: 1 })
+    pins.set(s.id, '1234')
+
+    const list = cache.listAll()
+    expect(list).toHaveLength(1)
+    expect(list[0]!.name).toBe('Trip')
+  })
+
+  it('listAll keeps a PIN-less event with no stored PIN', () => {
+    const cache = new LocalStorageCache()
+    const s = sample()
+    cache.set(s.id, { snapshot: s, version: 1 })
+
+    const list = cache.listAll()
+    expect(list).toHaveLength(1)
+    expect(list[0]!.name).toBe('Trip')
+  })
+
   it('dropping only the snapshot keeps the identity for that event', () => {
     const cache = new LocalStorageCache()
     const s = sample()
