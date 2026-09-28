@@ -34,7 +34,7 @@ describe('AddressAutocomplete', () => {
     vi.stubGlobal(
       'fetch',
       vi.fn(async (url: string) => {
-        if (url.includes('photon.komoot.io')) {
+        if (new URL(url).hostname === 'photon.komoot.io') {
           return jsonResponse({
             features: [
               {
@@ -86,7 +86,7 @@ describe('AddressAutocomplete', () => {
       'fetch',
       vi.fn(async (url: string) => {
         if (url.includes('places:autocomplete')) return jsonResponse({ suggestions: [] }) // genuine empty
-        if (url.includes('photon.komoot.io')) {
+        if (new URL(url).hostname === 'photon.komoot.io') {
           photonCalls += 1
           if (photonCalls === 1) return jsonResponse('', 500) // the one Photon try fails
           // A second call would "succeed" — it must never be made after the first failed.
