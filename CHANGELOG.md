@@ -1,5 +1,15 @@
 # Changelog
 
+## [3.9.2](https://github.com/Endika/EventSplit/compare/v3.9.1...v3.9.2) (2026-09-28)
+
+
+### Bug Fixes
+
+* never let a failed background reconcile go unhandled ([f40ac76](https://github.com/Endika/EventSplit/commit/f40ac767f28343731d5eb19e38e8e9019f28ccff))
+* show a translated message for a failed first reconcile ([b62dde6](https://github.com/Endika/EventSplit/commit/b62dde632de81adac225e72fa545ddaf630dfb7b))
+* specific address error messages, unmount guard, no retry ([e054763](https://github.com/Endika/EventSplit/commit/e0547635c2916c546d5cfe8dbbe6c827fe26d648))
+* throw on a failed geo lookup instead of returning empty results ([4cd3b76](https://github.com/Endika/EventSplit/commit/4cd3b762e5cb553606094ffb09be485a756a9a2d))
+
 ## [3.9.1](https://github.com/Endika/EventSplit/compare/v3.9.0...v3.9.1) (2026-09-27)
 
 
