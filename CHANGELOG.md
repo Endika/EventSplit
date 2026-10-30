@@ -1,5 +1,12 @@
 # Changelog
 
+## [3.9.3](https://github.com/Endika/EventSplit/compare/v3.9.2...v3.9.3) (2026-10-30)
+
+
+### Bug Fixes
+
+* **deps:** bump serialize-javascript to 7.1.3 ([aaf226a](https://github.com/Endika/EventSplit/commit/aaf226ac69841eafca18890688d0a2d83917a9b5))
+
 ## [3.9.2](https://github.com/Endika/EventSplit/compare/v3.9.1...v3.9.2) (2026-09-28)
 
 
