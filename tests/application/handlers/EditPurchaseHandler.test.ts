@@ -130,6 +130,42 @@ describe('EditPurchaseHandler', () => {
     expect(result.event.purchases[0]!.group).toBe('Comida')
   })
 
+  describe('assignedTo', () => {
+    const edit = (ctx: Awaited<ReturnType<typeof setup>>, assignedTo?: string | null) =>
+      new EditPurchaseHandler(ctx.repo).execute({
+        eventId: ctx.eventId,
+        purchaseId: ctx.purchaseId,
+        editedBy: ctx.userId,
+        item: 'Coke',
+        quantity: 3,
+        unit: 'bottles',
+        dailyConsumption: 2,
+        consumers: [{ userId: ctx.userId, multiplier: 1 }],
+        days: 2,
+        assignedTo,
+      })
+
+    it('sets the buyer', async () => {
+      const ctx = await setup()
+      const result = await edit(ctx, ctx.userId)
+      expect(result.event.purchases[0]!.assignedTo).toBe(ctx.userId)
+    })
+
+    it('clears the buyer when passed null', async () => {
+      const ctx = await setup()
+      await edit(ctx, ctx.userId)
+      const result = await edit(ctx, null)
+      expect(result.event.purchases[0]!.assignedTo).toBeNull()
+    })
+
+    it('keeps the buyer when not provided', async () => {
+      const ctx = await setup()
+      await edit(ctx, ctx.userId)
+      const result = await edit(ctx)
+      expect(result.event.purchases[0]!.assignedTo).toBe(ctx.userId)
+    })
+  })
+
   it('clears the group and subgroup when passed null', async () => {
     const ctx = await setup()
     await new EditPurchaseHandler(ctx.repo).execute({

@@ -254,7 +254,7 @@ export function PurchaseForm({
               dailyConsumption: buyDaily,
               consumers: list,
               days: buyDays,
-              assignedTo: purchase.assignedTo ?? null,
+              assignedTo,
               group: group.trim() || null,
               subgroup: group.trim() ? subgroup.trim() || null : null,
             })

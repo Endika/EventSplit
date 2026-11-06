@@ -31,9 +31,10 @@ export class EditPurchaseHandler {
         dailyConsumption: parsed.dailyConsumption,
         consumers: parsed.consumers,
         days: parsed.days,
-        assignedTo: parsed.assignedTo ?? existing.assignedTo ?? null,
         // Distinguish "not provided" (undefined → keep) from an explicit null
         // (the form clears the field), which `??` would wrongly swallow.
+        assignedTo:
+          parsed.assignedTo !== undefined ? parsed.assignedTo : (existing.assignedTo ?? null),
         group: parsed.group !== undefined ? parsed.group : (existing.group ?? null),
         subgroup: parsed.subgroup !== undefined ? parsed.subgroup : (existing.subgroup ?? null),
       })
