@@ -1,5 +1,12 @@
 # Changelog
 
+## [3.9.4](https://github.com/Endika/EventSplit/compare/v3.9.3...v3.9.4) (2026-11-06)
+
+
+### Bug Fixes
+
+* save the buyer picked in the purchase edit form ([dd9acc6](https://github.com/Endika/EventSplit/commit/dd9acc6250c4a97e7bd5f76ee4d1848005c4b590))
+
 ## [3.9.3](https://github.com/Endika/EventSplit/compare/v3.9.2...v3.9.3) (2026-10-30)
 
 
