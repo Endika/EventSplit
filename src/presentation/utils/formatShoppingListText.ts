@@ -1,9 +1,8 @@
 import type { EventSnapshot } from '@/domain/entities/Event'
 import type { PurchaseSnapshot } from '@/domain/entities/Purchase'
-import { displayUnit } from '@/presentation/utils/units'
+import { displayUnit, type Translate } from '@/presentation/utils/units'
 import { groupPurchases } from '@/presentation/utils/groupPurchases'
 import { boughtQuantity, isPurchaseDone } from '@/presentation/utils/purchaseProgress'
-type T = (key: string, vars?: Record<string, unknown>) => string
 
 function formatQty(n: number): string {
   return Number.isInteger(n) ? String(n) : String(Math.round(n * 10) / 10)
@@ -18,7 +17,7 @@ function nameOf(event: EventSnapshot, userId: string | null): string | null {
   return event.users.find((u) => u.id === userId)?.name ?? null
 }
 
-function renderBuyLine(event: EventSnapshot, p: PurchaseSnapshot, t: T): string {
+function renderBuyLine(event: EventSnapshot, p: PurchaseSnapshot, t: Translate): string {
   const assigned = nameOf(event, p.assignedTo)
   const assigneePart = assigned ? ` — ${assigned}` : ''
   const done = isPurchaseDone(event, p)
@@ -36,7 +35,7 @@ function renderBringLine(event: EventSnapshot, p: PurchaseSnapshot): string {
   return `  • ${p.item}${assigneePart}`
 }
 
-export function formatShoppingListText(event: EventSnapshot, t: T): string {
+export function formatShoppingListText(event: EventSnapshot, t: Translate): string {
   const visible = event.purchases.filter((p) => !p.deleted)
   if (visible.length === 0) return ''
 
