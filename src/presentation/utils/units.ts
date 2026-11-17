@@ -5,7 +5,10 @@ export const SELECTABLE_UNITS = [...VALID_UNITS, SHARED_UNIT] as const
 
 const KNOWN = new Set<string>(SELECTABLE_UNITS)
 
-type T = (key: string, opts?: Record<string, unknown>) => string
+export type Translate = {
+  (key: string): string
+  (key: string, opts: Record<string, unknown>): string
+}
 
 /**
  * Translate a known unit key, picking singular/plural based on `count` via i18next's
@@ -13,7 +16,7 @@ type T = (key: string, opts?: Record<string, unknown>) => string
  * unit otherwise. When `count` is omitted, returns the base plural form (used for
  * dropdown labels).
  */
-export function displayUnit(unit: string, t: T, count?: number): string {
+export function displayUnit(unit: string, t: Translate, count?: number): string {
   if (!KNOWN.has(unit)) return unit
   const key = `purchases.form.units.${unit}`
   return count === undefined ? t(key) : t(key, { count })
