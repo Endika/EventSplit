@@ -68,6 +68,11 @@ export function ExpenseSummary() {
       .reduce((n, b) => n + b.balanceCents, 0)
   const myCarried = mine ? mine.balanceCents + carriedFor(mine.userId) : 0
   const others = result.balances.filter((b) => b.userId !== mine?.userId)
+  // Somebody who paid nothing and owes nothing only lengthens the list.
+  const isZero = (b: { spentCents: number; balanceCents: number }) =>
+    b.spentCents === 0 && b.balanceCents === 0
+  const shown = others.filter((b) => !isZero(b))
+  const hiddenCount = others.length - shown.length
   const allSquare =
     result.transfers.length > 0 && result.transfers.every((tr) => isSettled(tr.from, tr.to))
 
@@ -158,12 +163,12 @@ export function ExpenseSummary() {
         <div className="rail mt-4" />
 
         <ul className="mt-3">
-          {others.map((b) => (
+          {shown.map((b) => (
             <li
               key={b.userId}
               className="flex items-baseline justify-between gap-3 border-b border-border py-2 last:border-0"
             >
-              <span className="flex min-w-0 flex-col truncate text-sm text-ink">
+              <span className="flex min-w-0 flex-1 flex-col truncate text-sm text-ink">
                 <span className="truncate">
                   {nameOf(b.userId)}
                   <YouLabel userId={b.userId} />
@@ -174,7 +179,7 @@ export function ExpenseSummary() {
                   </span>
                 )}
               </span>
-              <span className="shrink-0 text-right text-sm tabular-nums text-muted">
+              <span className="w-24 shrink-0 text-right text-sm tabular-nums text-muted">
                 {formatMoney(b.spentCents)}
               </span>
               <span
@@ -185,6 +190,11 @@ export function ExpenseSummary() {
             </li>
           ))}
         </ul>
+        {hiddenCount > 0 && (
+          <p className="fineprint mt-3">
+            {t('expenses.summary.zeroHidden', { count: hiddenCount })}
+          </p>
+        )}
         <p className="fineprint mt-3">
           {t('expenses.summary.total')} {formatMoney(result.totalCents)}
         </p>

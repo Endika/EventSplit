@@ -351,7 +351,9 @@
       "inThis_other": "{{count}} gastos nos que entras",
       "paidBy": "pagouno {{name}}",
       "nobodyOwes": "Aínda non hai nada que saldar",
-      "includes": "inclúe a {{names}}"
+      "includes": "inclúe a {{names}}",
+      "zeroHidden_one": "{{count}} persoa máis sen gastos nin saldo",
+      "zeroHidden_other": "{{count}} persoas máis sen gastos nin saldo"
     },
     "settledWarnTitle": "Hai liquidacións xa marcadas como pagadas",
     "settledWarnBody": "Este gasto afecta a {{names}}, que xa teñen unha transferencia marcada como pagada. Engadilo cambiará os seus saldos, así que esa marca podería deixar de ser correcta. Continuar?",

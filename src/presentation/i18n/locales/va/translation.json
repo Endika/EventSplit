@@ -351,7 +351,9 @@
       "inThis_other": "{{count}} despeses en què entres",
       "paidBy": "ho va pagar {{name}}",
       "nobodyOwes": "Encara no hi ha res a saldar",
-      "includes": "inclou {{names}}"
+      "includes": "inclou {{names}}",
+      "zeroHidden_one": "{{count}} persona més sense despeses ni saldo",
+      "zeroHidden_other": "{{count}} persones més sense despeses ni saldo"
     },
     "settledWarnTitle": "Hi ha liquidacions ja marcades com a pagades",
     "settledWarnBody": "Esta despesa afecta {{names}}, que ja tenen una transferència marcada com a pagada. Afegir-la canviarà els seus saldos, així que eixa marca podria deixar de ser correcta. Voleu continuar?",
