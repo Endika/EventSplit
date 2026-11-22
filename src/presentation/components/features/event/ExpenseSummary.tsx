@@ -68,9 +68,10 @@ export function ExpenseSummary() {
       .reduce((n, b) => n + b.balanceCents, 0)
   const myCarried = mine ? mine.balanceCents + carriedFor(mine.userId) : 0
   const others = result.balances.filter((b) => b.userId !== mine?.userId)
-  // Somebody who paid nothing and owes nothing only lengthens the list.
-  const isZero = (b: { spentCents: number; balanceCents: number }) =>
-    b.spentCents === 0 && b.balanceCents === 0
+  // Somebody who paid nothing and owes nothing only lengthens the list, unless
+  // they carry a child's balance and so still show up in the transfers.
+  const isZero = (b: { userId: string; spentCents: number; balanceCents: number }) =>
+    b.spentCents === 0 && b.balanceCents === 0 && carriedFor(b.userId) === 0
   const shown = others.filter((b) => !isZero(b))
   const hiddenCount = others.length - shown.length
   const allSquare =

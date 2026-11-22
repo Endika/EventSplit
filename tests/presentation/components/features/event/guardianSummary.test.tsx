@@ -143,6 +143,15 @@ describe('the balance list', () => {
     expect(screen.getByText('1 more person with nothing spent or owed')).toBeInTheDocument()
   })
 
+  it('keeps an adult at zero who carries a child’s balance', async () => {
+    const event = makeEvent(null, ['u1', 'c1'])
+    event.users = [...event.users.slice(0, 2), person('c1', 'Nora', 'child', 'u2')]
+    render(<Wrap event={event} />)
+    await waitFor(() => expect(screen.getByText(/Ane pays €15.00 to Ekin/i)).toBeInTheDocument())
+    expect(screen.getByText('Ane')).toBeInTheDocument()
+    expect(screen.queryByText(/nothing spent or owed/)).not.toBeInTheDocument()
+  })
+
   it('shows everyone and no count when nobody is at zero', async () => {
     render(<Wrap event={makeEvent(null)} />)
     await waitFor(() => expect(screen.getByText('Nora')).toBeInTheDocument())
