@@ -1,5 +1,12 @@
 # Changelog
 
+## [3.9.5](https://github.com/Endika/EventSplit/compare/v3.9.4...v3.9.5) (2026-11-22)
+
+
+### Bug Fixes
+
+* **expenses:** align the balance columns and leave out people at zero ([b97e159](https://github.com/Endika/EventSplit/commit/b97e15901ff775eb24953ffbd4bacb9d8ea44a0e))
+
 ## [3.9.4](https://github.com/Endika/EventSplit/compare/v3.9.3...v3.9.4) (2026-11-06)
 
 
