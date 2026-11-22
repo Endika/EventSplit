@@ -31,8 +31,8 @@ const person = (
   notes: null,
 })
 
-/** Ekin pays 30,00 for three. Nora is a child in Ekin's charge. */
-function makeEvent(guardianId: string | null): EventSnapshot {
+/** Ekin pays 30,00, split among `splitAmong` (everyone if empty). Nora is a child. */
+function makeEvent(guardianId: string | null, splitAmong: string[] = []): EventSnapshot {
   return {
     id: 'abc123x',
     name: 'Trip',
@@ -64,7 +64,7 @@ function makeEvent(guardianId: string | null): EventSnapshot {
         purchaseId: null,
         date: '2026-06-05',
         createdAt: '2026-06-05T10:00:00.000Z',
-        splitAmong: [],
+        splitAmong,
         purchaseLinks: [],
         deleted: false,
         deletedBy: null,
@@ -130,5 +130,22 @@ describe('a child in an adult’s charge, on the balance screen', () => {
     render(<Wrap event={makeEvent(null)} />)
     await waitFor(() => expect(screen.getByText('+€20.00')).toBeInTheDocument())
     expect(screen.getByText(/Nora pays €10.00 to Ekin/i)).toBeInTheDocument()
+  })
+})
+
+describe('the balance list', () => {
+  beforeEach(() => localStorage.clear())
+
+  it('leaves out whoever paid nothing and owes nothing, and counts them', async () => {
+    render(<Wrap event={makeEvent(null, ['u1', 'u2'])} />)
+    await waitFor(() => expect(screen.getByText('-€15.00')).toBeInTheDocument())
+    expect(screen.queryByText('Nora')).not.toBeInTheDocument()
+    expect(screen.getByText('1 more person with nothing spent or owed')).toBeInTheDocument()
+  })
+
+  it('shows everyone and no count when nobody is at zero', async () => {
+    render(<Wrap event={makeEvent(null)} />)
+    await waitFor(() => expect(screen.getByText('Nora')).toBeInTheDocument())
+    expect(screen.queryByText(/nothing spent or owed/)).not.toBeInTheDocument()
   })
 })

@@ -351,7 +351,9 @@
       "inThis_other": "Zeu zauden {{count}} gastu",
       "paidBy": "{{name}}(e)k ordaindua",
       "nobodyOwes": "Oraindik ez dago zer kitaturik",
-      "includes": "{{names}} barne"
+      "includes": "{{names}} barne",
+      "zeroHidden_one": "Beste pertsona {{count}} gasturik eta saldorik gabe",
+      "zeroHidden_other": "Beste {{count}} pertsona gasturik eta saldorik gabe"
     },
     "settledWarnTitle": "Badira jada ordaindutzat markatutako likidazioak",
     "settledWarnBody": "Gastu honek {{names}} ukitzen ditu, eta jada transferentzia bat ordaindutzat markatuta dute. Gehitzeak haien saldoak aldatuko ditu, beraz marka hori ez da zuzena izango. Jarraitu?",

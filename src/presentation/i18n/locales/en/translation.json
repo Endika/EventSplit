@@ -351,7 +351,9 @@
       "inThis_other": "{{count}} expenses you are in",
       "paidBy": "paid by {{name}}",
       "nobodyOwes": "Nothing to settle yet",
-      "includes": "includes {{names}}"
+      "includes": "includes {{names}}",
+      "zeroHidden_one": "{{count}} more person with nothing spent or owed",
+      "zeroHidden_other": "{{count}} more people with nothing spent or owed"
     },
     "settledWarnTitle": "Some settlements are already marked paid",
     "settledWarnBody": "This expense affects {{names}}, who already have a transfer marked as paid. Adding it will change their balances, so that mark may no longer be correct. Continue?",
