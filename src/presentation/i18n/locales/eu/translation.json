@@ -352,6 +352,9 @@
       "paidBy": "{{name}}(e)k ordaindua",
       "nobodyOwes": "Oraindik ez dago zer kitaturik",
       "includes": "{{names}} barne",
+      "householdBreakdown": "Ikusi banakapena",
+      "householdHide": "Ezkutatu banakapena",
+      "householdMember": "{{name}}: {{amount}}",
       "zeroHidden_one": "Beste pertsona {{count}} gasturik eta saldorik gabe",
       "zeroHidden_other": "Beste {{count}} pertsona gasturik eta saldorik gabe"
     },
@@ -382,7 +385,10 @@
     "removeCancel": "Utzi",
     "guardian": "Noren ardurapean",
     "guardianNone": "Esleitu gabe",
-    "guardianOf": "{{name}}(r)en ardurapean"
+    "guardianOf": "{{name}}(r)en ardurapean",
+    "household": "Taldea",
+    "householdHint": "Elkarrekin ordaintzen duen familia edo bikotea. Alde bakar gisa kitatzen da.",
+    "householdOf": "Taldea: {{name}}"
   },
   "stage": {
     "title": "Fasea",

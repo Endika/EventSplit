@@ -42,6 +42,7 @@ export function ProfileEditor({ userId, onClose }: { userId?: string; onClose: (
   const [allergies, setAllergies] = useState<AllergenSnapshot[]>(myRow?.allergies ?? [])
   const [kind, setKind] = useState<UserKind>(myRow?.kind ?? 'adult')
   const [guardianId, setGuardianId] = useState<string>(myRow?.guardianId ?? '')
+  const [household, setHousehold] = useState(myRow?.household ?? '')
 
   const [newAllergen, setNewAllergen] = useState<AllergenName>('gluten')
   const [newSeverity, setNewSeverity] = useState<AllergenSeverity>('mild')
@@ -58,6 +59,9 @@ export function ProfileEditor({ userId, onClose }: { userId?: string; onClose: (
   if (!event || !targetUserId) return null
 
   const isSelf = targetUserId === me?.id
+  const existingHouseholds = [
+    ...new Set(event.users.flatMap((u) => (u.household ? [u.household] : []))),
+  ].sort()
 
   function addAllergy() {
     if (newAllergen !== 'other' && allergies.some((a) => a.name === newAllergen)) return
@@ -92,6 +96,7 @@ export function ProfileEditor({ userId, onClose }: { userId?: string; onClose: (
           notes: notes.trim() || null,
           kind,
           guardianId: kind === 'child' ? guardianId || null : null,
+          household: kind === 'adult' ? household.trim() || null : null,
           allergies,
         })
         setEvent(result.event, result.version)
@@ -204,6 +209,25 @@ export function ProfileEditor({ userId, onClose }: { userId?: string; onClose: (
                   </option>
                 ))}
             </select>
+          </label>
+        )}
+        {kind === 'adult' && (
+          <label className="block text-sm text-muted">
+            {t('participants.household')}
+            <input
+              className="mt-1 block min-h-11 w-full border border-border bg-surface px-3 py-2 text-base text-ink placeholder-muted focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand sm:text-sm"
+              list="household-suggestions"
+              value={household}
+              onChange={(e) => setHousehold(e.target.value)}
+              maxLength={50}
+              disabled={busy}
+            />
+            <datalist id="household-suggestions">
+              {existingHouseholds.map((h) => (
+                <option key={h} value={h} />
+              ))}
+            </datalist>
+            <span className="fineprint mt-1 block">{t('participants.householdHint')}</span>
           </label>
         )}
         <Input

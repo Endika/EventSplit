@@ -352,6 +352,9 @@
       "paidBy": "paid by {{name}}",
       "nobodyOwes": "Nothing to settle yet",
       "includes": "includes {{names}}",
+      "householdBreakdown": "Show breakdown",
+      "householdHide": "Hide breakdown",
+      "householdMember": "{{name}}: {{amount}}",
       "zeroHidden_one": "{{count}} more person with nothing spent or owed",
       "zeroHidden_other": "{{count}} more people with nothing spent or owed"
     },
@@ -382,7 +385,10 @@
     "removeCancel": "Cancel",
     "guardian": "In the charge of",
     "guardianNone": "Not assigned",
-    "guardianOf": "in {{name}}'s charge"
+    "guardianOf": "in {{name}}'s charge",
+    "household": "Group",
+    "householdHint": "Family or couple who pay together. They settle up as a single party.",
+    "householdOf": "Group: {{name}}"
   },
   "stage": {
     "title": "Stage",
