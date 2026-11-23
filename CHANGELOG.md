@@ -1,5 +1,12 @@
 # Changelog
 
+## [3.11.0](https://github.com/Endika/EventSplit/compare/v3.10.0...v3.11.0) (2026-11-23)
+
+
+### Features
+
+* **expenses:** settle a household as one party ([35f12d5](https://github.com/Endika/EventSplit/commit/35f12d5795e8d6d8f185fe81aa58239d74654a10))
+
 ## [3.10.0](https://github.com/Endika/EventSplit/compare/v3.9.7...v3.10.0) (2026-11-23)
 
 
