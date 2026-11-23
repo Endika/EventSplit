@@ -58,6 +58,7 @@ describe('EventSnapshot shape guard', () => {
         'dietary',
         'email',
         'guardianId',
+        'household',
         'id',
         'joinedAt',
         'kind',

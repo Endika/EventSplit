@@ -50,6 +50,8 @@ export const UserSchema = z.object({
   // build, so it defaults to null and the child settles for themselves, exactly
   // as they did then.
   guardianId: z.string().nullable().catch(null).default(null),
+  // Absent before schema 7; null leaves the person settling on their own.
+  household: z.string().nullable().catch(null).default(null),
 })
 
 const PurchaseConsumerSchema = z.object({

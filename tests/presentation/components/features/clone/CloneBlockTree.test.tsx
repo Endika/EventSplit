@@ -20,6 +20,7 @@ function user(id: string, name: string, over: Partial<UserSnapshot> = {}): UserS
     notes: null,
     kind: 'adult',
     guardianId: null,
+    household: null,
     ...over,
   }
 }

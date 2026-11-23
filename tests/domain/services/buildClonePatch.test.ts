@@ -60,6 +60,7 @@ function user(id: string, name: string, over: Partial<UserSnapshot> = {}): UserS
     notes: null,
     kind: 'adult',
     guardianId: null,
+    household: null,
     ...over,
   }
 }
@@ -127,6 +128,7 @@ describe('buildClonePatch', () => {
             phone: '600000000',
             kind: 'child',
             guardianId: null,
+            household: null,
             alias: 'prima',
           }),
         ],

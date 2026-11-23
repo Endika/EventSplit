@@ -22,6 +22,12 @@ export interface UserSnapshot {
    * this adult. Null on adults, on dogs, and on children nobody has assigned yet.
    */
   guardianId: string | null
+  /**
+   * Free-text name of the group of adults who pay together (a family, a
+   * couple). Settlement treats everyone sharing it as one party. Null on
+   * children and dogs: a child follows their guardian's group.
+   */
+  household: string | null
 }
 
 export interface ProfileUpdate {
@@ -34,6 +40,7 @@ export interface ProfileUpdate {
   notes?: string | null
   kind?: UserKind
   guardianId?: string | null
+  household?: string | null
 }
 
 export class User {
@@ -49,6 +56,7 @@ export class User {
     readonly notes: string | null,
     readonly kind: UserKind,
     readonly guardianId: string | null,
+    readonly household: string | null,
   ) {}
 
   static create(input: {
@@ -77,6 +85,7 @@ export class User {
       null,
       kind,
       guardianId,
+      null,
     )
   }
 
@@ -85,7 +94,14 @@ export class User {
       | UserSnapshot
       | Omit<
           UserSnapshot,
-          'email' | 'phone' | 'allergies' | 'dietary' | 'notes' | 'kind' | 'guardianId'
+          | 'email'
+          | 'phone'
+          | 'allergies'
+          | 'dietary'
+          | 'notes'
+          | 'kind'
+          | 'guardianId'
+          | 'household'
         >,
   ): User {
     const full = s as UserSnapshot
@@ -101,6 +117,7 @@ export class User {
       full.notes ?? null,
       full.kind ?? 'adult',
       full.guardianId ?? null,
+      full.household ?? null,
     )
   }
 
@@ -141,6 +158,12 @@ export class User {
     if (guardianId !== null && guardianId === this.id.value)
       throw new Error('User: guardian cannot be the child themselves')
 
+    const requestedHousehold =
+      update.household === undefined ? this.household : update.household?.trim() || null
+    if (requestedHousehold && requestedHousehold.length > 50)
+      throw new Error('User: household must be ≤ 50 chars')
+    const household = kind === 'adult' ? requestedHousehold : null
+
     return new User(
       this.id,
       name,
@@ -153,6 +176,7 @@ export class User {
       notes,
       kind,
       guardianId,
+      household,
     )
   }
 
@@ -173,6 +197,7 @@ export class User {
       notes: this.notes,
       kind: this.kind,
       guardianId: this.guardianId,
+      household: this.household,
     }
   }
 }

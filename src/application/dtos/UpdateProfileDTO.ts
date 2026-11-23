@@ -14,6 +14,7 @@ export const UpdateProfileSchema = z.object({
   notes: z.string().trim().max(500).nullable().optional(),
   kind: z.enum(USER_KINDS).optional(),
   guardianId: z.string().nullable().optional(),
+  household: z.string().trim().max(50).nullable().optional(),
   allergies: z
     .array(
       z.object({

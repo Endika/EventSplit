@@ -27,6 +27,7 @@ function makeEvent(): EventSnapshot {
         alias: null,
         kind: 'adult',
         guardianId: null,
+        household: null,
         email: null,
         phone: null,
         dietary: null,

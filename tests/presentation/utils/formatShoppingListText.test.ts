@@ -74,6 +74,7 @@ const ikerUser = {
   alias: null,
   kind: 'adult' as const,
   guardianId: null,
+  household: null,
   email: null,
   phone: null,
   dietary: null,
