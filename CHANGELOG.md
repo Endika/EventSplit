@@ -1,5 +1,12 @@
 # Changelog
 
+## [3.12.0](https://github.com/Endika/EventSplit/compare/v3.11.0...v3.12.0) (2026-11-23)
+
+
+### Features
+
+* **participants:** group people who pay together ([29bff74](https://github.com/Endika/EventSplit/commit/29bff74b6baaec1a443b6fc350b7ce0f0c4fcc30))
+
 ## [3.11.0](https://github.com/Endika/EventSplit/compare/v3.10.0...v3.11.0) (2026-11-23)
 
 
