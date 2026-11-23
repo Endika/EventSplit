@@ -352,6 +352,9 @@
       "paidBy": "lo pagó {{name}}",
       "nobodyOwes": "Todavía no hay nada que saldar",
       "includes": "incluye a {{names}}",
+      "householdBreakdown": "Ver desglose",
+      "householdHide": "Ocultar desglose",
+      "householdMember": "{{name}}: {{amount}}",
       "zeroHidden_one": "{{count}} persona más sin gastos ni saldo",
       "zeroHidden_other": "{{count}} personas más sin gastos ni saldo"
     },
@@ -382,7 +385,10 @@
     "removeCancel": "Cancelar",
     "guardian": "A cargo de",
     "guardianNone": "Sin asignar",
-    "guardianOf": "a cargo de {{name}}"
+    "guardianOf": "a cargo de {{name}}",
+    "household": "Grupo",
+    "householdHint": "Familia o pareja que paga junta. Se liquida como una sola parte.",
+    "householdOf": "Grupo: {{name}}"
   },
   "stage": {
     "title": "Fase",

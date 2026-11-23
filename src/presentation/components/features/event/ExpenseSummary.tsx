@@ -19,6 +19,7 @@ export function ExpenseSummary() {
   const me = useCurrentUser()
   const { guardedExecute } = useWriteGuard()
   const [unfolded, setUnfolded] = useState(false)
+  const [openBreakdowns, setOpenBreakdowns] = useState<ReadonlySet<string>>(new Set())
   if (!event) return null
 
   function isSettled(from: string, to: string): boolean {
@@ -40,6 +41,9 @@ export function ExpenseSummary() {
 
   const payers = payingUsers(event.users)
   const payerIds = payers.map((u) => u.id)
+  const householdOf: Record<string, string> = Object.fromEntries(
+    payers.flatMap((u) => (u.kind === 'adult' && u.household ? [[u.id, u.household]] : [])),
+  )
   const live = event.expenses.filter((e) => !e.deleted)
   const result = ExpenseSplitter.compute({
     // Dogs attend but never owe: they are kept out of the split entirely,
@@ -50,6 +54,7 @@ export function ExpenseSummary() {
     guardianOf: Object.fromEntries(
       payers.flatMap((u) => (u.guardianId ? [[u.id, u.guardianId]] : [])),
     ),
+    householdOf,
     expenses: live.map((e) => ({
       paidBy: e.paidBy,
       amount: Money.fromCents(e.cents),
@@ -57,6 +62,21 @@ export function ExpenseSummary() {
     })),
   })
   const nameOf = (id: string) => event.users.find((u) => u.id === id)?.name ?? '?'
+  const householdMembers = (household: string) =>
+    payers.filter((u) => householdOf[u.id] === household)
+  // A transfer names the first member of a household, so that is who stands in
+  // for the whole group.
+  const householdRepresentedBy = (id: string): string | null => {
+    const household = householdOf[id]
+    return household && householdMembers(household)[0]?.id === id ? household : null
+  }
+  const partyName = (id: string) => householdRepresentedBy(id) ?? nameOf(id)
+  const toggleBreakdown = (key: string) =>
+    setOpenBreakdowns((open) => {
+      const next = new Set(open)
+      if (!next.delete(key)) next.add(key)
+      return next
+    })
 
   const mine = result.balances.find((b) => b.userId === me?.id)
   // What this person actually ends up with. Carrying a child means carrying
@@ -66,7 +86,9 @@ export function ExpenseSummary() {
     result.balances
       .filter((b) => event.users.find((u) => u.id === b.userId)?.guardianId === payerId)
       .reduce((n, b) => n + b.balanceCents, 0)
-  const myCarried = mine ? mine.balanceCents + carriedFor(mine.userId) : 0
+  const memberBalance = (id: string) =>
+    (result.balances.find((b) => b.userId === id)?.balanceCents ?? 0) + carriedFor(id)
+  const myCarried = mine ? memberBalance(mine.userId) : 0
   const others = result.balances.filter((b) => b.userId !== mine?.userId)
   // Somebody who paid nothing and owes nothing only lengthens the list, unless
   // they carry a child's balance and so still show up in the transfers.
@@ -94,6 +116,9 @@ export function ExpenseSummary() {
       .filter((u) => u.guardianId === payerId)
       .map((u) => u.name)
       .join(', ')
+
+  const householdSides = (tr: { from: string; to: string }): string[] =>
+    [tr.from, tr.to].flatMap((id) => householdRepresentedBy(id) ?? [])
 
   const guardianNameOf = (userId: string): string => {
     const guardianId = event.users.find((u) => u.id === userId)?.guardianId
@@ -179,6 +204,11 @@ export function ExpenseSummary() {
                     {t('participants.guardianOf', { name: guardianNameOf(b.userId) })}
                   </span>
                 )}
+                {householdOf[b.userId] && (
+                  <span className="fineprint">
+                    {t('participants.householdOf', { name: householdOf[b.userId] })}
+                  </span>
+                )}
               </span>
               <span className="w-24 shrink-0 text-right text-sm tabular-nums text-muted">
                 {formatMoney(b.spentCents)}
@@ -214,6 +244,9 @@ export function ExpenseSummary() {
           <ul className="space-y-1">
             {result.transfers.map((tr, i) => {
               const settled = isSettled(tr.from, tr.to)
+              const households = householdSides(tr)
+              const breakdownKey = `${tr.from}:${tr.to}`
+              const breakdownOpen = openBreakdowns.has(breakdownKey)
               return (
                 <li key={i}>
                   <label className="flex min-h-11 cursor-pointer items-center gap-3 text-sm">
@@ -226,11 +259,11 @@ export function ExpenseSummary() {
                     />
                     <span className={settled ? 'text-muted line-through' : 'text-ink'}>
                       {t('expenses.summary.transferLine', {
-                        from: nameOf(tr.from),
+                        from: partyName(tr.from),
                         amount: formatMoney(tr.cents),
-                        to: nameOf(tr.to),
+                        to: partyName(tr.to),
                       })}
-                      {carriedNames(tr.from) && (
+                      {!householdRepresentedBy(tr.from) && carriedNames(tr.from) && (
                         <span className="text-muted">
                           {' '}
                           ({t('expenses.summary.includes', { names: carriedNames(tr.from) })})
@@ -238,6 +271,40 @@ export function ExpenseSummary() {
                       )}
                     </span>
                   </label>
+                  {households.length > 0 && (
+                    <>
+                      <button
+                        type="button"
+                        onClick={() => toggleBreakdown(breakdownKey)}
+                        aria-expanded={breakdownOpen}
+                        className="fineprint ml-8 inline-flex min-h-11 items-center text-brand"
+                      >
+                        {breakdownOpen
+                          ? t('expenses.summary.householdHide')
+                          : t('expenses.summary.householdBreakdown')}
+                      </button>
+                      {breakdownOpen &&
+                        households.map((household) => (
+                          <ul key={household} className="unfold mb-2 ml-8 space-y-1">
+                            {householdMembers(household).map((u) => (
+                              <li key={u.id} className="text-sm text-muted">
+                                {t('expenses.summary.householdMember', {
+                                  name: u.name,
+                                  amount: formatSignedMoney(memberBalance(u.id)),
+                                })}
+                                {carriedNames(u.id) && (
+                                  <>
+                                    {' '}
+                                    ({t('expenses.summary.includes', { names: carriedNames(u.id) })}
+                                    )
+                                  </>
+                                )}
+                              </li>
+                            ))}
+                          </ul>
+                        ))}
+                    </>
+                  )}
                 </li>
               )
             })}
