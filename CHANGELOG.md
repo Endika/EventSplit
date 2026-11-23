@@ -1,5 +1,12 @@
 # Changelog
 
+## [3.10.0](https://github.com/Endika/EventSplit/compare/v3.9.7...v3.10.0) (2026-11-23)
+
+
+### Features
+
+* **participants:** store a settlement household ([d34776f](https://github.com/Endika/EventSplit/commit/d34776f9515c98269f71247921fe72e6a9508b0d))
+
 ## [3.9.7](https://github.com/Endika/EventSplit/compare/v3.9.6...v3.9.7) (2026-11-23)
 
 
