@@ -1,5 +1,12 @@
 # Changelog
 
+## [3.9.7](https://github.com/Endika/EventSplit/compare/v3.9.6...v3.9.7) (2026-11-23)
+
+
+### Bug Fixes
+
+* **pwa:** precache the app again so installed apps update ([32aeaa9](https://github.com/Endika/EventSplit/commit/32aeaa93f6fce0af81b332b971a6a44a0f7d1538))
+
 ## [3.9.6](https://github.com/Endika/EventSplit/compare/v3.9.5...v3.9.6) (2026-11-23)
 
 
