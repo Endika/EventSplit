@@ -10,6 +10,13 @@ export interface SplitterInput {
    * to the old behaviour instead of losing the money.
    */
   guardianOf?: Record<string, string>
+  /**
+   * adultId -> the name of the group of adults who pay together. Settlement
+   * folds the whole group, and the children their members carry, into its first
+   * member in `participantIds` order, so a family or a couple is one party.
+   * Per-person balances are never affected.
+   */
+  householdOf?: Record<string, string>
   expenses: {
     paidBy: string
     amount: Money
@@ -89,9 +96,19 @@ export const ExpenseSplitter = {
       const guardian = input.guardianOf?.[id]
       return guardian && guardian !== id && input.participantIds.includes(guardian) ? guardian : id
     }
+    const representatives = new Map<string, string>()
+    for (const id of input.participantIds) {
+      const household = input.householdOf?.[id]
+      if (household && !representatives.has(household)) representatives.set(household, id)
+    }
+    const settlesAs = (id: string): string => {
+      const adult = carriedBy(id)
+      const household = input.householdOf?.[adult]
+      return (household && representatives.get(household)) || adult
+    }
     const settlement = new Map<string, number>()
     for (const b of balances) {
-      const holder = carriedBy(b.userId)
+      const holder = settlesAs(b.userId)
       settlement.set(holder, (settlement.get(holder) ?? 0) + b.balanceCents)
     }
     const settlementBalances = [...settlement].map(([userId, balanceCents]) => ({
