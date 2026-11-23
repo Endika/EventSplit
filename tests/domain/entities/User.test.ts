@@ -134,4 +134,51 @@ describe('User', () => {
     }
     expect(User.restore(legacy as never).kind).toBe('adult')
   })
+
+  describe('household', () => {
+    const adult = () => User.create({ name: 'Ana' })
+
+    it('is trimmed and stored on an adult', () => {
+      expect(adult().withProfile({ household: '  García  ' }).household).toBe('García')
+    })
+
+    it('turns blank into null', () => {
+      const grouped = adult().withProfile({ household: 'García' })
+      expect(grouped.withProfile({ household: '   ' }).household).toBeNull()
+    })
+
+    it('rejects a name over 50 characters', () => {
+      expect(() => adult().withProfile({ household: 'x'.repeat(51) })).toThrow(/household/)
+    })
+
+    it('is left alone when the update does not mention it', () => {
+      const grouped = adult().withProfile({ household: 'García' })
+      expect(grouped.withProfile({ email: 'a@b.com' }).household).toBe('García')
+    })
+
+    it('never sticks to a child or a dog', () => {
+      expect(
+        User.create({ name: 'Leo', kind: 'child' }).withProfile({ household: 'García' }).household,
+      ).toBeNull()
+      expect(
+        User.create({ name: 'Toby', kind: 'dog' }).withProfile({ household: 'García' }).household,
+      ).toBeNull()
+    })
+
+    it('is dropped when an adult becomes a child', () => {
+      const grouped = adult().withProfile({ household: 'García' })
+      expect(grouped.withProfile({ kind: 'child' }).household).toBeNull()
+    })
+
+    it('restores to null from a snapshot written before it existed', () => {
+      const legacy = { ...adult().toSnapshot() } as Partial<ReturnType<User['toSnapshot']>>
+      delete legacy.household
+      expect(User.restore(legacy as never).household).toBeNull()
+    })
+
+    it('survives a snapshot round trip', () => {
+      const grouped = adult().withProfile({ household: 'García' })
+      expect(User.restore(grouped.toSnapshot()).household).toBe('García')
+    })
+  })
 })

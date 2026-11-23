@@ -41,6 +41,7 @@ export class UpdateProfileHandler {
         notes: parsed.notes,
         kind: parsed.kind,
         guardianId: parsed.guardianId,
+        household: parsed.household,
         allergies: parsed.allergies?.map((a) => ({
           name: a.name,
           severity: a.severity,

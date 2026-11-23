@@ -150,6 +150,7 @@ describe('LocalStorageCache', () => {
             notes: null,
             kind: 'adult',
             guardianId: null,
+            household: null,
           },
         ],
         availability: {},

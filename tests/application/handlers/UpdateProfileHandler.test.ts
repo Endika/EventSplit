@@ -86,4 +86,27 @@ describe('UpdateProfileHandler', () => {
     expect(entry.description).toContain('Maite')
     expect(entry.description).not.toMatch(/their profile/i)
   })
+
+  it('saves a household and clears it again', async () => {
+    const repo = new InMemoryEventRepository()
+    const create = await new CreateEventHandler(repo).execute({ name: 'Trip', creatorName: 'John' })
+    const handler = new UpdateProfileHandler(repo)
+    const ids = { eventId: create.event.id, userId: create.creator.id, actorId: create.creator.id }
+
+    const grouped = await handler.execute({ ...ids, household: ' García ' })
+    expect(grouped.event.users[0]!.household).toBe('García')
+
+    const cleared = await handler.execute({ ...ids, household: null })
+    expect(cleared.event.users[0]!.household).toBeNull()
+  })
+
+  it('drops the household when the adult becomes a child', async () => {
+    const repo = new InMemoryEventRepository()
+    const create = await new CreateEventHandler(repo).execute({ name: 'John', creatorName: 'Ana' })
+    const handler = new UpdateProfileHandler(repo)
+    const ids = { eventId: create.event.id, userId: create.creator.id, actorId: create.creator.id }
+    await handler.execute({ ...ids, household: 'García' })
+    const result = await handler.execute({ ...ids, kind: 'child' })
+    expect(result.event.users[0]!.household).toBeNull()
+  })
 })

@@ -21,6 +21,7 @@ function snapshot(id: string, over: Partial<EventSnapshot> = {}): EventSnapshot 
         alias: null,
         kind: 'adult',
         guardianId: null,
+        household: null,
         joinedAt: '2026-01-01T00:00:00.000Z',
         email: null,
         phone: null,
