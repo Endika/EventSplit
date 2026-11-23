@@ -1,5 +1,12 @@
 # Changelog
 
+## [3.9.6](https://github.com/Endika/EventSplit/compare/v3.9.5...v3.9.6) (2026-11-23)
+
+
+### Bug Fixes
+
+* **expenses:** keep a guardian at zero in the balance list ([ed9fe67](https://github.com/Endika/EventSplit/commit/ed9fe67d01f6f8e893067d98b81d5bd11b0f2bbc))
+
 ## [3.9.5](https://github.com/Endika/EventSplit/compare/v3.9.4...v3.9.5) (2026-11-22)
 
 
