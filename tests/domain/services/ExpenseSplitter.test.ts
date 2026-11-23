@@ -201,3 +201,85 @@ describe('ExpenseSplitter with a guardian', () => {
     expect(moved).toBe(-owed)
   })
 })
+
+describe('ExpenseSplitter households', () => {
+  const eur = (n: number) => Money.fromCents(n * 100)
+  const garcia = { ana: 'García', luis: 'García' }
+  // Marta pays 100 split four ways: Ana, Luis and Leo (Ana's son) owe 25 each.
+  const family = {
+    participantIds: ['ana', 'luis', 'leo', 'marta'],
+    guardianOf: { leo: 'ana' },
+    expenses: [{ paidBy: 'marta', amount: eur(100) }],
+  }
+  const transferred = (r: ReturnType<typeof ExpenseSplitter.compute>) =>
+    r.transfers.reduce((n, t) => n + t.cents, 0)
+
+  it('settles a family as one party, represented by its first member', () => {
+    const r = ExpenseSplitter.compute({ ...family, householdOf: garcia })
+    expect(r.transfers).toEqual([{ from: 'ana', to: 'marta', cents: 7500 }])
+  })
+
+  it('keeps every per-person balance as it was', () => {
+    const plain = ExpenseSplitter.compute(family)
+    const grouped = ExpenseSplitter.compute({ ...family, householdOf: garcia })
+    expect(grouped.balances).toEqual(plain.balances)
+  })
+
+  it('gives the same result as today when nobody has a household', () => {
+    expect(ExpenseSplitter.compute({ ...family, householdOf: {} })).toEqual(
+      ExpenseSplitter.compute(family),
+    )
+  })
+
+  it('subtracts what a member paid from the household', () => {
+    const r = ExpenseSplitter.compute({
+      participantIds: ['ana', 'luis', 'marta'],
+      householdOf: garcia,
+      expenses: [
+        { paidBy: 'luis', amount: eur(60) },
+        { paidBy: 'marta', amount: eur(30) },
+      ],
+    })
+    // Household: paid 60, owes 60 -> even. Marta paid 30, owes 30.
+    expect(r.transfers).toEqual([])
+  })
+
+  it('settles household to household', () => {
+    const r = ExpenseSplitter.compute({
+      participantIds: ['ana', 'luis', 'marta', 'pau'],
+      householdOf: { ...garcia, marta: 'Soler', pau: 'Soler' },
+      expenses: [{ paidBy: 'marta', amount: eur(100) }],
+    })
+    expect(r.transfers).toEqual([{ from: 'ana', to: 'marta', cents: 5000 }])
+  })
+
+  it('creates no transfer for a household that ends at zero', () => {
+    const r = ExpenseSplitter.compute({
+      participantIds: ['ana', 'luis', 'marta'],
+      householdOf: garcia,
+      expenses: [{ paidBy: 'ana', amount: eur(20), splitAmong: ['ana', 'luis'] }],
+    })
+    expect(r.transfers).toEqual([])
+    const alone = ExpenseSplitter.compute({
+      participantIds: ['ana', 'luis', 'marta'],
+      expenses: [{ paidBy: 'ana', amount: eur(20), splitAmong: ['ana', 'luis'] }],
+    })
+    expect(alone.transfers).toEqual([{ from: 'luis', to: 'ana', cents: 1000 }])
+  })
+
+  it('puts a child whose guardian is in a household into that household', () => {
+    const r = ExpenseSplitter.compute({
+      participantIds: ['luis', 'ana', 'leo', 'marta'],
+      guardianOf: { leo: 'ana' },
+      householdOf: garcia,
+      expenses: [{ paidBy: 'marta', amount: eur(100) }],
+    })
+    expect(r.transfers).toEqual([{ from: 'luis', to: 'marta', cents: 7500 }])
+  })
+
+  it('never lets the transfers disagree with the balances', () => {
+    const r = ExpenseSplitter.compute({ ...family, householdOf: garcia })
+    const owed = r.balances.reduce((n, b) => n + Math.min(0, b.balanceCents), 0)
+    expect(transferred(r)).toBe(-owed)
+  })
+})
