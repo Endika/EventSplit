@@ -25,6 +25,11 @@ function toIso(d: Date): string {
   return `${d.getFullYear()}-${month}-${day}`
 }
 
+/** `new Date` rolls 2026-02-30 over to March; a real date survives the round trip. */
+function isCalendarDate(iso: string): boolean {
+  return toIso(atNoon(iso)) === iso
+}
+
 export function optionKey(o: DayOption): string {
   return `${o.start}..${o.end}`
 }
@@ -48,7 +53,7 @@ export function normalizeNote(raw: string | null | undefined): string | null {
 
 export function isValidOption(o: DayOption): boolean {
   if (!ISO.test(o.start) || !ISO.test(o.end)) return false
-  if (Number.isNaN(atNoon(o.start).getTime()) || Number.isNaN(atNoon(o.end).getTime())) return false
+  if (!isCalendarDate(o.start) || !isCalendarDate(o.end)) return false
   if (o.note !== null && (typeof o.note !== 'string' || o.note.length > MAX_NOTE_LEN)) return false
   if (o.end < o.start) return false
   return spanDays(o) <= MAX_SPAN_DAYS
