@@ -1,14 +1,22 @@
 import { z } from 'zod'
+import {
+  entityIdField,
+  eventIdField,
+  groupNameField,
+  itemNameField,
+  quantityField,
+  unitField,
+} from '@/application/dtos/fields'
 
 export const AddBroughtItemSchema = z.object({
-  eventId: z.string().regex(/^[a-z0-9]{7}$/),
-  createdBy: z.string().uuid(),
-  item: z.string().trim().min(2).max(50),
-  quantity: z.number().positive().max(10_000),
-  unit: z.string().trim().min(1).max(30),
-  group: z.string().trim().max(50).nullable().optional(),
-  subgroup: z.string().trim().max(50).nullable().optional(),
-  broughtBy: z.string().uuid().nullable().optional(),
+  eventId: eventIdField,
+  createdBy: entityIdField,
+  item: itemNameField,
+  quantity: quantityField,
+  unit: unitField,
+  group: groupNameField,
+  subgroup: groupNameField,
+  broughtBy: entityIdField.nullable().optional(),
 })
 
 export type AddBroughtItemInput = z.infer<typeof AddBroughtItemSchema>

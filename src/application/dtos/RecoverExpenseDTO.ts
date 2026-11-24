@@ -1,9 +1,10 @@
 import { z } from 'zod'
+import { entityIdField, eventIdField } from '@/application/dtos/fields'
 
 export const RecoverExpenseSchema = z.object({
-  eventId: z.string().regex(/^[a-z0-9]{7}$/),
-  expenseId: z.string().uuid(),
-  recoveredBy: z.string().uuid(),
+  eventId: eventIdField,
+  expenseId: entityIdField,
+  recoveredBy: entityIdField,
 })
 
 export type RecoverExpenseInput = z.infer<typeof RecoverExpenseSchema>

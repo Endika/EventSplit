@@ -1,13 +1,21 @@
 import { z } from 'zod'
+import {
+  affectsField,
+  amountEurosField,
+  conceptField,
+  entityIdField,
+  eventIdField,
+  liquidationIdField,
+} from '@/application/dtos/fields'
 
 export const EditManualLiquidationSchema = z.object({
-  eventId: z.string().regex(/^[a-z0-9]{7}$/),
-  userId: z.string().uuid(),
-  liquidationId: z.string(),
-  concept: z.string().trim().min(3).max(100),
-  amountEuros: z.number().positive().max(999_999.99),
-  paidBy: z.string().uuid().nullable(),
-  affects: z.array(z.string().uuid()).default([]),
+  eventId: eventIdField,
+  userId: entityIdField,
+  liquidationId: liquidationIdField,
+  concept: conceptField,
+  amountEuros: amountEurosField,
+  paidBy: entityIdField.nullable(),
+  affects: affectsField,
 })
 
 export type EditManualLiquidationInput = z.infer<typeof EditManualLiquidationSchema>

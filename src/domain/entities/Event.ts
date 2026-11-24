@@ -2,7 +2,7 @@ import { EventId } from '@/domain/value-objects/EventId'
 import { optionKey, type DayOption } from '@/domain/value-objects/DayOption'
 import { User } from '@/domain/entities/User'
 import type { UserSnapshot } from '@/domain/entities/User'
-import type { PurchaseSnapshot } from '@/domain/entities/Purchase'
+import { GROUP_NAME_MAX, type PurchaseSnapshot } from '@/domain/entities/Purchase'
 import type { ExpenseSnapshot } from '@/domain/entities/Expense'
 import type { ManualLiquidationSnapshot } from '@/domain/entities/ManualLiquidation'
 
@@ -47,6 +47,9 @@ export interface HistoryEntry {
 }
 
 export const MAX_HISTORY_ENTRIES = 30
+export const EVENT_NAME_MIN = 3
+export const EVENT_NAME_MAX = 100
+export const AVAILABILITY_NOTE_MAX = 200
 
 /** Keep only the most recent entries; history is an informational audit log. */
 export function capHistory(entries: HistoryEntry[]): HistoryEntry[] {
@@ -99,17 +102,22 @@ export interface EventSnapshot {
 
 export class Event {
   private readonly s: EventSnapshot
+  readonly name: string
+  readonly users: readonly UserSnapshot[]
 
   private constructor(
     readonly id: EventId,
     snapshot: EventSnapshot,
   ) {
     this.s = { ...snapshot, history: capHistory(snapshot.history) }
+    this.name = this.s.name
+    this.users = this.s.users
   }
 
   static create(input: { name: string; creator: User; id?: EventId }): Event {
     const name = input.name.trim()
-    if (name.length < 3 || name.length > 100) throw new Error('Event: name must be 3..100 chars')
+    if (name.length < EVENT_NAME_MIN || name.length > EVENT_NAME_MAX)
+      throw new Error(`Event: name must be ${EVENT_NAME_MIN}..${EVENT_NAME_MAX} chars`)
     const id = input.id ?? EventId.generate()
     const now = new Date().toISOString()
     const snapshot: EventSnapshot = {
@@ -148,6 +156,12 @@ export class Event {
       updatedAt: now,
     }
     return new Event(id, snapshot)
+  }
+
+  private memberName(userId: string): string {
+    const member = this.s.users.find((u) => u.id === userId)
+    if (!member) throw new Error('Event: user not in event')
+    return member.name
   }
 
   static restore(s: EventSnapshot): Event {
@@ -319,8 +333,7 @@ export class Event {
   setStage(input: { stage: EventStage; userId: string }): Event {
     if (!EVENT_STAGES.includes(input.stage))
       throw new Error(`Event: invalid stage "${input.stage}"`)
-    if (!this.s.users.some((u) => u.id === input.userId))
-      throw new Error('Event: user not in event')
+    const userName = this.memberName(input.userId)
     if (this.s.stage === input.stage) {
       // No-op — return same event without bumping version/history
       return this
@@ -328,7 +341,6 @@ export class Event {
 
     const now = new Date().toISOString()
     const nextVersion = (this.s.history.at(-1)?.version ?? 0) + 1
-    const userName = this.s.users.find((u) => u.id === input.userId)?.name ?? 'Someone'
 
     const nextSnapshot: EventSnapshot = {
       ...this.s,
@@ -355,16 +367,14 @@ export class Event {
     note: string | null
     chosenOptions: string[]
   }): Event {
-    if (!this.s.users.some((u) => u.id === input.userId))
-      throw new Error('Event: user not in event')
+    const userName = this.memberName(input.userId)
     const known = new Set(this.s.dayOptions.map(optionKey))
     const unknown = input.chosenOptions.filter((k) => !known.has(k))
     if (unknown.length > 0)
       throw new Error(`Event: chosenOptions must be event options (${unknown.join(', ')})`)
-    const note = input.note?.trim() ? input.note.trim().slice(0, 200) : null
+    const note = input.note?.trim() ? input.note.trim().slice(0, AVAILABILITY_NOTE_MAX) : null
     const now = new Date().toISOString()
     const nextVersion = (this.s.history.at(-1)?.version ?? 0) + 1
-    const userName = this.s.users.find((u) => u.id === input.userId)?.name ?? 'Someone'
     const nextSnapshot: EventSnapshot = {
       ...this.s,
       availabilityNote: note,
@@ -386,15 +396,13 @@ export class Event {
   }
 
   toggleSettlement(input: { userId: string; from: string; to: string }): Event {
-    if (!this.s.users.some((u) => u.id === input.userId))
-      throw new Error('Event: user not in event')
+    const userName = this.memberName(input.userId)
     const exists = this.s.settledTransfers.some((s) => s.from === input.from && s.to === input.to)
     const nextSettled = exists
       ? this.s.settledTransfers.filter((s) => !(s.from === input.from && s.to === input.to))
       : [...this.s.settledTransfers, { from: input.from, to: input.to }]
     const now = new Date().toISOString()
     const nextVersion = (this.s.history.at(-1)?.version ?? 0) + 1
-    const userName = this.s.users.find((u) => u.id === input.userId)?.name ?? 'Someone'
     const fromName = this.s.users.find((u) => u.id === input.from)?.name ?? '?'
     const toName = this.s.users.find((u) => u.id === input.to)?.name ?? '?'
     const nextSnapshot: EventSnapshot = {
@@ -419,13 +427,11 @@ export class Event {
   }
 
   renameGroup(input: { userId: string; from: string; to: string }): Event {
-    if (!this.s.users.some((u) => u.id === input.userId))
-      throw new Error('Event: user not in event')
-    const to = input.to.trim().slice(0, 50)
+    const userName = this.memberName(input.userId)
+    const to = input.to.trim().slice(0, GROUP_NAME_MAX)
     const toValue = to === '' ? null : to
     const now = new Date().toISOString()
     const nextVersion = (this.s.history.at(-1)?.version ?? 0) + 1
-    const userName = this.s.users.find((u) => u.id === input.userId)?.name ?? 'Someone'
     const purchases = this.s.purchases.map((p) =>
       p.group === input.from ? { ...p, group: toValue } : p,
     )
@@ -463,12 +469,10 @@ export class Event {
   }
 
   setGroupOrder(input: { userId: string; order: string[] }): Event {
-    if (!this.s.users.some((u) => u.id === input.userId))
-      throw new Error('Event: user not in event')
+    const userName = this.memberName(input.userId)
     const order = [...new Set(input.order.filter((g) => g.trim() !== ''))]
     const now = new Date().toISOString()
     const nextVersion = (this.s.history.at(-1)?.version ?? 0) + 1
-    const userName = this.s.users.find((u) => u.id === input.userId)?.name ?? 'Someone'
     const nextSnapshot: EventSnapshot = {
       ...this.s,
       groupOrder: order,
@@ -489,13 +493,11 @@ export class Event {
   }
 
   renameSubgroup(input: { userId: string; group: string; from: string; to: string }): Event {
-    if (!this.s.users.some((u) => u.id === input.userId))
-      throw new Error('Event: user not in event')
-    const to = input.to.trim().slice(0, 50)
+    const userName = this.memberName(input.userId)
+    const to = input.to.trim().slice(0, GROUP_NAME_MAX)
     const toValue = to === '' ? null : to
     const now = new Date().toISOString()
     const nextVersion = (this.s.history.at(-1)?.version ?? 0) + 1
-    const userName = this.s.users.find((u) => u.id === input.userId)?.name ?? 'Someone'
     const purchases = this.s.purchases.map((p) =>
       p.group === input.group && p.subgroup === input.from ? { ...p, subgroup: toValue } : p,
     )
@@ -526,12 +528,10 @@ export class Event {
   }
 
   setSubgroupOrder(input: { userId: string; group: string; order: string[] }): Event {
-    if (!this.s.users.some((u) => u.id === input.userId))
-      throw new Error('Event: user not in event')
+    const userName = this.memberName(input.userId)
     const order = [...new Set(input.order.filter((s) => s.trim() !== ''))]
     const now = new Date().toISOString()
     const nextVersion = (this.s.history.at(-1)?.version ?? 0) + 1
-    const userName = this.s.users.find((u) => u.id === input.userId)?.name ?? 'Someone'
     const subgroupOrder = { ...this.s.subgroupOrder, [input.group]: order }
     const nextSnapshot: EventSnapshot = {
       ...this.s,
@@ -550,13 +550,6 @@ export class Event {
       ],
     }
     return new Event(this.id, nextSnapshot)
-  }
-
-  get name(): string {
-    return this.s.name
-  }
-  get users(): UserSnapshot[] {
-    return this.s.users
   }
 
   toSnapshot(): EventSnapshot {

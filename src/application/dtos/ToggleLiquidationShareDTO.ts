@@ -1,10 +1,11 @@
 import { z } from 'zod'
+import { entityIdField, eventIdField, liquidationIdField } from '@/application/dtos/fields'
 
 export const ToggleLiquidationShareSchema = z.object({
-  eventId: z.string().regex(/^[a-z0-9]{7}$/),
-  userId: z.string().uuid(),
-  liquidationId: z.string(),
-  shareUserId: z.string().uuid(),
+  eventId: eventIdField,
+  userId: entityIdField,
+  liquidationId: liquidationIdField,
+  shareUserId: entityIdField,
 })
 
 export type ToggleLiquidationShareInput = z.infer<typeof ToggleLiquidationShareSchema>

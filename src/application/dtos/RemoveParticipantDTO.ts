@@ -1,8 +1,9 @@
 import { z } from 'zod'
+import { entityIdField, eventIdField } from '@/application/dtos/fields'
 
 export const RemoveParticipantSchema = z.object({
-  eventId: z.string().regex(/^[a-z0-9]{7}$/),
-  userId: z.string().uuid(),
+  eventId: eventIdField,
+  userId: entityIdField,
 })
 
 export type RemoveParticipantInput = z.infer<typeof RemoveParticipantSchema>

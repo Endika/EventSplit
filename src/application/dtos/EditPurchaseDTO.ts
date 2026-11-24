@@ -1,25 +1,29 @@
 import { z } from 'zod'
+import {
+  consumersField,
+  dailyConsumptionField,
+  daysField,
+  entityIdField,
+  eventIdField,
+  groupNameField,
+  itemNameField,
+  quantityField,
+  unitField,
+} from '@/application/dtos/fields'
 
 export const EditPurchaseSchema = z.object({
-  eventId: z.string().regex(/^[a-z0-9]{7}$/),
-  purchaseId: z.string().uuid(),
-  editedBy: z.string().uuid(),
-  item: z.string().trim().min(2).max(50),
-  quantity: z.number().positive().max(10_000),
-  unit: z.string().trim().min(1).max(30),
-  dailyConsumption: z.number().positive().max(100),
-  consumers: z
-    .array(
-      z.object({
-        userId: z.string().uuid(),
-        multiplier: z.number().min(0).max(10),
-      }),
-    )
-    .min(1),
-  days: z.number().int().positive(),
-  assignedTo: z.string().uuid().nullable().optional(),
-  group: z.string().trim().max(50).nullable().optional(),
-  subgroup: z.string().trim().max(50).nullable().optional(),
+  eventId: eventIdField,
+  purchaseId: entityIdField,
+  editedBy: entityIdField,
+  item: itemNameField,
+  quantity: quantityField,
+  unit: unitField,
+  dailyConsumption: dailyConsumptionField,
+  consumers: consumersField,
+  days: daysField,
+  assignedTo: entityIdField.nullable().optional(),
+  group: groupNameField,
+  subgroup: groupNameField,
 })
 
 export type EditPurchaseInput = z.infer<typeof EditPurchaseSchema>

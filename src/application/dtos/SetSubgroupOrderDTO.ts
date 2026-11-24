@@ -1,10 +1,16 @@
 import { z } from 'zod'
+import {
+  entityIdField,
+  eventIdField,
+  groupKeyField,
+  groupOrderField,
+} from '@/application/dtos/fields'
 
 export const SetSubgroupOrderSchema = z.object({
-  eventId: z.string().regex(/^[a-z0-9]{7}$/),
-  userId: z.string().uuid(),
-  group: z.string().min(1).max(50),
-  order: z.array(z.string()).max(50),
+  eventId: eventIdField,
+  userId: entityIdField,
+  group: groupKeyField,
+  order: groupOrderField,
 })
 
 export type SetSubgroupOrderInput = z.infer<typeof SetSubgroupOrderSchema>

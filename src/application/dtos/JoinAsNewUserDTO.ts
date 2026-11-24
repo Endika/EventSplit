@@ -1,12 +1,18 @@
 import { z } from 'zod'
-import { USER_KINDS } from '@/domain/entities/User'
+import {
+  eventIdField,
+  guardianIdField,
+  aliasField,
+  personNameField,
+  userKindField,
+} from '@/application/dtos/fields'
 
 export const JoinAsNewUserSchema = z.object({
-  eventId: z.string().regex(/^[a-z0-9]{7}$/),
-  name: z.string().trim().min(2).max(50),
-  alias: z.string().trim().max(50).optional().nullable(),
-  kind: z.enum(USER_KINDS).optional(),
-  guardianId: z.string().nullable().optional(),
+  eventId: eventIdField,
+  name: personNameField,
+  alias: aliasField,
+  kind: userKindField,
+  guardianId: guardianIdField,
 })
 
 export type JoinAsNewUserInput = z.infer<typeof JoinAsNewUserSchema>

@@ -45,20 +45,101 @@ export const VALID_UNITS = [
  */
 export const SHARED_UNIT = 'single'
 
-function validateUnit(unit: string): string {
-  const trimmed = unit.trim()
-  if (trimmed.length < 1 || trimmed.length > 30)
-    throw new Error('Purchase: unit must be 1..30 chars')
-  return trimmed
+export const ITEM_NAME_MIN = 2
+export const ITEM_NAME_MAX = 50
+export const UNIT_MIN = 1
+export const UNIT_MAX = 30
+export const QUANTITY_MAX = 10_000
+export const DAILY_CONSUMPTION_MAX = 100
+export const GROUP_NAME_MAX = 50
+
+interface BringFields {
+  item: string
+  quantity: number
+  unit: string
 }
 
-/** Trim, cap at 50 chars, and collapse blank input to null — shared by group and subgroup. */
+interface BuyFields extends BringFields {
+  dailyConsumption: number
+  consumers: PurchaseConsumer[]
+  days: number
+}
+
+function validateBringFields(input: BringFields): { item: string; unit: string } {
+  const item = input.item.trim()
+  if (item.length < ITEM_NAME_MIN || item.length > ITEM_NAME_MAX)
+    throw new Error(`Purchase: item must be ${ITEM_NAME_MIN}..${ITEM_NAME_MAX} chars`)
+  const unit = input.unit.trim()
+  if (unit.length < UNIT_MIN || unit.length > UNIT_MAX)
+    throw new Error(`Purchase: unit must be ${UNIT_MIN}..${UNIT_MAX} chars`)
+  if (input.quantity <= 0 || input.quantity > QUANTITY_MAX)
+    throw new Error(`Purchase: quantity must be in (0, ${QUANTITY_MAX}]`)
+  return { item, unit }
+}
+
+function validateBuyFields(input: BuyFields): {
+  item: string
+  unit: string
+  totalQuantity: number
+} {
+  const { item, unit } = validateBringFields(input)
+  if (input.dailyConsumption <= 0 || input.dailyConsumption > DAILY_CONSUMPTION_MAX)
+    throw new Error(`Purchase: dailyConsumption must be in (0, ${DAILY_CONSUMPTION_MAX}]`)
+  if (input.consumers.length === 0) throw new Error('Purchase: at least 1 consumer required')
+  if (input.days <= 0 || !Number.isInteger(input.days))
+    throw new Error('Purchase: days must be a positive integer')
+  input.consumers.forEach((c) => {
+    void Multiplier.of(c.multiplier)
+  })
+  return { item, unit, totalQuantity: totalQuantityFor(unit, input) }
+}
+
+function totalQuantityFor(unit: string, input: BuyFields): number {
+  if (unit === SHARED_UNIT) return roundCents(input.quantity)
+  const totalDaily = input.consumers.reduce(
+    (sum, c) => sum + input.dailyConsumption * c.multiplier,
+    0,
+  )
+  return roundCents(totalDaily * input.days)
+}
+
+function roundCents(value: number): number {
+  return Math.round(value * 100) / 100
+}
+
+/** Trim, cap at GROUP_NAME_MAX chars, and collapse blank input to null — shared by group and subgroup. */
 function normalizeGroupName(value: string | null | undefined): string | null {
-  return value?.trim() ? value.trim().slice(0, 50) : null
+  return value?.trim() ? value.trim().slice(0, GROUP_NAME_MAX) : null
 }
 
 export class Purchase {
-  private constructor(private readonly s: PurchaseSnapshot) {}
+  readonly id: string
+  readonly kind: 'buy' | 'bring'
+  readonly deleted: boolean
+  readonly deletedBy: string | null
+  readonly deleteReason: string | null
+  readonly totalQuantity: number
+  readonly createdBy: string
+  readonly assignedTo: string | null
+  readonly purchased: boolean
+  readonly boughtQuantity: number
+  readonly group: string | null
+  readonly subgroup: string | null
+
+  private constructor(private readonly s: PurchaseSnapshot) {
+    this.id = s.id
+    this.kind = s.kind
+    this.deleted = s.deleted
+    this.deletedBy = s.deletedBy
+    this.deleteReason = s.deleteReason
+    this.totalQuantity = s.totalQuantity
+    this.createdBy = s.createdBy
+    this.assignedTo = s.assignedTo
+    this.purchased = s.purchased
+    this.boughtQuantity = s.boughtQuantity
+    this.group = s.group
+    this.subgroup = s.subgroup
+  }
 
   static create(input: {
     createdBy: string
@@ -72,29 +153,7 @@ export class Purchase {
     group?: string | null
     subgroup?: string | null
   }): Purchase {
-    const item = input.item.trim()
-    if (item.length < 2 || item.length > 50) throw new Error('Purchase: item must be 2..50 chars')
-    const unit = validateUnit(input.unit)
-    if (input.quantity <= 0 || input.quantity > 10_000)
-      throw new Error('Purchase: quantity must be in (0, 10000]')
-    if (input.dailyConsumption <= 0 || input.dailyConsumption > 100)
-      throw new Error('Purchase: dailyConsumption must be in (0, 100]')
-    if (input.consumers.length === 0) throw new Error('Purchase: at least 1 consumer required')
-    if (input.days <= 0 || !Number.isInteger(input.days))
-      throw new Error('Purchase: days must be a positive integer')
-
-    input.consumers.forEach((c) => {
-      void Multiplier.of(c.multiplier) // validates
-    })
-
-    const totalDaily = input.consumers.reduce(
-      (sum, c) => sum + input.dailyConsumption * c.multiplier,
-      0,
-    )
-    const totalQuantity =
-      unit === SHARED_UNIT
-        ? Math.round(input.quantity * 100) / 100
-        : Math.round(totalDaily * input.days * 100) / 100
+    const { item, unit, totalQuantity } = validateBuyFields(input)
 
     return new Purchase({
       id: uuidv7(),
@@ -128,11 +187,7 @@ export class Purchase {
     subgroup?: string | null
     broughtBy?: string | null
   }): Purchase {
-    const item = input.item.trim()
-    if (item.length < 2 || item.length > 50) throw new Error('Purchase: item must be 2..50 chars')
-    const unit = validateUnit(input.unit)
-    if (input.quantity <= 0 || input.quantity > 10_000)
-      throw new Error('Purchase: quantity must be in (0, 10000]')
+    const { item, unit } = validateBringFields(input)
 
     return new Purchase({
       id: uuidv7(),
@@ -210,29 +265,7 @@ export class Purchase {
     group: string | null
     subgroup?: string | null
   }): Purchase {
-    const item = input.item.trim()
-    if (item.length < 2 || item.length > 50) throw new Error('Purchase: item must be 2..50 chars')
-    const unit = validateUnit(input.unit)
-    if (input.quantity <= 0 || input.quantity > 10_000)
-      throw new Error('Purchase: quantity must be in (0, 10000]')
-    if (input.dailyConsumption <= 0 || input.dailyConsumption > 100)
-      throw new Error('Purchase: dailyConsumption must be in (0, 100]')
-    if (input.consumers.length === 0) throw new Error('Purchase: at least 1 consumer required')
-    if (input.days <= 0 || !Number.isInteger(input.days))
-      throw new Error('Purchase: days must be a positive integer')
-
-    input.consumers.forEach((c) => {
-      void Multiplier.of(c.multiplier)
-    })
-
-    const totalDaily = input.consumers.reduce(
-      (sum, c) => sum + input.dailyConsumption * c.multiplier,
-      0,
-    )
-    const totalQuantity =
-      unit === SHARED_UNIT
-        ? Math.round(input.quantity * 100) / 100
-        : Math.round(totalDaily * input.days * 100) / 100
+    const { item, unit, totalQuantity } = validateBuyFields(input)
 
     return new Purchase({
       ...this.s,
@@ -257,11 +290,7 @@ export class Purchase {
     subgroup?: string | null
     broughtBy: string | null
   }): Purchase {
-    const item = input.item.trim()
-    if (item.length < 2 || item.length > 50) throw new Error('Purchase: item must be 2..50 chars')
-    const unit = validateUnit(input.unit)
-    if (input.quantity <= 0 || input.quantity > 10_000)
-      throw new Error('Purchase: quantity must be in (0, 10000]')
+    const { item, unit } = validateBringFields(input)
 
     return new Purchase({
       ...this.s,
@@ -292,43 +321,6 @@ export class Purchase {
       boughtQuantity: clamped,
       purchased: clamped >= this.s.totalQuantity && this.s.totalQuantity > 0,
     })
-  }
-
-  get id(): string {
-    return this.s.id
-  }
-  get kind(): 'buy' | 'bring' {
-    return this.s.kind
-  }
-  get deleted(): boolean {
-    return this.s.deleted
-  }
-  get deletedBy(): string | null {
-    return this.s.deletedBy
-  }
-  get deleteReason(): string | null {
-    return this.s.deleteReason
-  }
-  get totalQuantity(): number {
-    return this.s.totalQuantity
-  }
-  get createdBy(): string {
-    return this.s.createdBy
-  }
-  get assignedTo(): string | null {
-    return this.s.assignedTo
-  }
-  get purchased(): boolean {
-    return this.s.purchased
-  }
-  get boughtQuantity(): number {
-    return this.s.boughtQuantity
-  }
-  get group(): string | null {
-    return this.s.group
-  }
-  get subgroup(): string | null {
-    return this.s.subgroup
   }
 
   toSnapshot(): PurchaseSnapshot {

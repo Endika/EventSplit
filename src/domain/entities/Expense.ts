@@ -17,6 +17,36 @@ export interface ExpenseSnapshot {
   deletedAt: string | null
 }
 
+export const DESCRIPTION_MIN = 3
+export const DESCRIPTION_MAX = 100
+
+interface ExpenseInput {
+  paidBy: string
+  amount: Money
+  description: string
+  purchaseId?: string | null
+  date?: Date
+  splitAmong?: string[]
+  purchaseLinks?: { purchaseId: string; quantity: number }[]
+}
+
+function validateDescription(description: string): string {
+  const trimmed = description.trim()
+  if (trimmed.length < DESCRIPTION_MIN || trimmed.length > DESCRIPTION_MAX)
+    throw new Error(`Expense: description must be ${DESCRIPTION_MIN}..${DESCRIPTION_MAX} chars`)
+  return trimmed
+}
+
+function validateAmount(amount: Money): void {
+  if (amount.cents <= 0) throw new Error('Expense: amount must be > 0')
+}
+
+function validateSplitAmong(splitAmong: string[]): string[] {
+  if (new Set(splitAmong).size !== splitAmong.length)
+    throw new Error('Expense: splitAmong must contain unique userIds')
+  return splitAmong
+}
+
 function validatePurchaseLinks(
   links: { purchaseId: string; quantity: number }[],
 ): { purchaseId: string; quantity: number }[] {
@@ -28,24 +58,20 @@ function validatePurchaseLinks(
 }
 
 export class Expense {
-  private constructor(private readonly s: ExpenseSnapshot) {}
+  readonly id: string
+  readonly paidBy: string
+  readonly deleted: boolean
 
-  static create(input: {
-    paidBy: string
-    amount: Money
-    description: string
-    purchaseId?: string | null
-    date?: Date
-    splitAmong?: string[]
-    purchaseLinks?: { purchaseId: string; quantity: number }[]
-  }): Expense {
-    const description = input.description.trim()
-    if (description.length < 3 || description.length > 100)
-      throw new Error('Expense: description must be 3..100 chars')
-    if (input.amount.cents <= 0) throw new Error('Expense: amount must be > 0')
-    const splitAmong = input.splitAmong ?? []
-    if (new Set(splitAmong).size !== splitAmong.length)
-      throw new Error('Expense: splitAmong must contain unique userIds')
+  private constructor(private readonly s: ExpenseSnapshot) {
+    this.id = s.id
+    this.paidBy = s.paidBy
+    this.deleted = s.deleted
+  }
+
+  static create(input: ExpenseInput): Expense {
+    const description = validateDescription(input.description)
+    validateAmount(input.amount)
+    const splitAmong = validateSplitAmong(input.splitAmong ?? [])
     return new Expense({
       id: uuidv7(),
       paidBy: input.paidBy,
@@ -82,22 +108,10 @@ export class Expense {
     })
   }
 
-  edit(input: {
-    paidBy: string
-    amount: Money
-    description: string
-    purchaseId?: string | null
-    date?: Date
-    splitAmong?: string[]
-    purchaseLinks?: { purchaseId: string; quantity: number }[]
-  }): Expense {
-    const description = input.description.trim()
-    if (description.length < 3 || description.length > 100)
-      throw new Error('Expense: description must be 3..100 chars')
-    if (input.amount.cents <= 0) throw new Error('Expense: amount must be > 0')
-    const splitAmong = input.splitAmong ?? this.s.splitAmong
-    if (new Set(splitAmong).size !== splitAmong.length)
-      throw new Error('Expense: splitAmong must contain unique userIds')
+  edit(input: ExpenseInput): Expense {
+    const description = validateDescription(input.description)
+    validateAmount(input.amount)
+    const splitAmong = validateSplitAmong(input.splitAmong ?? this.s.splitAmong)
     const purchaseLinks =
       input.purchaseLinks !== undefined
         ? validatePurchaseLinks(input.purchaseLinks)
@@ -132,17 +146,8 @@ export class Expense {
     })
   }
 
-  get id(): string {
-    return this.s.id
-  }
-  get paidBy(): string {
-    return this.s.paidBy
-  }
   get amount(): Money {
     return Money.fromCents(this.s.cents)
-  }
-  get deleted(): boolean {
-    return this.s.deleted
   }
   get purchaseLinks(): { purchaseId: string; quantity: number }[] {
     return this.s.purchaseLinks.map((l) => ({ ...l }))

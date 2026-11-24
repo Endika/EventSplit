@@ -1,10 +1,11 @@
 import { z } from 'zod'
+import { entityIdField, eventIdField, optionalTextField } from '@/application/dtos/fields'
 
 export const DeletePurchaseSchema = z.object({
-  eventId: z.string().regex(/^[a-z0-9]{7}$/),
-  purchaseId: z.string().uuid(),
-  deletedBy: z.string().uuid(),
-  reason: z.string().trim().max(200).nullable().optional(),
+  eventId: eventIdField,
+  purchaseId: entityIdField,
+  deletedBy: entityIdField,
+  reason: optionalTextField(200),
 })
 
 export type DeletePurchaseInput = z.infer<typeof DeletePurchaseSchema>
