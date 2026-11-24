@@ -112,6 +112,28 @@ function normalizeGroupName(value: string | null | undefined): string | null {
   return value?.trim() ? value.trim().slice(0, GROUP_NAME_MAX) : null
 }
 
+export type LegacyPurchaseSnapshot =
+  | PurchaseSnapshot
+  | Omit<
+      PurchaseSnapshot,
+      'assignedTo' | 'purchased' | 'boughtQuantity' | 'group' | 'subgroup' | 'kind'
+    >
+
+export function backfillPurchaseSnapshot(s: LegacyPurchaseSnapshot): PurchaseSnapshot {
+  const { category: _legacyCategory, ...rest } = s as PurchaseSnapshot & { category?: string }
+  const full = rest as PurchaseSnapshot
+  const purchased = full.purchased ?? false
+  return {
+    ...full,
+    kind: full.kind ?? 'buy',
+    assignedTo: full.assignedTo ?? null,
+    purchased,
+    boughtQuantity: full.boughtQuantity ?? (purchased ? full.totalQuantity : 0),
+    group: full.group ?? null,
+    subgroup: full.subgroup ?? null,
+  }
+}
+
 export class Purchase {
   readonly id: string
   readonly kind: 'buy' | 'bring'
@@ -212,26 +234,8 @@ export class Purchase {
     })
   }
 
-  static restore(
-    s:
-      | PurchaseSnapshot
-      | Omit<
-          PurchaseSnapshot,
-          'assignedTo' | 'purchased' | 'boughtQuantity' | 'group' | 'subgroup' | 'kind'
-        >,
-  ): Purchase {
-    const { category: _legacyCategory, ...rest } = s as PurchaseSnapshot & { category?: string }
-    const full = rest as PurchaseSnapshot
-    const purchased = full.purchased ?? false
-    return new Purchase({
-      ...full,
-      kind: full.kind ?? 'buy',
-      assignedTo: full.assignedTo ?? null,
-      purchased,
-      boughtQuantity: full.boughtQuantity ?? (purchased ? full.totalQuantity : 0),
-      group: full.group ?? null,
-      subgroup: full.subgroup ?? null,
-    })
+  static restore(s: LegacyPurchaseSnapshot): Purchase {
+    return new Purchase(backfillPurchaseSnapshot(s))
   }
 
   softDelete(input: { by: string; reason: string | null }): Purchase {

@@ -1,10 +1,16 @@
 import { EventId } from '@/domain/value-objects/EventId'
 import { optionKey, type DayOption } from '@/domain/value-objects/DayOption'
-import { User } from '@/domain/entities/User'
-import type { UserSnapshot } from '@/domain/entities/User'
-import { GROUP_NAME_MAX, type PurchaseSnapshot } from '@/domain/entities/Purchase'
-import type { ExpenseSnapshot } from '@/domain/entities/Expense'
-import type { ManualLiquidationSnapshot } from '@/domain/entities/ManualLiquidation'
+import { User, backfillUserSnapshot, type UserSnapshot } from '@/domain/entities/User'
+import {
+  GROUP_NAME_MAX,
+  backfillPurchaseSnapshot,
+  type PurchaseSnapshot,
+} from '@/domain/entities/Purchase'
+import { backfillExpenseSnapshot, type ExpenseSnapshot } from '@/domain/entities/Expense'
+import {
+  backfillManualLiquidationSnapshot,
+  type ManualLiquidationSnapshot,
+} from '@/domain/entities/ManualLiquidation'
 
 export const EVENT_STAGES = ['doodle', 'shopping', 'expenses'] as const
 export type EventStage = (typeof EVENT_STAGES)[number]
@@ -178,50 +184,18 @@ export class Event {
       availability: s.availability ?? {},
       availabilityNote: s.availabilityNote ?? null,
       chosenOptions: s.chosenOptions ?? [],
-      purchases: (s.purchases ?? []).map((p) => {
-        const purchased = (p as { purchased?: boolean }).purchased ?? false
-        return {
-          ...p,
-          assignedTo: (p as { assignedTo?: string | null }).assignedTo ?? null,
-          purchased,
-          boughtQuantity:
-            (p as { boughtQuantity?: number }).boughtQuantity ?? (purchased ? p.totalQuantity : 0),
-          group: p.group ?? null,
-          subgroup: p.subgroup ?? null,
-        }
-      }),
+      purchases: (s.purchases ?? []).map((p) => backfillPurchaseSnapshot(p)),
       groupOrder: s.groupOrder ?? [],
       subgroupOrder: s.subgroupOrder ?? {},
-      expenses: (s.expenses ?? []).map((e) => ({
-        ...e,
-        splitAmong: e.splitAmong ?? [],
-        deleted: e.deleted ?? false,
-        deletedBy: e.deletedBy ?? null,
-        deletedAt: e.deletedAt ?? null,
-      })),
+      expenses: (s.expenses ?? []).map((e) => backfillExpenseSnapshot(e)),
       history: s.history ?? [],
       hasPin: s.hasPin ?? false,
       stage: s.stage ?? 'doodle',
       settledTransfers: s.settledTransfers ?? [],
-      manualLiquidations: (s.manualLiquidations ?? []).map((l) => ({
-        ...l,
-        affects: l.affects ?? [],
-        paidShares: l.paidShares ?? [],
-        paidBy: l.paidBy ?? null,
-        deleted: l.deleted ?? false,
-        deletedBy: l.deletedBy ?? null,
-        deletedAt: l.deletedAt ?? null,
-      })),
-      users: (s.users ?? []).map((u) => ({
-        ...u,
-        alias: u.alias ?? null,
-        email: u.email ?? null,
-        phone: u.phone ?? null,
-        allergies: u.allergies ?? [],
-        dietary: u.dietary ?? null,
-        notes: u.notes ?? null,
-        kind: u.kind ?? 'adult',
-      })),
+      manualLiquidations: (s.manualLiquidations ?? []).map((l) =>
+        backfillManualLiquidationSnapshot(l),
+      ),
+      users: (s.users ?? []).map((u) => backfillUserSnapshot(u)),
     }
     return new Event(EventId.of(s.id), backfilled)
   }

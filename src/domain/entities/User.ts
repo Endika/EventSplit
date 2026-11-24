@@ -68,6 +68,29 @@ export interface ProfileUpdate {
   household?: string | null
 }
 
+export type LegacyUserSnapshot =
+  | UserSnapshot
+  | Omit<
+      UserSnapshot,
+      'email' | 'phone' | 'allergies' | 'dietary' | 'notes' | 'kind' | 'guardianId' | 'household'
+    >
+
+export function backfillUserSnapshot(s: LegacyUserSnapshot): UserSnapshot {
+  const full = s as UserSnapshot
+  return {
+    ...full,
+    alias: full.alias ?? null,
+    email: full.email ?? null,
+    phone: full.phone ?? null,
+    allergies: full.allergies ?? [],
+    dietary: full.dietary ?? null,
+    notes: full.notes ?? null,
+    kind: full.kind ?? 'adult',
+    guardianId: full.guardianId ?? null,
+    household: full.household ?? null,
+  }
+}
+
 export class User {
   private constructor(
     readonly id: UserId,
@@ -112,35 +135,21 @@ export class User {
     )
   }
 
-  static restore(
-    s:
-      | UserSnapshot
-      | Omit<
-          UserSnapshot,
-          | 'email'
-          | 'phone'
-          | 'allergies'
-          | 'dietary'
-          | 'notes'
-          | 'kind'
-          | 'guardianId'
-          | 'household'
-        >,
-  ): User {
-    const full = s as UserSnapshot
+  static restore(s: LegacyUserSnapshot): User {
+    const full = backfillUserSnapshot(s)
     return new User(
-      UserId.of(s.id),
-      s.name,
-      s.alias,
-      s.joinedAt,
-      full.email ?? null,
-      full.phone ?? null,
-      full.allergies ?? [],
-      full.dietary ?? null,
-      full.notes ?? null,
-      full.kind ?? 'adult',
-      full.guardianId ?? null,
-      full.household ?? null,
+      UserId.of(full.id),
+      full.name,
+      full.alias,
+      full.joinedAt,
+      full.email,
+      full.phone,
+      full.allergies,
+      full.dietary,
+      full.notes,
+      full.kind,
+      full.guardianId,
+      full.household,
     )
   }
 
