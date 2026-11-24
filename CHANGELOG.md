@@ -1,5 +1,12 @@
 # Changelog
 
+## [3.12.2](https://github.com/Endika/EventSplit/compare/v3.12.1...v3.12.2) (2026-11-24)
+
+
+### Bug Fixes
+
+* **event:** restore legacy children with the same backfill each entity uses ([0e05607](https://github.com/Endika/EventSplit/commit/0e05607f0dbce611f76a95a6c8702ecaea2a8ef3))
+
 ## [3.12.1](https://github.com/Endika/EventSplit/compare/v3.12.0...v3.12.1) (2026-11-24)
 
 
