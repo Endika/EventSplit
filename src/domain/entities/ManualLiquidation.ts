@@ -21,6 +21,20 @@ export interface ManualLiquidationSnapshot {
 export const CONCEPT_MIN = 3
 export const CONCEPT_MAX = 100
 
+export function backfillManualLiquidationSnapshot(
+  s: ManualLiquidationSnapshot,
+): ManualLiquidationSnapshot {
+  return {
+    ...s,
+    affects: s.affects ?? [],
+    paidShares: s.paidShares ?? [],
+    paidBy: s.paidBy ?? null,
+    deleted: s.deleted ?? false,
+    deletedBy: s.deletedBy ?? null,
+    deletedAt: s.deletedAt ?? null,
+  }
+}
+
 export class ManualLiquidation {
   readonly id: string
   readonly concept: string
@@ -71,15 +85,7 @@ export class ManualLiquidation {
   }
 
   static restore(s: ManualLiquidationSnapshot): ManualLiquidation {
-    return new ManualLiquidation({
-      ...s,
-      affects: s.affects ?? [],
-      paidShares: s.paidShares ?? [],
-      paidBy: s.paidBy ?? null,
-      deleted: s.deleted ?? false,
-      deletedBy: s.deletedBy ?? null,
-      deletedAt: s.deletedAt ?? null,
-    })
+    return new ManualLiquidation(backfillManualLiquidationSnapshot(s))
   }
 
   edit(input: {

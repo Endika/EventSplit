@@ -57,6 +57,22 @@ function validatePurchaseLinks(
   return links.map((l) => ({ ...l }))
 }
 
+export type LegacyExpenseSnapshot =
+  | ExpenseSnapshot
+  | Omit<ExpenseSnapshot, 'splitAmong' | 'purchaseLinks' | 'deleted' | 'deletedBy' | 'deletedAt'>
+
+export function backfillExpenseSnapshot(s: LegacyExpenseSnapshot): ExpenseSnapshot {
+  const full = s as ExpenseSnapshot
+  return {
+    ...full,
+    splitAmong: full.splitAmong ?? [],
+    purchaseLinks: full.purchaseLinks ?? [],
+    deleted: full.deleted ?? false,
+    deletedBy: full.deletedBy ?? null,
+    deletedAt: full.deletedAt ?? null,
+  }
+}
+
 export class Expense {
   readonly id: string
   readonly paidBy: string
@@ -89,23 +105,8 @@ export class Expense {
     })
   }
 
-  static restore(
-    s:
-      | ExpenseSnapshot
-      | Omit<
-          ExpenseSnapshot,
-          'splitAmong' | 'purchaseLinks' | 'deleted' | 'deletedBy' | 'deletedAt'
-        >,
-  ): Expense {
-    const full = s as ExpenseSnapshot
-    return new Expense({
-      ...full,
-      splitAmong: full.splitAmong ?? [],
-      purchaseLinks: full.purchaseLinks ?? [],
-      deleted: full.deleted ?? false,
-      deletedBy: full.deletedBy ?? null,
-      deletedAt: full.deletedAt ?? null,
-    })
+  static restore(s: LegacyExpenseSnapshot): Expense {
+    return new Expense(backfillExpenseSnapshot(s))
   }
 
   edit(input: ExpenseInput): Expense {
