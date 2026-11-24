@@ -1,5 +1,12 @@
 # Changelog
 
+## [3.12.1](https://github.com/Endika/EventSplit/compare/v3.12.0...v3.12.1) (2026-11-24)
+
+
+### Bug Fixes
+
+* **day-options:** reject calendar dates that do not exist ([9c59157](https://github.com/Endika/EventSplit/commit/9c59157b5c0502d38d9ef67cb66af24efe842b52))
+
 ## [3.12.0](https://github.com/Endika/EventSplit/compare/v3.11.0...v3.12.0) (2026-11-23)
 
 
