@@ -1,4 +1,5 @@
 import { z } from 'zod'
+import { eventIdField } from '@/application/dtos/fields'
 import {
   isValidOption,
   optionKey,
@@ -7,7 +8,7 @@ import {
 } from '@/domain/value-objects/DayOption'
 
 export const SetDayOptionsSchema = z.object({
-  eventId: z.string().regex(/^[a-z0-9]{7}$/),
+  eventId: eventIdField,
   options: z
     .array(
       z.object({

@@ -1,10 +1,11 @@
 import { z } from 'zod'
+import { entityIdField, eventIdField } from '@/application/dtos/fields'
 import { MAX_OPTIONS } from '@/domain/value-objects/DayOption'
 
 export const SetAvailabilityBatchSchema = z.object({
-  eventId: z.string().regex(/^[a-z0-9]{7}$/),
-  editedBy: z.string().uuid(),
-  votes: z.record(z.string().uuid(), z.array(z.boolean()).max(MAX_OPTIONS)),
+  eventId: eventIdField,
+  editedBy: entityIdField,
+  votes: z.record(entityIdField, z.array(z.boolean()).max(MAX_OPTIONS)),
 })
 
 export type SetAvailabilityBatchInput = z.infer<typeof SetAvailabilityBatchSchema>

@@ -30,6 +30,31 @@ export interface UserSnapshot {
   household: string | null
 }
 
+export const PERSON_NAME_MIN = 2
+export const PERSON_NAME_MAX = 50
+export const ALIAS_MAX = 50
+export const EMAIL_MAX = 100
+export const PHONE_MAX = 30
+export const DIETARY_MAX = 200
+export const NOTES_MAX = 500
+export const HOUSEHOLD_MAX = 50
+export const MAX_ALLERGIES = 20
+
+function validatePersonName(name: string): string {
+  const trimmed = name.trim()
+  if (trimmed.length < PERSON_NAME_MIN || trimmed.length > PERSON_NAME_MAX)
+    throw new Error(`User: name must be ${PERSON_NAME_MIN}..${PERSON_NAME_MAX} chars`)
+  return trimmed
+}
+
+function validateMaxLength(label: string, value: string | null, max: number): void {
+  if (value && value.length > max) throw new Error(`User: ${label} must be ≤ ${max} chars`)
+}
+
+function validateKind(kind: UserKind): void {
+  if (!USER_KINDS.includes(kind)) throw new Error(`User: invalid kind "${kind}"`)
+}
+
 export interface ProfileUpdate {
   name?: string
   alias?: string | null
@@ -65,13 +90,11 @@ export class User {
     kind?: UserKind
     guardianId?: string | null
   }): User {
-    const name = input.name.trim()
-    if (name.length < 2 || name.length > 50) throw new Error('User: name must be 2..50 chars')
-    const aliasRaw = input.alias?.trim() ?? ''
-    if (aliasRaw.length > 50) throw new Error('User: alias must be ≤ 50 chars')
-    const alias = aliasRaw === '' ? null : aliasRaw
+    const name = validatePersonName(input.name)
+    const alias = input.alias?.trim() || null
+    validateMaxLength('alias', alias, ALIAS_MAX)
     const kind = input.kind ?? 'adult'
-    if (!USER_KINDS.includes(kind)) throw new Error(`User: invalid kind "${kind}"`)
+    validateKind(kind)
     const guardianId = kind === 'child' ? (input.guardianId ?? null) : null
     return new User(
       UserId.generate(),
@@ -122,34 +145,33 @@ export class User {
   }
 
   withProfile(update: ProfileUpdate): User {
-    const name = update.name === undefined ? this.name : update.name.trim()
-    if (name.length < 2 || name.length > 50) throw new Error('User: name must be 2..50 chars')
+    const name = update.name === undefined ? this.name : validatePersonName(update.name)
 
-    const aliasRaw = update.alias === undefined ? this.alias : (update.alias?.trim() ?? null)
-    if (aliasRaw && aliasRaw.length > 50) throw new Error('User: alias must be ≤ 50 chars')
-    const alias = aliasRaw === '' ? null : aliasRaw
+    const alias = update.alias === undefined ? this.alias : update.alias?.trim() || null
+    validateMaxLength('alias', alias, ALIAS_MAX)
 
     const email = update.email === undefined ? this.email : update.email?.trim() || null
-    if (email && email.length > 100) throw new Error('User: email must be ≤ 100 chars')
+    validateMaxLength('email', email, EMAIL_MAX)
 
     const phone = update.phone === undefined ? this.phone : update.phone?.trim() || null
-    if (phone && phone.length > 30) throw new Error('User: phone must be ≤ 30 chars')
+    validateMaxLength('phone', phone, PHONE_MAX)
 
     const dietary = update.dietary === undefined ? this.dietary : update.dietary?.trim() || null
-    if (dietary && dietary.length > 200) throw new Error('User: dietary must be ≤ 200 chars')
+    validateMaxLength('dietary', dietary, DIETARY_MAX)
 
     const notes = update.notes === undefined ? this.notes : update.notes?.trim() || null
-    if (notes && notes.length > 500) throw new Error('User: notes must be ≤ 500 chars')
+    validateMaxLength('notes', notes, NOTES_MAX)
 
     const allergies = update.allergies === undefined ? this.allergies : update.allergies
-    if (allergies.length > 20) throw new Error('User: at most 20 allergies')
+    if (allergies.length > MAX_ALLERGIES)
+      throw new Error(`User: at most ${MAX_ALLERGIES} allergies`)
     // Re-validate each allergen for safety
     allergies.forEach((a) =>
       Allergen.of({ name: a.name, severity: a.severity, notes: a.notes ?? null }),
     )
 
     const kind = update.kind === undefined ? this.kind : update.kind
-    if (!USER_KINDS.includes(kind)) throw new Error(`User: invalid kind "${kind}"`)
+    validateKind(kind)
 
     const requested = update.guardianId === undefined ? this.guardianId : update.guardianId
     // Only a child has one: stop being a child and the link goes with it, so a
@@ -160,8 +182,7 @@ export class User {
 
     const requestedHousehold =
       update.household === undefined ? this.household : update.household?.trim() || null
-    if (requestedHousehold && requestedHousehold.length > 50)
-      throw new Error('User: household must be ≤ 50 chars')
+    validateMaxLength('household', requestedHousehold, HOUSEHOLD_MAX)
     const household = kind === 'adult' ? requestedHousehold : null
 
     return new User(

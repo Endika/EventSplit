@@ -1,29 +1,43 @@
 import { z } from 'zod'
+import {
+  aliasField,
+  dietaryField,
+  emailField,
+  householdField,
+  notesField,
+  phoneField,
+  entityIdField,
+  eventIdField,
+  guardianIdField,
+  optionalTextField,
+  personNameField,
+  userKindField,
+} from '@/application/dtos/fields'
+import { MAX_ALLERGIES } from '@/domain/entities/User'
 import { COMMON_ALLERGENS, ALLERGEN_SEVERITIES } from '@/domain/value-objects/Allergen'
-import { USER_KINDS } from '@/domain/entities/User'
 
 export const UpdateProfileSchema = z.object({
-  eventId: z.string().regex(/^[a-z0-9]{7}$/),
-  userId: z.string().uuid(),
-  actorId: z.string().uuid(),
-  name: z.string().trim().min(2).max(50).optional(),
-  alias: z.string().trim().max(50).nullable().optional(),
-  email: z.string().trim().max(100).nullable().optional(),
-  phone: z.string().trim().max(30).nullable().optional(),
-  dietary: z.string().trim().max(200).nullable().optional(),
-  notes: z.string().trim().max(500).nullable().optional(),
-  kind: z.enum(USER_KINDS).optional(),
-  guardianId: z.string().nullable().optional(),
-  household: z.string().trim().max(50).nullable().optional(),
+  eventId: eventIdField,
+  userId: entityIdField,
+  actorId: entityIdField,
+  name: personNameField.optional(),
+  alias: aliasField,
+  email: emailField,
+  phone: phoneField,
+  dietary: dietaryField,
+  notes: notesField,
+  kind: userKindField,
+  guardianId: guardianIdField,
+  household: householdField,
   allergies: z
     .array(
       z.object({
         name: z.enum(COMMON_ALLERGENS),
         severity: z.enum(ALLERGEN_SEVERITIES),
-        notes: z.string().trim().max(200).nullable().optional(),
+        notes: optionalTextField(200),
       }),
     )
-    .max(20)
+    .max(MAX_ALLERGIES)
     .optional(),
 })
 

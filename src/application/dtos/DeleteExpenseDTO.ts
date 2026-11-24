@@ -1,9 +1,10 @@
 import { z } from 'zod'
+import { entityIdField, eventIdField } from '@/application/dtos/fields'
 
 export const DeleteExpenseSchema = z.object({
-  eventId: z.string().regex(/^[a-z0-9]{7}$/),
-  expenseId: z.string().uuid(),
-  deletedBy: z.string().uuid(),
+  eventId: eventIdField,
+  expenseId: entityIdField,
+  deletedBy: entityIdField,
 })
 
 export type DeleteExpenseInput = z.infer<typeof DeleteExpenseSchema>

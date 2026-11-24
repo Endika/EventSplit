@@ -18,13 +18,22 @@ export interface ManualLiquidationSnapshot {
   deletedAt: string | null
 }
 
+export const CONCEPT_MIN = 3
+export const CONCEPT_MAX = 100
+
 export class ManualLiquidation {
-  private constructor(private readonly s: ManualLiquidationSnapshot) {}
+  readonly id: string
+  readonly concept: string
+
+  private constructor(private readonly s: ManualLiquidationSnapshot) {
+    this.id = s.id
+    this.concept = s.concept
+  }
 
   private static validate(concept: string, amount: Money, affects: string[], paidShares: string[]) {
     const c = concept.trim()
-    if (c.length < 3 || c.length > 100)
-      throw new Error('ManualLiquidation: concept must be 3..100 chars')
+    if (c.length < CONCEPT_MIN || c.length > CONCEPT_MAX)
+      throw new Error(`ManualLiquidation: concept must be ${CONCEPT_MIN}..${CONCEPT_MAX} chars`)
     if (amount.cents <= 0) throw new Error('ManualLiquidation: amount must be > 0')
     if (new Set(affects).size !== affects.length)
       throw new Error('ManualLiquidation: affects must contain unique userIds')
@@ -119,13 +128,6 @@ export class ManualLiquidation {
 
   recover(): ManualLiquidation {
     return new ManualLiquidation({ ...this.s, deleted: false, deletedBy: null, deletedAt: null })
-  }
-
-  get id(): string {
-    return this.s.id
-  }
-  get concept(): string {
-    return this.s.concept
   }
 
   toSnapshot(): ManualLiquidationSnapshot {

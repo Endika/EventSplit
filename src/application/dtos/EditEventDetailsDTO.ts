@@ -1,20 +1,21 @@
 import { z } from 'zod'
+import { eventIdField, eventNameField, optionalTextField } from '@/application/dtos/fields'
 
 export const LocationSchema = z.object({
   name: z.string().trim().min(2).max(100),
-  address: z.string().trim().max(200).nullable().optional(),
+  address: optionalTextField(200),
   lat: z.number().min(-90).max(90).nullable().optional(),
   lng: z.number().min(-180).max(180).nullable().optional(),
-  postalCode: z.string().trim().max(20).nullable().optional(),
+  postalCode: optionalTextField(20),
 })
 
 export const EditEventDetailsSchema = z.object({
-  eventId: z.string().regex(/^[a-z0-9]{7}$/),
-  name: z.string().trim().min(3).max(100).optional(),
+  eventId: eventIdField,
+  name: eventNameField.optional(),
   location: LocationSchema.nullable().optional(),
-  generalNotes: z.string().trim().max(500).nullable().optional(),
-  wifiPassword: z.string().trim().max(50).nullable().optional(),
-  emergencyContact: z.string().trim().max(100).nullable().optional(),
+  generalNotes: optionalTextField(500),
+  wifiPassword: optionalTextField(50),
+  emergencyContact: optionalTextField(100),
 })
 
 export type EditEventDetailsInput = z.infer<typeof EditEventDetailsSchema>

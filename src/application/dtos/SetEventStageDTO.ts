@@ -1,9 +1,10 @@
 import { z } from 'zod'
+import { entityIdField, eventIdField } from '@/application/dtos/fields'
 import { EVENT_STAGES } from '@/domain/entities/Event'
 
 export const SetEventStageSchema = z.object({
-  eventId: z.string().regex(/^[a-z0-9]{7}$/),
-  userId: z.string().uuid(),
+  eventId: eventIdField,
+  userId: entityIdField,
   stage: z.enum(EVENT_STAGES),
 })
 

@@ -1,21 +1,25 @@
 import { z } from 'zod'
+import {
+  amountEurosField,
+  conceptField,
+  entityIdField,
+  eventIdField,
+  purchaseLinksField,
+  splitAmongField,
+} from '@/application/dtos/fields'
 
 export const AddExpenseSchema = z.object({
-  eventId: z.string().regex(/^[a-z0-9]{7}$/),
-  paidBy: z.string().uuid(),
+  eventId: eventIdField,
+  paidBy: entityIdField,
   // Who entered the expense (the operator). Defaults to paidBy when omitted so the
   // history attributes the action to the person who actually recorded it, not the payer.
-  createdBy: z.string().uuid().optional(),
-  amountEuros: z.number().positive().max(999_999.99),
-  description: z.string().trim().min(3).max(100),
-  purchaseId: z.string().uuid().optional().nullable(),
+  createdBy: entityIdField.optional(),
+  amountEuros: amountEurosField,
+  description: conceptField,
+  purchaseId: entityIdField.optional().nullable(),
   date: z.string().datetime().optional(),
-  splitAmong: z.array(z.string().uuid()).optional(),
-  purchaseLinks: z
-    .array(
-      z.object({ purchaseId: z.string().uuid(), quantity: z.number().positive().max(100_000) }),
-    )
-    .optional(),
+  splitAmong: splitAmongField,
+  purchaseLinks: purchaseLinksField,
 })
 
 export type AddExpenseInput = z.infer<typeof AddExpenseSchema>

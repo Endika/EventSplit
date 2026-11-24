@@ -1,15 +1,14 @@
 import { z } from 'zod'
-
-const EVENT_ID = /^[a-z0-9]{7}$/
+import { entityIdField, eventIdField, groupOrderField } from '@/application/dtos/fields'
 
 export const CloneIntoEventSchema = z.object({
-  targetEventId: z.string().regex(EVENT_ID),
-  sourceEventId: z.string().regex(EVENT_ID),
-  clonedBy: z.string().uuid(),
+  targetEventId: eventIdField,
+  sourceEventId: eventIdField,
+  clonedBy: entityIdField,
   selection: z.object({
     dayOptions: z.boolean(),
-    userIds: z.array(z.string()).max(50),
-    mergeUserIds: z.array(z.string()).max(50),
+    userIds: groupOrderField,
+    mergeUserIds: groupOrderField,
     purchaseIds: z.array(z.string()).max(500),
     site: z.object({
       location: z.boolean(),

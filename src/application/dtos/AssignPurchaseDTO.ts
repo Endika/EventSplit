@@ -1,10 +1,11 @@
 import { z } from 'zod'
+import { entityIdField, eventIdField } from '@/application/dtos/fields'
 
 export const AssignPurchaseSchema = z.object({
-  eventId: z.string().regex(/^[a-z0-9]{7}$/),
-  purchaseId: z.string().uuid(),
-  editedBy: z.string().uuid(),
-  assignedTo: z.string().uuid().nullable(),
+  eventId: eventIdField,
+  purchaseId: entityIdField,
+  editedBy: entityIdField,
+  assignedTo: entityIdField.nullable(),
   purchased: z.boolean(),
 })
 

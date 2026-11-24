@@ -1,8 +1,9 @@
 import { z } from 'zod'
+import { entityIdField, eventIdField } from '@/application/dtos/fields'
 
 export const SetEditPinSchema = z.object({
-  eventId: z.string().regex(/^[a-z0-9]{7}$/),
-  userId: z.string().uuid(),
+  eventId: eventIdField,
+  userId: entityIdField,
   pin: z
     .string()
     .regex(/^\d{4,6}$/)
