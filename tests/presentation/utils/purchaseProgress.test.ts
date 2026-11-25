@@ -1,11 +1,15 @@
 import { describe, it, expect } from 'vitest'
 import {
   boughtQuantity,
+  buyerIds,
   hasLinkedExpense,
+  linkedExpenses,
+  progressPercent,
   isPurchaseDone,
   remainingToBuy,
 } from '@/presentation/utils/purchaseProgress'
 import type { EventSnapshot } from '@/domain/entities/Event'
+import type { ExpenseSnapshot } from '@/domain/entities/Expense'
 import type { PurchaseSnapshot } from '@/domain/entities/Purchase'
 
 function makeEvent(overrides: Partial<EventSnapshot>): EventSnapshot {
@@ -68,13 +72,26 @@ const expense = (id: string, purchaseId: string, quantity: number, deleted = fal
     deletedAt: null,
     deleteReason: null,
     createdAt: '2026-01-01T00:00:00.000Z',
-  }) as never
+  }) as unknown as ExpenseSnapshot
 
 describe('purchaseProgress', () => {
   describe('boughtQuantity', () => {
     it('sums quantities across non-deleted linked expenses', () => {
       const event = makeEvent({ expenses: [expense('e1', 'p1', 10), expense('e2', 'p1', 8)] })
       expect(boughtQuantity(event, 'p1')).toBe(18)
+    })
+
+    it('picks the link of the asked purchase among several, and 0 when there is none', () => {
+      const multi = {
+        ...expense('e1', 'p2', 5),
+        purchaseLinks: [
+          { purchaseId: 'p2', quantity: 5 },
+          { purchaseId: 'p1', quantity: 3 },
+        ],
+      } as never
+      const event = makeEvent({ expenses: [multi, expense('e2', 'p2', 7)] })
+      expect(boughtQuantity(event, 'p1')).toBe(3)
+      expect(boughtQuantity(event, 'p3')).toBe(0)
     })
 
     it('ignores deleted expenses', () => {
@@ -135,6 +152,47 @@ describe('purchaseProgress', () => {
     it('returns 0 when over-covered', () => {
       const event = makeEvent({ expenses: [expense('e1', 'p1', 30)] })
       expect(remainingToBuy(event, baseBuy)).toBe(0)
+    })
+  })
+
+  describe('linkedExpenses', () => {
+    const e1 = { ...expense('e1', 'p1', 1), paidBy: 'u1' }
+    const e2 = { ...expense('e2', 'p1', 1), paidBy: 'u2' }
+    const gone = expense('e3', 'p1', 1, true)
+    const other = expense('e4', 'p2', 1)
+    const event = makeEvent({ expenses: [e1, e2, gone, other] })
+
+    it('skips the excluded expense', () => {
+      expect(linkedExpenses(event, 'p1', { excludeExpenseId: 'e1' }).map((e) => e.id)).toEqual([
+        'e2',
+      ])
+    })
+
+    it('tolerates an expense without links', () => {
+      const legacy = { ...e1, purchaseLinks: undefined } as never
+      expect(linkedExpenses(makeEvent({ expenses: [legacy] }), 'p1')).toEqual([])
+    })
+  })
+
+  describe('buyerIds', () => {
+    it('lists each payer once, in order', () => {
+      const event = makeEvent({
+        expenses: [
+          { ...expense('e1', 'p1', 1), paidBy: 'u2' },
+          { ...expense('e2', 'p1', 1), paidBy: 'u1' },
+          { ...expense('e3', 'p1', 1), paidBy: 'u2' },
+        ],
+      })
+      expect(buyerIds(event, 'p1')).toEqual(['u2', 'u1'])
+    })
+  })
+
+  describe('progressPercent', () => {
+    it.each([
+      [5, 10, 50],
+      [0, 0, 100],
+    ])('%s of %s -> %s', (bought, total, expected) => {
+      expect(progressPercent(bought, total)).toBe(expected)
     })
   })
 })
