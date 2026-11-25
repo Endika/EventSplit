@@ -24,4 +24,13 @@ describe('formatRelative', () => {
     expect(formatRelative(ago(86400), 'en')).toMatch(/^Jun 9, 2026, \d{1,2}:\d{2}/)
     expect(formatRelative('nonsense', 'en')).toBe('nonsense')
   })
+
+  it('stays relative, in days, for as long as asked, then shows the date alone', () => {
+    vi.useFakeTimers()
+    vi.setSystemTime(NOW)
+    const week = { relativeFor: 604800, dateFormat: { dateStyle: 'medium' } } as const
+    expect(formatRelative(ago(2 * 86400), 'es', week)).toBe('anteayer')
+    expect(formatRelative(ago(6 * 86400), 'en', week)).toBe('6 days ago')
+    expect(formatRelative(ago(604800), 'en', week)).toBe('Jun 3, 2026')
+  })
 })

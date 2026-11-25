@@ -25,7 +25,7 @@ describe('RecentEventsList', () => {
     const popped = vi.fn()
     window.addEventListener('popstate', popped)
     render(<RecentEventsList items={items} onForget={onForget} />)
-    expect(screen.getByText(/Last activity 5m ago · 3 participants/)).toBeInTheDocument()
+    expect(screen.getByText(/Last activity 5 minutes ago · 3 participants/)).toBeInTheDocument()
 
     fireEvent.click(screen.getByText('Trip'))
     expect(push).toHaveBeenCalledWith({}, '', expect.stringContaining('?event=abc123x'))
