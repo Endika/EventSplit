@@ -4,6 +4,7 @@ export interface Notice {
   at: number
 }
 
+// Stryker disable next-line StringLiteral: dispatchers and listeners share this constant, so its value is not observable
 export const NOTICE_EVENT = 'eventsplit:notice'
 
 /**

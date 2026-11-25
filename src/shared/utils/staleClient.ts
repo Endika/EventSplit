@@ -1,3 +1,4 @@
+// Stryker disable next-line StringLiteral: dispatchers and listeners share this constant, so its value is not observable
 export const STALE_CLIENT_EVENT = 'eventsplit:stale-client'
 
 /**
