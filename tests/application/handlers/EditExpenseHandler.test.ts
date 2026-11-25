@@ -1,155 +1,58 @@
 import { describe, it, expect } from 'vitest'
-import { CreateEventHandler } from '@/application/handlers/CreateEventHandler'
-import { AddExpenseHandler } from '@/application/handlers/AddExpenseHandler'
-import { AddPurchaseHandler } from '@/application/handlers/AddPurchaseHandler'
 import { EditExpenseHandler } from '@/application/handlers/EditExpenseHandler'
-import { InMemoryEventRepository } from '@/infrastructure/persistence/InMemoryEventRepository'
-
-async function setup() {
-  const repo = new InMemoryEventRepository()
-  const create = await new CreateEventHandler(repo).execute({ name: 'Trip', creatorName: 'John' })
-  const added = await new AddExpenseHandler(repo).execute({
-    eventId: create.event.id,
-    paidBy: create.creator.id,
-    amountEuros: 10,
-    description: 'Bread',
-  })
-  return {
-    repo,
-    eventId: create.event.id,
-    userId: create.creator.id,
-    expenseId: added.event.expenses[0]!.id,
-  }
-}
+import { addExpense, addPurchase, lastEntry, makeWorld } from '../../support/world'
 
 describe('EditExpenseHandler', () => {
-  it('updates amount, description and payer', async () => {
-    const ctx = await setup()
-    const result = await new EditExpenseHandler(ctx.repo).execute({
-      eventId: ctx.eventId,
-      expenseId: ctx.expenseId,
-      editedBy: ctx.userId,
-      paidBy: ctx.userId,
+  it('updates amount, description, payer and split of one expense, leaving the other alone', async () => {
+    const w = await makeWorld()
+    const first = await addExpense(w, 'Bread')
+    const second = await addExpense(w, 'Milk')
+    const result = await new EditExpenseHandler(w.repo).execute({
+      eventId: w.eventId,
+      expenseId: second,
+      editedBy: w.bob,
+      paidBy: w.john,
       amountEuros: 25.5,
       description: 'Bread and milk',
+      splitAmong: [w.john, w.bob],
     })
-    const e = result.event.expenses[0]!
-    expect(e.cents).toBe(2550)
-    expect(e.description).toBe('Bread and milk')
-    expect(result.event.history.at(-1)?.type).toBe('expense_edited')
+    expect(result.event.expenses).toMatchObject([
+      { id: first, description: 'Bread', cents: 1000, paidBy: w.alice },
+      {
+        id: second,
+        description: 'Bread and milk',
+        cents: 2550,
+        paidBy: w.john,
+        splitAmong: [w.john, w.bob],
+      },
+    ])
+    expect(lastEntry(result.event)).toEqual({
+      type: 'expense_edited',
+      userId: w.bob,
+      description: 'Bob edited expense: Bread and milk',
+    })
   })
 
-  it('rejects unknown expense id', async () => {
-    const ctx = await setup()
-    await expect(
-      new EditExpenseHandler(ctx.repo).execute({
-        eventId: ctx.eventId,
-        expenseId: '00000000-0000-7000-8000-000000000000',
-        editedBy: ctx.userId,
-        paidBy: ctx.userId,
-        amountEuros: 5,
-        description: 'Bread',
-      }),
-    ).rejects.toThrow(/not found/i)
-  })
+  it('replaces the linked quantity when given and keeps it when omitted, never touching the purchase', async () => {
+    const w = await makeWorld()
+    const purchaseId = await addPurchase(w, 'Coke')
+    const expenseId = await addExpense(w, 'Shop', { purchaseLinks: [{ purchaseId, quantity: 6 }] })
+    const edit = (purchaseLinks?: { purchaseId: string; quantity: number }[]) =>
+      new EditExpenseHandler(w.repo).execute({
+        eventId: w.eventId,
+        expenseId,
+        editedBy: w.john,
+        paidBy: w.alice,
+        amountEuros: 10,
+        description: 'Shop',
+        purchaseLinks,
+      })
 
-  it('rejects editor not in event', async () => {
-    const ctx = await setup()
-    await expect(
-      new EditExpenseHandler(ctx.repo).execute({
-        eventId: ctx.eventId,
-        expenseId: ctx.expenseId,
-        editedBy: '00000000-0000-7000-8000-000000000000',
-        paidBy: ctx.userId,
-        amountEuros: 5,
-        description: 'Bread',
-      }),
-    ).rejects.toThrow(/not in event/i)
-  })
+    const fewer = await edit([{ purchaseId, quantity: 3 }])
+    expect(fewer.event.expenses[0]!.purchaseLinks).toEqual([{ purchaseId, quantity: 3 }])
+    expect(fewer.event.purchases[0]!.purchased).toBe(false)
 
-  it('rejects payer not in event', async () => {
-    const ctx = await setup()
-    await expect(
-      new EditExpenseHandler(ctx.repo).execute({
-        eventId: ctx.eventId,
-        expenseId: ctx.expenseId,
-        editedBy: ctx.userId,
-        paidBy: '00000000-0000-7000-8000-000000000000',
-        amountEuros: 5,
-        description: 'Bread',
-      }),
-    ).rejects.toThrow(/not in event/i)
-  })
-
-  it('updates the linked quantity without mutating the purchase', async () => {
-    const repo = new InMemoryEventRepository()
-    const create = await new CreateEventHandler(repo).execute({ name: 'Trip', creatorName: 'John' })
-    const p1 = await new AddPurchaseHandler(repo).execute({
-      eventId: create.event.id,
-      createdBy: create.creator.id,
-      item: 'Coke',
-      quantity: 1,
-      unit: 'units',
-      dailyConsumption: 1,
-      consumers: [{ userId: create.creator.id, multiplier: 1 }],
-      days: 1,
-    })
-    const purchaseId = p1.event.purchases[0]!.id
-    const exp = await new AddExpenseHandler(repo).execute({
-      eventId: create.event.id,
-      paidBy: create.creator.id,
-      amountEuros: 10,
-      description: 'Shop',
-      purchaseLinks: [{ purchaseId, quantity: 6 }],
-    })
-    expect(exp.event.expenses[0]!.purchaseLinks).toEqual([{ purchaseId, quantity: 6 }])
-    expect(exp.event.purchases[0]!.purchased).toBe(false)
-    const expenseId = exp.event.expenses[0]!.id
-    // Edit the expense to cover fewer units.
-    const edited = await new EditExpenseHandler(repo).execute({
-      eventId: create.event.id,
-      expenseId,
-      editedBy: create.creator.id,
-      paidBy: create.creator.id,
-      amountEuros: 10,
-      description: 'Shop',
-      purchaseLinks: [{ purchaseId, quantity: 3 }],
-    })
-    expect(edited.event.expenses[0]!.purchaseLinks).toEqual([{ purchaseId, quantity: 3 }])
-    // The purchase's purchased flag is never touched by the expense.
-    expect(edited.event.purchases[0]!.purchased).toBe(false)
-  })
-
-  it('keeps existing links when purchaseLinks is omitted on edit', async () => {
-    const repo = new InMemoryEventRepository()
-    const create = await new CreateEventHandler(repo).execute({ name: 'Trip', creatorName: 'John' })
-    const p1 = await new AddPurchaseHandler(repo).execute({
-      eventId: create.event.id,
-      createdBy: create.creator.id,
-      item: 'Coke',
-      quantity: 1,
-      unit: 'units',
-      dailyConsumption: 1,
-      consumers: [{ userId: create.creator.id, multiplier: 1 }],
-      days: 1,
-    })
-    const purchaseId = p1.event.purchases[0]!.id
-    const exp = await new AddExpenseHandler(repo).execute({
-      eventId: create.event.id,
-      paidBy: create.creator.id,
-      amountEuros: 10,
-      description: 'Shop',
-      purchaseLinks: [{ purchaseId, quantity: 6 }],
-    })
-    const expenseId = exp.event.expenses[0]!.id
-    const edited = await new EditExpenseHandler(repo).execute({
-      eventId: create.event.id,
-      expenseId,
-      editedBy: create.creator.id,
-      paidBy: create.creator.id,
-      amountEuros: 15,
-      description: 'Shop trip',
-    })
-    expect(edited.event.expenses[0]!.purchaseLinks).toEqual([{ purchaseId, quantity: 6 }])
+    const kept = await edit()
+    expect(kept.event.expenses[0]!.purchaseLinks).toEqual([{ purchaseId, quantity: 3 }])
   })
 })

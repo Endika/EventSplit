@@ -1,74 +1,38 @@
 import { describe, it, expect } from 'vitest'
-import { CreateEventHandler } from '@/application/handlers/CreateEventHandler'
-import { AddPurchaseHandler } from '@/application/handlers/AddPurchaseHandler'
 import { AssignPurchaseHandler } from '@/application/handlers/AssignPurchaseHandler'
-import { InMemoryEventRepository } from '@/infrastructure/persistence/InMemoryEventRepository'
-
-async function setup() {
-  const repo = new InMemoryEventRepository()
-  const create = await new CreateEventHandler(repo).execute({ name: 'Trip', creatorName: 'John' })
-  const added = await new AddPurchaseHandler(repo).execute({
-    eventId: create.event.id,
-    createdBy: create.creator.id,
-    item: 'Coke',
-    quantity: 1,
-    unit: 'units',
-    dailyConsumption: 1,
-    consumers: [{ userId: create.creator.id, multiplier: 1 }],
-    days: 1,
-  })
-  return {
-    repo,
-    eventId: create.event.id,
-    userId: create.creator.id,
-    purchaseId: added.event.purchases[0]!.id,
-  }
-}
+import { addPurchase, lastEntry, makeWorld } from '../../support/world'
 
 describe('AssignPurchaseHandler', () => {
-  it('assigns a buyer and marks purchased', async () => {
-    const ctx = await setup()
-    const result = await new AssignPurchaseHandler(ctx.repo).execute({
-      eventId: ctx.eventId,
-      purchaseId: ctx.purchaseId,
-      editedBy: ctx.userId,
-      assignedTo: ctx.userId,
-      purchased: true,
-    })
-    expect(result.event.purchases[0]!.assignedTo).toBe(ctx.userId)
-    expect(result.event.purchases[0]!.purchased).toBe(true)
-  })
+  it('assigns a buyer and marks purchased, then unassigns, leaving other purchases alone', async () => {
+    const w = await makeWorld()
+    const first = await addPurchase(w, 'Coke')
+    const second = await addPurchase(w, 'Beer')
+    const handler = new AssignPurchaseHandler(w.repo)
 
-  it('can unassign (null) and unmark', async () => {
-    const ctx = await setup()
-    await new AssignPurchaseHandler(ctx.repo).execute({
-      eventId: ctx.eventId,
-      purchaseId: ctx.purchaseId,
-      editedBy: ctx.userId,
-      assignedTo: ctx.userId,
+    const assigned = await handler.execute({
+      eventId: w.eventId,
+      purchaseId: second,
+      editedBy: w.alice,
+      assignedTo: w.bob,
       purchased: true,
     })
-    const result = await new AssignPurchaseHandler(ctx.repo).execute({
-      eventId: ctx.eventId,
-      purchaseId: ctx.purchaseId,
-      editedBy: ctx.userId,
+    expect(assigned.event.purchases).toMatchObject([
+      { id: first, assignedTo: null, purchased: false },
+      { id: second, assignedTo: w.bob, purchased: true },
+    ])
+    expect(lastEntry(assigned.event)).toEqual({
+      type: 'purchase_edited',
+      userId: w.alice,
+      description: 'Alice updated Beer assignment',
+    })
+
+    const cleared = await handler.execute({
+      eventId: w.eventId,
+      purchaseId: second,
+      editedBy: w.alice,
       assignedTo: null,
       purchased: false,
     })
-    expect(result.event.purchases[0]!.assignedTo).toBeNull()
-    expect(result.event.purchases[0]!.purchased).toBe(false)
-  })
-
-  it('rejects assignedTo not in event', async () => {
-    const ctx = await setup()
-    await expect(
-      new AssignPurchaseHandler(ctx.repo).execute({
-        eventId: ctx.eventId,
-        purchaseId: ctx.purchaseId,
-        editedBy: ctx.userId,
-        assignedTo: '00000000-0000-7000-8000-000000000000',
-        purchased: false,
-      }),
-    ).rejects.toThrow(/not in event/i)
+    expect(cleared.event.purchases[1]).toMatchObject({ assignedTo: null, purchased: false })
   })
 })

@@ -3,6 +3,7 @@ import { CreateEventHandler } from '@/application/handlers/CreateEventHandler'
 import { SetDayOptionsHandler } from '@/application/handlers/SetDayOptionsHandler'
 import { InMemoryEventRepository } from '@/infrastructure/persistence/InMemoryEventRepository'
 import { optionKey, type DayOption } from '@/domain/value-objects/DayOption'
+import { lastEntry } from '../../support/world'
 import { readEvent } from '../../support/readEvent'
 
 const day = (d: string, note: string | null = null): DayOption => ({ start: d, end: d, note })
@@ -24,7 +25,7 @@ describe('SetDayOptionsHandler', () => {
   })
 
   it('saves options and adds a history entry', async () => {
-    const { handler, eventId } = await setup()
+    const { handler, eventId, userId } = await setup()
     const result = await handler.execute({
       eventId,
       options: [day('2026-06-05'), { start: '2026-06-12', end: '2026-06-14', note: 'casa rural' }],
@@ -33,7 +34,11 @@ describe('SetDayOptionsHandler', () => {
       day('2026-06-05'),
       { start: '2026-06-12', end: '2026-06-14', note: 'casa rural' },
     ])
-    expect(result.event.history.at(-1)?.type).toBe('days_set')
+    expect(lastEntry(result.event)).toEqual({
+      type: 'days_set',
+      userId,
+      description: 'Event day options set: 2026-06-05..2026-06-05, 2026-06-12..2026-06-14',
+    })
   })
 
   it('realigns saved votes by option key when options change', async () => {
@@ -44,6 +49,7 @@ describe('SetDayOptionsHandler', () => {
     const row = await readEvent(repo, eventId)
     if (!row) throw new Error('unexpected')
     row.snapshot.availability[userId] = [true, true]
+    row.snapshot.availability['ragged'] = [true]
     await repo.update(eventId, row.snapshot, row.version, null)
 
     const result = await handler.execute({
@@ -53,6 +59,8 @@ describe('SetDayOptionsHandler', () => {
         { start: '2026-06-20', end: '2026-06-21', note: null },
       ],
     })
+    // A row shorter than the options it was saved against must not read past its end.
+    expect(result.event.availability['ragged']).toEqual([false, false])
 
     expect(result.event.dayOptions.map(optionKey)).toEqual([
       '2026-06-12..2026-06-14',
