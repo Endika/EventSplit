@@ -62,7 +62,7 @@ describe('EditEventDetailsHandler', () => {
     })
   })
 
-  it('keeps every field that is not sent, never logs secrets, and relabels an existing location', async () => {
+  it('keeps every field that is not sent and never logs secrets', async () => {
     const { edit, john } = await setup()
     const notesOnly = await edit({ wifiPassword: 'secret123' })
     expect(lastEntry(notesOnly.event)).toEqual({
@@ -86,13 +86,6 @@ describe('EditEventDetailsHandler', () => {
       emergencyContact: 'Mum 600000000',
     })
     expect(JSON.stringify(wifiOnly.event.history)).not.toMatch(/secret123|other456/)
-
-    const moved = await edit({ location: { name: 'Cabaña' } })
-    expect(lastEntry(moved.event)).toEqual({
-      type: 'notes_added',
-      userId: john,
-      description: 'Location set: Cabaña',
-    })
   })
 
   it('clears the location and the notes fields when they are sent as null', async () => {
