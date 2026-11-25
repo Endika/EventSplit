@@ -34,6 +34,7 @@ export async function renderWithEvent(ui: ReactNode, event: EventSnapshot, meId:
     </ContainerProvider>,
   )
   return {
+    repo,
     saved: async () => (await readEvent(repo, event.id))!.snapshot,
   }
 }

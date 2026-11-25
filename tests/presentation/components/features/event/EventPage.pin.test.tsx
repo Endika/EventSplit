@@ -118,6 +118,19 @@ describe('EventPage behind an edit PIN', () => {
     expect(gate()).toBeNull()
   })
 
+  it('keeps only digits in the field and needs four of them before it offers to unlock', async () => {
+    const repo = new InMemoryEventRepository()
+    const id = await seed(repo, 'Casa rural', '1234')
+    openEvent(repo, id)
+
+    const field = await screen.findByPlaceholderText(i18n.t('pin.gateField'))
+    fireEvent.change(field, { target: { value: '1a2b3' } })
+    expect(field).toHaveValue('123')
+    expect(screen.getByRole('button', { name: i18n.t('pin.gateUnlock') })).toBeDisabled()
+    fireEvent.change(field, { target: { value: '1234' } })
+    expect(screen.getByRole('button', { name: i18n.t('pin.gateUnlock') })).toBeEnabled()
+  })
+
   it('keeps the gate up after a wrong PIN', async () => {
     const repo = new InMemoryEventRepository()
     const id = await seed(repo, 'Casa rural', '1234')
