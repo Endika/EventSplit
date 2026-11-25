@@ -74,6 +74,7 @@ describe('useAvailabilityDraft', () => {
     const { result } = renderHook(() => useAvailabilityDraft(event))
     act(() => result.current.setVote('u1', KEY5, true))
     expect(result.current.votesFor(KEY5, ['u1', 'u2'])).toBe(1)
+    expect(result.current.dirty).toBe(true)
   })
 
   it('builds a full matrix that covers every option', () => {
@@ -142,7 +143,38 @@ describe('useAvailabilityDraft', () => {
   it('survives a null event', () => {
     const { result } = renderHook(() => useAvailabilityDraft(null))
     expect(result.current.rowFor('u1')).toEqual([])
+    expect(result.current.voteOf('u1', KEY5)).toBe(false)
     expect(result.current.pins).toEqual([])
     expect(result.current.dirty).toBe(false)
+
+    act(() => result.current.togglePin(KEY5))
+    expect(result.current.pins).toEqual([KEY5])
+  })
+
+  it('has no vote and no note for an option that does not exist', () => {
+    const event = snapshot({
+      dayOptions: [{ ...jun5, note: 'puente' }],
+      availability: { u1: [true] },
+    })
+    const { result } = renderHook(() => useAvailabilityDraft(event))
+    expect(result.current.voteOf('u1', KEY12)).toBe(false)
+    expect(result.current.noteOf(KEY12)).toBeNull()
+  })
+
+  it('follows the saved event when a new one arrives', () => {
+    const { result, rerender } = renderHook((e: EventSnapshot) => useAvailabilityDraft(e), {
+      initialProps: snapshot({ dayOptions: [jun5], availability: { u1: [false] } }),
+    })
+    rerender(
+      snapshot({
+        dayOptions: [{ ...jun5, note: 'puente' }],
+        availability: { u1: [true] },
+        chosenOptions: [KEY5],
+      }),
+    )
+    expect(result.current.voteOf('u1', KEY5)).toBe(true)
+    expect(result.current.noteOf(KEY5)).toBe('puente')
+    act(() => result.current.togglePin(KEY12))
+    expect(result.current.pins).toEqual([KEY5, KEY12])
   })
 })

@@ -10,6 +10,8 @@ import { EditPinProvider } from '@/presentation/context/EditPinContext'
 import { AvailabilityTab } from '@/presentation/components/features/event/AvailabilityTab'
 import type { EventSnapshot } from '@/domain/entities/Event'
 import type { DayOption } from '@/domain/value-objects/DayOption'
+import { makeEvent as makeSavedEvent, makeUser, uid } from '../../../../support/eventFixtures'
+import { renderWithEvent } from '../../../../support/renderWithEvent'
 
 const jun5: DayOption = { start: '2026-06-05', end: '2026-06-05', note: null }
 const jun12: DayOption = { start: '2026-06-12', end: '2026-06-14', note: 'casa rural' }
@@ -215,5 +217,61 @@ describe('AvailabilityTab', () => {
         name: /elegir d(í|i)as|choose days|aukeratu egunak|triar dies|escoller d(í|i)as/i,
       }),
     ).toBeInTheDocument()
+  })
+})
+
+describe('AvailabilityTab writes', () => {
+  const ME = uid(1)
+  const ANE = uid(2)
+  const event = () =>
+    makeSavedEvent({
+      users: [makeUser(ME, { name: 'Iker' }), makeUser(ANE, { name: 'Ane' })],
+      dayOptions: [jun5, jun12],
+    })
+  const save = () => fireEvent.click(screen.getByRole('button', { name: 'Save availability' }))
+
+  beforeEach(() => localStorage.clear())
+
+  it("saves my votes and the pins from the calendar, and everybody's from the table", async () => {
+    const app = await renderWithEvent(<AvailabilityTab />, event(), ME)
+    fireEvent.click(cell('2026-06-05'))
+    fireEvent.click(screen.getAllByRole('button', { name: 'Chosen option' })[1]!)
+    save()
+    await waitFor(async () => expect((await app.saved()).availability[ME]).toEqual([true, false]))
+    expect((await app.saved()).availability[ANE]).toBeUndefined()
+    expect((await app.saved()).chosenOptions).toEqual(['2026-06-12..2026-06-14'])
+
+    fireEvent.click(tableButton())
+    fireEvent.click(screen.getByRole('checkbox', { name: /^Ane .*12/ }))
+    save()
+    await waitFor(async () => expect((await app.saved()).availability[ANE]).toEqual([false, true]))
+  })
+
+  it('removes an option after confirming, but never the last one', async () => {
+    localStorage.setItem('eventsplit:availabilityView', 'table')
+    const app = await renderWithEvent(<AvailabilityTab />, event(), ME)
+    const remove = () => fireEvent.click(screen.getAllByRole('button', { name: 'Remove day' })[0]!)
+    remove()
+    fireEvent.click(screen.getByRole('button', { name: 'Remove' }))
+    await waitFor(async () => expect((await app.saved()).dayOptions).toHaveLength(1))
+
+    remove()
+    fireEvent.click(screen.getByRole('button', { name: 'Remove' }))
+    expect(await screen.findByText(/only day/i)).toBeInTheDocument()
+    expect((await app.saved()).dayOptions).toHaveLength(1)
+  })
+
+  it('adds a single day, and refuses one already listed', async () => {
+    const app = await renderWithEvent(<AvailabilityTab />, event(), ME)
+    const pick = (day: string) =>
+      fireEvent.change(document.querySelector('input[type="date"]')!, { target: { value: day } })
+    pick('2026-06-20')
+    fireEvent.click(screen.getByRole('button', { name: 'Add a day' }))
+    await waitFor(async () => expect((await app.saved()).dayOptions).toHaveLength(3))
+
+    pick('2026-06-05')
+    fireEvent.click(screen.getByRole('button', { name: 'Add a day' }))
+    expect(screen.getByText('That day is already in the list.')).toBeInTheDocument()
+    expect((await app.saved()).dayOptions).toHaveLength(3)
   })
 })

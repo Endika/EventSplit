@@ -84,6 +84,39 @@ const ikerUser = {
 }
 
 describe('formatShoppingListText', () => {
+  it('lays the whole list out, blocks apart by one blank line and nothing trailing', () => {
+    const purchases = [
+      { ...baseBuy, id: 'p1', item: 'Wine', subgroup: 'Reds' },
+      { ...baseBuy, id: 'p2', item: 'Beer', purchased: true },
+      { ...baseBuy, id: 'p3', item: 'Bread', group: null, assignedTo: 'ghost' },
+      { ...baseBuy, id: 'p4', kind: 'bring' as const, item: 'Ice', assignedTo: 'u1' },
+      { ...baseBuy, id: 'p5', kind: 'bring' as const, item: 'Cups', assignedTo: null },
+    ]
+    const buysOnly = purchases.slice(0, 3)
+    expect(formatShoppingListText(makeEvent({ users: [ikerUser], purchases }), t)).toBe(
+      [
+        '🛒 Iker BDay — Shopping list',
+        '',
+        '📌 Drinks',
+        '  └ Reds',
+        '     • Wine — Iker · 0/10 bottles',
+        '     • B̶e̶e̶r̶ — Iker · 0/10 bottles ✅',
+        '',
+        '📌 No group',
+        '     • Bread · 0/10 bottles',
+        '',
+        '📦 What people are bringing',
+        '  • Ice — Iker',
+        '  • Cups',
+      ].join('\n'),
+    )
+    expect(
+      formatShoppingListText(makeEvent({ users: [ikerUser], purchases: buysOnly }), t).endsWith(
+        'Bread · 0/10 bottles',
+      ),
+    ).toBe(true)
+  })
+
   it('renders header with event name', () => {
     const event = makeEvent({ users: [ikerUser], purchases: [baseBuy] })
     const text = formatShoppingListText(event, t)
@@ -100,7 +133,7 @@ describe('formatShoppingListText', () => {
   it('applies U+0336 strikethrough to item name when purchased', () => {
     const event = makeEvent({
       users: [ikerUser],
-      purchases: [{ ...baseBuy, purchased: true, boughtQuantity: 10 }],
+      purchases: [{ ...baseBuy, purchased: true }],
     })
     const text = formatShoppingListText(event, t)
     expect(text).toMatch(/W̶i̶n̶e̶/)
