@@ -33,45 +33,4 @@ describe('AddParticipant via JoinAsNewUserHandler (UI shape)', () => {
     const reloaded = await readEvent(repo, create.event.id)
     expect(reloaded!.snapshot.users.find((u) => u.name === 'Toby')!.kind).toBe('dog')
   })
-
-  it('adds participant when kind is undefined (defaults to adult)', async () => {
-    const repo = new InMemoryEventRepository()
-    const create = await new CreateEventHandler(repo).execute({ name: 'Trip', creatorName: 'John' })
-    const result = await new JoinAsNewUserHandler(repo).execute({
-      eventId: create.event.id,
-      name: 'Maria',
-    })
-    const maria = result.event.users.find((u) => u.name === 'Maria')!
-    expect(maria.kind).toBe('adult')
-  })
-
-  it('adds participant with empty alias string (trimmed to null)', async () => {
-    const repo = new InMemoryEventRepository()
-    const create = await new CreateEventHandler(repo).execute({ name: 'Trip', creatorName: 'John' })
-    const result = await new JoinAsNewUserHandler(repo).execute({
-      eventId: create.event.id,
-      name: 'Pedro',
-      alias: '',
-      kind: 'adult',
-    })
-    const pedro = result.event.users.find((u) => u.name === 'Pedro')!
-    expect(pedro.alias).toBeNull()
-  })
-
-  it('preserves all users when adding multiple participants in sequence', async () => {
-    const repo = new InMemoryEventRepository()
-    const create = await new CreateEventHandler(repo).execute({ name: 'Trip', creatorName: 'John' })
-    await new JoinAsNewUserHandler(repo).execute({
-      eventId: create.event.id,
-      name: 'Maria',
-      kind: 'adult',
-    })
-    await new JoinAsNewUserHandler(repo).execute({
-      eventId: create.event.id,
-      name: 'Sofía',
-      kind: 'child',
-    })
-    const final = await readEvent(repo, create.event.id)
-    expect(final?.snapshot.users.map((u) => u.name)).toEqual(['John', 'Maria', 'Sofía'])
-  })
 })

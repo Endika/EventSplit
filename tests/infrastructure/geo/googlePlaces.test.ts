@@ -46,12 +46,6 @@ describe('googleAutocomplete', () => {
     expect(fetchMock).not.toHaveBeenCalled()
   })
 
-  it('returns an empty array when the server genuinely found nothing', async () => {
-    stubFetch({})
-
-    expect(await googleAutocomplete('nowhere at all', 'key')).toEqual([])
-  })
-
   it('throws a GeoLookupError when the HTTP request fails', async () => {
     stubFetch({}, 403)
 

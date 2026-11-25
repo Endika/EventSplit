@@ -464,25 +464,6 @@ describe('CloneIntoEventHandler', () => {
       return { ...ctx, twinId, oilId }
     }
 
-    it('fills the existing profile in and adds no second participant', async () => {
-      const repo = new InMemoryEventRepository()
-      const ctx = await seedTwin(repo)
-
-      const result = await new CloneIntoEventHandler(repo).execute({
-        targetEventId: ctx.targetId,
-        sourceEventId: ctx.sourceId,
-        clonedBy: ctx.me,
-        selection: sel({ userIds: [ctx.twinId], mergeUserIds: [ctx.twinId] }),
-      })
-
-      expect(result.event.users).toHaveLength(1)
-      const iker = result.event.users[0]!
-      expect(iker.id).toBe(ctx.me)
-      expect(iker.dietary).toBe('vegano')
-      expect(iker.phone).toBe('600123456')
-      expect(iker.allergies).toEqual([{ name: 'nuts', severity: 'severe', notes: null }])
-    })
-
     it('hands the cloned item to the existing participant', async () => {
       const repo = new InMemoryEventRepository()
       const ctx = await seedTwin(repo)

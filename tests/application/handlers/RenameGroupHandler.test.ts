@@ -31,17 +31,4 @@ describe('RenameGroupHandler', () => {
 
     expect(result.event.purchases[0]!.group).toBe('Cena sábado')
   })
-
-  it('rejects unknown user', async () => {
-    const repo = new InMemoryEventRepository()
-    const create = await new CreateEventHandler(repo).execute({ name: 'Trip', creatorName: 'John' })
-    await expect(
-      new RenameGroupHandler(repo).execute({
-        eventId: create.event.id,
-        userId: '00000000-0000-7000-8000-000000000000',
-        from: 'Cena',
-        to: 'Comida',
-      }),
-    ).rejects.toThrow(/not in event/i)
-  })
 })

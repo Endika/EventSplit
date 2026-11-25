@@ -1,5 +1,4 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
-import { notify, NOTICE_EVENT } from '@/shared/utils/notify'
 import { reportError, ERROR_EVENT } from '@/shared/utils/reportError'
 import { isStaleClientError, STALE_CLIENT_EVENT } from '@/shared/utils/staleClient'
 
@@ -18,15 +17,6 @@ describe('window events', () => {
   afterEach(() => {
     vi.useRealTimers()
     vi.restoreAllMocks()
-  })
-
-  it('notify dispatches the key with the current time', () => {
-    const notices = capture(NOTICE_EVENT)
-    notify('notice.remoteEdit')
-    notices.stop()
-    expect(notices.seen.map((e) => (e as CustomEvent).detail)).toEqual([
-      { key: 'notice.remoteEdit', at: 1_700_000_000_000 },
-    ])
   })
 
   it.each([

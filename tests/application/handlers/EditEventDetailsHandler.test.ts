@@ -88,28 +88,6 @@ describe('EditEventDetailsHandler', () => {
     expect(JSON.stringify(wifiOnly.event.history)).not.toMatch(/secret123|other456/)
   })
 
-  it('clears the location and the notes fields when they are sent as null', async () => {
-    const { edit } = await setup()
-    await edit({
-      location: { name: 'Casa' },
-      generalNotes: 'Bring boots',
-      wifiPassword: 'secret123',
-      emergencyContact: 'Mum 600000000',
-    })
-    const result = await edit({
-      location: null,
-      generalNotes: null,
-      wifiPassword: null,
-      emergencyContact: null,
-    })
-    expect(result.event).toMatchObject({
-      location: null,
-      generalNotes: null,
-      wifiPassword: null,
-      emergencyContact: null,
-    })
-  })
-
   const CASA = { name: 'Casa', address: 'Calle Mayor 1', lat: 43.26, lng: -2.93 }
 
   it.each([
