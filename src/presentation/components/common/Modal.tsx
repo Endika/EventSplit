@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useId, useRef, type KeyboardEvent, type ReactNode } from 'react'
 import { useTranslation } from 'react-i18next'
 import { IconClose } from '@/presentation/components/common/icons'
+import { initialFocus, tabWrapTarget } from '@/presentation/utils/focusTrap'
 
 const FOCUSABLE = [
   'a[href]',
@@ -59,9 +60,7 @@ export function Modal({
     // React's own autoFocus has already run; don't fight a form that chose its
     // own first field.
     if (!panel.contains(document.activeElement)) {
-      const controls = focusableIn(panel)
-      const first = controls.find((el) => el !== closeRef.current) ?? controls[0] ?? panel
-      first.focus()
+      initialFocus(focusableIn(panel), closeRef.current, panel).focus()
     }
 
     return () => {
@@ -82,21 +81,10 @@ export function Modal({
       if (e.key !== 'Tab') return
       const panel = panelRef.current
       if (!panel) return
-      const controls = focusableIn(panel)
-      if (controls.length === 0) {
+      const target = tabWrapTarget(focusableIn(panel), document.activeElement, panel, e.shiftKey)
+      if (target) {
         e.preventDefault()
-        panel.focus()
-        return
-      }
-      const first = controls[0]!
-      const last = controls[controls.length - 1]!
-      const active = document.activeElement
-      if (e.shiftKey && (active === first || active === panel)) {
-        e.preventDefault()
-        last.focus()
-      } else if (!e.shiftKey && active === last) {
-        e.preventDefault()
-        first.focus()
+        target.focus()
       }
     },
     [dismissable, onClose],
