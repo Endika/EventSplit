@@ -11,10 +11,10 @@ import { useCurrentUser } from '@/presentation/context/UserContext'
 import { useWriteGuard } from '@/presentation/context/WriteGuardContext'
 import { useEditPin } from '@/presentation/context/EditPinContext'
 import { Button } from '@/presentation/components/common/Button'
+import { blankToNull } from '@/presentation/utils/text'
 import { reportError } from '@/shared/utils/reportError'
 import { friendlyError } from '@/presentation/utils/friendlyError'
 import {
-  emptyToNull,
   hasMapSubject,
   isMissingName,
   mapSubject,
@@ -118,9 +118,9 @@ export function LocationTab() {
         const result = await handler.execute({
           eventId: event.id,
           location: toLocationInput(fields),
-          generalNotes: emptyToNull(notes),
-          wifiPassword: emptyToNull(wifi),
-          emergencyContact: emptyToNull(emergency),
+          generalNotes: blankToNull(notes),
+          wifiPassword: blankToNull(wifi),
+          emergencyContact: blankToNull(emergency),
         })
         setEvent(result.event, result.version)
         setEditing(false)
