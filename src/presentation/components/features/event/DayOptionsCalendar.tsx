@@ -3,25 +3,28 @@ import { useTranslation } from 'react-i18next'
 import {
   MAX_OPTIONS,
   MAX_SPAN_DAYS,
-  coversDay,
   makeRange,
   optionKey,
   sortOptions,
   spanDays,
   type DayOption,
 } from '@/domain/value-objects/DayOption'
-import { monthOf } from '@/presentation/utils/calendarMonth'
+import {
+  bandPosition,
+  initialMonth,
+  longDate,
+  optionsCovering,
+} from '@/presentation/utils/calendarMonth'
+import {
+  addVerdict,
+  dropFromSelection,
+  isSelectionFull,
+  selectionChanged,
+} from '@/presentation/utils/dayOptionsSelection'
 import { formatOptionLabel } from '@/presentation/utils/formatOptionLabel'
 import { MonthGrid } from '@/presentation/components/common/MonthGrid'
 import { Button } from '@/presentation/components/common/Button'
 import { Modal } from '@/presentation/components/common/Modal'
-
-function todayIso(): string {
-  const now = new Date()
-  const m = `${now.getMonth() + 1}`.padStart(2, '0')
-  const d = `${now.getDate()}`.padStart(2, '0')
-  return `${now.getFullYear()}-${m}-${d}`
-}
 
 /**
  * Picks which days and stretches go up for a vote. Tapping adds or drops a
@@ -39,30 +42,29 @@ export function DayOptionsCalendar(props: {
   const { t, i18n } = useTranslation()
 
   const [selection, setSelection] = useState<DayOption[]>(options)
-  const [month, setMonth] = useState(() => monthOf(options[0]?.start ?? todayIso()))
+  const [month, setMonth] = useState(() => initialMonth(options))
   const [rangeMode, setRangeMode] = useState(false)
   const [rangeStart, setRangeStart] = useState<string | null>(null)
   const [warning, setWarning] = useState<string | null>(null)
   const [toRemove, setToRemove] = useState<DayOption | null>(null)
   const [chooseRemoval, setChooseRemoval] = useState<DayOption[] | null>(null)
 
-  const full = selection.length >= MAX_OPTIONS
-  const changed =
-    selection.length !== options.length ||
-    selection.some((o, i) => optionKey(o) !== optionKey(options[i] ?? o))
+  const full = isSelectionFull(selection)
+  const changed = selectionChanged(selection, options)
 
   function add(option: DayOption) {
-    if (full) {
+    const verdict = addVerdict(selection, option)
+    if (verdict === 'full') {
       setWarning(t('availability.optionsFull'))
       return
     }
-    if (selection.some((o) => optionKey(o) === optionKey(option))) return
+    if (verdict === 'duplicate') return
     setWarning(null)
     setSelection((prev) => sortOptions([...prev, option]))
   }
 
   function drop(option: DayOption) {
-    setSelection((prev) => prev.filter((o) => optionKey(o) !== optionKey(option)))
+    setSelection((prev) => dropFromSelection(prev, option))
     setWarning(null)
   }
 
@@ -91,7 +93,7 @@ export function DayOptionsCalendar(props: {
       return
     }
 
-    const covering = selection.filter((o) => coversDay(o, iso))
+    const covering = optionsCovering(selection, iso)
     if (covering.length === 0) {
       add({ start: iso, end: iso, note: null })
       return
@@ -127,22 +129,13 @@ export function DayOptionsCalendar(props: {
         onMonthChange={setMonth}
         labels={{ prev: t('availability.prevMonth'), next: t('availability.nextMonth') }}
         renderDay={(iso, inMonth) => {
-          const covering = selection.filter((o) => coversDay(o, iso))
+          const covering = optionsCovering(selection, iso)
           const picked = covering.length > 0
           const isRangeStart = rangeStart === iso
           const blocked = !picked && full && !rangeMode
           // A stretch has to read as one band, not as N separate days: square
           // cells butt against each other, so the band closes itself.
-          const first = covering[0]
-          const span = !first
-            ? 'none'
-            : first.start === first.end
-              ? 'single'
-              : iso === first.start
-                ? 'start'
-                : iso === first.end
-                  ? 'end'
-                  : 'middle'
+          const span = bandPosition(covering[0], iso)
           return (
             <button
               type="button"
@@ -152,11 +145,7 @@ export function DayOptionsCalendar(props: {
               onClick={() => handleDay(iso)}
               disabled={busy || blocked}
               aria-pressed={picked}
-              aria-label={new Intl.DateTimeFormat(i18n.language, {
-                day: 'numeric',
-                month: 'long',
-                year: 'numeric',
-              }).format(new Date(iso + 'T00:00:00'))}
+              aria-label={longDate(iso, i18n.language)}
               className={[
                 'flex h-full min-h-11 w-full items-center justify-center text-sm',
                 inMonth ? 'text-ink' : 'text-muted',

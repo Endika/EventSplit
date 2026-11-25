@@ -14,6 +14,7 @@ import { Input } from '@/presentation/components/common/Input'
 import { IconPlus } from '@/presentation/components/common/icons'
 import { RecentEventsList } from './RecentEventsList'
 import { reportError } from '@/shared/utils/reportError'
+import { isValidPinLength } from '@/presentation/utils/pinInput'
 
 export function HomePage() {
   const { t } = useTranslation()
@@ -56,7 +57,7 @@ export function HomePage() {
         name: yourName.trim(),
         alias: alias.trim() || null,
       })
-      if (pin.length >= 4 && pin.length <= 6) {
+      if (isValidPinLength(pin)) {
         const pinHandler = container.resolve<SetEditPinHandler>('setEditPin')
         await pinHandler.execute({
           eventId: result.event.id,

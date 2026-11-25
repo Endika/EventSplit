@@ -24,7 +24,6 @@ export function useAvailabilityDraft(event: EventSnapshot | null) {
   const savedVote = useCallback(
     (userId: string, key: string): boolean => {
       const idx = keys.indexOf(key)
-      if (idx < 0) return false
       return event?.availability[userId]?.[idx] ?? false
     },
     [event, keys],
@@ -35,9 +34,11 @@ export function useAvailabilityDraft(event: EventSnapshot | null) {
     [votes, savedVote],
   )
 
+  // Stryker disable ArrayDeclaration: a constant dependency list is never read
   const setVote = useCallback((userId: string, key: string, value: boolean) => {
     setVotes((prev) => ({ ...prev, [userId]: { ...prev[userId], [key]: value } }))
   }, [])
+  // Stryker restore ArrayDeclaration
 
   const votesFor = useCallback(
     (key: string, userIds: string[]): number =>
@@ -78,9 +79,11 @@ export function useAvailabilityDraft(event: EventSnapshot | null) {
     [noteOverlay, savedNote],
   )
 
+  // Stryker disable ArrayDeclaration: a constant dependency list is never read
   const setNote = useCallback((key: string, note: string | null) => {
     setNoteOverlay((prev) => ({ ...prev, [key]: normalizeNote(note) }))
   }, [])
+  // Stryker restore ArrayDeclaration
 
   /** The event's options with the draft notes folded in, ready to save. */
   const optionsWithNotes = useCallback(
@@ -89,15 +92,15 @@ export function useAvailabilityDraft(event: EventSnapshot | null) {
   )
 
   const dirty =
-    Object.values(votes).some((row) => Object.keys(row).length > 0) ||
-    pinOverlay !== null ||
-    Object.keys(noteOverlay).length > 0
+    Object.keys(votes).length > 0 || pinOverlay !== null || Object.keys(noteOverlay).length > 0
 
+  // Stryker disable ArrayDeclaration: a constant dependency list is never read
   const reset = useCallback(() => {
     setVotes({})
     setPinOverlay(null)
     setNoteOverlay({})
   }, [])
+  // Stryker restore ArrayDeclaration
 
   return {
     voteOf,

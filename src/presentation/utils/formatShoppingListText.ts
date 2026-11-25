@@ -13,7 +13,6 @@ function strike(s: string): string {
 }
 
 function nameOf(event: EventSnapshot, userId: string | null): string | null {
-  if (!userId) return null
   return event.users.find((u) => u.id === userId)?.name ?? null
 }
 
@@ -42,13 +41,11 @@ export function formatShoppingListText(event: EventSnapshot, t: Translate): stri
   const buys = visible.filter((p) => p.kind === 'buy')
   const brings = visible.filter((p) => p.kind === 'bring')
 
-  const lines: string[] = []
-  lines.push(t('share.format.header', { eventName: event.name }))
-  lines.push('')
+  const blocks: string[][] = [[t('share.format.header', { eventName: event.name })]]
 
   for (const g of groupPurchases(event, buys)) {
     const groupLabel = g.group === '' ? t('share.format.noGroup') : g.group
-    lines.push(`📌 ${groupLabel}`)
+    const lines = [`📌 ${groupLabel}`]
     for (const sg of g.subgroups) {
       if (sg.subgroup !== '') {
         lines.push(`  └ ${sg.subgroup}`)
@@ -57,15 +54,12 @@ export function formatShoppingListText(event: EventSnapshot, t: Translate): stri
         lines.push(renderBuyLine(event, item, t))
       }
     }
-    lines.push('')
+    blocks.push(lines)
   }
 
   if (brings.length > 0) {
-    lines.push(t('share.format.broughtSection'))
-    for (const item of brings) {
-      lines.push(renderBringLine(event, item))
-    }
+    blocks.push([t('share.format.broughtSection'), ...brings.map((p) => renderBringLine(event, p))])
   }
 
-  return lines.join('\n').replace(/\n+$/, '')
+  return blocks.map((lines) => lines.join('\n')).join('\n\n')
 }

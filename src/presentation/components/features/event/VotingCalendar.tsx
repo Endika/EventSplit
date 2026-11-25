@@ -1,8 +1,9 @@
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { coversDay, optionKey, type DayOption } from '@/domain/value-objects/DayOption'
+import { optionKey, type DayOption } from '@/domain/value-objects/DayOption'
 import { dayHeat } from '@/domain/services/availabilityHeat'
-import { monthOf } from '@/presentation/utils/calendarMonth'
+import { initialMonth, longDate, optionsCovering } from '@/presentation/utils/calendarMonth'
+import { pickAt } from '@/presentation/utils/collections'
 import { formatOptionLabel } from '@/presentation/utils/formatOptionLabel'
 import { MonthGrid } from '@/presentation/components/common/MonthGrid'
 import { Button } from '@/presentation/components/common/Button'
@@ -11,13 +12,6 @@ import { IconPin } from '@/presentation/components/common/icons'
 
 /** Warm background per heat level. The count is always written too: colour alone never carries it. */
 const HEAT_CLASS = ['bg-elevated', 'bg-pos/15', 'bg-pos/30', 'bg-pos/50', 'bg-pos/70'] as const
-
-function todayIso(): string {
-  const now = new Date()
-  const m = `${now.getMonth() + 1}`.padStart(2, '0')
-  const d = `${now.getDate()}`.padStart(2, '0')
-  return `${now.getFullYear()}-${m}-${d}`
-}
 
 /**
  * The month as a heat map of the vote. A day belonging to several overlapping
@@ -35,12 +29,12 @@ export function VotingCalendar(props: {
 }) {
   const { options, counts, totalVoters, myVotes, pins, onToggleMine, canVote } = props
   const { t, i18n } = useTranslation()
-  const [month, setMonth] = useState(() => monthOf(options[0]?.start ?? todayIso()))
+  const [month, setMonth] = useState(() => initialMonth(options))
   const [choose, setChoose] = useState<DayOption[] | null>(null)
 
   function handleDay(iso: string) {
     if (!canVote) return
-    const covering = options.filter((o) => coversDay(o, iso))
+    const covering = optionsCovering(options, iso)
     if (covering.length === 0) return
     if (covering.length === 1 && covering[0]) {
       onToggleMine(optionKey(covering[0]))
@@ -58,18 +52,14 @@ export function VotingCalendar(props: {
         labels={{ prev: t('availability.prevMonth'), next: t('availability.nextMonth') }}
         renderDay={(iso, inMonth) => {
           const heat = dayHeat(options, counts, iso, totalVoters)
-          const longDate = new Intl.DateTimeFormat(i18n.language, {
-            day: 'numeric',
-            month: 'long',
-            year: 'numeric',
-          }).format(new Date(iso + 'T00:00:00'))
+          const dayLabel = longDate(iso, i18n.language)
 
           if (!heat) {
             return (
               <div
                 data-iso={iso}
                 data-candidate="false"
-                aria-label={`${longDate} — ${t('availability.notCandidate')}`}
+                aria-label={`${dayLabel} — ${t('availability.notCandidate')}`}
                 className={`flex h-full min-h-11 w-full items-center justify-center text-sm ${
                   inMonth ? 'text-ink' : 'text-muted'
                 }`}
@@ -79,10 +69,7 @@ export function VotingCalendar(props: {
             )
           }
 
-          const covering = heat.optionIndexes.flatMap((i) => {
-            const o = options[i]
-            return o ? [o] : []
-          })
+          const covering = pickAt(options, heat.optionIndexes)
           const isChosen = covering.some((o) => pins.includes(optionKey(o)))
           const mine = covering.some((o) => myVotes[optionKey(o)])
           const noted = covering.find((o) => o.note)
@@ -100,7 +87,7 @@ export function VotingCalendar(props: {
               onClick={() => handleDay(iso)}
               disabled={!canVote}
               title={noted?.note ?? undefined}
-              aria-label={`${longDate} — ${t('availability.optionVotes', {
+              aria-label={`${dayLabel} — ${t('availability.optionVotes', {
                 votes: heat.votes,
                 total: totalVoters,
               })}${notePart}`}

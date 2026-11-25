@@ -1,15 +1,15 @@
-import { optionKey, type DayOption } from '@/domain/value-objects/DayOption'
+import { atNoon, optionKey, type DayOption } from '@/domain/value-objects/DayOption'
 
 /**
  * A day option as a reader sees it: 'vie 5 jun' for a single day, '12–14 jun'
  * for a stretch inside one month, '30 jun – 2 jul' when it crosses one. A table
- * header has to be read at a glance, so two full dates is too much.
+ * header has to be read at a glance, so two full dates is too much. A date that
+ * cannot be read makes Intl throw, and the label falls back to the option's key.
  */
 export function formatOptionLabel(o: DayOption, locale: string): string {
   try {
-    const start = new Date(o.start + 'T00:00:00')
-    const end = new Date(o.end + 'T00:00:00')
-    if (Number.isNaN(start.getTime()) || Number.isNaN(end.getTime())) return optionKey(o)
+    const start = atNoon(o.start)
+    const end = atNoon(o.end)
 
     if (o.start === o.end) {
       return new Intl.DateTimeFormat(locale, {

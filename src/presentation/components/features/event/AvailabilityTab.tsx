@@ -16,6 +16,15 @@ import { optionKey, type DayOption } from '@/domain/value-objects/DayOption'
 import { votesPerOption } from '@/domain/services/availabilityHeat'
 import { pickTableOptions } from '@/domain/services/pickTableOptions'
 import { formatOptionLabel } from '@/presentation/utils/formatOptionLabel'
+import {
+  byKey,
+  matrixVoters,
+  notesChanged,
+  optionOfKey,
+  pinsChanged,
+  removableKeys as unvotedKeys,
+  savedVotesByKey,
+} from '@/presentation/utils/availabilityVotes'
 import { useAvailabilityDraft } from '@/presentation/hooks/useAvailabilityDraft'
 import { useAvailabilityView } from '@/presentation/hooks/useAvailabilityView'
 import { AvailabilityMatrix } from './AvailabilityMatrix'
@@ -42,10 +51,7 @@ export function AvailabilityTab() {
   const [editingDays, setEditingDays] = useState(false)
 
   const matrixUsers = useMemo(
-    () =>
-      showChildren
-        ? (event?.users ?? []).filter((u) => canVote(u.kind))
-        : (event?.users ?? []).filter((u) => u.kind === 'adult'),
+    () => matrixVoters(event?.users ?? [], showChildren),
     [event, showChildren],
   )
 
@@ -63,18 +69,8 @@ export function AvailabilityTab() {
 
   if (!event) return null
 
-  const savedVotesForOption = (key: string): number => {
-    const idx = event.dayOptions.findIndex((o) => optionKey(o) === key)
-    if (idx < 0) return 0
-    return event.users.reduce(
-      (n, u) => n + (canVote(u.kind) && event.availability[u.id]?.[idx] ? 1 : 0),
-      0,
-    )
-  }
-
-  const removableKeys = event.dayOptions
-    .map(optionKey)
-    .filter((key) => savedVotesForOption(key) === 0)
+  const savedVotes = savedVotesByKey(event)
+  const removableKeys = unvotedKeys(event.dayOptions, savedVotes)
 
   // Everyone who may hold a vote, whatever the show-children toggle says:
   // the matrix is only *displayed* filtered, it must still be *saved* whole.
@@ -85,15 +81,8 @@ export function AvailabilityTab() {
   // Live counts: the same figure the table foot shows, so the two views can
   // never contradict each other.
   const liveCounts = event.dayOptions.map((o) => draft.votesFor(optionKey(o), voterIds))
-  const myVotes = Object.fromEntries(
-    event.dayOptions.map((o) => [optionKey(o), me ? draft.voteOf(me.id, optionKey(o)) : false]),
-  )
-  const draftNotes = Object.fromEntries(
-    event.dayOptions.map((o) => [optionKey(o), draft.noteOf(optionKey(o))]),
-  )
-  const savedVotesByKey = Object.fromEntries(
-    event.dayOptions.map((o) => [optionKey(o), savedVotesForOption(optionKey(o))]),
-  )
+  const myVotes = byKey(event.dayOptions, (key) => (me ? draft.voteOf(me.id, key) : false))
+  const draftNotes = byKey(event.dayOptions, draft.noteOf)
 
   function toggleMyVote(key: string) {
     if (!me) return
@@ -106,23 +95,12 @@ export function AvailabilityTab() {
     setEvent(result.event, result.version)
   }
 
-  function addDay(e: FormEvent) {
-    e.preventDefault()
-    if (!newDay) return
-    const key = `${newDay}..${newDay}`
-    if (event!.dayOptions.some((o) => optionKey(o) === key)) {
-      setError(t('availability.dayAlreadyExists'))
-      return
-    }
+  function write(task: () => Promise<void>) {
     guardedExecute(async () => {
       setBusy(true)
       setError(null)
       try {
-        await commitOptions([
-          ...draft.optionsWithNotes(),
-          { start: newDay, end: newDay, note: null },
-        ])
-        setNewDay('')
+        await task()
       } catch (err) {
         reportError('AvailabilityTab', err)
         setError(friendlyError(err, t))
@@ -132,24 +110,27 @@ export function AvailabilityTab() {
     })
   }
 
+  function addDay(e: FormEvent) {
+    e.preventDefault()
+    if (!newDay) return
+    const key = `${newDay}..${newDay}`
+    if (event!.dayOptions.some((o) => optionKey(o) === key)) {
+      setError(t('availability.dayAlreadyExists'))
+      return
+    }
+    write(async () => {
+      await commitOptions([...draft.optionsWithNotes(), { start: newDay, end: newDay, note: null }])
+      setNewDay('')
+    })
+  }
+
   function removeOption(key: string) {
     const next = draft.optionsWithNotes().filter((o) => optionKey(o) !== key)
     if (next.length === 0) {
       setError(t('availability.cannotRemoveLast'))
       return
     }
-    guardedExecute(async () => {
-      setBusy(true)
-      setError(null)
-      try {
-        await commitOptions(next)
-      } catch (err) {
-        reportError('AvailabilityTab', err)
-        setError(friendlyError(err, t))
-      } finally {
-        setBusy(false)
-      }
-    })
+    write(() => commitOptions(next))
   }
 
   /**
@@ -160,46 +141,34 @@ export function AvailabilityTab() {
    */
   function saveAll() {
     if (!me) return
-    guardedExecute(async () => {
-      setBusy(true)
-      setError(null)
-      try {
-        const notesChanged = event!.dayOptions.some((o) => o.note !== draft.noteOf(optionKey(o)))
-        if (notesChanged) await commitOptions(draft.optionsWithNotes())
+    write(async () => {
+      if (notesChanged(event!.dayOptions, draft.noteOf))
+        await commitOptions(draft.optionsWithNotes())
 
-        // From the calendar and the list only my own row goes up, so a stale
-        // draft cannot overwrite what someone else saved meanwhile. Filling in
-        // for other people stays a table-only power.
-        const batch = container.resolve<SetAvailabilityBatchHandler>('setAvailabilityBatch')
-        const voteResult = await batch.execute({
+      // From the calendar and the list only my own row goes up, so a stale
+      // draft cannot overwrite what someone else saved meanwhile. Filling in
+      // for other people stays a table-only power.
+      const batch = container.resolve<SetAvailabilityBatchHandler>('setAvailabilityBatch')
+      const voteResult = await batch.execute({
+        eventId: event!.id,
+        editedBy: me.id,
+        votes: view === 'table' ? draft.matrix(voterUserIds) : { [me.id]: draft.rowFor(me.id) },
+      })
+      setEvent(voteResult.event, voteResult.version)
+
+      const noteChanged = (event!.availabilityNote ?? '') !== note.trim()
+      if (pinsChanged(draft.pins, event!.chosenOptions) || noteChanged) {
+        const meta = container.resolve<SetAvailabilityMetaHandler>('setAvailabilityMeta')
+        const metaResult = await meta.execute({
           eventId: event!.id,
-          editedBy: me.id,
-          votes: view === 'table' ? draft.matrix(voterUserIds) : { [me.id]: draft.rowFor(me.id) },
+          userId: me.id,
+          note: note.trim() || null,
+          chosenOptions: draft.pins,
         })
-        setEvent(voteResult.event, voteResult.version)
-
-        const pinsChanged =
-          draft.pins.length !== event!.chosenOptions.length ||
-          draft.pins.some((k) => !event!.chosenOptions.includes(k))
-        const noteChanged = (event!.availabilityNote ?? '') !== note.trim()
-        if (pinsChanged || noteChanged) {
-          const meta = container.resolve<SetAvailabilityMetaHandler>('setAvailabilityMeta')
-          const metaResult = await meta.execute({
-            eventId: event!.id,
-            userId: me.id,
-            note: note.trim() || null,
-            chosenOptions: draft.pins,
-          })
-          setEvent(metaResult.event, metaResult.version)
-        }
-
-        draft.reset()
-      } catch (err) {
-        reportError('AvailabilityTab', err)
-        setError(friendlyError(err, t))
-      } finally {
-        setBusy(false)
+        setEvent(metaResult.event, metaResult.version)
       }
+
+      draft.reset()
     })
   }
 
@@ -338,22 +307,11 @@ export function AvailabilityTab() {
         >
           <DayOptionsCalendar
             options={event.dayOptions}
-            votesByKey={savedVotesByKey}
+            votesByKey={savedVotes}
             busy={busy}
             onCommit={(next) => {
               setEditingDays(false)
-              guardedExecute(async () => {
-                setBusy(true)
-                setError(null)
-                try {
-                  await commitOptions(next)
-                } catch (err) {
-                  reportError('AvailabilityTab', err)
-                  setError(friendlyError(err, t))
-                } finally {
-                  setBusy(false)
-                }
-              })
+              write(() => commitOptions(next))
             }}
           />
         </Modal>
@@ -370,11 +328,7 @@ export function AvailabilityTab() {
             <p className="text-sm text-ink">
               {t('availability.removeDayConfirm', {
                 date: formatOptionLabel(
-                  event.dayOptions.find((o) => optionKey(o) === optionToRemove) ?? {
-                    start: optionToRemove.slice(0, 10),
-                    end: optionToRemove.slice(0, 10),
-                    note: null,
-                  },
+                  optionOfKey(event.dayOptions, optionToRemove),
                   i18n.language,
                 ),
               })}

@@ -32,7 +32,7 @@ import {
   toggleLink,
 } from '@/presentation/utils/expenseForm'
 import { buyableItems, visiblePurchases } from '@/presentation/utils/purchaseFilters'
-import { round2 } from '@/presentation/utils/numbers'
+import { centsToInput, round2 } from '@/presentation/utils/numbers'
 import { userLabel } from '@/presentation/utils/userLabel'
 import { toStoredSplit } from '@/domain/services/splitScope'
 import { formatQuantity } from '@/presentation/utils/quantity'
@@ -53,7 +53,7 @@ export function ExpenseForm({
   const online = useOnlineStatus()
   const { guardedExecute } = useWriteGuard()
   const [paidBy, setPaidBy] = useState(expense?.paidBy ?? me?.id ?? '')
-  const [amount, setAmount] = useState(expense ? (expense.cents / 100).toString() : '')
+  const [amount, setAmount] = useState(expense ? centsToInput(expense.cents) : '')
   const [description, setDescription] = useState(expense?.description ?? '')
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState<string | null>(null)

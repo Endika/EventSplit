@@ -17,14 +17,8 @@ export function GeneralSummary() {
 
   const totals = computeTripTotals({
     participantIds: payingUsers(event.users).map((u) => u.id),
-    expenses: event.expenses.map((e) => ({ cents: e.cents, deleted: e.deleted })),
-    manualLiquidations: event.manualLiquidations.map((l) => ({
-      cents: l.cents,
-      paidBy: l.paidBy,
-      affects: l.affects,
-      paidShares: l.paidShares,
-      deleted: l.deleted,
-    })),
+    expenses: event.expenses,
+    manualLiquidations: event.manualLiquidations,
   })
 
   if (totals.totalCostCents === 0) return null
