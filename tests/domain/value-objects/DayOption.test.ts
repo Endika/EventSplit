@@ -7,6 +7,8 @@ import {
   sortOptions,
   expandDays,
   normalizeNote,
+  makeRange,
+  optionsCoveringDay,
   MAX_SPAN_DAYS,
 } from '@/domain/value-objects/DayOption'
 
@@ -89,5 +91,17 @@ describe('DayOption', () => {
     expect(normalizeNote('   ')).toBeNull()
     expect(normalizeNote(undefined)).toBeNull()
     expect(normalizeNote('x'.repeat(200))).toHaveLength(80)
+  })
+
+  it('builds a range from its two ends in either order', () => {
+    const range = { start: '2026-06-01', end: '2026-06-03', note: null }
+    expect(makeRange('2026-06-01', '2026-06-03')).toEqual(range)
+    expect(makeRange('2026-06-03', '2026-06-01')).toEqual(range)
+  })
+
+  it('lists the options that cover a day, and none when no option does', () => {
+    const options = [day('2026-06-05'), day('2026-06-06'), makeRange('2026-06-04', '2026-06-05')]
+    expect(optionsCoveringDay(options, '2026-06-05')).toEqual([0, 2])
+    expect(optionsCoveringDay(options, '2026-06-09')).toEqual([])
   })
 })

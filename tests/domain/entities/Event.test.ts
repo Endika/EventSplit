@@ -39,11 +39,21 @@ function withSnapshot(event: Event, change: (snap: EventSnapshot) => void): Even
 }
 
 describe('Event', () => {
-  it.each([['2 chars', 'AB', false]])('event name of %s', (_label, name, ok) => {
+  it.each([
+    ['2 chars once trimmed', '  AB  ', false],
+    ['3 chars once trimmed', '  ABC  ', true],
+    ['100 chars', 'x'.repeat(100), true],
+    ['101 chars', 'x'.repeat(101), false],
+  ])('event name of %s', (_label, name, ok) => {
     const creator = User.create({ name: 'John' })
     const create = () => Event.create({ name, creator })
-    if (ok) expect(create).not.toThrow()
+    if (ok) expect(create().toSnapshot().name).toBe(name.trim())
     else expect(create).toThrow(/name/)
+  })
+
+  it('starts with no groups ordered', () => {
+    const e = Event.create({ name: 'Trip', creator: User.create({ name: 'John' }) })
+    expect(e.toSnapshot()).toMatchObject({ groupOrder: [], subgroupOrder: {} })
   })
 
   it('rejects a user already in the event', () => {

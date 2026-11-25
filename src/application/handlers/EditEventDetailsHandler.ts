@@ -10,8 +10,8 @@ import { buildGoogleMapsUrl } from '@/shared/utils/googleMapsUrl'
 
 const PLACE_FIELDS = ['name', 'address', 'lat', 'lng', 'postalCode'] as const
 
-function isSamePlace(a: EventLocation | null, b: EventLocation | null): boolean {
-  if (!a || !b) return a === b
+function isSamePlace(a: EventLocation, b: EventLocation | null): boolean {
+  if (!b) return false
   return PLACE_FIELDS.every((field) => a[field] === b[field])
 }
 
