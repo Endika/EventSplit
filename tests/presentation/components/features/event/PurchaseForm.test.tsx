@@ -8,6 +8,8 @@ import { UserProvider, useSetCurrentUser } from '@/presentation/context/UserCont
 import { WriteGuardProvider } from '@/presentation/context/WriteGuardContext'
 import { EditPinProvider } from '@/presentation/context/EditPinContext'
 import { SyncProvider } from '@/presentation/context/SyncContext'
+import { renderWithEvent } from '../../../../support/renderWithEvent'
+import * as fx from '../../../../support/eventFixtures'
 import { PurchaseForm } from '@/presentation/components/features/event/PurchaseForm'
 import { buildContainer } from '@/shared/di/wiring'
 import { EditPurchaseHandler } from '@/application/handlers/EditPurchaseHandler'
@@ -145,5 +147,148 @@ describe('PurchaseForm editing the buyer', () => {
 
   it('saves clearing the buyer back to nobody', async () => {
     expect(await saveWithBuyer(ANE, '')).toBeNull()
+  })
+})
+
+describe('PurchaseForm', () => {
+  const rawIker = fx.uid(1)
+  const rawAne = fx.uid(2)
+  const users = [
+    fx.makeUser(rawIker, { name: 'Iker' }),
+    fx.makeUser(rawAne, { name: 'Ane' }),
+    fx.makeUser(fx.uid(3), { name: 'Rex', kind: 'dog' }),
+  ]
+
+  beforeEach(() => {
+    Element.prototype.scrollIntoView = vi.fn()
+  })
+
+  const typeItem = (name: string) =>
+    fireEvent.change(screen.getByRole('textbox', { name: /item name/i }), {
+      target: { value: name },
+    })
+  const submitForm = () =>
+    fireEvent.submit(screen.getByRole('textbox', { name: /item name/i }).closest('form')!)
+
+  it('saves a new item for everyone but the dog, with the group trimmed', async () => {
+    const onDone = vi.fn()
+    const app = await renderWithEvent(
+      <PurchaseForm onDone={onDone} />,
+      fx.makeEvent({ users }),
+      rawIker,
+    )
+    typeItem('Water')
+    fireEvent.change(screen.getByRole('textbox', { name: /daily consumption/i }), {
+      target: { value: '1,5' },
+    })
+    fireEvent.change(screen.getByRole('combobox', { name: /^group/i }), {
+      target: { value: '  Drinks ' },
+    })
+    submitForm()
+    await waitFor(() => expect(onDone).toHaveBeenCalled())
+    const [saved] = (await app.saved()).purchases
+    expect(saved).toMatchObject({
+      item: 'Water',
+      kind: 'buy',
+      dailyConsumption: 1.5,
+      group: 'Drinks',
+      subgroup: null,
+      consumers: [
+        { userId: rawIker, multiplier: 1 },
+        { userId: rawAne, multiplier: 1 },
+      ],
+    })
+  })
+
+  it('refuses a shared staple without a valid quantity and saves nothing', async () => {
+    const onDone = vi.fn()
+    const app = await renderWithEvent(
+      <PurchaseForm onDone={onDone} />,
+      fx.makeEvent({ users }),
+      rawIker,
+    )
+    typeItem('Salt')
+    fireEvent.change(screen.getByRole('combobox', { name: /unit/i }), {
+      target: { value: 'single' },
+    })
+    fireEvent.change(screen.getByRole('textbox', { name: /^quantity/i }), {
+      target: { value: '0' },
+    })
+    submitForm()
+    expect(await screen.findByText(/valid quantity/i)).toBeInTheDocument()
+    expect(onDone).not.toHaveBeenCalled()
+    expect((await app.saved()).purchases).toEqual([])
+  })
+
+  it('saves a shared staple with its fixed quantity', async () => {
+    const onDone = vi.fn()
+    const app = await renderWithEvent(
+      <PurchaseForm onDone={onDone} />,
+      fx.makeEvent({ users }),
+      rawIker,
+    )
+    typeItem('Salt')
+    fireEvent.change(screen.getByRole('combobox', { name: /unit/i }), {
+      target: { value: 'single' },
+    })
+    fireEvent.change(screen.getByRole('textbox', { name: /^quantity/i }), {
+      target: { value: '3' },
+    })
+    submitForm()
+    await waitFor(() => expect(onDone).toHaveBeenCalled())
+    expect((await app.saved()).purchases[0]).toMatchObject({
+      item: 'Salt',
+      unit: 'single',
+      quantity: 3,
+    })
+  })
+
+  it('saves an item I bring from home with who brings it', async () => {
+    const onDone = vi.fn()
+    const app = await renderWithEvent(
+      <PurchaseForm onDone={onDone} />,
+      fx.makeEvent({ users }),
+      rawIker,
+    )
+    fireEvent.click(screen.getByRole('button', { name: /i bring it/i }))
+    typeItem('Speaker')
+    fireEvent.change(screen.getByRole('combobox', { name: /brought by/i }), {
+      target: { value: rawAne },
+    })
+    submitForm()
+    await waitFor(() => expect(onDone).toHaveBeenCalled())
+    expect((await app.saved()).purchases[0]).toMatchObject({
+      item: 'Speaker',
+      kind: 'bring',
+      assignedTo: rawAne,
+    })
+  })
+
+  it('pre-fills an existing item and saves the edit', async () => {
+    const existing = fx.makePurchase(fx.uid(11), {
+      createdBy: rawIker,
+      item: 'Coke',
+      dailyConsumption: 2,
+      totalQuantity: 4,
+      consumers: [{ userId: rawAne, multiplier: 1 }],
+    })
+    const onDone = vi.fn()
+    const app = await renderWithEvent(
+      <PurchaseForm purchase={existing} onDone={onDone} />,
+      fx.makeEvent({ users, purchases: [existing] }),
+      rawIker,
+    )
+    expect(screen.getByRole('textbox', { name: /item name/i })).toHaveValue('Coke')
+    expect(screen.getByRole('textbox', { name: /daily consumption/i })).toHaveValue('2')
+    fireEvent.change(screen.getByRole('textbox', { name: /item name/i }), {
+      target: { value: 'Cola' },
+    })
+    submitForm()
+    await waitFor(() => expect(onDone).toHaveBeenCalled())
+    expect((await app.saved()).purchases[0]).toMatchObject({
+      item: 'Cola',
+      dailyConsumption: 2,
+      consumers: [{ userId: rawAne, multiplier: 1 }],
+    })
   })
 })
