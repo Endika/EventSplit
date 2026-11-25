@@ -5,11 +5,17 @@ import { useEventState } from '@/presentation/context/EventContext'
 import { useWriteGuard } from '@/presentation/context/WriteGuardContext'
 import type { JoinAsNewUserHandler } from '@/application/handlers/JoinAsNewUserHandler'
 import type { UserKind } from '@/domain/entities/User'
-import { canBeGuardian } from '@/domain/services/participantRoles'
 import { Modal } from '@/presentation/components/common/Modal'
 import { Button } from '@/presentation/components/common/Button'
 import { Input } from '@/presentation/components/common/Input'
 import { reportError } from '@/shared/utils/reportError'
+import { errorDetails } from '@/presentation/utils/errorDetails'
+import {
+  guardianCandidates,
+  hasValidName,
+  newParticipantFields,
+} from '@/presentation/utils/participants'
+import { userLabel } from '@/presentation/utils/userLabel'
 
 export function AddParticipantModal({ onClose }: { onClose: () => void }) {
   const { t } = useTranslation()
@@ -36,29 +42,20 @@ export function AddParticipantModal({ onClose }: { onClose: () => void }) {
           const handler = container.resolve<JoinAsNewUserHandler>('joinAsNewUser')
           const result = await handler.execute({
             eventId: event.id,
-            name: name.trim(),
-            alias: alias.trim() || null,
-            kind,
-            guardianId: kind === 'child' ? guardianId || null : null,
+            ...newParticipantFields({ name, alias, kind, guardianId }),
           })
           setEvent(result.event, result.version)
           onClose()
         } catch (err) {
           reportError('AddParticipant', err)
-          setError({
-            name: err instanceof Error ? err.constructor.name : 'Unknown',
-            message: err instanceof Error ? err.message : String(err),
-          })
+          setError(errorDetails(err))
         } finally {
           setBusy(false)
         }
       },
       (err) => {
         reportError('AddParticipant', err)
-        setError({
-          name: err instanceof Error ? err.constructor.name : 'Unknown',
-          message: err instanceof Error ? err.message : String(err),
-        })
+        setError(errorDetails(err))
         setBusy(false)
       },
     )
@@ -105,13 +102,11 @@ export function AddParticipantModal({ onClose }: { onClose: () => void }) {
               disabled={busy}
             >
               <option value="">{t('participants.guardianNone')}</option>
-              {event.users
-                .filter((u) => canBeGuardian(u.kind))
-                .map((u) => (
-                  <option key={u.id} value={u.id}>
-                    {u.alias ? `${u.name} (${u.alias})` : u.name}
-                  </option>
-                ))}
+              {guardianCandidates(event.users).map((u) => (
+                <option key={u.id} value={u.id}>
+                  {userLabel(u)}
+                </option>
+              ))}
             </select>
           </label>
         )}
@@ -125,7 +120,7 @@ export function AddParticipantModal({ onClose }: { onClose: () => void }) {
           <Button type="button" variant="secondary" onClick={onClose} disabled={busy}>
             {t('common.cancel')}
           </Button>
-          <Button type="submit" disabled={busy || name.trim().length < 2}>
+          <Button type="submit" disabled={busy || !hasValidName(name)}>
             {t('participants.submit')}
           </Button>
         </div>

@@ -5,6 +5,7 @@ import { useCurrentUser } from '@/presentation/context/UserContext'
 import { YouLabel } from '@/presentation/components/common/YouLabel'
 import { Button } from '@/presentation/components/common/Button'
 import { IconDog, IconPencil, IconPlus } from '@/presentation/components/common/icons'
+import { userLabel } from '@/presentation/utils/userLabel'
 import { ProfileEditor } from './ProfileEditor'
 import { AddParticipantModal } from './AddParticipantModal'
 
@@ -27,7 +28,7 @@ export function ParticipantsTab() {
       <ul className="border-y border-border">
         {event.users.map((u) => {
           const isMe = me?.id === u.id
-          const label = u.alias ? `${u.name} (${u.alias})` : u.name
+          const label = userLabel(u)
           // Neutral, not coral: the brand tint already means "this row is me",
           // and a kind is metadata, not state. bg-brand-soft here also failed
           // AA at this size (4.19:1) and vanished on top of my own row.

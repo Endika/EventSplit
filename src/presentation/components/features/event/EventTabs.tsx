@@ -2,6 +2,13 @@ import { lazy, Suspense, useRef, useState, type ComponentType } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useEventState } from '@/presentation/context/EventContext'
 import { StageSelector } from './StageSelector'
+import {
+  TAB_KEYS,
+  barTabKeys,
+  defaultTabForStage,
+  swipeStep,
+  type Tab,
+} from '@/presentation/utils/eventTabs'
 import { ShareButton } from '@/presentation/components/common/ShareButton'
 import {
   IconCalendar,
@@ -27,15 +34,6 @@ const PurchasesTab = lazy(() => import('./PurchasesTab').then((m) => ({ default:
 const ExpensesTab = lazy(() => import('./ExpensesTab').then((m) => ({ default: m.ExpensesTab })))
 const HistoryTab = lazy(() => import('./HistoryTab').then((m) => ({ default: m.HistoryTab })))
 
-type Tab = 'participants' | 'availability' | 'location' | 'purchases' | 'expenses' | 'history'
-
-function defaultTabForStage(stage: string | undefined): Tab {
-  if (stage === 'shopping') return 'purchases'
-  if (stage === 'expenses') return 'expenses'
-  if (stage === 'doodle') return 'availability'
-  return 'participants'
-}
-
 const TAB_ICONS: Record<Tab, ComponentType<IconProps>> = {
   participants: IconUsers,
   availability: IconCalendar,
@@ -51,30 +49,14 @@ export function EventTabs() {
   const [active, setActive] = useState<Tab>(() => defaultTabForStage(event?.stage))
   const [drawerOpen, setDrawerOpen] = useState(false)
 
-  const tabs: { key: Tab; label: string }[] = [
-    { key: 'participants', label: t('tabs.participants') },
-    { key: 'availability', label: t('tabs.availability') },
-    { key: 'location', label: t('tabs.location') },
-    { key: 'purchases', label: t('tabs.purchases') },
-    { key: 'expenses', label: t('tabs.expenses') },
-    { key: 'history', label: t('tabs.history') },
-  ]
+  const tabs = TAB_KEYS.map((key) => ({ key, label: t(`tabs.${key}`) }))
 
   const activeIndex = tabs.findIndex((tab) => tab.key === active)
 
   // Four fixed destinations in the thumb's arc, led by whatever the current
   // phase is for; the rest live behind the menu. The app is used standing up,
   // one-handed, so the common moves must not need a drawer.
-  const barKeys: Tab[] = [
-    ...new Set<Tab>([
-      defaultTabForStage(event?.stage),
-      'participants',
-      'purchases',
-      'expenses',
-      'availability',
-    ]),
-  ].slice(0, 4)
-  const barTabs = barKeys.map((key) => ({
+  const barTabs = barTabKeys(event?.stage).map((key) => ({
     key,
     label: key === 'purchases' ? t('tabs.purchasesShort') : t(`tabs.${key}`),
   }))
@@ -85,8 +67,8 @@ export function EventTabs() {
   }
 
   function goToIndex(i: number) {
-    if (i < 0 || i >= tabs.length) return
-    setActive(tabs[i]!.key)
+    const next = tabs[i]
+    if (next) setActive(next.key)
   }
 
   // Horizontal swipe to move between tabs (mobile). Vertical swipes and
@@ -112,11 +94,8 @@ export function EventTabs() {
     if (!point) return
     const dx = point.clientX - start.x
     const dy = point.clientY - start.y
-    if (Math.abs(dx) < 70) return // not far enough
-    if (Math.abs(dx) < Math.abs(dy) * 1.8) return // mostly vertical → ignore
-    if (dx < 0)
-      goToIndex(activeIndex + 1) // swipe left → next tab
-    else goToIndex(activeIndex - 1) // swipe right → previous tab
+    const step = swipeStep(dx, dy)
+    if (step) goToIndex(activeIndex + step)
   }
 
   function goHome() {
