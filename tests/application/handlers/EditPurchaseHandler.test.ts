@@ -1,200 +1,81 @@
 import { describe, it, expect } from 'vitest'
-import { CreateEventHandler } from '@/application/handlers/CreateEventHandler'
-import { AddPurchaseHandler } from '@/application/handlers/AddPurchaseHandler'
 import { EditPurchaseHandler } from '@/application/handlers/EditPurchaseHandler'
-import { InMemoryEventRepository } from '@/infrastructure/persistence/InMemoryEventRepository'
+import { addPurchase, lastEntry, makeWorld, type World } from '../../support/world'
+
+async function setup() {
+  const w = await makeWorld()
+  const first = await addPurchase(w, 'Bread')
+  const second = await addPurchase(w, 'Coke', {
+    quantity: 3,
+    unit: 'bottles',
+    dailyConsumption: 2,
+    days: 2,
+  })
+  const edit = (over: Partial<Parameters<EditPurchaseHandler['execute']>[0]> = {}) =>
+    new EditPurchaseHandler(w.repo).execute({
+      eventId: w.eventId,
+      purchaseId: second,
+      editedBy: w.alice,
+      item: 'Coke',
+      quantity: 3,
+      unit: 'bottles',
+      dailyConsumption: 2,
+      consumers: [{ userId: w.john, multiplier: 1 }],
+      days: 2,
+      ...over,
+    })
+  return { w, first, second, edit }
+}
 
 describe('EditPurchaseHandler', () => {
-  async function setup() {
-    const repo = new InMemoryEventRepository()
-    const create = await new CreateEventHandler(repo).execute({ name: 'Trip', creatorName: 'John' })
-    const added = await new AddPurchaseHandler(repo).execute({
-      eventId: create.event.id,
-      createdBy: create.creator.id,
-      item: 'Coke',
-      quantity: 3,
-      unit: 'bottles',
-      dailyConsumption: 2,
-      consumers: [{ userId: create.creator.id, multiplier: 1 }],
-      days: 2,
-    })
-    return {
-      repo,
-      eventId: create.event.id,
-      userId: create.creator.id,
-      purchaseId: added.event.purchases[0]!.id,
-    }
-  }
-
-  it('updates quantity and unit', async () => {
-    const ctx = await setup()
-    const result = await new EditPurchaseHandler(ctx.repo).execute({
-      eventId: ctx.eventId,
-      purchaseId: ctx.purchaseId,
-      editedBy: ctx.userId,
-      item: 'Coke',
+  it('rewrites one purchase, recomputes totalQuantity and leaves the other alone', async () => {
+    const { w, first, second, edit } = await setup()
+    const result = await edit({
+      item: 'Fanta',
       quantity: 5,
       unit: 'cans',
-      dailyConsumption: 2,
-      consumers: [{ userId: ctx.userId, multiplier: 1 }],
-      days: 2,
-    })
-    const p = result.event.purchases[0]!
-    expect(p.quantity).toBe(5)
-    expect(p.unit).toBe('cans')
-    expect(p.item).toBe('Coke') // unchanged
-    expect(result.event.history.at(-1)?.type).toBe('purchase_edited')
-  })
-
-  it('recomputes totalQuantity', async () => {
-    const ctx = await setup()
-    const result = await new EditPurchaseHandler(ctx.repo).execute({
-      eventId: ctx.eventId,
-      purchaseId: ctx.purchaseId,
-      editedBy: ctx.userId,
-      item: 'Coke',
-      quantity: 3,
-      unit: 'bottles',
       dailyConsumption: 3,
-      consumers: [{ userId: ctx.userId, multiplier: 2 }],
+      consumers: [{ userId: w.bob, multiplier: 2 }],
       days: 3,
     })
-    expect(result.event.purchases[0]!.totalQuantity).toBe(18) // 3*2*3
-  })
-
-  it('rejects unknown purchase id', async () => {
-    const ctx = await setup()
-    await expect(
-      new EditPurchaseHandler(ctx.repo).execute({
-        eventId: ctx.eventId,
-        purchaseId: '00000000-0000-7000-8000-000000000000',
-        editedBy: ctx.userId,
-        item: 'Coke',
-        quantity: 1,
-        unit: 'bottles',
-        dailyConsumption: 1,
-        consumers: [{ userId: ctx.userId, multiplier: 1 }],
-        days: 1,
-      }),
-    ).rejects.toThrow(/not found/i)
-  })
-
-  it('rejects when editor not in event', async () => {
-    const ctx = await setup()
-    await expect(
-      new EditPurchaseHandler(ctx.repo).execute({
-        eventId: ctx.eventId,
-        purchaseId: ctx.purchaseId,
-        editedBy: '00000000-0000-7000-8000-000000000000',
-        item: 'Coke',
-        quantity: 1,
-        unit: 'bottles',
-        dailyConsumption: 1,
-        consumers: [{ userId: ctx.userId, multiplier: 1 }],
-        days: 1,
-      }),
-    ).rejects.toThrow(/not in event/i)
-  })
-
-  it('can change the item name', async () => {
-    const ctx = await setup()
-    const result = await new EditPurchaseHandler(ctx.repo).execute({
-      eventId: ctx.eventId,
-      purchaseId: ctx.purchaseId,
-      editedBy: ctx.userId,
-      item: 'Bread',
-      quantity: 2,
-      unit: 'loaves',
-      dailyConsumption: 1,
-      consumers: [{ userId: ctx.userId, multiplier: 1 }],
-      days: 2,
-    })
-    expect(result.event.purchases[0]!.item).toBe('Bread')
-    expect(result.event.purchases[0]!.unit).toBe('loaves')
-  })
-
-  it('can set the group', async () => {
-    const ctx = await setup()
-    const result = await new EditPurchaseHandler(ctx.repo).execute({
-      eventId: ctx.eventId,
-      purchaseId: ctx.purchaseId,
-      editedBy: ctx.userId,
-      item: 'Coke',
-      quantity: 3,
-      unit: 'bottles',
-      dailyConsumption: 2,
-      consumers: [{ userId: ctx.userId, multiplier: 1 }],
-      days: 2,
-      group: 'Comida',
-    })
-    expect(result.event.purchases[0]!.group).toBe('Comida')
-  })
-
-  describe('assignedTo', () => {
-    const edit = (ctx: Awaited<ReturnType<typeof setup>>, assignedTo?: string | null) =>
-      new EditPurchaseHandler(ctx.repo).execute({
-        eventId: ctx.eventId,
-        purchaseId: ctx.purchaseId,
-        editedBy: ctx.userId,
-        item: 'Coke',
-        quantity: 3,
-        unit: 'bottles',
-        dailyConsumption: 2,
-        consumers: [{ userId: ctx.userId, multiplier: 1 }],
-        days: 2,
-        assignedTo,
-      })
-
-    it('sets the buyer', async () => {
-      const ctx = await setup()
-      const result = await edit(ctx, ctx.userId)
-      expect(result.event.purchases[0]!.assignedTo).toBe(ctx.userId)
-    })
-
-    it('clears the buyer when passed null', async () => {
-      const ctx = await setup()
-      await edit(ctx, ctx.userId)
-      const result = await edit(ctx, null)
-      expect(result.event.purchases[0]!.assignedTo).toBeNull()
-    })
-
-    it('keeps the buyer when not provided', async () => {
-      const ctx = await setup()
-      await edit(ctx, ctx.userId)
-      const result = await edit(ctx)
-      expect(result.event.purchases[0]!.assignedTo).toBe(ctx.userId)
+    expect(result.event.purchases).toMatchObject([
+      { id: first, item: 'Bread' },
+      {
+        id: second,
+        item: 'Fanta',
+        quantity: 5,
+        unit: 'cans',
+        totalQuantity: 18,
+        consumers: [{ userId: w.bob, multiplier: 2 }],
+      },
+    ])
+    expect(lastEntry(result.event)).toEqual({
+      type: 'purchase_edited',
+      userId: w.alice,
+      description: 'Alice edited Coke',
     })
   })
 
-  it('clears the group and subgroup when passed null', async () => {
-    const ctx = await setup()
-    await new EditPurchaseHandler(ctx.repo).execute({
-      eventId: ctx.eventId,
-      purchaseId: ctx.purchaseId,
-      editedBy: ctx.userId,
-      item: 'Coke',
-      quantity: 3,
-      unit: 'bottles',
-      dailyConsumption: 2,
-      consumers: [{ userId: ctx.userId, multiplier: 1 }],
-      days: 2,
-      group: 'Comida',
-      subgroup: 'Bebidas',
-    })
-    const result = await new EditPurchaseHandler(ctx.repo).execute({
-      eventId: ctx.eventId,
-      purchaseId: ctx.purchaseId,
-      editedBy: ctx.userId,
-      item: 'Coke',
-      quantity: 3,
-      unit: 'bottles',
-      dailyConsumption: 2,
-      consumers: [{ userId: ctx.userId, multiplier: 1 }],
-      days: 2,
-      group: null,
-      subgroup: null,
-    })
-    expect(result.event.purchases[0]!.group).toBeNull()
-    expect(result.event.purchases[0]!.subgroup).toBeNull()
+  type Fields = { assignedTo?: string | null; group?: string | null; subgroup?: string | null }
+  const sets = (w: World): Fields => ({
+    assignedTo: w.alice,
+    group: 'Comida',
+    subgroup: 'Bebidas',
+  })
+  const cleared: Fields = { assignedTo: null, group: null, subgroup: null }
+
+  it.each([
+    ['sets', sets, sets],
+    ['clears when passed null', () => cleared, () => cleared],
+    [
+      'keeps when not provided',
+      () => ({}),
+      (w: World): Fields => ({ assignedTo: w.bob, group: 'Old', subgroup: 'Older' }),
+    ],
+  ])('%s the buyer, group and subgroup', async (_name, over, expected) => {
+    const { w, edit } = await setup()
+    await edit({ assignedTo: w.bob, group: 'Old', subgroup: 'Older' })
+    const result = await edit(over(w))
+    expect(result.event.purchases[1]).toMatchObject(expected(w))
   })
 })

@@ -1,4 +1,4 @@
-import { describe, it, expect } from 'vitest'
+import { describe, it, expect, vi } from 'vitest'
 import { CreateEventHandler } from '@/application/handlers/CreateEventHandler'
 import { RefreshEventHandler } from '@/application/handlers/RefreshEventHandler'
 import { InMemoryEventRepository } from '@/infrastructure/persistence/InMemoryEventRepository'
@@ -74,6 +74,20 @@ describe('RefreshEventHandler', () => {
     })
     expect(result.status).toBe('unchanged')
     expect(ctx.repo.findByIdCalls).toBe(0)
+  })
+
+  it.each([
+    ['vanishes between the probe and the read', null],
+    ['is not newer once read', 'same'],
+  ])('keeps the local copy when the event %s', async (_name, read) => {
+    const ctx = await setup()
+    vi.spyOn(ctx.repo, 'getVersion').mockResolvedValue(ctx.version + 1)
+    if (read === null) vi.spyOn(ctx.repo, 'findById').mockResolvedValue(null)
+    const result = await new RefreshEventHandler(ctx.repo).execute({
+      eventId: ctx.eventId,
+      local: { snapshot: ctx.snapshot, version: ctx.version },
+    })
+    expect(result).toEqual({ status: 'unchanged', snapshot: ctx.snapshot, version: ctx.version })
   })
 
   it('reports locked, with nothing read, for a PIN event and no local copy', async () => {

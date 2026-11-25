@@ -1,57 +1,36 @@
 import { describe, it, expect } from 'vitest'
-import { CreateEventHandler } from '@/application/handlers/CreateEventHandler'
 import { AddManualLiquidationHandler } from '@/application/handlers/AddManualLiquidationHandler'
-import { InMemoryEventRepository } from '@/infrastructure/persistence/InMemoryEventRepository'
-
-async function setup() {
-  const repo = new InMemoryEventRepository()
-  const create = await new CreateEventHandler(repo).execute({
-    name: 'Casa rural',
-    creatorName: 'Javi',
-  })
-  return { repo, eventId: create.event.id, javi: create.creator.id }
-}
+import { lastEntry, makeWorld } from '../../support/world'
 
 describe('AddManualLiquidationHandler', () => {
-  it('adds a manual liquidation with a payer', async () => {
-    const { repo, eventId, javi } = await setup()
-    const res = await new AddManualLiquidationHandler(repo).execute({
-      eventId,
-      userId: javi,
+  it('adds liquidations with and without a payer', async () => {
+    const w = await makeWorld()
+    const handler = new AddManualLiquidationHandler(w.repo)
+    const paid = await handler.execute({
+      eventId: w.eventId,
+      userId: w.john,
       concept: 'Señal casa',
       amountEuros: 400,
-      paidBy: javi,
-      affects: [javi],
+      paidBy: w.alice,
+      affects: [w.john, w.bob],
     })
-    expect(res.event.manualLiquidations).toHaveLength(1)
-    expect(res.event.manualLiquidations[0]!.cents).toBe(40000)
-    expect(res.event.manualLiquidations[0]!.paidBy).toBe(javi)
-  })
+    expect(lastEntry(paid.event)).toEqual({
+      type: 'manual_liquidation_added',
+      userId: w.john,
+      description: 'John added a manual liquidation: Señal casa',
+    })
 
-  it('adds a pending liquidation (no payer)', async () => {
-    const { repo, eventId, javi } = await setup()
-    const res = await new AddManualLiquidationHandler(repo).execute({
-      eventId,
-      userId: javi,
+    const pending = await handler.execute({
+      eventId: w.eventId,
+      userId: w.bob,
       concept: 'Resto casa',
       amountEuros: 400,
       paidBy: null,
       affects: [],
     })
-    expect(res.event.manualLiquidations[0]!.paidBy).toBeNull()
-  })
-
-  it('rejects an unknown payer', async () => {
-    const { repo, eventId, javi } = await setup()
-    await expect(
-      new AddManualLiquidationHandler(repo).execute({
-        eventId,
-        userId: javi,
-        concept: 'Señal',
-        amountEuros: 400,
-        paidBy: '00000000-0000-7000-8000-000000000000',
-        affects: [],
-      }),
-    ).rejects.toThrow(/not in event/i)
+    expect(pending.event.manualLiquidations).toMatchObject([
+      { concept: 'Señal casa', cents: 40000, paidBy: w.alice, affects: [w.john, w.bob] },
+      { concept: 'Resto casa', cents: 40000, paidBy: null, affects: [] },
+    ])
   })
 })

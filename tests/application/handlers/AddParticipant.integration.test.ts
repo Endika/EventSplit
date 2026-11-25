@@ -11,12 +11,13 @@ describe('AddParticipant via JoinAsNewUserHandler (UI shape)', () => {
     const result = await new JoinAsNewUserHandler(repo).execute({
       eventId: create.event.id,
       name: 'Sofía',
-      alias: null,
+      alias: 'Sofi',
       kind: 'child',
     })
     expect(result.event.users).toHaveLength(2)
     const sofia = result.event.users.find((u) => u.name === 'Sofía')!
     expect(sofia.kind).toBe('child')
+    expect(sofia.alias).toBe('Sofi')
   })
 
   it('adds a dog and round-trips it through the repository', async () => {

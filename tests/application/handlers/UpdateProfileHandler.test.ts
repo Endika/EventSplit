@@ -1,6 +1,8 @@
 import { describe, it, expect } from 'vitest'
 import { CreateEventHandler } from '@/application/handlers/CreateEventHandler'
 import { UpdateProfileHandler } from '@/application/handlers/UpdateProfileHandler'
+import { JoinAsNewUserHandler } from '@/application/handlers/JoinAsNewUserHandler'
+import { addExpense, makeWorld } from '../../support/world'
 import { InMemoryEventRepository } from '@/infrastructure/persistence/InMemoryEventRepository'
 
 describe('UpdateProfileHandler', () => {
@@ -25,13 +27,18 @@ describe('UpdateProfileHandler', () => {
       userId: create.creator.id,
       actorId: create.creator.id,
       email: 'john@example.com',
-      allergies: [{ name: 'gluten', severity: 'severe' }],
+      allergies: [
+        { name: 'gluten', severity: 'severe' },
+        { name: 'nuts', severity: 'mild', notes: 'only walnuts' },
+      ],
     })
     expect(result.version).toBe(2)
     const user = result.event.users.find((u) => u.id === create.creator.id)!
     expect(user.email).toBe('john@example.com')
-    expect(user.allergies).toHaveLength(1)
-    expect(user.allergies[0]!.name).toBe('gluten')
+    expect(user.allergies).toEqual([
+      { name: 'gluten', severity: 'severe', notes: null },
+      { name: 'nuts', severity: 'mild', notes: 'only walnuts' },
+    ])
     expect(result.event.history.at(-1)?.type).toBe('user_profile_updated')
   })
 
@@ -70,10 +77,10 @@ describe('UpdateProfileHandler', () => {
   it('records actor as the history userId and credits the actor when editing someone elses profile', async () => {
     const repo = new InMemoryEventRepository()
     const create = await new CreateEventHandler(repo).execute({ name: 'Trip', creatorName: 'John' })
-    const joinHandler = new (
-      await import('@/application/handlers/JoinAsNewUserHandler')
-    ).JoinAsNewUserHandler(repo)
-    const joined = await joinHandler.execute({ eventId: create.event.id, name: 'Maite' })
+    const joined = await new JoinAsNewUserHandler(repo).execute({
+      eventId: create.event.id,
+      name: 'Maite',
+    })
     const result = await new UpdateProfileHandler(repo).execute({
       eventId: create.event.id,
       userId: joined.newUser.id,
@@ -85,6 +92,27 @@ describe('UpdateProfileHandler', () => {
     expect(entry.description).toContain('John')
     expect(entry.description).toContain('Maite')
     expect(entry.description).not.toMatch(/their profile/i)
+  })
+
+  it('lets an adult who pays and has a child in their charge edit their profile', async () => {
+    const w = await makeWorld()
+    await new JoinAsNewUserHandler(w.repo).execute({
+      eventId: w.eventId,
+      name: 'Nora',
+      kind: 'child',
+      guardianId: w.alice,
+    })
+    await addExpense(w, 'Bread')
+    const handler = new UpdateProfileHandler(w.repo)
+    const ids = { eventId: w.eventId, userId: w.alice, actorId: w.alice }
+
+    await handler.execute({ ...ids, email: 'alice@example.com' })
+    const result = await handler.execute({ ...ids, kind: 'adult', phone: '600111222' })
+    expect(result.event.users.find((u) => u.id === w.alice)).toMatchObject({
+      kind: 'adult',
+      email: 'alice@example.com',
+      phone: '600111222',
+    })
   })
 
   it('saves a household and clears it again', async () => {

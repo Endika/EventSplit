@@ -20,6 +20,7 @@ export class SetDayOptionsHandler {
         // false, and one that goes takes its column with it.
         newAvailability[userId] = options.map((o) => {
           const idx = oldKeys.indexOf(optionKey(o))
+          // Stryker disable next-line ConditionalExpression: votes[-1] is undefined, so forcing the branch still yields false
           return idx >= 0 ? (votes[idx] ?? false) : false
         })
       }

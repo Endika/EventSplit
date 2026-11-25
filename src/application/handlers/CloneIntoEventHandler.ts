@@ -31,6 +31,7 @@ function applyProfileUpdates(
   users: EventSnapshot['users'],
   updates: { userId: string; update: ProfileUpdate }[],
 ): EventSnapshot['users'] {
+  // Stryker disable next-line ConditionalExpression: with no updates the map below returns the same participants anyway
   if (updates.length === 0) return users
   const byId = new Map(updates.map((u) => [u.userId, u.update]))
   return users.map((u) => {
@@ -92,6 +93,7 @@ export class CloneIntoEventHandler {
           userId,
           dayOptions.map((o) => {
             const i = oldKeys.indexOf(optionKey(o))
+            // Stryker disable next-line ConditionalExpression: votes[-1] is undefined, so forcing the branch still yields false
             return i >= 0 ? (votes[i] ?? false) : false
           }),
         ]),

@@ -32,6 +32,7 @@ export class RefreshEventHandler {
     }
 
     const remoteVersion = await this.repo.getVersion(eventId)
+    // Stryker disable next-line ConditionalExpression: null <= n is true in JS, so the null check is redundant at runtime (it narrows the type)
     if (remoteVersion === null || remoteVersion <= local.version) {
       return { status: 'unchanged', snapshot: local.snapshot, version: local.version }
     }

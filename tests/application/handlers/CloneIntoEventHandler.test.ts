@@ -2,6 +2,8 @@ import { describe, it, expect } from 'vitest'
 import { CreateEventHandler } from '@/application/handlers/CreateEventHandler'
 import { JoinAsNewUserHandler } from '@/application/handlers/JoinAsNewUserHandler'
 import { SetDayOptionsHandler } from '@/application/handlers/SetDayOptionsHandler'
+import { SetGroupOrderHandler } from '@/application/handlers/SetGroupOrderHandler'
+import { SetSubgroupOrderHandler } from '@/application/handlers/SetSubgroupOrderHandler'
 import { SetAvailabilityBatchHandler } from '@/application/handlers/SetAvailabilityBatchHandler'
 import { AddPurchaseHandler } from '@/application/handlers/AddPurchaseHandler'
 import { CloneIntoEventHandler } from '@/application/handlers/CloneIntoEventHandler'
@@ -9,6 +11,7 @@ import { UpdateProfileHandler } from '@/application/handlers/UpdateProfileHandle
 import { InMemoryEventRepository } from '@/infrastructure/persistence/InMemoryEventRepository'
 import { PinForwardingEventRepository } from '@/infrastructure/persistence/PinForwardingEventRepository'
 import { UnlockedPinHolder } from '@/shared/di/UnlockedPinHolder'
+import { readEvent } from '../../support/readEvent'
 import { CountingRepository } from '../../support/CountingRepository'
 import { optionKey } from '@/domain/value-objects/DayOption'
 import type { CloneSelection } from '@/domain/services/buildClonePatch'
@@ -133,6 +136,10 @@ describe('CloneIntoEventHandler', () => {
       editedBy: ctx.me,
       votes: { [ctx.me]: [true] },
     })
+    // A row shorter than the options it was saved against must not read past its end.
+    const row = (await readEvent(repo, ctx.targetId))!
+    row.snapshot.availability['ragged'] = []
+    await repo.update(ctx.targetId, row.snapshot, row.version, null)
 
     // Cloning brings June options, which sort BEFORE mine.
     const result = await new CloneIntoEventHandler(repo).execute({
@@ -142,6 +149,7 @@ describe('CloneIntoEventHandler', () => {
       selection: sel({ dayOptions: true }),
     })
 
+    expect(result.event.availability['ragged']).toEqual([false, false, false])
     const mine = result.event.availability[ctx.me]!
     const julyIdx = result.event.dayOptions.findIndex(
       (o) => optionKey(o) === '2026-07-01..2026-07-01',
@@ -178,19 +186,42 @@ describe('CloneIntoEventHandler', () => {
     ).resolves.toBeDefined()
   })
 
-  it('records what was cloned in the history', async () => {
+  it.each([
+    ['nothing', sel(), 'nothing'],
+    ['day options', sel({ dayOptions: true }), 'day options'],
+    ['a participant', sel({ userIds: ['ana'] }), '1 participant(s)'],
+    ['an item', sel({ purchaseIds: ['milk'] }), '1 item(s)'],
+    ['site details', sel({ site: { ...noSite, wifiPassword: true } }), 'site details'],
+    [
+      'every block',
+      sel({
+        dayOptions: true,
+        userIds: ['ana'],
+        purchaseIds: ['milk'],
+        site: { ...noSite, location: true },
+      }),
+      'day options, 1 participant(s), 1 item(s), site details',
+    ],
+  ])('records %s in the history', async (_name, selection, blocks) => {
     const repo = new InMemoryEventRepository()
     const ctx = await seed(repo)
+    const ids: Record<string, string> = { ana: ctx.anaId, milk: ctx.purchaseId }
     const result = await new CloneIntoEventHandler(repo).execute({
       targetEventId: ctx.targetId,
       sourceEventId: ctx.sourceId,
       clonedBy: ctx.me,
-      selection: sel({ dayOptions: true, userIds: [ctx.anaId] }),
+      selection: {
+        ...selection,
+        userIds: selection.userIds.map((id) => ids[id]!),
+        purchaseIds: selection.purchaseIds.map((id) => ids[id]!),
+      },
     })
-    const last = result.event.history.at(-1)!
-    expect(last.type).toBe('cloned_from')
-    expect(last.description).toContain('Viaje anterior')
-    expect(last.userId).toBe(ctx.me)
+    const { type, userId, description } = result.event.history.at(-1)!
+    expect({ type, userId, description }).toEqual({
+      type: 'cloned_from',
+      userId: ctx.me,
+      description: `Cloned ${blocks} from "Viaje anterior"`,
+    })
   })
 
   it('refuses a source event with a PIN', async () => {
@@ -265,23 +296,26 @@ describe('CloneIntoEventHandler', () => {
     ).rejects.toThrow(/itself/i)
   })
 
-  it('refuses to exceed the day option cap', async () => {
+  it.each([
+    [29, true],
+    [30, false],
+  ])('with %i options already, cloning two %s fit under the cap of 31', async (existing, fits) => {
     const repo = new InMemoryEventRepository()
     const ctx = await seed(repo)
-    const many = Array.from({ length: 30 }, (_, i) => {
+    const many = Array.from({ length: existing }, (_, i) => {
       const d = `2026-08-${`${i + 1}`.padStart(2, '0')}`
       return { start: d, end: d, note: null }
     })
     await new SetDayOptionsHandler(repo).execute({ eventId: ctx.targetId, options: many })
 
-    await expect(
-      new CloneIntoEventHandler(repo).execute({
-        targetEventId: ctx.targetId,
-        sourceEventId: ctx.sourceId,
-        clonedBy: ctx.me,
-        selection: sel({ dayOptions: true }),
-      }),
-    ).rejects.toThrow(/31/)
+    const clone = new CloneIntoEventHandler(repo).execute({
+      targetEventId: ctx.targetId,
+      sourceEventId: ctx.sourceId,
+      clonedBy: ctx.me,
+      selection: sel({ dayOptions: true }),
+    })
+    if (fits) expect((await clone).event.dayOptions).toHaveLength(31)
+    else await expect(clone).rejects.toThrow(/31/)
   })
 
   it('does not duplicate a day option the target already has', async () => {
@@ -327,6 +361,71 @@ describe('CloneIntoEventHandler', () => {
     expect(result.event.chosenOptions).toEqual([])
     expect(result.event.history.every((h) => h.type !== 'days_set' || true)).toBe(true)
     expect(result.event.name).toBe('Viaje nuevo')
+  })
+
+  it('merges the group and subgroup orders of the cloned items into the target', async () => {
+    const repo = new InMemoryEventRepository()
+    const ctx = await seed(repo)
+    const addTo = async (
+      eventId: string,
+      userId: string,
+      item: string,
+      group: string,
+      sub: string,
+    ) =>
+      (
+        await new AddPurchaseHandler(repo).execute({
+          eventId,
+          createdBy: userId,
+          item,
+          quantity: 1,
+          unit: 'units',
+          dailyConsumption: 1,
+          consumers: [{ userId, multiplier: 1 }],
+          days: 1,
+          group,
+          subgroup: sub,
+        })
+      ).event.purchases.at(-1)!.id
+    const cereal = await addTo(ctx.sourceId, ctx.anaId, 'Cereales', 'Snack', 'Dulce')
+    const yogurt = await addTo(ctx.sourceId, ctx.anaId, 'Yogur', 'Desayuno', 'Lácteos')
+    await new SetGroupOrderHandler(repo).execute({
+      eventId: ctx.sourceId,
+      userId: ctx.anaId,
+      order: ['Snack', 'Desayuno'],
+    })
+    await addTo(ctx.targetId, ctx.me, 'Tarta', 'Cena', 'Postres')
+    await addTo(ctx.targetId, ctx.me, 'Fruta', 'Desayuno', 'Fresca')
+    await new SetGroupOrderHandler(repo).execute({
+      eventId: ctx.targetId,
+      userId: ctx.me,
+      order: ['Desayuno', 'Cena'],
+    })
+    for (const [group, order] of [
+      ['Cena', ['Postres']],
+      ['Desayuno', ['Fresca']],
+    ] as const) {
+      await new SetSubgroupOrderHandler(repo).execute({
+        eventId: ctx.targetId,
+        userId: ctx.me,
+        group,
+        order: [...order],
+      })
+    }
+
+    const result = await new CloneIntoEventHandler(repo).execute({
+      targetEventId: ctx.targetId,
+      sourceEventId: ctx.sourceId,
+      clonedBy: ctx.me,
+      selection: sel({ purchaseIds: [cereal, yogurt] }),
+    })
+
+    expect(result.event.groupOrder).toEqual(['Desayuno', 'Cena', 'Snack'])
+    expect(result.event.subgroupOrder).toEqual({
+      Cena: ['Postres'],
+      Desayuno: ['Fresca', 'Lácteos'],
+      Snack: ['Dulce'],
+    })
   })
 
   describe('merging a duplicate participant', () => {
@@ -434,8 +533,9 @@ describe('CloneIntoEventHandler', () => {
       })
 
       const entry = result.event.history.find((h) => h.type === 'cloned_from')!
-      expect(entry.description).toContain('1 participant(s)')
-      expect(entry.description).toContain('1 merged participant(s)')
+      expect(entry.description).toBe(
+        'Cloned 1 participant(s), 1 merged participant(s) from "Viaje anterior"',
+      )
     })
 
     it("leaves the target's own filled-in fields alone", async () => {

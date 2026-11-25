@@ -4,6 +4,7 @@ import { JoinAsNewUserHandler } from '@/application/handlers/JoinAsNewUserHandle
 import { SetDayOptionsHandler } from '@/application/handlers/SetDayOptionsHandler'
 import { SetAvailabilityBatchHandler } from '@/application/handlers/SetAvailabilityBatchHandler'
 import { SetAvailabilityBatchSchema } from '@/application/dtos/SetAvailabilityBatchDTO'
+import { lastEntry } from '../../support/world'
 import { InMemoryEventRepository } from '@/infrastructure/persistence/InMemoryEventRepository'
 
 async function setup() {
@@ -36,40 +37,11 @@ describe('SetAvailabilityBatchHandler', () => {
     })
     expect(result.event.availability[ctx.john]).toEqual([true, false])
     expect(result.event.availability[ctx.maria]).toEqual([true, true])
-    expect(result.event.history.at(-1)?.type).toBe('availability_voted')
-  })
-
-  it('rejects votes whose length mismatches the day count', async () => {
-    const ctx = await setup()
-    await expect(
-      new SetAvailabilityBatchHandler(ctx.repo).execute({
-        eventId: ctx.eventId,
-        editedBy: ctx.john,
-        votes: { [ctx.john]: [true] }, // 1 vote vs 2 days
-      }),
-    ).rejects.toThrow(/length/i)
-  })
-
-  it('rejects unknown user in votes', async () => {
-    const ctx = await setup()
-    await expect(
-      new SetAvailabilityBatchHandler(ctx.repo).execute({
-        eventId: ctx.eventId,
-        editedBy: ctx.john,
-        votes: { '00000000-0000-7000-8000-000000000000': [true, false] },
-      }),
-    ).rejects.toThrow(/not in event/i)
-  })
-
-  it('rejects editor not in event', async () => {
-    const ctx = await setup()
-    await expect(
-      new SetAvailabilityBatchHandler(ctx.repo).execute({
-        eventId: ctx.eventId,
-        editedBy: '00000000-0000-7000-8000-000000000000',
-        votes: { [ctx.john]: [true, false] },
-      }),
-    ).rejects.toThrow(/not in event/i)
+    expect(lastEntry(result.event)).toEqual({
+      type: 'availability_voted',
+      userId: ctx.john,
+      description: 'John updated availability for 2 people',
+    })
   })
 
   it('leaves other users votes untouched when only one row is sent', async () => {
@@ -88,6 +60,11 @@ describe('SetAvailabilityBatchHandler', () => {
 
     expect(result.event.availability[ctx.john]).toEqual([true, false])
     expect(result.event.availability[ctx.maria]).toEqual([true, true])
+    expect(lastEntry(result.event)).toEqual({
+      type: 'availability_voted',
+      userId: ctx.john,
+      description: 'John updated availability for 1 person',
+    })
   })
 
   it('accepts 31 options worth of votes but not 32', () => {

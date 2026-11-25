@@ -17,6 +17,7 @@ export class UpdateProfileHandler {
       const existing = row.snapshot.users.find((u) => u.id === parsed.userId)
       if (!existing) throw new Error(`User ${parsed.userId} not in event`)
       if (
+        // Stryker disable next-line ConditionalExpression: an undefined kind is not 'dog', so canBecome is true anyway
         parsed.kind !== undefined &&
         !canBecome(parsed.kind, { expenses: row.snapshot.expenses, userId: parsed.userId })
       ) {

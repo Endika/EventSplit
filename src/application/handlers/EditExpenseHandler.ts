@@ -36,6 +36,7 @@ export class EditExpenseHandler {
         amount: Money.fromEuros(parsed.amountEuros),
         description: parsed.description,
         splitAmong: parsed.splitAmong,
+        // Stryker disable next-line ConditionalExpression: Expense.edit treats an undefined purchaseLinks as keep-existing, same as the omitted key
         ...(parsed.purchaseLinks !== undefined ? { purchaseLinks: parsed.purchaseLinks } : {}),
       })
 

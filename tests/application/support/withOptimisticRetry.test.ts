@@ -1,18 +1,14 @@
-import { describe, it, expect } from 'vitest'
+import { afterEach, describe, it, expect, vi } from 'vitest'
 import { CreateEventHandler } from '@/application/handlers/CreateEventHandler'
 import { withOptimisticRetry } from '@/application/support/withOptimisticRetry'
 import { InMemoryEventRepository } from '@/infrastructure/persistence/InMemoryEventRepository'
-import type { EventSnapshot } from '@/domain/entities/Event'
 import {
   ConcurrencyLimitError,
   type IEventRepository,
-  type LockedEvent,
-  type ReadResult,
-  type SaveResult,
-  VersionConflictError,
+  WrongPinError,
 } from '@/domain/repositories/IEventRepository'
+import { ConflictingRepository } from '../../support/ConflictingRepository'
 
-/** Round out a partial repo with the PIN methods the retry helper never touches. */
 const pinNoops = {
   setPin: async () => {},
   verifyPin: async () => true,
@@ -21,67 +17,36 @@ const pinNoops = {
 
 const noSleep = () => Promise.resolve()
 
-/**
- * Wraps a real repository and throws VersionConflictError on the first N update
- * calls (simulating a concurrent writer winning the race), then delegates.
- */
-class ConflictingRepository implements IEventRepository {
-  updateCalls = 0
-  setPin = pinNoops.setPin
-  verifyPin = pinNoops.verifyPin
-  deleteEvent = pinNoops.deleteEvent
-  constructor(
-    private readonly inner: IEventRepository,
-    private readonly conflictsBeforeSuccess: number,
-  ) {}
-
-  findById(id: string, pin?: string | null): Promise<ReadResult | LockedEvent | null> {
-    return this.inner.findById(id, pin)
-  }
-  getVersion(id: string) {
-    return this.inner.getVersion(id)
-  }
-  create(snapshot: EventSnapshot) {
-    return this.inner.create(snapshot)
-  }
-  async update(
-    id: string,
-    snapshot: EventSnapshot,
-    expectedVersion: number,
-    pin: string | null,
-  ): Promise<SaveResult> {
-    this.updateCalls++
-    if (this.updateCalls <= this.conflictsBeforeSuccess) {
-      // Report a stale-version style conflict without mutating the inner row,
-      // so the next attempt re-reads the still-current version and can succeed.
-      const current = await this.inner.getVersion(id)
-      throw new VersionConflictError(current ?? expectedVersion)
-    }
-    return this.inner.update(id, snapshot, expectedVersion, pin)
-  }
-}
-
 async function seed(repo: IEventRepository) {
   const created = await new CreateEventHandler(repo).execute({ name: 'Trip', creatorName: 'John' })
   return created.event.id
 }
 
 describe('withOptimisticRetry', () => {
-  it('retries on VersionConflictError and eventually succeeds, running mutate again', async () => {
+  afterEach(() => {
+    vi.useRealTimers()
+    vi.restoreAllMocks()
+  })
+
+  it('retries on VersionConflictError, waiting out the backoff, and eventually succeeds', async () => {
+    vi.useFakeTimers()
+    vi.spyOn(Math, 'random').mockReturnValue(0.5)
     const inner = new InMemoryEventRepository()
     const eventId = await seed(inner)
     const repo = new ConflictingRepository(inner, 1)
 
     let mutateRuns = 0
-    const saved = await withOptimisticRetry(
-      repo,
-      eventId,
-      (row) => {
-        mutateRuns++
-        return { ...row.snapshot, name: 'Renamed' }
-      },
-      { sleep: noSleep },
-    )
+    let settled = false
+    const pending = withOptimisticRetry(repo, eventId, (row) => {
+      mutateRuns++
+      return { ...row.snapshot, name: 'Renamed' }
+    }).finally(() => {
+      settled = true
+    })
+    await vi.advanceTimersByTimeAsync(29)
+    expect(settled).toBe(false) // the first backoff is 30 ms
+    await vi.advanceTimersByTimeAsync(1)
+    const saved = await pending
 
     expect(mutateRuns).toBe(2)
     expect(repo.updateCalls).toBe(2)
@@ -115,6 +80,7 @@ describe('withOptimisticRetry', () => {
     const inner = new InMemoryEventRepository()
     const eventId = await seed(inner)
     const repo = new ConflictingRepository(inner, Number.POSITIVE_INFINITY)
+    vi.spyOn(Math, 'random').mockReturnValue(0.5)
     const sleeps: number[] = []
     const sleep = (ms: number) => {
       sleeps.push(ms)
@@ -125,7 +91,8 @@ describe('withOptimisticRetry', () => {
       withOptimisticRetry(repo, eventId, (row) => row.snapshot, { sleep }),
     ).rejects.toBeInstanceOf(ConcurrencyLimitError)
     expect(repo.updateCalls).toBe(6) // DEFAULT_MAX_RETRIES
-    expect(sleeps).toHaveLength(5) // one fewer than attempts — no sleep after the last
+    // Half of the doubling cap (60, 120, 240, 480, then 600), no sleep after the last attempt.
+    expect(sleeps).toEqual([30, 60, 120, 240, 300])
   })
 
   it('respects a custom maxRetries budget', async () => {
@@ -140,6 +107,19 @@ describe('withOptimisticRetry', () => {
       }),
     ).rejects.toBeInstanceOf(ConcurrencyLimitError)
     expect(repo.updateCalls).toBe(2)
+  })
+
+  it('passes the unlocked PIN to the repository so a protected event can be written', async () => {
+    const inner = new InMemoryEventRepository()
+    const eventId = await seed(inner)
+    await inner.setPin(eventId, '1234', null)
+
+    await expect(
+      withOptimisticRetry(inner, eventId, (row) => row.snapshot, { pin: '1234' }),
+    ).resolves.toMatchObject({ version: 3 })
+    await expect(withOptimisticRetry(inner, eventId, (row) => row.snapshot)).rejects.toBeInstanceOf(
+      WrongPinError,
+    )
   })
 
   it('throws "Event not found" when the row is missing', async () => {
