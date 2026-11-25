@@ -4,6 +4,7 @@ import { Purchase } from '@/domain/entities/Purchase'
 import { HistoryAppender } from '@/domain/services/HistoryAppender'
 import type { IEventRepository } from '@/domain/repositories/IEventRepository'
 import { withOptimisticRetry } from '@/application/support/withOptimisticRetry'
+import { assertMember, memberName } from '@/application/support/eventMembers'
 
 export interface AddPurchaseResult {
   event: EventSnapshot
@@ -17,12 +18,10 @@ export class AddPurchaseHandler {
     const parsed = AddPurchaseSchema.parse(input)
 
     const saved = await withOptimisticRetry(this.repo, parsed.eventId, (row) => {
-      const knownIds = new Set(row.snapshot.users.map((u) => u.id))
       for (const c of parsed.consumers) {
-        if (!knownIds.has(c.userId)) throw new Error(`Consumer ${c.userId} not in event`)
+        assertMember(row.snapshot, c.userId, 'Consumer')
       }
-      if (!knownIds.has(parsed.createdBy))
-        throw new Error(`createdBy ${parsed.createdBy} not in event`)
+      assertMember(row.snapshot, parsed.createdBy, 'createdBy')
 
       const purchase = Purchase.create({
         createdBy: parsed.createdBy,
@@ -37,8 +36,7 @@ export class AddPurchaseHandler {
         subgroup: parsed.subgroup ?? null,
       })
 
-      const creatorDisplay =
-        row.snapshot.users.find((u) => u.id === parsed.createdBy)?.name ?? 'Someone'
+      const creatorDisplay = memberName(row.snapshot, parsed.createdBy)
       const nextSnapshot: EventSnapshot = HistoryAppender.append(
         {
           ...row.snapshot,

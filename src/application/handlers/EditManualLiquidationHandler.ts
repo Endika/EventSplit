@@ -8,6 +8,7 @@ import { Money } from '@/domain/value-objects/Money'
 import { HistoryAppender } from '@/domain/services/HistoryAppender'
 import type { IEventRepository } from '@/domain/repositories/IEventRepository'
 import { withOptimisticRetry } from '@/application/support/withOptimisticRetry'
+import { assertMember, memberName } from '@/application/support/eventMembers'
 
 export class EditManualLiquidationHandler {
   constructor(private readonly repo: IEventRepository) {}
@@ -17,12 +18,9 @@ export class EditManualLiquidationHandler {
   ): Promise<{ event: EventSnapshot; version: number }> {
     const parsed = EditManualLiquidationSchema.parse(input)
     const saved = await withOptimisticRetry(this.repo, parsed.eventId, (row) => {
-      const knownIds = new Set(row.snapshot.users.map((u) => u.id))
-      if (!knownIds.has(parsed.userId)) throw new Error(`User ${parsed.userId} not in event`)
-      if (parsed.paidBy !== null && !knownIds.has(parsed.paidBy))
-        throw new Error(`Payer ${parsed.paidBy} not in event`)
-      for (const id of parsed.affects)
-        if (!knownIds.has(id)) throw new Error(`affects user ${id} not in event`)
+      assertMember(row.snapshot, parsed.userId, 'User')
+      if (parsed.paidBy !== null) assertMember(row.snapshot, parsed.paidBy, 'Payer')
+      for (const id of parsed.affects) assertMember(row.snapshot, id, 'affects user')
 
       const existing = row.snapshot.manualLiquidations.find((l) => l.id === parsed.liquidationId)
       if (!existing) throw new Error(`Manual liquidation ${parsed.liquidationId} not found`)
@@ -36,7 +34,7 @@ export class EditManualLiquidationHandler {
         })
         .toSnapshot()
 
-      const actorName = row.snapshot.users.find((u) => u.id === parsed.userId)?.name ?? 'Someone'
+      const actorName = memberName(row.snapshot, parsed.userId)
       return HistoryAppender.append(
         {
           ...row.snapshot,

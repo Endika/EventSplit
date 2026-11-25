@@ -9,6 +9,7 @@ import { capTrash } from '@/domain/services/capTrash'
 import { pruneGroupOrder, pruneSubgroupOrder } from '@/domain/services/pruneGroupOrder'
 import type { IEventRepository } from '@/domain/repositories/IEventRepository'
 import { withOptimisticRetry } from '@/application/support/withOptimisticRetry'
+import { assertMember, memberName } from '@/application/support/eventMembers'
 
 export class DeletePurchaseHandler {
   constructor(private readonly repo: IEventRepository) {}
@@ -16,8 +17,7 @@ export class DeletePurchaseHandler {
   async execute(input: DeletePurchaseInput): Promise<{ event: EventSnapshot; version: number }> {
     const parsed = DeletePurchaseSchema.parse(input)
     const saved = await withOptimisticRetry(this.repo, parsed.eventId, (row) => {
-      if (!row.snapshot.users.some((u) => u.id === parsed.deletedBy))
-        throw new Error(`deletedBy ${parsed.deletedBy} not in event`)
+      assertMember(row.snapshot, parsed.deletedBy, 'deletedBy')
       const existing = row.snapshot.purchases.find((p) => p.id === parsed.purchaseId)
       if (!existing) throw new Error(`Purchase ${parsed.purchaseId} not found`)
       if (existing.deleted) throw new Error('Cannot delete an already-deleted purchase')
@@ -26,8 +26,7 @@ export class DeletePurchaseHandler {
         by: parsed.deletedBy,
         reason: parsed.reason ?? null,
       })
-      const editorName =
-        row.snapshot.users.find((u) => u.id === parsed.deletedBy)?.name ?? 'Someone'
+      const editorName = memberName(row.snapshot, parsed.deletedBy)
       const newPurchases = capTrash(
         row.snapshot.purchases.map((p) => (p.id === parsed.purchaseId ? deleted.toSnapshot() : p)),
       )

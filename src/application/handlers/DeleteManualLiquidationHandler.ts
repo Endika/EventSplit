@@ -8,6 +8,7 @@ import { HistoryAppender } from '@/domain/services/HistoryAppender'
 import { capTrash } from '@/domain/services/capTrash'
 import type { IEventRepository } from '@/domain/repositories/IEventRepository'
 import { withOptimisticRetry } from '@/application/support/withOptimisticRetry'
+import { assertMember, memberName } from '@/application/support/eventMembers'
 
 export class DeleteManualLiquidationHandler {
   constructor(private readonly repo: IEventRepository) {}
@@ -17,8 +18,7 @@ export class DeleteManualLiquidationHandler {
   ): Promise<{ event: EventSnapshot; version: number }> {
     const parsed = DeleteManualLiquidationSchema.parse(input)
     const saved = await withOptimisticRetry(this.repo, parsed.eventId, (row) => {
-      if (!row.snapshot.users.some((u) => u.id === parsed.userId))
-        throw new Error(`User ${parsed.userId} not in event`)
+      assertMember(row.snapshot, parsed.userId, 'User')
       const existing = row.snapshot.manualLiquidations.find((l) => l.id === parsed.liquidationId)
       if (!existing) throw new Error(`Manual liquidation ${parsed.liquidationId} not found`)
       if (existing.deleted) throw new Error('Cannot delete an already-deleted manual liquidation')
@@ -26,7 +26,7 @@ export class DeleteManualLiquidationHandler {
       const deleted = ManualLiquidation.restore(existing)
         .softDelete({ by: parsed.userId })
         .toSnapshot()
-      const actorName = row.snapshot.users.find((u) => u.id === parsed.userId)?.name ?? 'Someone'
+      const actorName = memberName(row.snapshot, parsed.userId)
       return HistoryAppender.append(
         {
           ...row.snapshot,
