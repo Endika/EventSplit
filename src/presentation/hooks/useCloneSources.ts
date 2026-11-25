@@ -22,6 +22,7 @@ export function useCloneSources(excludeEventId: string): CloneSource[] {
         .filter((summary) => {
           if (summary.id === excludeEventId) return false
           if (!cache.getIdentity(summary.id)) return false
+          // Stryker disable next-line OptionalChaining: listAll just read this entry, so get never returns null here
           return cache.get(summary.id)?.snapshot.hasPin !== true
         })
         .map(({ id, name, updatedAt, participantCount }) => ({
