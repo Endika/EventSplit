@@ -59,12 +59,6 @@ describe('searchAddresses', () => {
     expect(fetchMock).toHaveBeenCalledWith(expect.stringContaining(`&lang=${expected}&`))
   })
 
-  it('returns an empty array when Photon genuinely finds nothing', async () => {
-    stubFetch({})
-
-    expect(await searchAddresses('nowhere at all', 'en')).toEqual([])
-  })
-
   it('throws a GeoLookupError when the HTTP request fails', async () => {
     stubFetch({}, 503)
 

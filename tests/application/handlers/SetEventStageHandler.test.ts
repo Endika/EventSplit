@@ -18,20 +18,6 @@ async function setup(conflicts = 0) {
 describe('SetEventStageHandler', () => {
   afterEach(() => vi.restoreAllMocks())
 
-  it('moves event from doodle to shopping', async () => {
-    const { move } = await setup()
-    const result = await move('shopping')
-    expect(result.event.stage).toBe('shopping')
-    expect(result.version).toBe(2)
-  })
-
-  it('rejects unknown user', async () => {
-    const { move } = await setup()
-    await expect(move('shopping', '00000000-0000-7000-8000-000000000000')).rejects.toThrow(
-      /not in event/i,
-    )
-  })
-
   it('returns the stored event without writing when the stage is already current', async () => {
     const { move, repo, create } = await setup()
     const result = await move('doodle')

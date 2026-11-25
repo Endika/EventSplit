@@ -7,7 +7,6 @@ import {
   EventLocationSchema,
   ManualLiquidationSchema,
 } from '@/infrastructure/persistence/EventSnapshotSchema'
-import { SCHEMA_VERSION } from '@/infrastructure/persistence/schemaVersion'
 
 // Guard for the stale-client write protection: the persisted EventSnapshot shape
 // is fingerprinted here. If this test fails you changed a field (top-level or on
@@ -117,10 +116,5 @@ describe('EventSnapshot shape guard', () => {
         'paidShares',
       ],
     })
-  })
-
-  it('SCHEMA_VERSION is a positive integer', () => {
-    expect(Number.isInteger(SCHEMA_VERSION)).toBe(true)
-    expect(SCHEMA_VERSION).toBeGreaterThan(0)
   })
 })

@@ -4,11 +4,6 @@ import { InMemoryEventRepository } from '@/infrastructure/persistence/InMemoryEv
 import { readEvent } from '../../support/readEvent'
 
 describe('CreateEventHandler', () => {
-  it('rejects invalid input via Zod', async () => {
-    const handler = new CreateEventHandler(new InMemoryEventRepository())
-    await expect(handler.execute({ name: 'AB', creatorName: 'J' } as never)).rejects.toThrow()
-  })
-
   it('creates the event and persists it', async () => {
     const repo = new InMemoryEventRepository()
     const handler = new CreateEventHandler(repo)

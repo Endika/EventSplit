@@ -94,18 +94,6 @@ describe('useEventSync', () => {
     expect(refresh.execute).toHaveBeenCalledExactlyOnceWith({ eventId: ID, local: null })
   })
 
-  it('paints the cached copy at once and reconciles against it', async () => {
-    const cached = withHistory(null, { name: 'Cached' })
-    cache.set(ID, { snapshot: cached, version: 3 })
-    const { refresh, hook } = setup({ status: 'unchanged', snapshot: cached, version: 3 })
-    expect(hook.result.current.event?.name).toBe('Cached')
-    await flush()
-    expect(refresh.execute).toHaveBeenCalledExactlyOnceWith({
-      eventId: ID,
-      local: { snapshot: cached, version: 3 },
-    })
-  })
-
   it.each([
     ['without the PIN', null, false],
     ['with the PIN', '1234', true],

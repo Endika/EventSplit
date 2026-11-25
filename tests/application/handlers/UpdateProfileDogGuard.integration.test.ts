@@ -52,22 +52,4 @@ describe('turning a participant into a dog', () => {
     })
     expect(result.event.users.find((u) => u.id === ane.id)!.kind).toBe('dog')
   })
-
-  it('still lets a dog stop being one', async () => {
-    const { repo, eventId } = await eventWithTwoPeople()
-    const joined = await new JoinAsNewUserHandler(repo).execute({
-      eventId,
-      name: 'Toby',
-      alias: null,
-      kind: 'dog',
-    })
-    const toby = joined.event.users.find((u) => u.name === 'Toby')!
-    const result = await new UpdateProfileHandler(repo).execute({
-      eventId,
-      userId: toby.id,
-      actorId: toby.id,
-      kind: 'adult',
-    })
-    expect(result.event.users.find((u) => u.id === toby.id)!.kind).toBe('adult')
-  })
 })

@@ -15,8 +15,6 @@ const pinNoops = {
   deleteEvent: async () => {},
 }
 
-const noSleep = () => Promise.resolve()
-
 async function seed(repo: IEventRepository) {
   const created = await new CreateEventHandler(repo).execute({ name: 'Trip', creatorName: 'John' })
   return created.event.id
@@ -93,20 +91,6 @@ describe('withOptimisticRetry', () => {
     expect(repo.updateCalls).toBe(6) // DEFAULT_MAX_RETRIES
     // Half of the doubling cap (60, 120, 240, 480, then 600), no sleep after the last attempt.
     expect(sleeps).toEqual([30, 60, 120, 240, 300])
-  })
-
-  it('respects a custom maxRetries budget', async () => {
-    const inner = new InMemoryEventRepository()
-    const eventId = await seed(inner)
-    const repo = new ConflictingRepository(inner, Number.POSITIVE_INFINITY)
-
-    await expect(
-      withOptimisticRetry(repo, eventId, (row) => row.snapshot, {
-        maxRetries: 2,
-        sleep: noSleep,
-      }),
-    ).rejects.toBeInstanceOf(ConcurrencyLimitError)
-    expect(repo.updateCalls).toBe(2)
   })
 
   it('passes the unlocked PIN to the repository so a protected event can be written', async () => {

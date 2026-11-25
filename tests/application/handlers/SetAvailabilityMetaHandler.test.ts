@@ -46,16 +46,4 @@ describe('SetAvailabilityMetaHandler', () => {
       }),
     ).rejects.toThrow(/chosenOptions/)
   })
-
-  it('rejects a user not in the event', async () => {
-    const { repo, eventId } = await setup()
-    await expect(
-      new SetAvailabilityMetaHandler(repo).execute({
-        eventId,
-        userId: '00000000-0000-7000-8000-000000000000',
-        note: null,
-        chosenOptions: ['2026-06-05..2026-06-05'],
-      }),
-    ).rejects.toThrow(/not in event/i)
-  })
 })

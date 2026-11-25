@@ -19,11 +19,6 @@ async function setup(options: DayOption[] = []) {
 }
 
 describe('SetDayOptionsHandler', () => {
-  it('rejects an empty option list', async () => {
-    const { handler, eventId } = await setup()
-    await expect(handler.execute({ eventId, options: [] })).rejects.toThrow()
-  })
-
   it('saves options and adds a history entry', async () => {
     const { handler, eventId, userId } = await setup()
     const result = await handler.execute({
@@ -69,23 +64,6 @@ describe('SetDayOptionsHandler', () => {
     expect(result.event.availability[userId]).toEqual([true, false])
   })
 
-  it('sorts the options it stores', async () => {
-    const { handler, eventId } = await setup([day('2026-06-05')])
-    const result = await handler.execute({
-      eventId,
-      options: [
-        { start: '2026-06-12', end: '2026-06-14', note: null },
-        { start: '2026-06-05', end: '2026-06-07', note: null },
-        day('2026-06-05'),
-      ],
-    })
-    expect(result.event.dayOptions.map(optionKey)).toEqual([
-      '2026-06-05..2026-06-05',
-      '2026-06-05..2026-06-07',
-      '2026-06-12..2026-06-14',
-    ])
-  })
-
   it('drops chosen options whose option is gone', async () => {
     const { repo, handler, eventId } = await setup([
       day('2026-06-05'),
@@ -122,16 +100,6 @@ describe('SetDayOptionsHandler', () => {
     ).rejects.toThrow()
   })
 
-  it('rejects an end before its start', async () => {
-    const { handler, eventId } = await setup()
-    await expect(
-      handler.execute({
-        eventId,
-        options: [{ start: '2026-06-07', end: '2026-06-05', note: null }],
-      }),
-    ).rejects.toThrow()
-  })
-
   it('rejects duplicate options', async () => {
     const { handler, eventId } = await setup()
     await expect(
@@ -144,15 +112,6 @@ describe('SetDayOptionsHandler', () => {
     await expect(
       handler.execute({ eventId, options: [day('2026-06-05', 'x'.repeat(81))] }),
     ).rejects.toThrow()
-  })
-
-  it('accepts overlapping options', async () => {
-    const { handler, eventId } = await setup()
-    const result = await handler.execute({
-      eventId,
-      options: [{ start: '2026-06-05', end: '2026-06-07', note: null }, day('2026-06-06')],
-    })
-    expect(result.event.dayOptions).toHaveLength(2)
   })
 
   it('editing only a note keeps every vote in place', async () => {

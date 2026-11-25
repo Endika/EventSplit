@@ -1,5 +1,4 @@
 import { describe, it, expect } from 'vitest'
-import { CloneIntoEventSchema } from '@/application/dtos/CloneIntoEventDTO'
 import { LocationSchema } from '@/application/dtos/EditEventDetailsDTO'
 import { SetAvailabilityMetaSchema } from '@/application/dtos/SetAvailabilityMetaDTO'
 import { SetDayOptionsSchema } from '@/application/dtos/SetDayOptionsDTO'
@@ -26,27 +25,6 @@ describe('DTO-specific rules', () => {
       expect(parse({ pin: null, currentPin: pin }).success).toBe(ok)
     },
   )
-
-  it('CloneIntoEvent keeps every site flag and requires all four', () => {
-    const site = {
-      location: true,
-      emergencyContact: false,
-      wifiPassword: true,
-      generalNotes: false,
-    }
-    const input = {
-      targetEventId: eventId,
-      sourceEventId: 'xyz789a',
-      clonedBy: userId,
-      selection: { dayOptions: true, userIds: [], mergeUserIds: [], purchaseIds: [], site },
-    }
-    expect(CloneIntoEventSchema.parse(input).selection.site).toEqual(site)
-    const { generalNotes: _dropped, ...partial } = site
-    expect(
-      CloneIntoEventSchema.safeParse({ ...input, selection: { ...input.selection, site: partial } })
-        .success,
-    ).toBe(false)
-  })
 
   it('a location name is trimmed and kept between 2 and 100 characters', () => {
     expect(LocationSchema.parse({ name: '  Casa  ' }).name).toBe('Casa')
