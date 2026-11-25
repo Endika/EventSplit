@@ -7,6 +7,10 @@ import {
   MAX_OPTIONS,
 } from '@/domain/value-objects/DayOption'
 
+const INVALID_OPTION_ISSUE = {
+  message: `Each option needs ISO dates, an end on or after its start, and at most ${MAX_OPTIONS} days`,
+}
+
 export const SetDayOptionsSchema = z.object({
   eventId: eventIdField,
   options: z
@@ -19,9 +23,7 @@ export const SetDayOptionsSchema = z.object({
     )
     .min(1)
     .max(MAX_OPTIONS)
-    .refine((os) => os.every(isValidOption), {
-      message: `Each option needs ISO dates, an end on or after its start, and at most ${MAX_OPTIONS} days`,
-    })
+    .refine((os) => os.every(isValidOption), INVALID_OPTION_ISSUE)
     .refine((os) => new Set(os.map(optionKey)).size === os.length, {
       message: 'Duplicate options not allowed',
     }),

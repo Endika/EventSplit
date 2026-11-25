@@ -24,7 +24,7 @@ export function pickTableOptions(
   const all = options.map((_, i) => i)
   const topOfTheRest = all
     .filter((i) => !isChosen(i))
-    .sort((a, b) => (counts[b] ?? 0) - (counts[a] ?? 0) || a - b)
+    .sort((a, b) => (counts[b] ?? 0) - (counts[a] ?? 0))
     .slice(0, limit)
 
   return [...new Set([...all.filter(isChosen), ...topOfTheRest])].sort((a, b) => a - b)
