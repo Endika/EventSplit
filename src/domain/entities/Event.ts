@@ -164,6 +164,10 @@ export class Event {
     return new Event(id, snapshot)
   }
 
+  private nextVersion(): number {
+    return (this.s.history.at(-1)?.version ?? 0) + 1
+  }
+
   private memberName(userId: string): string {
     const member = this.s.users.find((u) => u.id === userId)
     if (!member) throw new Error('Event: user not in event')
@@ -204,7 +208,7 @@ export class Event {
     if (this.s.users.some((u) => u.id === user.id.value))
       throw new Error('Event: user already in event')
     const now = new Date().toISOString()
-    const nextVersion = (this.s.history.at(-1)?.version ?? 0) + 1
+    const nextVersion = this.nextVersion()
     const nextSnapshot: EventSnapshot = {
       ...this.s,
       users: [...this.s.users, user.toSnapshot()],
@@ -250,7 +254,7 @@ export class Event {
       )
 
     const now = new Date().toISOString()
-    const nextVersion = (this.s.history.at(-1)?.version ?? 0) + 1
+    const nextVersion = this.nextVersion()
 
     // Clean up: remove from availability map
     const newAvailability = { ...this.s.availability }
@@ -314,7 +318,7 @@ export class Event {
     }
 
     const now = new Date().toISOString()
-    const nextVersion = (this.s.history.at(-1)?.version ?? 0) + 1
+    const nextVersion = this.nextVersion()
 
     const nextSnapshot: EventSnapshot = {
       ...this.s,
@@ -348,7 +352,7 @@ export class Event {
       throw new Error(`Event: chosenOptions must be event options (${unknown.join(', ')})`)
     const note = input.note?.trim() ? input.note.trim().slice(0, AVAILABILITY_NOTE_MAX) : null
     const now = new Date().toISOString()
-    const nextVersion = (this.s.history.at(-1)?.version ?? 0) + 1
+    const nextVersion = this.nextVersion()
     const nextSnapshot: EventSnapshot = {
       ...this.s,
       availabilityNote: note,
@@ -376,7 +380,7 @@ export class Event {
       ? this.s.settledTransfers.filter((s) => !(s.from === input.from && s.to === input.to))
       : [...this.s.settledTransfers, { from: input.from, to: input.to }]
     const now = new Date().toISOString()
-    const nextVersion = (this.s.history.at(-1)?.version ?? 0) + 1
+    const nextVersion = this.nextVersion()
     const fromName = this.s.users.find((u) => u.id === input.from)?.name ?? '?'
     const toName = this.s.users.find((u) => u.id === input.to)?.name ?? '?'
     const nextSnapshot: EventSnapshot = {
@@ -405,7 +409,7 @@ export class Event {
     const to = input.to.trim().slice(0, GROUP_NAME_MAX)
     const toValue = to === '' ? null : to
     const now = new Date().toISOString()
-    const nextVersion = (this.s.history.at(-1)?.version ?? 0) + 1
+    const nextVersion = this.nextVersion()
     const purchases = this.s.purchases.map((p) =>
       p.group === input.from ? { ...p, group: toValue } : p,
     )
@@ -446,7 +450,7 @@ export class Event {
     const userName = this.memberName(input.userId)
     const order = [...new Set(input.order.filter((g) => g.trim() !== ''))]
     const now = new Date().toISOString()
-    const nextVersion = (this.s.history.at(-1)?.version ?? 0) + 1
+    const nextVersion = this.nextVersion()
     const nextSnapshot: EventSnapshot = {
       ...this.s,
       groupOrder: order,
@@ -471,7 +475,7 @@ export class Event {
     const to = input.to.trim().slice(0, GROUP_NAME_MAX)
     const toValue = to === '' ? null : to
     const now = new Date().toISOString()
-    const nextVersion = (this.s.history.at(-1)?.version ?? 0) + 1
+    const nextVersion = this.nextVersion()
     const purchases = this.s.purchases.map((p) =>
       p.group === input.group && p.subgroup === input.from ? { ...p, subgroup: toValue } : p,
     )
@@ -505,7 +509,7 @@ export class Event {
     const userName = this.memberName(input.userId)
     const order = [...new Set(input.order.filter((s) => s.trim() !== ''))]
     const now = new Date().toISOString()
-    const nextVersion = (this.s.history.at(-1)?.version ?? 0) + 1
+    const nextVersion = this.nextVersion()
     const subgroupOrder = { ...this.s.subgroupOrder, [input.group]: order }
     const nextSnapshot: EventSnapshot = {
       ...this.s,
