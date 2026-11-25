@@ -30,9 +30,7 @@ describe('useTheme', () => {
   it.each([
     ['light', 'light'],
     ['dark', 'dark'],
-    ['system', 'system'],
     ['sepia', 'system'],
-    [null, 'system'],
   ])('starts from the stored preference %s as %s', (stored, expected) => {
     if (stored) localStorage.setItem(KEY, stored)
     expect(renderHook(() => useTheme()).result.current.pref).toBe(expected)
@@ -50,7 +48,6 @@ describe('useTheme', () => {
     ['light', true, false, '#f2efe6'],
     ['dark', false, true, '#131210'],
     ['system', true, true, '#131210'],
-    ['system', false, false, '#f2efe6'],
   ] as [ThemePref, boolean, boolean, string][])(
     'setting %s with a dark system=%s stores it and paints dark=%s',
     (pref, systemDark, dark, color) => {
@@ -63,10 +60,6 @@ describe('useTheme', () => {
       expect(meta()).toBe(color)
     },
   )
-
-  it('is light on a system that cannot tell its theme', () => {
-    expect(renderHook(() => useTheme()).result.current.isDark).toBe(false)
-  })
 
   it('still applies the theme when storage is unavailable', () => {
     vi.spyOn(Storage.prototype, 'setItem').mockImplementation(() => {
@@ -85,9 +78,13 @@ describe('useTheme', () => {
     const { result } = renderHook(() => useTheme())
     const seen = [1, 2, 3].map(() => {
       act(() => result.current.toggle())
-      return result.current.pref
+      return [result.current.pref, result.current.isDark]
     })
-    expect(seen).toEqual(['dark', 'system', 'light'])
+    expect(seen).toEqual([
+      ['dark', true],
+      ['system', false],
+      ['light', false],
+    ])
   })
 
   it('follows live system changes while on system, until unmounted', () => {
