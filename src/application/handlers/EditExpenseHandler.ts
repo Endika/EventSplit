@@ -5,6 +5,7 @@ import { Money } from '@/domain/value-objects/Money'
 import { HistoryAppender } from '@/domain/services/HistoryAppender'
 import type { IEventRepository } from '@/domain/repositories/IEventRepository'
 import { withOptimisticRetry } from '@/application/support/withOptimisticRetry'
+import { assertMember, memberName } from '@/application/support/eventMembers'
 
 export class EditExpenseHandler {
   constructor(private readonly repo: IEventRepository) {}
@@ -12,13 +13,11 @@ export class EditExpenseHandler {
   async execute(input: EditExpenseInput): Promise<{ event: EventSnapshot; version: number }> {
     const parsed = EditExpenseSchema.parse(input)
     const saved = await withOptimisticRetry(this.repo, parsed.eventId, (row) => {
-      const knownIds = new Set(row.snapshot.users.map((u) => u.id))
-      if (!knownIds.has(parsed.editedBy))
-        throw new Error(`editedBy ${parsed.editedBy} not in event`)
-      if (!knownIds.has(parsed.paidBy)) throw new Error(`Payer ${parsed.paidBy} not in event`)
+      assertMember(row.snapshot, parsed.editedBy, 'editedBy')
+      assertMember(row.snapshot, parsed.paidBy, 'Payer')
       if (parsed.splitAmong) {
         for (const id of parsed.splitAmong) {
-          if (!knownIds.has(id)) throw new Error(`splitAmong user ${id} not in event`)
+          assertMember(row.snapshot, id, 'splitAmong user')
         }
       }
       const existing = row.snapshot.expenses.find((e) => e.id === parsed.expenseId)
@@ -43,7 +42,7 @@ export class EditExpenseHandler {
         ...(parsed.purchaseLinks !== undefined ? { purchaseLinks: parsed.purchaseLinks } : {}),
       })
 
-      const editorName = row.snapshot.users.find((u) => u.id === parsed.editedBy)?.name ?? 'Someone'
+      const editorName = memberName(row.snapshot, parsed.editedBy)
       const nextSnapshot: EventSnapshot = HistoryAppender.append(
         {
           ...row.snapshot,

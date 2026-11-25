@@ -5,6 +5,7 @@ import { Money } from '@/domain/value-objects/Money'
 import { HistoryAppender } from '@/domain/services/HistoryAppender'
 import type { IEventRepository } from '@/domain/repositories/IEventRepository'
 import { withOptimisticRetry } from '@/application/support/withOptimisticRetry'
+import { assertMember, memberName } from '@/application/support/eventMembers'
 
 export class AddExpenseHandler {
   constructor(private readonly repo: IEventRepository) {}
@@ -12,18 +13,15 @@ export class AddExpenseHandler {
   async execute(input: AddExpenseInput): Promise<{ event: EventSnapshot; version: number }> {
     const parsed = AddExpenseSchema.parse(input)
     const saved = await withOptimisticRetry(this.repo, parsed.eventId, (row) => {
-      if (!row.snapshot.users.some((u) => u.id === parsed.paidBy))
-        throw new Error(`Payer ${parsed.paidBy} not in event`)
+      assertMember(row.snapshot, parsed.paidBy, 'Payer')
 
       // The operator who recorded the expense; defaults to the payer for legacy callers.
       const createdBy = parsed.createdBy ?? parsed.paidBy
-      if (!row.snapshot.users.some((u) => u.id === createdBy))
-        throw new Error(`Creator ${createdBy} not in event`)
+      assertMember(row.snapshot, createdBy, 'Creator')
 
       if (parsed.splitAmong) {
-        const knownIds = new Set(row.snapshot.users.map((u) => u.id))
         for (const id of parsed.splitAmong) {
-          if (!knownIds.has(id)) throw new Error(`splitAmong user ${id} not in event`)
+          assertMember(row.snapshot, id, 'splitAmong user')
         }
       }
 
@@ -48,7 +46,7 @@ export class AddExpenseHandler {
         purchaseLinks,
       })
 
-      const nameOf = (id: string) => row.snapshot.users.find((u) => u.id === id)?.name ?? 'Someone'
+      const nameOf = (id: string) => memberName(row.snapshot, id)
       const operatorName = nameOf(createdBy)
       const desc = expense.toSnapshot().description
       // Attribute the action to the operator; note the payer only when it differs.

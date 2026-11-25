@@ -7,6 +7,7 @@ import { Purchase } from '@/domain/entities/Purchase'
 import { HistoryAppender } from '@/domain/services/HistoryAppender'
 import type { IEventRepository } from '@/domain/repositories/IEventRepository'
 import { withOptimisticRetry } from '@/application/support/withOptimisticRetry'
+import { assertMember, memberName } from '@/application/support/eventMembers'
 
 export class RecoverPurchaseHandler {
   constructor(private readonly repo: IEventRepository) {}
@@ -14,16 +15,14 @@ export class RecoverPurchaseHandler {
   async execute(input: RecoverPurchaseInput): Promise<{ event: EventSnapshot; version: number }> {
     const parsed = RecoverPurchaseSchema.parse(input)
     const saved = await withOptimisticRetry(this.repo, parsed.eventId, (row) => {
-      if (!row.snapshot.users.some((u) => u.id === parsed.recoveredBy))
-        throw new Error(`recoveredBy ${parsed.recoveredBy} not in event`)
+      assertMember(row.snapshot, parsed.recoveredBy, 'recoveredBy')
       const existing = row.snapshot.purchases.find((p) => p.id === parsed.purchaseId)
       if (!existing) throw new Error(`Purchase ${parsed.purchaseId} not found`)
       if (!row.snapshot.users.some((u) => u.id === existing.createdBy))
         throw new Error('Cannot recover a purchase whose creator is no longer in the event')
 
       const recovered = Purchase.restore(existing).recover()
-      const editorName =
-        row.snapshot.users.find((u) => u.id === parsed.recoveredBy)?.name ?? 'Someone'
+      const editorName = memberName(row.snapshot, parsed.recoveredBy)
       const nextSnapshot: EventSnapshot = HistoryAppender.append(
         {
           ...row.snapshot,

@@ -8,6 +8,7 @@ import { HistoryAppender } from '@/domain/services/HistoryAppender'
 import { pruneGroupOrder, pruneSubgroupOrder } from '@/domain/services/pruneGroupOrder'
 import type { IEventRepository } from '@/domain/repositories/IEventRepository'
 import { withOptimisticRetry } from '@/application/support/withOptimisticRetry'
+import { assertMember, memberName } from '@/application/support/eventMembers'
 
 export class EditBroughtItemHandler {
   constructor(private readonly repo: IEventRepository) {}
@@ -16,11 +17,8 @@ export class EditBroughtItemHandler {
     const parsed = EditBroughtItemSchema.parse(input)
 
     const saved = await withOptimisticRetry(this.repo, parsed.eventId, (row) => {
-      const knownIds = new Set(row.snapshot.users.map((u) => u.id))
-      if (!knownIds.has(parsed.editedBy))
-        throw new Error(`editedBy ${parsed.editedBy} not in event`)
-      if (parsed.broughtBy != null && !knownIds.has(parsed.broughtBy))
-        throw new Error(`broughtBy ${parsed.broughtBy} not in event`)
+      assertMember(row.snapshot, parsed.editedBy, 'editedBy')
+      if (parsed.broughtBy != null) assertMember(row.snapshot, parsed.broughtBy, 'broughtBy')
 
       const existing = row.snapshot.purchases.find((p) => p.id === parsed.purchaseId)
       if (!existing) throw new Error(`Purchase ${parsed.purchaseId} not found`)
@@ -35,7 +33,7 @@ export class EditBroughtItemHandler {
         broughtBy: parsed.broughtBy ?? null,
       })
 
-      const editorName = row.snapshot.users.find((u) => u.id === parsed.editedBy)?.name ?? 'Someone'
+      const editorName = memberName(row.snapshot, parsed.editedBy)
       const newPurchases = row.snapshot.purchases.map((p) =>
         p.id === parsed.purchaseId ? updated.toSnapshot() : p,
       )

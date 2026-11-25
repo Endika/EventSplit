@@ -6,6 +6,7 @@ import type { EventSnapshot } from '@/domain/entities/Event'
 import { HistoryAppender } from '@/domain/services/HistoryAppender'
 import type { IEventRepository } from '@/domain/repositories/IEventRepository'
 import { withOptimisticRetry } from '@/application/support/withOptimisticRetry'
+import { assertMember, memberName } from '@/application/support/eventMembers'
 
 export class SetAvailabilityBatchHandler {
   constructor(private readonly repo: IEventRepository) {}
@@ -16,14 +17,12 @@ export class SetAvailabilityBatchHandler {
     const parsed = SetAvailabilityBatchSchema.parse(input)
 
     const saved = await withOptimisticRetry(this.repo, parsed.eventId, (row) => {
-      const knownIds = new Set(row.snapshot.users.map((u) => u.id))
-      if (!knownIds.has(parsed.editedBy))
-        throw new Error(`editedBy ${parsed.editedBy} not in event`)
+      assertMember(row.snapshot, parsed.editedBy, 'editedBy')
 
       const dayCount = row.snapshot.dayOptions.length
       const nextAvailability = { ...row.snapshot.availability }
       for (const [userId, votes] of Object.entries(parsed.votes)) {
-        if (!knownIds.has(userId)) throw new Error(`User ${userId} not in event`)
+        assertMember(row.snapshot, userId, 'User')
         if (votes.length !== dayCount)
           throw new Error(
             `votes for ${userId} length (${votes.length}) must match option count (${dayCount})`,
@@ -31,7 +30,7 @@ export class SetAvailabilityBatchHandler {
         nextAvailability[userId] = votes
       }
 
-      const editorName = row.snapshot.users.find((u) => u.id === parsed.editedBy)?.name ?? 'Someone'
+      const editorName = memberName(row.snapshot, parsed.editedBy)
       const changedCount = Object.keys(parsed.votes).length
       const nextSnapshot: EventSnapshot = HistoryAppender.append(
         { ...row.snapshot, availability: nextAvailability },

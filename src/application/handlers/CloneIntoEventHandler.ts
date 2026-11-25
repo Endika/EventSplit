@@ -8,6 +8,7 @@ import { HistoryAppender } from '@/domain/services/HistoryAppender'
 import { buildClonePatch, type CloneSelection } from '@/domain/services/buildClonePatch'
 import { type IEventRepository, isLockedEvent } from '@/domain/repositories/IEventRepository'
 import { withOptimisticRetry } from '@/application/support/withOptimisticRetry'
+import { assertMember } from '@/application/support/eventMembers'
 import { MAX_OPTIONS, optionKey, sortOptions } from '@/domain/value-objects/DayOption'
 
 function describeBlocks(
@@ -65,8 +66,7 @@ export class CloneIntoEventHandler {
       throw new Error('Source event is PIN-protected and cannot be cloned')
 
     const saved = await withOptimisticRetry(this.repo, parsed.targetEventId, (row) => {
-      if (!row.snapshot.users.some((u) => u.id === parsed.clonedBy))
-        throw new Error(`clonedBy ${parsed.clonedBy} not in event`)
+      assertMember(row.snapshot, parsed.clonedBy, 'clonedBy')
 
       const patch = buildClonePatch({
         source: source.snapshot,
