@@ -22,21 +22,32 @@ describe('ManualLiquidationSplitter', () => {
     expect(view.shares.find((s) => s.userId === 'endika')!.paid).toBe(false)
   })
 
+  it('splits among the affected participants only, dropping unknown ids', () => {
+    const view = ManualLiquidationSplitter.compute(
+      { cents: 1001, paidBy: null, affects: ['javi', 'ghost', 'iker'], paidShares: [] },
+      participants,
+    )
+    expect(view.shares).toEqual([
+      { userId: 'javi', cents: 501, paid: false },
+      { userId: 'iker', cents: 500, paid: false },
+    ])
+  })
+
+  it('has nothing to split without participants', () => {
+    expect(
+      ManualLiquidationSplitter.compute(
+        { cents: 100, paidBy: null, affects: ['a'], paidShares: [] },
+        [],
+      ),
+    ).toEqual({ totalCents: 0, paidCents: 0, pendingCents: 0, shares: [] })
+  })
+
   it('treats empty affects as all participants', () => {
     const view = ManualLiquidationSplitter.compute(
       { cents: 40000, paidBy: null, affects: [], paidShares: [] },
       participants,
     )
     expect(view.shares).toHaveLength(4)
-  })
-
-  it('distributes the remainder cent-perfectly', () => {
-    const view = ManualLiquidationSplitter.compute(
-      { cents: 100, paidBy: null, affects: ['a', 'b', 'c'], paidShares: [] },
-      ['a', 'b', 'c'],
-    )
-    expect(view.shares.map((s) => s.cents).sort((x, y) => x - y)).toEqual([33, 33, 34])
-    expect(view.shares.reduce((acc, s) => acc + s.cents, 0)).toBe(100)
   })
 
   it('reflects hand-marked paid shares', () => {

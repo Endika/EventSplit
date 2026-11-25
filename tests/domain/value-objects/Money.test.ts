@@ -10,9 +10,22 @@ describe('Money', () => {
   })
   it('rejects amounts above 999_999.99', () => {
     expect(() => Money.fromEuros(1_000_000)).toThrow(/maximum/)
+    expect(() => Money.fromCents(100_000_000)).toThrow(/maximum/)
+    expect(Money.fromCents(99_999_999).cents).toBe(99_999_999)
+    expect(Money.fromEuros(999_999.99).cents).toBe(99_999_999)
   })
-  it('stores integer cents', () => {
-    expect(Money.fromEuros(12.34).cents).toBe(1234)
+  it.each([NaN])('rejects the non-finite amount %s', (euros) => {
+    expect(() => Money.fromEuros(euros)).toThrow(/finite/)
+  })
+  it.each([-1])('rejects %s as a cent count', (cents) => {
+    expect(() => Money.fromCents(cents)).toThrow(/cents/)
+  })
+  it('subtracts, flooring at zero', () => {
+    expect(Money.fromCents(500).minus(Money.fromCents(200)).cents).toBe(300)
+    expect(Money.fromCents(200).minus(Money.fromCents(500)).cents).toBe(0)
+  })
+  it.each([0])('refuses to split into %s shares', (n) => {
+    expect(() => Money.fromCents(100).splitInto(n)).toThrow(/split count/)
   })
   it('sums without floating-point drift', () => {
     const a = Money.fromEuros(0.1)

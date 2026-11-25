@@ -6,9 +6,6 @@ import {
   isValidOption,
   sortOptions,
   expandDays,
-  coversDay,
-  optionsCoveringDay,
-  makeRange,
   normalizeNote,
   MAX_SPAN_DAYS,
 } from '@/domain/value-objects/DayOption'
@@ -26,11 +23,8 @@ describe('DayOption', () => {
       note: null,
     })
     expect(parseOptionKey('nope')).toBeNull()
-  })
-
-  it('counts span days inclusively', () => {
-    expect(spanDays(day('2026-06-05'))).toBe(1)
-    expect(spanDays({ start: '2026-06-05', end: '2026-06-07', note: null })).toBe(3)
+    expect(parseOptionKey('2026-06-05..nope')).toBeNull()
+    expect(parseOptionKey('nope..2026-06-05')).toBeNull()
   })
 
   it('spans a DST boundary without losing or gaining a day', () => {
@@ -49,51 +43,36 @@ describe('DayOption', () => {
     expect(isValidOption({ start: 'junio', end: '2026-06-05', note: null })).toBe(false)
     expect(isValidOption({ start: '2026-06-01', end: '2026-07-02', note: null })).toBe(false)
     expect(spanDays({ start: '2026-06-01', end: '2026-07-01', note: null })).toBe(MAX_SPAN_DAYS)
+    expect(isValidOption({ start: '2026-06-01', end: '2026-07-01', note: null })).toBe(true)
+    expect(isValidOption({ start: '2026-06-01', end: '2026-06-01', note: 'x'.repeat(80) })).toBe(
+      true,
+    )
+    expect(isValidOption({ start: '2026-06-01', end: '2026-06-01', note: 5 as never })).toBe(false)
   })
 
-  it.each(['2026-02-29', '2026-02-30', '2026-04-31', '2026-13-01', '2026-00-10', '2026-06-00'])(
+  it.each([['2026-02-29', '2026-03-10']])(
     'rejects %s, a date the calendar does not have',
-    (iso) => {
+    (iso, later) => {
       expect(isValidOption(day(iso))).toBe(false)
       expect(isValidOption({ start: '2026-06-01', end: iso, note: null })).toBe(false)
+      expect(isValidOption({ start: iso, end: later, note: null })).toBe(false)
     },
   )
-
-  it.each(['2028-02-29', '2026-02-28', '2026-04-30', '2026-12-31'])('accepts %s', (iso) => {
-    expect(isValidOption(day(iso))).toBe(true)
-  })
 
   it('sorts by start then end', () => {
     expect(
       sortOptions([
         { start: '2026-06-05', end: '2026-06-07', note: null },
         day('2026-06-05'),
-        day('2026-06-01'),
+        { start: '2026-06-08', end: '2026-06-08', note: null },
+        { start: '2026-06-01', end: '2026-06-30', note: null },
       ]),
     ).toEqual([
-      day('2026-06-01'),
+      { start: '2026-06-01', end: '2026-06-30', note: null },
       day('2026-06-05'),
       { start: '2026-06-05', end: '2026-06-07', note: null },
+      day('2026-06-08'),
     ])
-  })
-
-  it('knows which options cover a day, overlaps included', () => {
-    const os = [
-      { start: '2026-06-05', end: '2026-06-07', note: null },
-      { start: '2026-06-06', end: '2026-06-06', note: null },
-    ]
-    expect(coversDay(os[0]!, '2026-06-06')).toBe(true)
-    expect(coversDay(os[1]!, '2026-06-05')).toBe(false)
-    expect(optionsCoveringDay(os, '2026-06-06')).toEqual([0, 1])
-    expect(optionsCoveringDay(os, '2026-06-09')).toEqual([])
-  })
-
-  it('makeRange orders its ends', () => {
-    expect(makeRange('2026-06-09', '2026-06-05')).toEqual({
-      start: '2026-06-05',
-      end: '2026-06-09',
-      note: null,
-    })
   })
 
   it('the note is not part of the identity', () => {

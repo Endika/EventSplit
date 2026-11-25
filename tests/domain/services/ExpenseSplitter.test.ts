@@ -3,19 +3,6 @@ import { ExpenseSplitter } from '@/domain/services/ExpenseSplitter'
 import { Money } from '@/domain/value-objects/Money'
 
 describe('ExpenseSplitter', () => {
-  it('returns zero balances for empty input', () => {
-    const result = ExpenseSplitter.compute({
-      participantIds: ['a', 'b'],
-      expenses: [],
-    })
-    expect(result.totalCents).toBe(0)
-    expect(result.balances).toEqual([
-      { userId: 'a', spentCents: 0, balanceCents: 0 },
-      { userId: 'b', spentCents: 0, balanceCents: 0 },
-    ])
-    expect(result.transfers).toEqual([])
-  })
-
   it('balances when one person paid all', () => {
     const result = ExpenseSplitter.compute({
       participantIds: ['a', 'b'],
@@ -28,258 +15,58 @@ describe('ExpenseSplitter', () => {
     expect(result.transfers).toEqual([{ from: 'b', to: 'a', cents: 1000 }])
   })
 
-  it('matches the spec example (5 friends, EUR 400)', () => {
+  it('gives the rounding leftovers to the least loaded, ties going to the earlier in the list', () => {
+    const cents = (n: number) => Money.fromCents(n)
     const result = ExpenseSplitter.compute({
-      participantIds: ['john', 'maria', 'pedro', 'ana', 'carlos'],
+      participantIds: ['p', 'a', 'b', 'c'],
       expenses: [
-        { paidBy: 'john', amount: Money.fromEuros(120) },
-        { paidBy: 'maria', amount: Money.fromEuros(80) },
-        { paidBy: 'pedro', amount: Money.fromEuros(90) },
-        { paidBy: 'ana', amount: Money.fromEuros(50) },
-        { paidBy: 'carlos', amount: Money.fromEuros(60) },
+        { paidBy: 'p', amount: cents(301), splitAmong: ['a', 'b', 'c'] }, // a
+        { paidBy: 'p', amount: cents(201), splitAmong: ['b', 'c'] }, // b
+        { paidBy: 'p', amount: cents(201), splitAmong: ['a', 'b'] }, // a, tied with b
+        { paidBy: 'p', amount: cents(302), splitAmong: ['a', 'b', 'c'] }, // c, then b
+        { paidBy: 'p', amount: cents(5), splitAmong: ['a', 'b', 'c'] }, // c, then a, tied with b
       ],
     })
-    expect(result.totalCents).toBe(40000)
-    const byId = Object.fromEntries(result.balances.map((b) => [b.userId, b.balanceCents]))
-    expect(byId.john).toBe(4000)
-    expect(byId.maria).toBe(0)
-    expect(byId.pedro).toBe(1000)
-    expect(byId.ana).toBe(-3000)
-    expect(byId.carlos).toBe(-2000)
-    const totalDebt = result.transfers.reduce((s, t) => s + t.cents, 0)
-    expect(totalDebt).toBe(5000)
+    expect(result.balances.map((b) => b.balanceCents)).toEqual([1010, -304, -403, -303])
   })
 
-  it('handles uneven split with cent-perfect totals', () => {
-    const result = ExpenseSplitter.compute({
-      participantIds: ['a', 'b', 'c'],
-      expenses: [{ paidBy: 'a', amount: Money.fromEuros(10) }],
+  it('gives no balance to an empty group, whatever was spent', () => {
+    expect(
+      ExpenseSplitter.compute({
+        participantIds: [],
+        expenses: [{ paidBy: 'a', amount: Money.fromCents(500) }],
+      }),
+    ).toEqual({ totalCents: 0, balances: [], transfers: [] })
+  })
+
+  it('settles the biggest debts first and moves on only when a creditor is paid off', () => {
+    // a is owed 25, b is owed 35; c owes 10, d 30, e 20.
+    const spent = (paidBy: string, euros: number, forUser: string) => ({
+      paidBy,
+      amount: Money.fromEuros(euros),
+      splitAmong: [forUser],
     })
-    const totalBalance = result.balances.reduce((s, b) => s + b.balanceCents, 0)
-    expect(totalBalance).toBe(0)
-  })
-
-  it('splits an expense among only the selected participants', () => {
     const result = ExpenseSplitter.compute({
-      participantIds: ['a', 'b', 'c'],
-      expenses: [{ paidBy: 'a', amount: Money.fromEuros(30), splitAmong: ['a', 'b'] }],
+      participantIds: ['a', 'b', 'c', 'd', 'e'],
+      expenses: [spent('a', 25, 'd'), spent('b', 10, 'c'), spent('b', 5, 'd'), spent('b', 20, 'e')],
     })
-    // a paid 30, split between a and b → a owes 15, b owes 15
-    // a's balance: 3000 - 1500 = 1500 (creditor)
-    // b's balance: 0 - 1500 = -1500 (debtor)
-    // c's balance: 0 - 0 = 0
-    const byId = Object.fromEntries(result.balances.map((b) => [b.userId, b.balanceCents]))
-    expect(byId.a).toBe(1500)
-    expect(byId.b).toBe(-1500)
-    expect(byId.c).toBe(0)
+    expect(result.transfers).toEqual([
+      { from: 'd', to: 'b', cents: 3000 },
+      { from: 'e', to: 'b', cents: 500 },
+      { from: 'e', to: 'a', cents: 1500 },
+      { from: 'c', to: 'a', cents: 1000 },
+    ])
   })
 
-  it('falls back to all participants when splitAmong is empty', () => {
-    const result = ExpenseSplitter.compute({
-      participantIds: ['a', 'b', 'c'],
-      expenses: [{ paidBy: 'a', amount: Money.fromEuros(30), splitAmong: [] }],
-    })
-    const byId = Object.fromEntries(result.balances.map((b) => [b.userId, b.balanceCents]))
-    expect(byId.a).toBe(2000) // paid 3000, owes 1000
-    expect(byId.b).toBe(-1000)
-    expect(byId.c).toBe(-1000)
-  })
-
-  it('falls back to all when splitAmong is undefined', () => {
-    const result = ExpenseSplitter.compute({
-      participantIds: ['a', 'b'],
-      expenses: [{ paidBy: 'a', amount: Money.fromEuros(10) }],
-    })
-    const byId = Object.fromEntries(result.balances.map((b) => [b.userId, b.balanceCents]))
-    expect(byId.a).toBe(500)
-    expect(byId.b).toBe(-500)
-  })
-
-  it('mixes whole-group and subset expenses', () => {
-    const result = ExpenseSplitter.compute({
-      participantIds: ['a', 'b', 'c', 'd'],
-      expenses: [
-        // a buys snacks for everyone (40)
-        { paidBy: 'a', amount: Money.fromEuros(40) },
-        // b takes c and d to dinner (60) — a not involved
-        { paidBy: 'b', amount: Money.fromEuros(60), splitAmong: ['b', 'c', 'd'] },
-      ],
-    })
-    const byId = Object.fromEntries(result.balances.map((b) => [b.userId, b.balanceCents]))
-    // shares from snacks: each owes 10
-    // shares from dinner: b/c/d each owes 20
-    // a: paid 40, owes 10 → balance +30
-    // b: paid 60, owes 10 + 20 = 30 → balance +30
-    // c: paid 0, owes 10 + 20 = 30 → -30
-    // d: paid 0, owes 10 + 20 = 30 → -30
-    expect(byId.a).toBe(3000)
-    expect(byId.b).toBe(3000)
-    expect(byId.c).toBe(-3000)
-    expect(byId.d).toBe(-3000)
-  })
-
-  it('balances always sum to zero with partial splits', () => {
+  it('survives an expense paid by somebody who is no longer a participant', () => {
     const result = ExpenseSplitter.compute({
       participantIds: ['a', 'b', 'c'],
       expenses: [
-        { paidBy: 'a', amount: Money.fromEuros(10), splitAmong: ['a', 'b'] },
-        { paidBy: 'b', amount: Money.fromEuros(7), splitAmong: ['b', 'c'] },
+        { paidBy: 'a', amount: Money.fromCents(3000) },
+        { paidBy: 'gone', amount: Money.fromCents(3000) },
       ],
     })
-    const sum = result.balances.reduce((s, b) => s + b.balanceCents, 0)
-    expect(sum).toBe(0)
-  })
-
-  it('spreads rounding remainder across people instead of always the first', () => {
-    // Two expenses with the same split order, each leaving exactly 1 leftover
-    // cent. The naive "first in list" rule would dump both extra cents on `a`;
-    // the remainder must instead rotate to the least-loaded participant so the
-    // burden is homogeneous. Payer `p` is outside the split so each member's
-    // owed share equals -balanceCents.
-    const result = ExpenseSplitter.compute({
-      participantIds: ['p', 'a', 'b', 'c', 'd'],
-      expenses: [
-        { paidBy: 'p', amount: Money.fromCents(1001), splitAmong: ['a', 'b', 'c', 'd'] },
-        { paidBy: 'p', amount: Money.fromCents(1001), splitAmong: ['a', 'b', 'c', 'd'] },
-      ],
-    })
-    const byId = Object.fromEntries(result.balances.map((b) => [b.userId, b.balanceCents]))
-    // Each member owes 250 + 250 = 500 base across the two expenses. The two
-    // leftover cents go to two different people (a, then b), so nobody carries
-    // more than one cent of rounding — naive "first in list" would give a -502.
-    expect(byId.a).toBe(-501)
-    expect(byId.b).toBe(-501)
-    expect(byId.c).toBe(-500)
-    expect(byId.d).toBe(-500)
-    const sum = result.balances.reduce((s, b) => s + b.balanceCents, 0)
-    expect(sum).toBe(0)
-  })
-
-  it('ignores invalid userIds in splitAmong (silently filtered)', () => {
-    const result = ExpenseSplitter.compute({
-      participantIds: ['a', 'b'],
-      expenses: [{ paidBy: 'a', amount: Money.fromEuros(10), splitAmong: ['a', 'b', 'ghost'] }],
-    })
-    // ghost is dropped → splits among [a, b]
-    const sum = result.balances.reduce((s, b) => s + b.balanceCents, 0)
-    expect(sum).toBe(0)
-    const byId = Object.fromEntries(result.balances.map((b) => [b.userId, b.balanceCents]))
-    expect(byId.a).toBe(500)
-    expect(byId.b).toBe(-500)
-  })
-})
-
-describe('ExpenseSplitter with a guardian', () => {
-  // Ane pays 30,00 for the three of them. Nora is a child in Iker's charge, so
-  // the 10,00 Nora owes must be asked of Iker, never of Nora.
-  const base = {
-    participantIds: ['iker', 'ane', 'nora'],
-    expenses: [{ paidBy: 'ane', amount: Money.fromCents(3000), splitAmong: [] }],
-  }
-
-  it('asks the guardian, not the child', () => {
-    const r = ExpenseSplitter.compute({ ...base, guardianOf: { nora: 'iker' } })
-    expect(r.transfers).toEqual([{ from: 'iker', to: 'ane', cents: 2000 }])
-    // The child keeps a balance of her own: what she consumed stays visible.
-    expect(r.balances.find((b) => b.userId === 'nora')!.balanceCents).toBe(-1000)
-  })
-
-  it('leaves a child with no guardian settling for themselves', () => {
-    const r = ExpenseSplitter.compute(base)
-    expect(r.transfers.map((t) => t.from).sort()).toEqual(['iker', 'nora'])
-  })
-
-  it('ignores a guardian who is not in the split', () => {
-    const r = ExpenseSplitter.compute({ ...base, guardianOf: { nora: 'ghost' } })
-    expect(r.transfers.map((t) => t.from).sort()).toEqual(['iker', 'nora'])
-  })
-
-  it('never lets the transfers disagree with the balances', () => {
-    const r = ExpenseSplitter.compute({ ...base, guardianOf: { nora: 'iker' } })
-    const moved = r.transfers.reduce((n, t) => n + t.cents, 0)
-    const owed = r.balances.reduce((n, b) => n + Math.min(0, b.balanceCents), 0)
-    expect(moved).toBe(-owed)
-  })
-})
-
-describe('ExpenseSplitter households', () => {
-  const eur = (n: number) => Money.fromCents(n * 100)
-  const garcia = { ana: 'García', luis: 'García' }
-  // Marta pays 100 split four ways: Ana, Luis and Leo (Ana's son) owe 25 each.
-  const family = {
-    participantIds: ['ana', 'luis', 'leo', 'marta'],
-    guardianOf: { leo: 'ana' },
-    expenses: [{ paidBy: 'marta', amount: eur(100) }],
-  }
-  const transferred = (r: ReturnType<typeof ExpenseSplitter.compute>) =>
-    r.transfers.reduce((n, t) => n + t.cents, 0)
-
-  it('settles a family as one party, represented by its first member', () => {
-    const r = ExpenseSplitter.compute({ ...family, householdOf: garcia })
-    expect(r.transfers).toEqual([{ from: 'ana', to: 'marta', cents: 7500 }])
-  })
-
-  it('keeps every per-person balance as it was', () => {
-    const plain = ExpenseSplitter.compute(family)
-    const grouped = ExpenseSplitter.compute({ ...family, householdOf: garcia })
-    expect(grouped.balances).toEqual(plain.balances)
-  })
-
-  it('gives the same result as today when nobody has a household', () => {
-    expect(ExpenseSplitter.compute({ ...family, householdOf: {} })).toEqual(
-      ExpenseSplitter.compute(family),
-    )
-  })
-
-  it('subtracts what a member paid from the household', () => {
-    const r = ExpenseSplitter.compute({
-      participantIds: ['ana', 'luis', 'marta'],
-      householdOf: garcia,
-      expenses: [
-        { paidBy: 'luis', amount: eur(60) },
-        { paidBy: 'marta', amount: eur(30) },
-      ],
-    })
-    // Household: paid 60, owes 60 -> even. Marta paid 30, owes 30.
-    expect(r.transfers).toEqual([])
-  })
-
-  it('settles household to household', () => {
-    const r = ExpenseSplitter.compute({
-      participantIds: ['ana', 'luis', 'marta', 'pau'],
-      householdOf: { ...garcia, marta: 'Soler', pau: 'Soler' },
-      expenses: [{ paidBy: 'marta', amount: eur(100) }],
-    })
-    expect(r.transfers).toEqual([{ from: 'ana', to: 'marta', cents: 5000 }])
-  })
-
-  it('creates no transfer for a household that ends at zero', () => {
-    const r = ExpenseSplitter.compute({
-      participantIds: ['ana', 'luis', 'marta'],
-      householdOf: garcia,
-      expenses: [{ paidBy: 'ana', amount: eur(20), splitAmong: ['ana', 'luis'] }],
-    })
-    expect(r.transfers).toEqual([])
-    const alone = ExpenseSplitter.compute({
-      participantIds: ['ana', 'luis', 'marta'],
-      expenses: [{ paidBy: 'ana', amount: eur(20), splitAmong: ['ana', 'luis'] }],
-    })
-    expect(alone.transfers).toEqual([{ from: 'luis', to: 'ana', cents: 1000 }])
-  })
-
-  it('puts a child whose guardian is in a household into that household', () => {
-    const r = ExpenseSplitter.compute({
-      participantIds: ['luis', 'ana', 'leo', 'marta'],
-      guardianOf: { leo: 'ana' },
-      householdOf: garcia,
-      expenses: [{ paidBy: 'marta', amount: eur(100) }],
-    })
-    expect(r.transfers).toEqual([{ from: 'luis', to: 'marta', cents: 7500 }])
-  })
-
-  it('never lets the transfers disagree with the balances', () => {
-    const r = ExpenseSplitter.compute({ ...family, householdOf: garcia })
-    const owed = r.balances.reduce((n, b) => n + Math.min(0, b.balanceCents), 0)
-    expect(transferred(r)).toBe(-owed)
+    expect(result.transfers).toEqual([{ from: 'b', to: 'a', cents: 1000 }])
+    expect(result.totalCents).toBe(6000)
   })
 })

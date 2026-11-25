@@ -195,6 +195,7 @@ export function buildClonePatch(input: {
         // The cloner is the only consumer; the entity recomputes the total from
         // that. For SHARED_UNIT staples the quantity is fixed and survives as is.
         consumers: [{ userId: clonedBy, multiplier: 1 }],
+        // Stryker disable next-line ConditionalExpression: days is ignored for a single-unit item
         days: p.unit === SHARED_UNIT ? 1 : inferPurchaseDays(p),
         assignedTo,
         group: p.group,

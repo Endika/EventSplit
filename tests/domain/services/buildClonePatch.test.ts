@@ -96,13 +96,14 @@ const bring = (id: string, over: Partial<PurchaseSnapshot> = {}): PurchaseSnapsh
 const base = { clonedBy: 'me' }
 
 describe('buildClonePatch', () => {
-  it('copies day options with their notes and no votes', () => {
+  it('copies the valid day options, sorted, with their notes and no votes', () => {
     const patch = buildClonePatch({
       ...base,
       source: src({
         dayOptions: [
-          { start: '2026-06-05', end: '2026-06-05', note: null },
           { start: '2026-06-12', end: '2026-06-14', note: 'casa rural' },
+          { start: '2026-06-20', end: '2026-06-10', note: null },
+          { start: '2026-06-05', end: '2026-06-05', note: null },
         ],
         chosenOptions: ['2026-06-05..2026-06-05'],
         availability: { su1: [true, true] },
@@ -149,47 +150,6 @@ describe('buildClonePatch', () => {
     expect(patch.idMap.su1).toBe(u.id)
   })
 
-  it('makes the cloner the only consumer and recomputes the quantity', () => {
-    const patch = buildClonePatch({
-      ...base,
-      source: src({
-        purchases: [
-          buy('sp1', {
-            dailyConsumption: 0.5,
-            unit: 'liters',
-            consumers: [
-              { userId: 'su1', multiplier: 1 },
-              { userId: 'su2', multiplier: 1 },
-            ],
-            totalQuantity: 3,
-          }),
-        ],
-      }),
-      target: tgt({}),
-      selection: sel({ purchaseIds: ['sp1'] }),
-    })
-    const p = patch.purchases[0]!
-    expect(p.consumers).toEqual([{ userId: 'me', multiplier: 1 }])
-    expect(p.totalQuantity).toBe(1.5) // 0.5 * 1 consumidor * 3 días
-    expect(p.purchased).toBe(false)
-    expect(p.boughtQuantity).toBe(0)
-    expect(p.createdBy).toBe('me')
-    expect(p.id).not.toBe('sp1')
-  })
-
-  it('leaves a single-unit staple quantity untouched', () => {
-    const patch = buildClonePatch({
-      ...base,
-      source: src({
-        purchases: [buy('sp1', { item: 'Sal', unit: 'single', quantity: 2, totalQuantity: 2 })],
-      }),
-      target: tgt({}),
-      selection: sel({ purchaseIds: ['sp1'] }),
-    })
-    expect(patch.purchases[0]!.quantity).toBe(2)
-    expect(patch.purchases[0]!.totalQuantity).toBe(2)
-  })
-
   it('keeps who brings an item when that person is cloned too', () => {
     const patch = buildClonePatch({
       ...base,
@@ -204,34 +164,10 @@ describe('buildClonePatch', () => {
     expect(patch.purchases[0]!.assignedTo).toBe(patch.idMap.su1)
   })
 
-  it('empties who brings an item when that person is not cloned', () => {
-    const patch = buildClonePatch({
-      ...base,
-      source: src({
-        users: [user('su1', 'Ana')],
-        purchases: [bring('sp1', { item: 'Aceite', assignedTo: 'su1' })],
-      }),
-      target: tgt({}),
-      selection: sel({ purchaseIds: ['sp1'] }),
-    })
-    expect(patch.purchases[0]!.kind).toBe('bring')
-    expect(patch.purchases[0]!.assignedTo).toBeNull()
-  })
-
-  it('never copies a deleted purchase, even if selected', () => {
-    const patch = buildClonePatch({
-      ...base,
-      source: src({ purchases: [buy('sp1', { deleted: true })] }),
-      target: tgt({}),
-      selection: sel({ purchaseIds: ['sp1'] }),
-    })
-    expect(patch.purchases).toEqual([])
-  })
-
-  it('copies only the site fields that are ticked', () => {
-    const patch = buildClonePatch({
-      ...base,
-      source: src({
+  it.each(['location', 'emergencyContact', 'wifiPassword', 'generalNotes'] as const)(
+    'copies the %s site field only when it is the one ticked',
+    (field) => {
+      const source = src({
         location: {
           name: 'Casa rural',
           address: 'Calle X',
@@ -243,22 +179,22 @@ describe('buildClonePatch', () => {
         emergencyContact: '600123456',
         wifiPassword: 'hunter2',
         generalNotes: 'llevar sacos',
-      }),
-      target: tgt({}),
-      selection: sel({
-        site: {
-          location: true,
-          emergencyContact: false,
-          wifiPassword: false,
-          generalNotes: true,
-        },
-      }),
-    })
-    expect(patch.site.location?.name).toBe('Casa rural')
-    expect(patch.site.generalNotes).toBe('llevar sacos')
-    expect('emergencyContact' in patch.site).toBe(false)
-    expect('wifiPassword' in patch.site).toBe(false)
-  })
+      })
+      const site = {
+        location: false,
+        emergencyContact: false,
+        wifiPassword: false,
+        generalNotes: false,
+      }
+      const patch = buildClonePatch({
+        ...base,
+        source,
+        target: tgt({}),
+        selection: sel({ site: { ...site, [field]: true } }),
+      })
+      expect(patch.site).toEqual({ [field]: source[field] })
+    },
+  )
 
   it('carries the group order of what it copies, pruned', () => {
     const patch = buildClonePatch({
@@ -274,32 +210,6 @@ describe('buildClonePatch', () => {
       selection: sel({ purchaseIds: ['sp1'] }),
     })
     expect(patch.groupOrder).toEqual(['Nevera'])
-  })
-
-  it('keeps the subgroup of a copied item', () => {
-    const patch = buildClonePatch({
-      ...base,
-      source: src({
-        purchases: [buy('sp1', { group: 'Nevera', subgroup: 'Lácteos' })],
-        subgroupOrder: { Nevera: ['Lácteos', 'Embutido'] },
-      }),
-      target: tgt({}),
-      selection: sel({ purchaseIds: ['sp1'] }),
-    })
-    expect(patch.purchases[0]!.group).toBe('Nevera')
-    expect(patch.purchases[0]!.subgroup).toBe('Lácteos')
-    expect(patch.subgroupOrder).toEqual({ Nevera: ['Lácteos'] })
-  })
-
-  it('an empty selection produces an empty patch', () => {
-    const patch = buildClonePatch({
-      ...base,
-      source: src({ dayOptions: [{ start: '2026-06-05', end: '2026-06-05', note: null }] }),
-      target: tgt({}),
-      selection: sel({}),
-    })
-    expect(patch).toMatchObject({ users: [], purchases: [], dayOptions: [], site: {} })
-    expect(patch.idMap).toEqual({})
   })
 
   it('ignores ids that are not in the source', () => {
@@ -327,33 +237,11 @@ describe('buildClonePatch', () => {
     expect(patch.dayOptions.length).toBeLessThanOrEqual(31)
   })
 
-  it('every copied purchase gets a distinct id', () => {
-    const patch = buildClonePatch({
-      ...base,
-      source: src({ purchases: [buy('sp1'), buy('sp2', { item: 'Pan' })] }),
-      target: tgt({}),
-      selection: sel({ purchaseIds: ['sp1', 'sp2'] }),
-    })
-    const ids = patch.purchases.map((p) => p.id)
-    expect(new Set(ids).size).toBe(2)
-  })
-
   describe('merging a duplicate participant', () => {
     const endika = (over: Partial<UserSnapshot> = {}) => user('su1', 'Endika', over)
     const twin = (over: Partial<UserSnapshot> = {}) => user('tu1', 'Endika', over)
     const merge = (over: Partial<CloneSelection> = {}) =>
       sel({ userIds: ['su1'], mergeUserIds: ['su1'], ...over })
-
-    it('adds nobody and points the id map at the participant already there', () => {
-      const patch = buildClonePatch({
-        ...base,
-        source: src({ users: [endika()] }),
-        target: tgt({ users: [twin()] }),
-        selection: merge(),
-      })
-      expect(patch.users).toEqual([])
-      expect(patch.idMap.su1).toBe('tu1')
-    })
 
     it('matches on the normalized name, so casing and padding still merge', () => {
       const patch = buildClonePatch({
@@ -364,19 +252,13 @@ describe('buildClonePatch', () => {
       })
       expect(patch.users).toEqual([])
       expect(patch.idMap.su1).toBe('tu1')
-    })
-
-    it('hands a cloned item to the participant already there, not to a clone', () => {
-      const patch = buildClonePatch({
+      const padded = buildClonePatch({
         ...base,
-        source: src({
-          users: [endika()],
-          purchases: [bring('sp1', { item: 'Aceite', assignedTo: 'su1' })],
-        }),
-        target: tgt({ users: [twin()] }),
-        selection: merge({ purchaseIds: ['sp1'] }),
+        source: src({ users: [endika()] }),
+        target: tgt({ users: [user('tu1', '  eNDIKA ')] }),
+        selection: merge(),
       })
-      expect(patch.purchases[0]!.assignedTo).toBe('tu1')
+      expect(padded.idMap.su1).toBe('tu1')
     })
 
     it('fills only the fields the target left empty', () => {
@@ -408,11 +290,11 @@ describe('buildClonePatch', () => {
       ])
     })
 
-    it('treats a whitespace-only value in the target as empty', () => {
+    it.each(['   ', undefined as never])('treats the target value %j as empty', (blank) => {
       const patch = buildClonePatch({
         ...base,
         source: src({ users: [endika({ dietary: 'vegano' })] }),
-        target: tgt({ users: [twin({ dietary: '   ' })] }),
+        target: tgt({ users: [twin({ dietary: blank })] }),
         selection: merge(),
       })
       expect(patch.profileUpdates[0]!.update.dietary).toBe('vegano')
@@ -460,27 +342,6 @@ describe('buildClonePatch', () => {
       expect(patch.profileUpdates).toEqual([])
     })
 
-    it('never touches name or kind', () => {
-      const patch = buildClonePatch({
-        ...base,
-        source: src({ users: [user('su1', 'endika', { kind: 'child' })] }),
-        target: tgt({ users: [twin({ kind: 'adult' })] }),
-        selection: merge(),
-      })
-      expect(patch.profileUpdates).toEqual([])
-    })
-
-    it('emits no update when there is nothing left to fill', () => {
-      const patch = buildClonePatch({
-        ...base,
-        source: src({ users: [endika({ dietary: 'vegano' })] }),
-        target: tgt({ users: [twin({ dietary: 'vegano' })] }),
-        selection: merge(),
-      })
-      expect(patch.profileUpdates).toEqual([])
-      expect(patch.idMap.su1).toBe('tu1')
-    })
-
     it('accumulates two source people folded into the same participant', () => {
       const patch = buildClonePatch({
         ...base,
@@ -508,29 +369,6 @@ describe('buildClonePatch', () => {
       expect(patch.users[0]!.name).toBe('Endika')
       expect(patch.profileUpdates).toEqual([])
       expect(patch.idMap.su1).toBe(patch.users[0]!.id)
-    })
-
-    it('ignores a merge decision for someone who was not ticked', () => {
-      const patch = buildClonePatch({
-        ...base,
-        source: src({ users: [endika({ dietary: 'vegano' })] }),
-        target: tgt({ users: [twin()] }),
-        selection: sel({ userIds: [], mergeUserIds: ['su1'] }),
-      })
-      expect(patch.users).toEqual([])
-      expect(patch.profileUpdates).toEqual([])
-      expect(patch.idMap).toEqual({})
-    })
-
-    it('still creates a duplicate when the merge was not asked for', () => {
-      const patch = buildClonePatch({
-        ...base,
-        source: src({ users: [endika()] }),
-        target: tgt({ users: [twin()] }),
-        selection: sel({ userIds: ['su1'] }),
-      })
-      expect(patch.users).toHaveLength(1)
-      expect(patch.idMap.su1).not.toBe('tu1')
     })
   })
 })

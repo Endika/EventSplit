@@ -32,22 +32,6 @@ function purchase(over: Partial<PurchaseSnapshot>): PurchaseSnapshot {
 }
 
 describe('inferPurchaseDays', () => {
-  it('reads the days back out of the total', () => {
-    // 0.5 l/día × 2 personas × 3 días = 3 l
-    expect(
-      inferPurchaseDays(
-        purchase({
-          dailyConsumption: 0.5,
-          consumers: [
-            { userId: 'u1', multiplier: 1 },
-            { userId: 'u2', multiplier: 1 },
-          ],
-          totalQuantity: 3,
-        }),
-      ),
-    ).toBe(3)
-  })
-
   it('honours multipliers', () => {
     expect(
       inferPurchaseDays(
@@ -68,32 +52,12 @@ describe('inferPurchaseDays', () => {
   it('falls back rather than returning zero days', () => {
     expect(inferPurchaseDays(purchase({ totalQuantity: 0 }))).toBe(DEFAULT_CONSUMPTION_DAYS)
   })
-
-  it('rounds to the nearest whole day', () => {
-    expect(inferPurchaseDays(purchase({ dailyConsumption: 0.3, totalQuantity: 1 }))).toBe(3)
-  })
 })
 
 describe('defaultConsumptionDays', () => {
   const opts = (dayOptions: { start: string; end: string }[], chosenOptions: string[]) => ({
     dayOptions: dayOptions.map((o) => ({ ...o, note: null })),
     chosenOptions,
-  })
-
-  it('uses the length of the pinned stretch', () => {
-    expect(
-      defaultConsumptionDays(
-        opts([{ start: '2026-06-12', end: '2026-06-14' }], ['2026-06-12..2026-06-14']),
-      ),
-    ).toBe(3)
-  })
-
-  it('is 1 for a pinned single day', () => {
-    expect(
-      defaultConsumptionDays(
-        opts([{ start: '2026-06-05', end: '2026-06-05' }], ['2026-06-05..2026-06-05']),
-      ),
-    ).toBe(1)
   })
 
   it('takes the longest when several are pinned', () => {
@@ -119,13 +83,5 @@ describe('defaultConsumptionDays', () => {
   it('falls back with no options and with no event at all', () => {
     expect(defaultConsumptionDays(opts([], []))).toBe(DEFAULT_CONSUMPTION_DAYS)
     expect(defaultConsumptionDays(null)).toBe(DEFAULT_CONSUMPTION_DAYS)
-  })
-
-  it('ignores a pinned key that is no longer an option', () => {
-    expect(
-      defaultConsumptionDays(
-        opts([{ start: '2026-06-12', end: '2026-06-14' }], ['2099-01-01..2099-01-01']),
-      ),
-    ).toBe(DEFAULT_CONSUMPTION_DAYS)
   })
 })

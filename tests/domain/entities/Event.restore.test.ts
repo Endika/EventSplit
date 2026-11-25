@@ -1,91 +1,86 @@
 import { describe, it, expect } from 'vitest'
 import { Event, type EventSnapshot } from '@/domain/entities/Event'
-import { Expense } from '@/domain/entities/Expense'
-import { ManualLiquidation } from '@/domain/entities/ManualLiquidation'
-import { Purchase } from '@/domain/entities/Purchase'
 import { User } from '@/domain/entities/User'
-import { Money } from '@/domain/value-objects/Money'
-
-function without<T extends object>(value: T, ...keys: string[]): T {
-  const copy = { ...value } as Record<string, unknown>
-  for (const key of keys) delete copy[key]
-  return copy as T
-}
 
 describe('Event.restore', () => {
-  it('loads every child of a legacy snapshot exactly as that child restores itself', () => {
-    const creator = User.create({ name: 'John' })
-    const uid = creator.id.value
-    const event = Event.create({ name: 'Trip', creator }).toSnapshot()
-    const purchase = without(
-      Purchase.create({
-        createdBy: uid,
-        item: 'Bread',
-        quantity: 1,
-        unit: 'units',
-        dailyConsumption: 1,
-        consumers: [{ userId: uid, multiplier: 1 }],
-        days: 2,
-      }).toSnapshot(),
-      'kind',
-      'assignedTo',
-      'purchased',
-      'boughtQuantity',
-      'group',
-      'subgroup',
-    )
-    const expense = without(
-      Expense.create({
-        paidBy: uid,
-        amount: Money.fromEuros(10),
-        description: 'Bread',
-      }).toSnapshot(),
-      'splitAmong',
-      'purchaseLinks',
-      'deleted',
-      'deletedBy',
-      'deletedAt',
-    )
-    const liquidation = without(
-      ManualLiquidation.create({
-        concept: 'Rent',
-        amount: Money.fromEuros(400),
-        paidBy: null,
-        affects: [uid],
-      }).toSnapshot(),
-      'affects',
-      'paidShares',
-      'paidBy',
-      'deleted',
-      'deletedBy',
-      'deletedAt',
-    )
-    const user = without(
-      creator.toSnapshot(),
-      'email',
-      'phone',
-      'allergies',
-      'dietary',
-      'notes',
-      'kind',
-      'guardianId',
-      'household',
-    )
+  it('keeps every field of a fully populated snapshot', () => {
+    const full: EventSnapshot = {
+      id: 'abc123x',
+      name: 'Trip',
+      createdBy: 'u-1',
+      description: 'Weekend away',
+      location: {
+        name: 'Casa',
+        address: 'Calle 1',
+        lat: 1.5,
+        lng: 2.5,
+        postalCode: '28001',
+        googleMapsUrl: 'https://maps.example/x',
+      },
+      generalNotes: 'Bring towels',
+      wifiPassword: 'secret',
+      emergencyContact: '112',
+      users: [User.create({ name: 'John' }).toSnapshot()],
+      availability: { 'u-1': [true, false] },
+      availabilityNote: 'weekends',
+      chosenOptions: ['2026-06-05..2026-06-05'],
+      dayOptions: [{ start: '2026-06-05', end: '2026-06-05', note: 'n' }],
+      purchases: [],
+      groupOrder: ['Cena'],
+      subgroupOrder: { Cena: ['Entrantes'] },
+      expenses: [],
+      hasPin: true,
+      stage: 'expenses',
+      settledTransfers: [{ from: 'a', to: 'b' }],
+      manualLiquidations: [],
+      history: [
+        {
+          id: 'h1',
+          version: 1,
+          timestamp: '2026-01-01T00:00:00Z',
+          type: 'event_created',
+          userId: 'u-1',
+          description: 'Event created: Trip',
+        },
+      ],
+      createdAt: '2026-01-01T00:00:00Z',
+      updatedAt: '2026-01-02T00:00:00Z',
+    }
+    expect(Event.restore(full).toSnapshot()).toEqual(full)
+  })
+
+  it('backfills every field a legacy snapshot lacks and numbers its next history entry 1', () => {
     const legacy = {
-      ...event,
-      purchases: [purchase],
-      expenses: [expense],
-      manualLiquidations: [liquidation],
-      users: [user],
+      id: 'abc123x',
+      name: 'Old trip',
+      createdBy: 'user-old',
+      createdAt: '2026-01-01T00:00:00Z',
+      updatedAt: '2026-01-01T00:00:00Z',
     } as EventSnapshot
-
-    const restored = Event.restore(legacy).toSnapshot()
-
-    expect(restored.purchases).toEqual([Purchase.restore(purchase).toSnapshot()])
-    expect(restored.expenses).toEqual([Expense.restore(expense).toSnapshot()])
-    expect(restored.manualLiquidations).toEqual([
-      ManualLiquidation.restore(liquidation).toSnapshot(),
-    ])
-    expect(restored.users).toEqual([User.restore(user).toSnapshot()])
+    const restored = Event.restore(legacy)
+    expect(restored.toSnapshot()).toEqual({
+      ...legacy,
+      description: null,
+      location: null,
+      generalNotes: null,
+      wifiPassword: null,
+      emergencyContact: null,
+      users: [],
+      availability: {},
+      availabilityNote: null,
+      chosenOptions: [],
+      dayOptions: [],
+      purchases: [],
+      groupOrder: [],
+      subgroupOrder: {},
+      expenses: [],
+      hasPin: false,
+      stage: 'doodle',
+      settledTransfers: [],
+      manualLiquidations: [],
+      history: [],
+    })
+    const joined = restored.addUser(User.create({ name: 'Maria' })).toSnapshot()
+    expect(joined.history.map((h) => h.version)).toEqual([1])
   })
 })

@@ -6,6 +6,7 @@ import type {
 
 // Each list starts with the allergen's own name(s) so typing e.g. "gluten" or
 // "lactosa" in an item triggers the warning, then common foods that contain it.
+// Stryker disable all: keyword list is data; one example per allergen is tested
 const KEYWORDS: Record<AllergenName, string[]> = {
   gluten: [
     'gluten',
@@ -104,6 +105,7 @@ const KEYWORDS: Record<AllergenName, string[]> = {
   ],
   other: [],
 }
+// Stryker restore all
 
 export interface AllergyMatch {
   userId: string
@@ -131,7 +133,9 @@ export const AllergyChecker = {
     for (const user of input.users) {
       for (const a of user.allergies) {
         // For "other", the free-text note is what they're allergic to.
+        // Stryker disable next-line ArrayDeclaration: a spurious keyword on the empty branch only matches its own literal text
         const kws = a.name === 'other' ? (a.notes ? [a.notes.trim()] : []) : KEYWORDS[a.name]
+        // Stryker disable next-line ConditionalExpression,StringLiteral: an empty keyword is falsy, so the check below drops it anyway
         const matched = kws.find((kw) => kw !== '' && matchesKeyword(input.item, kw))
         if (matched) {
           out.push({

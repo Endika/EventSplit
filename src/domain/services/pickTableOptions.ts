@@ -18,6 +18,7 @@ export function pickTableOptions(
   const chosenKeys = new Set(chosen)
   const isChosen = (i: number): boolean => {
     const o = options[i]
+    // Stryker disable next-line ConditionalExpression: i always indexes options; the guard only satisfies noUncheckedIndexedAccess
     return o !== undefined && chosenKeys.has(optionKey(o))
   }
 

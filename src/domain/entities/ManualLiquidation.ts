@@ -53,12 +53,14 @@ export class ManualLiquidation {
       throw new Error('ManualLiquidation: affects must contain unique userIds')
     if (new Set(paidShares).size !== paidShares.length)
       throw new Error('ManualLiquidation: paidShares must contain unique userIds')
+    // Stryker disable all: edit() filters paidShares by affects and create() starts them empty, so this subset guard is unreachable today
     if (affects.length > 0) {
       const set = new Set(affects)
       for (const id of paidShares)
         if (!set.has(id))
           throw new Error('ManualLiquidation: paidShares must be a subset of affects')
     }
+    // Stryker restore all
     return c
   }
 

@@ -7,6 +7,7 @@ export class Money {
     if (euros < 0) throw new Error('Money: amount must be non-negative')
     if (!Number.isFinite(euros)) throw new Error('Money: amount must be finite')
     const cents = Math.round(euros * 100)
+    // Stryker disable next-line EqualityOperator: a float rounding error is never exactly the tolerance
     if (Math.abs(cents / 100 - euros) > 1e-9) throw new Error('Money: at most 2 decimals')
     if (cents > MAX_CENTS) throw new Error('Money: maximum 999999.99')
     return new Money(cents)
