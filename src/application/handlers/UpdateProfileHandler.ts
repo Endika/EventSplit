@@ -6,7 +6,7 @@ import { canBecome, hasDependants } from '@/domain/services/participantRoles'
 import { assertGuardianIsAnAdultOfTheEvent } from '@/application/support/assertGuardian'
 import type { IEventRepository } from '@/domain/repositories/IEventRepository'
 import { withOptimisticRetry } from '@/application/support/withOptimisticRetry'
-import { memberName } from '@/application/support/eventMembers'
+import { memberName, replaceById } from '@/application/support/snapshotLookups'
 
 export class UpdateProfileHandler {
   constructor(private readonly repo: IEventRepository) {}
@@ -52,9 +52,7 @@ export class UpdateProfileHandler {
 
       assertGuardianIsAnAdultOfTheEvent(updated.guardianId, row.snapshot.users)
 
-      const nextUsers = row.snapshot.users.map((u) =>
-        u.id === parsed.userId ? updated.toSnapshot() : u,
-      )
+      const nextUsers = replaceById(row.snapshot.users, parsed.userId, updated.toSnapshot())
       const actorName = memberName(row.snapshot, parsed.actorId)
       const description =
         parsed.actorId === parsed.userId

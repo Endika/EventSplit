@@ -7,7 +7,12 @@ import { ManualLiquidation } from '@/domain/entities/ManualLiquidation'
 import { HistoryAppender } from '@/domain/services/HistoryAppender'
 import type { IEventRepository } from '@/domain/repositories/IEventRepository'
 import { withOptimisticRetry } from '@/application/support/withOptimisticRetry'
-import { assertMember, memberName } from '@/application/support/eventMembers'
+import {
+  assertMember,
+  memberName,
+  requireById,
+  replaceById,
+} from '@/application/support/snapshotLookups'
 
 export class ToggleLiquidationShareHandler {
   constructor(private readonly repo: IEventRepository) {}
@@ -18,8 +23,11 @@ export class ToggleLiquidationShareHandler {
     const parsed = ToggleLiquidationShareSchema.parse(input)
     const saved = await withOptimisticRetry(this.repo, parsed.eventId, (row) => {
       assertMember(row.snapshot, parsed.userId, 'User')
-      const existing = row.snapshot.manualLiquidations.find((l) => l.id === parsed.liquidationId)
-      if (!existing) throw new Error(`Manual liquidation ${parsed.liquidationId} not found`)
+      const existing = requireById(
+        row.snapshot.manualLiquidations,
+        parsed.liquidationId,
+        'Manual liquidation',
+      )
       const affected =
         existing.affects.length > 0 ? existing.affects : row.snapshot.users.map((u) => u.id)
       if (!affected.includes(parsed.shareUserId))
@@ -32,8 +40,10 @@ export class ToggleLiquidationShareHandler {
       return HistoryAppender.append(
         {
           ...row.snapshot,
-          manualLiquidations: row.snapshot.manualLiquidations.map((l) =>
-            l.id === parsed.liquidationId ? toggled : l,
+          manualLiquidations: replaceById(
+            row.snapshot.manualLiquidations,
+            parsed.liquidationId,
+            toggled,
           ),
         },
         {

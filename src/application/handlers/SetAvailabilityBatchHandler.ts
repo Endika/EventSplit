@@ -6,7 +6,7 @@ import type { EventSnapshot } from '@/domain/entities/Event'
 import { HistoryAppender } from '@/domain/services/HistoryAppender'
 import type { IEventRepository } from '@/domain/repositories/IEventRepository'
 import { withOptimisticRetry } from '@/application/support/withOptimisticRetry'
-import { assertMember, memberName } from '@/application/support/eventMembers'
+import { assertMember, memberName } from '@/application/support/snapshotLookups'
 
 export class SetAvailabilityBatchHandler {
   constructor(private readonly repo: IEventRepository) {}

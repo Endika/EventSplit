@@ -8,7 +8,12 @@ import { Money } from '@/domain/value-objects/Money'
 import { HistoryAppender } from '@/domain/services/HistoryAppender'
 import type { IEventRepository } from '@/domain/repositories/IEventRepository'
 import { withOptimisticRetry } from '@/application/support/withOptimisticRetry'
-import { assertMember, memberName } from '@/application/support/eventMembers'
+import {
+  assertMember,
+  memberName,
+  requireById,
+  replaceById,
+} from '@/application/support/snapshotLookups'
 
 export class EditManualLiquidationHandler {
   constructor(private readonly repo: IEventRepository) {}
@@ -22,8 +27,11 @@ export class EditManualLiquidationHandler {
       if (parsed.paidBy !== null) assertMember(row.snapshot, parsed.paidBy, 'Payer')
       for (const id of parsed.affects) assertMember(row.snapshot, id, 'affects user')
 
-      const existing = row.snapshot.manualLiquidations.find((l) => l.id === parsed.liquidationId)
-      if (!existing) throw new Error(`Manual liquidation ${parsed.liquidationId} not found`)
+      const existing = requireById(
+        row.snapshot.manualLiquidations,
+        parsed.liquidationId,
+        'Manual liquidation',
+      )
 
       const edited = ManualLiquidation.restore(existing)
         .edit({
@@ -38,8 +46,10 @@ export class EditManualLiquidationHandler {
       return HistoryAppender.append(
         {
           ...row.snapshot,
-          manualLiquidations: row.snapshot.manualLiquidations.map((l) =>
-            l.id === parsed.liquidationId ? edited : l,
+          manualLiquidations: replaceById(
+            row.snapshot.manualLiquidations,
+            parsed.liquidationId,
+            edited,
           ),
         },
         {

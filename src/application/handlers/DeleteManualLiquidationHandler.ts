@@ -8,7 +8,12 @@ import { HistoryAppender } from '@/domain/services/HistoryAppender'
 import { capTrash } from '@/domain/services/capTrash'
 import type { IEventRepository } from '@/domain/repositories/IEventRepository'
 import { withOptimisticRetry } from '@/application/support/withOptimisticRetry'
-import { assertMember, memberName } from '@/application/support/eventMembers'
+import {
+  assertMember,
+  memberName,
+  requireById,
+  replaceById,
+} from '@/application/support/snapshotLookups'
 
 export class DeleteManualLiquidationHandler {
   constructor(private readonly repo: IEventRepository) {}
@@ -19,8 +24,11 @@ export class DeleteManualLiquidationHandler {
     const parsed = DeleteManualLiquidationSchema.parse(input)
     const saved = await withOptimisticRetry(this.repo, parsed.eventId, (row) => {
       assertMember(row.snapshot, parsed.userId, 'User')
-      const existing = row.snapshot.manualLiquidations.find((l) => l.id === parsed.liquidationId)
-      if (!existing) throw new Error(`Manual liquidation ${parsed.liquidationId} not found`)
+      const existing = requireById(
+        row.snapshot.manualLiquidations,
+        parsed.liquidationId,
+        'Manual liquidation',
+      )
       if (existing.deleted) throw new Error('Cannot delete an already-deleted manual liquidation')
 
       const deleted = ManualLiquidation.restore(existing)
@@ -31,9 +39,7 @@ export class DeleteManualLiquidationHandler {
         {
           ...row.snapshot,
           manualLiquidations: capTrash(
-            row.snapshot.manualLiquidations.map((l) =>
-              l.id === parsed.liquidationId ? deleted : l,
-            ),
+            replaceById(row.snapshot.manualLiquidations, parsed.liquidationId, deleted),
           ),
         },
         {

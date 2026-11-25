@@ -7,7 +7,12 @@ import { Purchase } from '@/domain/entities/Purchase'
 import { HistoryAppender } from '@/domain/services/HistoryAppender'
 import type { IEventRepository } from '@/domain/repositories/IEventRepository'
 import { withOptimisticRetry } from '@/application/support/withOptimisticRetry'
-import { assertMember, memberName } from '@/application/support/eventMembers'
+import {
+  assertMember,
+  memberName,
+  requireById,
+  replaceById,
+} from '@/application/support/snapshotLookups'
 
 export class AssignPurchaseHandler {
   constructor(private readonly repo: IEventRepository) {}
@@ -18,8 +23,7 @@ export class AssignPurchaseHandler {
       assertMember(row.snapshot, parsed.editedBy, 'editedBy')
       if (parsed.assignedTo !== null) assertMember(row.snapshot, parsed.assignedTo, 'assignedTo')
 
-      const existing = row.snapshot.purchases.find((p) => p.id === parsed.purchaseId)
-      if (!existing) throw new Error(`Purchase ${parsed.purchaseId} not found`)
+      const existing = requireById(row.snapshot.purchases, parsed.purchaseId, 'Purchase')
 
       const updated = Purchase.restore(existing).assign({
         assignedTo: parsed.assignedTo,
@@ -30,9 +34,7 @@ export class AssignPurchaseHandler {
       const nextSnapshot: EventSnapshot = HistoryAppender.append(
         {
           ...row.snapshot,
-          purchases: row.snapshot.purchases.map((p) =>
-            p.id === parsed.purchaseId ? updated.toSnapshot() : p,
-          ),
+          purchases: replaceById(row.snapshot.purchases, parsed.purchaseId, updated.toSnapshot()),
         },
         {
           type: 'purchase_edited',

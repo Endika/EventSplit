@@ -9,7 +9,12 @@ import { capTrash } from '@/domain/services/capTrash'
 import { pruneGroupOrder, pruneSubgroupOrder } from '@/domain/services/pruneGroupOrder'
 import type { IEventRepository } from '@/domain/repositories/IEventRepository'
 import { withOptimisticRetry } from '@/application/support/withOptimisticRetry'
-import { assertMember, memberName } from '@/application/support/eventMembers'
+import {
+  assertMember,
+  memberName,
+  requireById,
+  replaceById,
+} from '@/application/support/snapshotLookups'
 
 export class DeletePurchaseHandler {
   constructor(private readonly repo: IEventRepository) {}
@@ -18,8 +23,7 @@ export class DeletePurchaseHandler {
     const parsed = DeletePurchaseSchema.parse(input)
     const saved = await withOptimisticRetry(this.repo, parsed.eventId, (row) => {
       assertMember(row.snapshot, parsed.deletedBy, 'deletedBy')
-      const existing = row.snapshot.purchases.find((p) => p.id === parsed.purchaseId)
-      if (!existing) throw new Error(`Purchase ${parsed.purchaseId} not found`)
+      const existing = requireById(row.snapshot.purchases, parsed.purchaseId, 'Purchase')
       if (existing.deleted) throw new Error('Cannot delete an already-deleted purchase')
 
       const deleted = Purchase.restore(existing).softDelete({
@@ -28,7 +32,7 @@ export class DeletePurchaseHandler {
       })
       const editorName = memberName(row.snapshot, parsed.deletedBy)
       const newPurchases = capTrash(
-        row.snapshot.purchases.map((p) => (p.id === parsed.purchaseId ? deleted.toSnapshot() : p)),
+        replaceById(row.snapshot.purchases, parsed.purchaseId, deleted.toSnapshot()),
       )
       const nextSnapshot: EventSnapshot = HistoryAppender.append(
         {

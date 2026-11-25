@@ -5,7 +5,12 @@ import { HistoryAppender } from '@/domain/services/HistoryAppender'
 import { capTrash } from '@/domain/services/capTrash'
 import type { IEventRepository } from '@/domain/repositories/IEventRepository'
 import { withOptimisticRetry } from '@/application/support/withOptimisticRetry'
-import { assertMember, memberName } from '@/application/support/eventMembers'
+import {
+  assertMember,
+  memberName,
+  requireById,
+  replaceById,
+} from '@/application/support/snapshotLookups'
 
 export class DeleteExpenseHandler {
   constructor(private readonly repo: IEventRepository) {}
@@ -14,8 +19,7 @@ export class DeleteExpenseHandler {
     const parsed = DeleteExpenseSchema.parse(input)
     const saved = await withOptimisticRetry(this.repo, parsed.eventId, (row) => {
       assertMember(row.snapshot, parsed.deletedBy, 'deletedBy')
-      const existing = row.snapshot.expenses.find((e) => e.id === parsed.expenseId)
-      if (!existing) throw new Error(`Expense ${parsed.expenseId} not found`)
+      const existing = requireById(row.snapshot.expenses, parsed.expenseId, 'Expense')
       if (existing.deleted) throw new Error('Cannot delete an already-deleted expense')
 
       const deleted = Expense.restore(existing).softDelete({ by: parsed.deletedBy })
@@ -24,9 +28,7 @@ export class DeleteExpenseHandler {
         {
           ...row.snapshot,
           expenses: capTrash(
-            row.snapshot.expenses.map((e) =>
-              e.id === parsed.expenseId ? deleted.toSnapshot() : e,
-            ),
+            replaceById(row.snapshot.expenses, parsed.expenseId, deleted.toSnapshot()),
           ),
         },
         {

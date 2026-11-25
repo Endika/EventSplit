@@ -5,7 +5,12 @@ import { HistoryAppender } from '@/domain/services/HistoryAppender'
 import { pruneGroupOrder, pruneSubgroupOrder } from '@/domain/services/pruneGroupOrder'
 import type { IEventRepository } from '@/domain/repositories/IEventRepository'
 import { withOptimisticRetry } from '@/application/support/withOptimisticRetry'
-import { assertMember, memberName } from '@/application/support/eventMembers'
+import {
+  assertMember,
+  memberName,
+  requireById,
+  replaceById,
+} from '@/application/support/snapshotLookups'
 
 export class EditPurchaseHandler {
   constructor(private readonly repo: IEventRepository) {}
@@ -19,8 +24,7 @@ export class EditPurchaseHandler {
       }
       assertMember(row.snapshot, parsed.editedBy, 'editedBy')
 
-      const existing = row.snapshot.purchases.find((p) => p.id === parsed.purchaseId)
-      if (!existing) throw new Error(`Purchase ${parsed.purchaseId} not found`)
+      const existing = requireById(row.snapshot.purchases, parsed.purchaseId, 'Purchase')
       if (existing.deleted) throw new Error('Cannot edit a deleted purchase')
 
       const updated = Purchase.restore(existing).edit({
@@ -39,8 +43,10 @@ export class EditPurchaseHandler {
       })
 
       const editorName = memberName(row.snapshot, parsed.editedBy)
-      const newPurchases = row.snapshot.purchases.map((p) =>
-        p.id === parsed.purchaseId ? updated.toSnapshot() : p,
+      const newPurchases = replaceById(
+        row.snapshot.purchases,
+        parsed.purchaseId,
+        updated.toSnapshot(),
       )
       const nextSnapshot: EventSnapshot = HistoryAppender.append(
         {
