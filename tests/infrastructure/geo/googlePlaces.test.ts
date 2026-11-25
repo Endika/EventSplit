@@ -92,14 +92,18 @@ describe('googlePlaceDetails', () => {
     })
   })
 
-  it('falls back to an empty name when the place has no display name', async () => {
-    stubFetch({ location: { latitude: 1, longitude: 2 }, formattedAddress: 'Somewhere' })
+  it.each([
+    [1, 2],
+    [51.4769, 0],
+    [0, 0],
+  ])('returns a place at %d,%d, with an empty name when it has none', async (lat, lng) => {
+    stubFetch({ location: { latitude: lat, longitude: lng }, formattedAddress: 'Somewhere' })
 
     expect(await googlePlaceDetails('p1', 'key')).toEqual({
       label: 'Somewhere',
       name: '',
-      lat: 1,
-      lng: 2,
+      lat,
+      lng,
     })
   })
 
