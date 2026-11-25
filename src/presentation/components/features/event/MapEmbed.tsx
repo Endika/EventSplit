@@ -1,4 +1,5 @@
 import { useTranslation } from 'react-i18next'
+import { mapQuery } from '@/presentation/utils/locationForm'
 
 interface MapEmbedProps {
   address: string | null
@@ -13,7 +14,7 @@ export function MapEmbed({ address, lat, lng }: MapEmbedProps) {
 
   if (!key) return null
 
-  const q = lat != null && lng != null ? `${lat},${lng}` : (address ?? '').trim() || null
+  const q = mapQuery(address, lat, lng)
   if (!q) return null
 
   const src = `https://www.google.com/maps/embed/v1/place?key=${key}&q=${encodeURIComponent(q)}`

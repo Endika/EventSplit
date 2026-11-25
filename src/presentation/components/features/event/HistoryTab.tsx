@@ -2,6 +2,8 @@ import type { ComponentType } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useEventState } from '@/presentation/context/EventContext'
 import type { HistoryType } from '@/domain/entities/Event'
+import { formatRelative } from '@/presentation/utils/formatRelative'
+import { userName } from '@/presentation/utils/userLabel'
 import { YouLabel } from '@/presentation/components/common/YouLabel'
 import {
   IconCalendar,
@@ -63,32 +65,12 @@ const DANGER: ReadonlySet<HistoryType> = new Set([
   'user_removed',
 ])
 
-function formatRelative(iso: string, locale: string): string {
-  const then = new Date(iso).getTime()
-  const now = Date.now()
-  const diff = Math.round((now - then) / 1000)
-  try {
-    if (diff < 86400) {
-      const rtf = new Intl.RelativeTimeFormat(locale, { numeric: 'auto' })
-      if (diff < 60) return rtf.format(-diff, 'second')
-      if (diff < 3600) return rtf.format(-Math.floor(diff / 60), 'minute')
-      return rtf.format(-Math.floor(diff / 3600), 'hour')
-    }
-    return new Intl.DateTimeFormat(locale, { dateStyle: 'medium', timeStyle: 'short' }).format(
-      new Date(iso),
-    )
-  } catch {
-    return iso
-  }
-}
-
 export function HistoryTab() {
   const { t, i18n } = useTranslation()
   const { event } = useEventState()
   if (!event) return null
 
   const entries = [...event.history].reverse() // latest first
-  const nameOf = (id: string) => event.users.find((u) => u.id === id)?.name ?? '?'
 
   return (
     <div>
@@ -111,7 +93,7 @@ export function HistoryTab() {
                   <span className="shrink-0 tabular-nums text-muted">v{h.version}</span>
                 </div>
                 <div className="fineprint flex flex-wrap items-center">
-                  {t('history.by', { name: nameOf(h.userId) })}
+                  {t('history.by', { name: userName(event.users, h.userId) })}
                   <YouLabel userId={h.userId} />
                   {' · '}
                   <span title={h.timestamp}>{formatRelative(h.timestamp, i18n.language)}</span>

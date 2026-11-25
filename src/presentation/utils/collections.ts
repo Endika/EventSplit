@@ -19,3 +19,10 @@ export const live = <T extends { deleted: boolean }>(items: readonly T[]): T[] =
 
 export const trashed = <T extends { deleted: boolean }>(items: readonly T[]): T[] =>
   items.filter((i) => i.deleted)
+
+/** The items at `indexes`, in that order; an index outside the list yields nothing. */
+export const pickAt = <T>(list: readonly T[], indexes: readonly number[]): T[] =>
+  indexes.flatMap((i) => {
+    const item = list[i]
+    return item === undefined ? [] : [item]
+  })

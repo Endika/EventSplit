@@ -13,6 +13,15 @@ import { useEditPin } from '@/presentation/context/EditPinContext'
 import { Button } from '@/presentation/components/common/Button'
 import { reportError } from '@/shared/utils/reportError'
 import { friendlyError } from '@/presentation/utils/friendlyError'
+import {
+  emptyToNull,
+  hasMapSubject,
+  isMissingName,
+  mapSubject,
+  toLocationFields,
+  toLocationInput,
+} from '@/presentation/utils/locationForm'
+import { isValidPinLength } from '@/presentation/utils/pinInput'
 import { Input } from '@/presentation/components/common/Input'
 import { IconLock } from '@/presentation/components/common/icons'
 import { CloneFromEventModal } from '@/presentation/components/features/clone/CloneFromEventModal'
@@ -44,23 +53,28 @@ export function LocationTab() {
   const hasPin = !!event?.hasPin
 
   const [eventName, setEventName] = useState(event?.name ?? '')
-  const [name, setName] = useState(loc?.name ?? '')
-  const [address, setAddress] = useState(loc?.address ?? '')
-  const [lat, setLat] = useState(loc?.lat?.toString() ?? '')
-  const [lng, setLng] = useState(loc?.lng?.toString() ?? '')
-  const [postalCode, setPostalCode] = useState(loc?.postalCode ?? '')
+  const initial = toLocationFields(loc)
+  const [name, setName] = useState(initial.name)
+  const [address, setAddress] = useState(initial.address)
+  const [lat, setLat] = useState(initial.lat)
+  const [lng, setLng] = useState(initial.lng)
+  const [postalCode, setPostalCode] = useState(initial.postalCode)
   const [notes, setNotes] = useState(event?.generalNotes ?? '')
   const [wifi, setWifi] = useState(event?.wifiPassword ?? '')
   const [emergency, setEmergency] = useState(event?.emergencyContact ?? '')
 
   if (!event) return null
 
+  const fields = { name, address, lat, lng, postalCode }
+  const missingName = isMissingName(fields)
+
   function startEdit() {
-    setName(event!.location?.name ?? '')
-    setAddress(event!.location?.address ?? '')
-    setLat(event!.location?.lat?.toString() ?? '')
-    setLng(event!.location?.lng?.toString() ?? '')
-    setPostalCode(event!.location?.postalCode ?? '')
+    const saved = toLocationFields(event!.location)
+    setName(saved.name)
+    setAddress(saved.address)
+    setLat(saved.lat)
+    setLng(saved.lng)
+    setPostalCode(saved.postalCode)
     setNotes(event!.generalNotes ?? '')
     setWifi(event!.wifiPassword ?? '')
     setEmergency(event!.emergencyContact ?? '')
@@ -91,8 +105,7 @@ export function LocationTab() {
     // The snapshot has no place for an address without a name: a nameless
     // location becomes null, which would throw away what was just typed — and
     // wipe whatever was saved before. Say so instead of losing it.
-    const hasDetails = Boolean(address.trim() || lat.trim() || lng.trim() || postalCode.trim())
-    if (hasDetails && !name.trim()) {
+    if (missingName) {
       setError(t('location.nameRequired'))
       nameRef.current?.focus()
       return
@@ -102,22 +115,12 @@ export function LocationTab() {
       setError(null)
       try {
         const handler = container.resolve<EditEventDetailsHandler>('editEventDetails')
-        const parsedLat = lat.trim() === '' ? null : parseFloat(lat)
-        const parsedLng = lng.trim() === '' ? null : parseFloat(lng)
         const result = await handler.execute({
           eventId: event.id,
-          location: name.trim()
-            ? {
-                name: name.trim(),
-                address: address.trim() || null,
-                lat: parsedLat !== null && Number.isFinite(parsedLat) ? parsedLat : null,
-                lng: parsedLng !== null && Number.isFinite(parsedLng) ? parsedLng : null,
-                postalCode: postalCode.trim() || null,
-              }
-            : null,
-          generalNotes: notes.trim() || null,
-          wifiPassword: wifi.trim() || null,
-          emergencyContact: emergency.trim() || null,
+          location: toLocationInput(fields),
+          generalNotes: emptyToNull(notes),
+          wifiPassword: emptyToNull(wifi),
+          emergencyContact: emptyToNull(emergency),
         })
         setEvent(result.event, result.version)
         setEditing(false)
@@ -267,9 +270,7 @@ export function LocationTab() {
             maxLength={100}
             ref={nameRef}
             aria-required="true"
-            aria-invalid={Boolean(
-              (address.trim() || lat.trim() || lng.trim() || postalCode.trim()) && !name.trim(),
-            )}
+            aria-invalid={missingName}
           />
           <AddressAutocomplete
             value={address}
@@ -282,13 +283,7 @@ export function LocationTab() {
             }}
           />
           <p className="text-xs text-muted">{t('location.searchHint')}</p>
-          {(address.trim() || (lat.trim() && lng.trim())) && (
-            <MapEmbed
-              address={address.trim() || null}
-              lat={lat.trim() ? Number(lat) : null}
-              lng={lng.trim() ? Number(lng) : null}
-            />
-          )}
+          {hasMapSubject(fields) && <MapEmbed {...mapSubject(fields)} />}
           <Input
             placeholder={t('location.postalCode')}
             value={postalCode}
@@ -356,7 +351,7 @@ export function LocationTab() {
                 type="button"
                 className="shrink-0"
                 onClick={() => savePin(pinInput)}
-                disabled={pinBusy || pinInput.length < 4 || pinInput.length > 6}
+                disabled={pinBusy || !isValidPinLength(pinInput)}
               >
                 {t('pin.setPin')}
               </Button>
@@ -380,7 +375,7 @@ export function LocationTab() {
                 variant="secondary"
                 className="shrink-0"
                 onClick={() => savePin(pinInput)}
-                disabled={pinBusy || pinInput.length < 4 || pinInput.length > 6}
+                disabled={pinBusy || !isValidPinLength(pinInput)}
               >
                 {t('pin.changePin')}
               </Button>

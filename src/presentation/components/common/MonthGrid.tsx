@@ -1,20 +1,12 @@
 import type { ReactNode } from 'react'
-import { monthDays, monthOf, shiftMonth } from '@/presentation/utils/calendarMonth'
+import {
+  monthDays,
+  monthOf,
+  monthTitle,
+  shiftMonth,
+  weekdayNames,
+} from '@/presentation/utils/calendarMonth'
 import { IconChevron } from '@/presentation/components/common/icons'
-
-function atNoon(iso: string): Date {
-  return new Date(iso + 'T12:00:00')
-}
-
-function weekdayNames(locale: string): string[] {
-  const fmt = new Intl.DateTimeFormat(locale, { weekday: 'short' })
-  // 2026-06-01 is a Monday: a reference week to name the columns.
-  return Array.from({ length: 7 }, (_, i) => {
-    const d = atNoon('2026-06-01')
-    d.setDate(d.getDate() + i)
-    return fmt.format(d)
-  })
-}
 
 /**
  * A month laid out Monday-first. It knows nothing about votes or options: every
@@ -30,9 +22,7 @@ export function MonthGrid(props: {
 }) {
   const { month, locale, onMonthChange, renderDay, labels } = props
   const days = monthDays(month)
-  const title = new Intl.DateTimeFormat(locale, { month: 'long', year: 'numeric' }).format(
-    atNoon(`${month}-01`),
-  )
+  const title = monthTitle(month, locale)
 
   return (
     <div className="border border-border bg-surface p-2">

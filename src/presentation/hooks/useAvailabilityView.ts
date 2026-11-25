@@ -16,6 +16,7 @@ function readView(): AvailabilityView {
 export function useAvailabilityView(): [AvailabilityView, (v: AvailabilityView) => void] {
   const [view, setView] = useState<AvailabilityView>(readView)
 
+  // Stryker disable ArrayDeclaration: a constant dependency list is never read
   const choose = useCallback((v: AvailabilityView) => {
     setView(v)
     try {
@@ -24,6 +25,7 @@ export function useAvailabilityView(): [AvailabilityView, (v: AvailabilityView) 
       // A private window or blocked storage just means we forget the choice.
     }
   }, [])
+  // Stryker restore ArrayDeclaration
 
   return [view, choose]
 }

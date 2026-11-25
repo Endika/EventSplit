@@ -19,9 +19,11 @@ import type { DeleteManualLiquidationHandler } from '@/application/handlers/Dele
 import type { RecoverManualLiquidationHandler } from '@/application/handlers/RecoverManualLiquidationHandler'
 import type { ToggleLiquidationShareHandler } from '@/application/handlers/ToggleLiquidationShareHandler'
 import type { ManualLiquidationSnapshot } from '@/domain/entities/ManualLiquidation'
-import { parseDecimal } from '@/shared/utils/parseDecimal'
 import { reportError } from '@/shared/utils/reportError'
 import { formatMoney } from '@/presentation/utils/money'
+import { formOfLiquidation, liquidationPayload } from '@/presentation/utils/liquidationForm'
+import { toggleOne } from '@/presentation/utils/checkboxTree'
+import { userName } from '@/presentation/utils/userLabel'
 
 export function ManualLiquidations() {
   const { t } = useTranslation()
@@ -38,7 +40,6 @@ export function ManualLiquidations() {
   const [showDeleted, setShowDeleted] = useState(false)
 
   if (!event) return null
-  const nameOf = (id: string) => event.users.find((u) => u.id === id)?.name ?? '?'
   const live = event.manualLiquidations.filter((l) => !l.deleted)
   const deleted = event.manualLiquidations.filter((l) => l.deleted)
 
@@ -52,18 +53,19 @@ export function ManualLiquidations() {
   }
 
   function openEdit(liq: ManualLiquidationSnapshot) {
-    setConcept(liq.concept)
-    setAmount((liq.cents / 100).toString())
-    setPaidBy(liq.paidBy ?? '')
-    setAffects([...liq.affects])
+    const form = formOfLiquidation(liq)
+    setConcept(form.concept)
+    setAmount(form.amount)
+    setPaidBy(form.paidBy)
+    setAffects(form.affects)
     setEditingId(liq.id)
     setAdding(true)
   }
 
   function submit() {
     if (!event || !me) return
-    const euros = parseDecimal(amount)
-    if (concept.trim().length < 3 || !Number.isFinite(euros) || euros <= 0) return
+    const payload = liquidationPayload({ concept, amount, paidBy, affects })
+    if (!payload) return
     guardedExecute(async () => {
       try {
         let result
@@ -73,20 +75,14 @@ export function ManualLiquidations() {
             eventId: event.id,
             userId: me.id,
             liquidationId: editingId,
-            concept: concept.trim(),
-            amountEuros: euros,
-            paidBy: paidBy === '' ? null : paidBy,
-            affects,
+            ...payload,
           })
         } else {
           const handler = container.resolve<AddManualLiquidationHandler>('addManualLiquidation')
           result = await handler.execute({
             eventId: event.id,
             userId: me.id,
-            concept: concept.trim(),
-            amountEuros: euros,
-            paidBy: paidBy === '' ? null : paidBy,
-            affects,
+            ...payload,
           })
         }
         setEvent(result.event, result.version)
@@ -143,10 +139,6 @@ export function ManualLiquidations() {
     })
   }
 
-  function toggleAffect(id: string) {
-    setAffects((prev) => (prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]))
-  }
-
   return (
     <div className="space-y-3 p-4">
       <div>
@@ -194,7 +186,7 @@ export function ManualLiquidations() {
               <button
                 key={u.id}
                 type="button"
-                onClick={() => toggleAffect(u.id)}
+                onClick={() => setAffects((prev) => toggleOne(u.id, prev))}
                 className={`inline-flex min-h-11 items-center px-3 text-xs font-semibold uppercase tracking-[0.08em] ${
                   affects.includes(u.id)
                     ? 'bg-brand text-white dark:text-bg'
@@ -239,7 +231,9 @@ export function ManualLiquidations() {
                       isPending ? 'bg-warn-soft text-warn-soft-fg' : 'bg-pos-soft text-pos-soft-fg'
                     }`}
                   >
-                    {isPending ? t('liquidations.pendingBadge') : nameOf(liq.paidBy!)}
+                    {isPending
+                      ? t('liquidations.pendingBadge')
+                      : userName(event.users, liq.paidBy!)}
                   </span>
                 </div>
                 <div className="flex shrink-0 items-center">
@@ -278,7 +272,7 @@ export function ManualLiquidations() {
                       <span
                         className={`min-w-0 flex-1 truncate ${s.paid ? 'text-muted line-through' : 'text-ink'}`}
                       >
-                        {nameOf(s.userId)}
+                        {userName(event.users, s.userId)}
                       </span>
                       <span
                         className={`shrink-0 tabular-nums ${s.paid ? 'text-muted line-through' : 'text-ink'}`}

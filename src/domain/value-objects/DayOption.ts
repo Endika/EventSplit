@@ -15,12 +15,12 @@ const ISO = /^\d{4}-\d{2}-\d{2}$/
 const MS_PER_DAY = 86_400_000
 
 /** Local noon: immune to the daylight-saving jump when adding days. */
-function atNoon(iso: string): Date {
+export function atNoon(iso: string): Date {
   // Stryker disable next-line StringLiteral: only observable west of UTC, and the test runner cannot switch timezone per mutant
   return new Date(iso + 'T12:00:00')
 }
 
-function toIso(d: Date): string {
+export function toIso(d: Date): string {
   const month = `${d.getMonth() + 1}`.padStart(2, '0')
   const day = `${d.getDate()}`.padStart(2, '0')
   return `${d.getFullYear()}-${month}-${day}`
