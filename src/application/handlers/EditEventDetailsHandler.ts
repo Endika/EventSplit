@@ -8,6 +8,13 @@ import type { IEventRepository } from '@/domain/repositories/IEventRepository'
 import { withOptimisticRetry } from '@/application/support/withOptimisticRetry'
 import { buildGoogleMapsUrl } from '@/shared/utils/googleMapsUrl'
 
+const PLACE_FIELDS = ['name', 'address', 'lat', 'lng', 'postalCode'] as const
+
+function isSamePlace(a: EventLocation | null, b: EventLocation | null): boolean {
+  if (!a || !b) return a === b
+  return PLACE_FIELDS.every((field) => a[field] === b[field])
+}
+
 export class EditEventDetailsHandler {
   constructor(private readonly repo: IEventRepository) {}
 
@@ -32,6 +39,9 @@ export class EditEventDetailsHandler {
                 }),
               }
 
+      const placeChanged =
+        nextLocation !== null && !isSamePlace(nextLocation, row.snapshot.location)
+
       const nextSnapshot: EventSnapshot = HistoryAppender.append(
         {
           ...row.snapshot,
@@ -47,9 +57,9 @@ export class EditEventDetailsHandler {
               : parsed.emergencyContact,
         },
         {
-          type: nextLocation && !row.snapshot.location ? 'location_set' : 'notes_added',
+          type: placeChanged ? 'location_set' : 'notes_added',
           userId: row.snapshot.createdBy,
-          description: nextLocation
+          description: placeChanged
             ? `Location set: ${nextLocation.name}`
             : 'Event details updated',
         },
