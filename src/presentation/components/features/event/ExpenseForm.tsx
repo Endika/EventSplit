@@ -17,9 +17,23 @@ import { reportError } from '@/shared/utils/reportError'
 import { parseDecimal } from '@/shared/utils/parseDecimal'
 import { displayUnit } from '@/presentation/utils/units'
 import { friendlyError } from '@/presentation/utils/friendlyError'
-import { groupPurchases } from '@/presentation/utils/groupPurchases'
+import { groupPurchases, subCollapseKey } from '@/presentation/utils/groupPurchases'
 import { isPurchaseDone, remainingToBuy } from '@/presentation/utils/purchaseProgress'
 import { payingUsers, paysExpenses } from '@/domain/services/participantRoles'
+import { toggleInSet } from '@/presentation/utils/collections'
+import {
+  affectedClashIds,
+  clashNames,
+  formSnapshot,
+  initialLinks,
+  initialSplit,
+  parseAmountEuros,
+  purchaseLinksPayload,
+  toggleLink,
+} from '@/presentation/utils/expenseForm'
+import { buyableItems, visiblePurchases } from '@/presentation/utils/purchaseFilters'
+import { round2 } from '@/presentation/utils/numbers'
+import { userLabel } from '@/presentation/utils/userLabel'
 import { toStoredSplit } from '@/domain/services/splitScope'
 import { formatQuantity } from '@/presentation/utils/quantity'
 
@@ -43,43 +57,21 @@ export function ExpenseForm({
   const [description, setDescription] = useState(expense?.description ?? '')
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState<string | null>(null)
-  const [splitAmong, setSplitAmong] = useState<Set<string>>(() => {
-    const payers = payingUsers(event?.users ?? [])
-    const allIds = payers.map((u) => u.id)
-    if (expense) {
-      // Editing: preserve the saved split (empty array meant "everyone"), minus
-      // any dog an older build may have saved into it.
-      const saved = expense.splitAmong.length > 0 ? expense.splitAmong : allIds
-      return new Set(saved.filter((id) => allIds.includes(id)))
-    }
-    // New expense: default to adults only — children don't usually share costs.
-    return new Set(payers.filter((u) => u.kind === 'adult').map((u) => u.id))
-  })
+  const [splitAmong, setSplitAmong] = useState<Set<string>>(() =>
+    initialSplit(event?.users ?? [], expense),
+  )
   const [confirmCancel, setConfirmCancel] = useState(false)
   const [confirmSettled, setConfirmSettled] = useState(false)
   const [onlyMine, setOnlyMine] = useState(false)
   const [collapsed, setCollapsed] = useState<Set<string>>(new Set())
-  const [links, setLinks] = useState<Record<string, string>>(() => {
-    if (expense) {
-      const out: Record<string, string> = {}
-      for (const l of expense.purchaseLinks ?? []) out[l.purchaseId] = String(l.quantity)
-      return out
-    }
-    return {}
-  })
+  const [links, setLinks] = useState<Record<string, string>>(() => initialLinks(expense))
 
   const rootRef = useRef<HTMLFormElement>(null)
   useEffect(() => {
     rootRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
   }, [])
 
-  const currentSnapshot = JSON.stringify({
-    paidBy,
-    amount,
-    description,
-    splitAmong: [...splitAmong].sort(),
-    links: Object.entries(links).sort(),
-  })
+  const currentSnapshot = formSnapshot({ paidBy, amount, description, splitAmong, links })
   const [initialSnapshot] = useState(currentSnapshot)
   const isDirty = initialSnapshot !== currentSnapshot
 
@@ -89,31 +81,16 @@ export function ExpenseForm({
 
   if (!event) return null
 
-  const settledUserIds = new Set(event.settledTransfers.flatMap((s) => [s.from, s.to]))
+  const clashIds = () => affectedClashIds(event.users, event.settledTransfers, paidBy, splitAmong)
 
-  function affectedClashIds(): string[] {
-    const allIds = event!.users.map((u) => u.id)
-    const splitIds = allIds.every((id) => splitAmong.has(id)) ? allIds : [...splitAmong]
-    const affected = new Set<string>([paidBy, ...splitIds])
-    return [...affected].filter((id) => settledUserIds.has(id))
-  }
+  // Items already fully bought by other expenses stay listed, crossed off, so they can still be over-bought.
+  const listItems = buyableItems(event.purchases)
 
-  // Show every buyable item. Items already fully bought by other expenses are not hidden:
-  // they render crossed-off as "Comprado" so you can still see — and over-buy — them.
-  const listItems = event.purchases.filter((p) => !p.deleted && p.kind !== 'bring')
+  // Purely visual filter: never touches `links`, so an item checked before
+  // toggling stays linked and still gets saved.
+  const visibleItems = visiblePurchases(listItems, onlyMine, me?.id)
 
-  // Purely visual filter: hide items not assigned to me. Never touches `links`,
-  // so an item checked before toggling stays linked and still gets saved.
-  const visibleItems = onlyMine ? listItems.filter((p) => p.assignedTo === me?.id) : listItems
-
-  function toggleSplit(id: string) {
-    setSplitAmong((prev) => {
-      const next = new Set(prev)
-      if (next.has(id)) next.delete(id)
-      else next.add(id)
-      return next
-    })
-  }
+  const toggleSplit = (id: string) => setSplitAmong((prev) => toggleInSet(prev, id))
 
   function selectAll() {
     setSplitAmong(new Set(payingUsers(event?.users ?? []).map((u) => u.id)))
@@ -123,17 +100,7 @@ export function ExpenseForm({
     setSplitAmong(new Set())
   }
 
-  function toggleCollapse(key: string) {
-    setCollapsed((prev) => {
-      const next = new Set(prev)
-      if (next.has(key)) next.delete(key)
-      else next.add(key)
-      return next
-    })
-  }
-
-  // Stable collapse key for a subgroup. NUL can't occur in trimmed user input.
-  const subCollapseKey = (group: string, subgroup: string) => `${group}\u0000${subgroup}`
+  const toggleCollapse = (key: string) => setCollapsed((prev) => toggleInSet(prev, key))
 
   const renderListItem = (p: PurchaseSnapshot) => {
     const checked = p.id in links
@@ -147,14 +114,7 @@ export function ExpenseForm({
           <input
             type="checkbox"
             checked={checked}
-            onChange={() =>
-              setLinks((prev) => {
-                const next = { ...prev }
-                if (p.id in next) delete next[p.id]
-                else next[p.id] = String(remaining > 0 ? remaining : 1)
-                return next
-              })
-            }
+            onChange={() => setLinks((prev) => toggleLink(prev, p.id, remaining))}
             className="size-5 border-border bg-elevated accent-brand"
           />
           <span className={done ? 'text-muted line-through' : 'text-ink'}>
@@ -168,7 +128,7 @@ export function ExpenseForm({
                 title={t('purchases.form.assignedTo')}
               >
                 <IconCart className="size-3.5" />
-                {assignee.alias ? `${assignee.name} (${assignee.alias})` : assignee.name}
+                {userLabel(assignee)}
               </span>
             )}
           </span>
@@ -191,7 +151,7 @@ export function ExpenseForm({
             <span className="text-xs text-muted">
               {remaining > 0
                 ? t('expenses.form.remainingHint', {
-                    n: Math.round(remaining * 100) / 100,
+                    n: round2(remaining),
                     total: formatQuantity(p.totalQuantity),
                     unit,
                   })
@@ -206,12 +166,12 @@ export function ExpenseForm({
   function submit(e: FormEvent) {
     e.preventDefault()
     if (!event || !me) return
-    const amountEuros = parseDecimal(amount)
-    if (!Number.isFinite(amountEuros) || amountEuros <= 0) {
+    const amountEuros = parseAmountEuros(amount)
+    if (amountEuros === null) {
       setError(t('expenses.form.invalidAmount'))
       return
     }
-    if (affectedClashIds().length > 0 && !confirmSettled) {
+    if (clashIds().length > 0 && !confirmSettled) {
       setConfirmSettled(true)
       return
     }
@@ -231,9 +191,7 @@ export function ExpenseForm({
           splitAmong,
           payingUsers(event.users).map((u) => u.id),
         )
-        const purchaseLinks = Object.entries(links)
-          .map(([purchaseId, q]) => ({ purchaseId, quantity: parseDecimal(q) }))
-          .filter((l) => Number.isFinite(l.quantity) && l.quantity > 0)
+        const purchaseLinks = purchaseLinksPayload(links)
         let result
         if (expense) {
           const handler = container.resolve<EditExpenseHandler>('editExpense')
@@ -308,12 +266,7 @@ export function ExpenseForm({
           <div className="space-y-3">
             <p className="text-sm text-muted">
               {t('expenses.settledWarnBody', {
-                names: affectedClashIds()
-                  .map((id) => {
-                    const u = event!.users.find((x) => x.id === id)
-                    return u ? (u.alias ? `${u.name} (${u.alias})` : u.name) : '?'
-                  })
-                  .join(', '),
+                names: clashNames(event.users, clashIds()),
               })}
             </p>
             <div className="flex gap-2">
@@ -351,7 +304,7 @@ export function ExpenseForm({
             </option>
             {payingUsers(event.users).map((u) => (
               <option key={u.id} value={u.id}>
-                {u.alias ? `${u.name} (${u.alias})` : u.name}
+                {userLabel(u)}
               </option>
             ))}
           </select>
@@ -404,7 +357,7 @@ export function ExpenseForm({
                   splitAmong.has(u.id) ? 'bg-brand text-white dark:text-bg' : 'bg-elevated text-ink'
                 }`}
               >
-                {u.alias ? `${u.name} (${u.alias})` : u.name}
+                {userLabel(u)}
               </button>
             ))}
           </div>

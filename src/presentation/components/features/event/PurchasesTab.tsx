@@ -26,8 +26,22 @@ import type { RenameSubgroupHandler } from '@/application/handlers/RenameSubgrou
 import type { SetSubgroupOrderHandler } from '@/application/handlers/SetSubgroupOrderHandler'
 import { reportError } from '@/shared/utils/reportError'
 import { displayUnit } from '@/presentation/utils/units'
-import { groupPurchases } from '@/presentation/utils/groupPurchases'
-import { boughtQuantity, isPurchaseDone } from '@/presentation/utils/purchaseProgress'
+import {
+  groupPurchases,
+  movedGroupOrder,
+  movedSubgroupOrder,
+  subCollapseKey,
+} from '@/presentation/utils/groupPurchases'
+import {
+  boughtQuantity,
+  buyerIds,
+  hasLinkedExpense,
+  isPurchaseDone,
+  progressPercent,
+} from '@/presentation/utils/purchaseProgress'
+import { assignedTo, visiblePurchases } from '@/presentation/utils/purchaseFilters'
+import { live, toggleInSet, trashed } from '@/presentation/utils/collections'
+import { userLabel, userName as nameOfUser } from '@/presentation/utils/userLabel'
 import { PurchaseForm } from './PurchaseForm'
 import { ShareListModal } from './ShareListModal'
 import { canBeAssigned, canBring } from '@/domain/services/participantRoles'
@@ -59,14 +73,7 @@ export function PurchasesTab() {
   const [sharing, setSharing] = useState(false)
   if (!event) return null
 
-  function toggleCollapse(group: string) {
-    setCollapsed((prev) => {
-      const next = new Set(prev)
-      if (next.has(group)) next.delete(group)
-      else next.add(group)
-      return next
-    })
-  }
+  const toggleCollapse = (group: string) => setCollapsed((prev) => toggleInSet(prev, group))
 
   function requestEdit(p: PurchaseSnapshot) {
     // If a form is open with unsaved changes for a DIFFERENT item, confirm first.
@@ -78,25 +85,16 @@ export function PurchasesTab() {
     setEditing(p)
   }
 
-  const notDeleted = event.purchases.filter((p) => !p.deleted)
-  const hasMine = notDeleted.some((p) => p.assignedTo === me?.id)
+  const notDeleted = live(event.purchases)
+  const hasMine = assignedTo(notDeleted, me?.id).length > 0
   // Opt-in visual filter: show only purchases assigned to me when toggled on.
-  const visible = onlyMine ? notDeleted.filter((p) => p.assignedTo === me?.id) : notDeleted
-  const deleted = event.purchases.filter((p) => p.deleted)
-  const userName = (id: string) => event.users.find((u) => u.id === id)?.name ?? '?'
-  const linkedExpenses = (pid: string) =>
-    event.expenses.filter(
-      (e) => !e.deleted && (e.purchaseLinks ?? []).some((l) => l.purchaseId === pid),
-    )
-  const boughtQty = (pid: string) => boughtQuantity(event, pid)
+  const visible = visiblePurchases(notDeleted, onlyMine, me?.id)
+  const deleted = trashed(event.purchases)
+  const userName = (id: string) => nameOfUser(event.users, id)
 
   const grouped = groupPurchases(event, visible)
 
-  // Stable collapse key for a subgroup. NUL can't occur in trimmed user input,
-  // so it can't collide with a plain group key.
-  const subCollapseKey = (group: string, subgroup: string) => `${group}\u0000${subgroup}`
-
-  function assignBuyer(p: PurchaseSnapshot, assignedTo: string | null) {
+  function assign(p: PurchaseSnapshot, buyer: string | null, purchased: boolean) {
     if (!event || !me) return
     guardedExecute(async () => {
       try {
@@ -105,45 +103,7 @@ export function PurchasesTab() {
           eventId: event.id,
           purchaseId: p.id,
           editedBy: me.id,
-          assignedTo,
-          purchased: p.purchased,
-        })
-        setEvent(result.event, result.version)
-      } catch (err) {
-        reportError('PurchasesTab', err)
-      }
-    })
-  }
-
-  function assignBringer(p: PurchaseSnapshot, assignedTo: string | null) {
-    if (!event || !me) return
-    guardedExecute(async () => {
-      try {
-        const handler = container.resolve<AssignPurchaseHandler>('assignPurchase')
-        const result = await handler.execute({
-          eventId: event.id,
-          purchaseId: p.id,
-          editedBy: me.id,
-          assignedTo,
-          purchased: false,
-        })
-        setEvent(result.event, result.version)
-      } catch (err) {
-        reportError('PurchasesTab', err)
-      }
-    })
-  }
-
-  function toggleBought(p: PurchaseSnapshot, purchased: boolean) {
-    if (!event || !me) return
-    guardedExecute(async () => {
-      try {
-        const handler = container.resolve<AssignPurchaseHandler>('assignPurchase')
-        const result = await handler.execute({
-          eventId: event.id,
-          purchaseId: p.id,
-          editedBy: me.id,
-          assignedTo: p.assignedTo ?? null,
+          assignedTo: buyer,
           purchased,
         })
         setEvent(result.event, result.version)
@@ -198,13 +158,8 @@ export function PurchasesTab() {
 
   function moveGroup(group: string, dir: -1 | 1) {
     if (!event || !me) return
-    // build the ordered list of real group names (current visual order minus ungrouped)
-    const realGroups = grouped.map((g) => g.group).filter((g) => g !== '')
-    const idx = realGroups.indexOf(group)
-    const target = idx + dir
-    if (idx < 0 || target < 0 || target >= realGroups.length) return
-    const next = [...realGroups]
-    ;[next[idx], next[target]] = [next[target]!, next[idx]!]
+    const next = movedGroupOrder(grouped, group, dir)
+    if (!next) return
     guardedExecute(async () => {
       try {
         const handler = container.resolve<SetGroupOrderHandler>('setGroupOrder')
@@ -234,15 +189,8 @@ export function PurchasesTab() {
 
   function moveSubgroup(group: string, subgroup: string, dir: -1 | 1) {
     if (!event || !me) return
-    const groupEntry = grouped.find((g) => g.group === group)
-    if (!groupEntry) return
-    // current visual order of real subgroups in this group (excludes the no-subgroup bucket)
-    const realSubgroups = groupEntry.subgroups.map((s) => s.subgroup).filter((s) => s !== '')
-    const idx = realSubgroups.indexOf(subgroup)
-    const target = idx + dir
-    if (idx < 0 || target < 0 || target >= realSubgroups.length) return
-    const next = [...realSubgroups]
-    ;[next[idx], next[target]] = [next[target]!, next[idx]!]
+    const next = movedSubgroupOrder(grouped, group, subgroup, dir)
+    if (!next) return
     guardedExecute(async () => {
       try {
         const handler = container.resolve<SetSubgroupOrderHandler>('setSubgroupOrder')
@@ -279,15 +227,11 @@ export function PurchasesTab() {
     return (
       <ul className="border-t border-border">
         {items.map((p) => {
-          const hasLinks = p.kind !== 'bring' && linkedExpenses(p.id).length > 0
-          const bought = hasLinks ? boughtQty(p.id) : 0
+          const hasLinks = p.kind !== 'bring' && hasLinkedExpense(event!, p.id)
+          const bought = hasLinks ? boughtQuantity(event!, p.id) : 0
           const total = p.totalQuantity
           const struck = isPurchaseDone(event!, p)
-          const buyerNames = hasLinks
-            ? [...new Set(linkedExpenses(p.id).map((e) => e.paidBy))]
-                .map((id) => userName(id))
-                .join(', ')
-            : ''
+          const buyerNames = hasLinks ? buyerIds(event!, p.id).map(userName).join(', ') : ''
           return (
             <li
               key={p.id}
@@ -342,7 +286,7 @@ export function PurchasesTab() {
                     {t('purchases.broughtByShort')}
                     <select
                       value={p.assignedTo ?? ''}
-                      onChange={(e) => assignBringer(p, e.target.value || null)}
+                      onChange={(e) => assign(p, e.target.value || null, false)}
                       className="min-h-11 max-w-[9rem] truncate border border-border bg-surface px-2 text-base text-ink sm:text-sm"
                     >
                       <option value="">{t('purchases.unassigned')}</option>
@@ -350,7 +294,7 @@ export function PurchasesTab() {
                         .filter((u) => canBring(u.kind))
                         .map((u) => (
                           <option key={u.id} value={u.id}>
-                            {u.alias ? `${u.name} (${u.alias})` : u.name}
+                            {userLabel(u)}
                           </option>
                         ))}
                     </select>
@@ -369,9 +313,7 @@ export function PurchasesTab() {
                     <div className="h-2 w-full overflow-hidden bg-elevated">
                       <div
                         className="h-full bg-brand"
-                        style={{
-                          width: `${total > 0 ? Math.min(100, (bought / total) * 100) : 100}%`,
-                        }}
+                        style={{ width: `${progressPercent(bought, total)}%` }}
                       />
                     </div>
                     <span className="fineprint">
@@ -384,7 +326,7 @@ export function PurchasesTab() {
                       <input
                         type="checkbox"
                         checked={p.purchased}
-                        onChange={(e) => toggleBought(p, e.target.checked)}
+                        onChange={(e) => assign(p, p.assignedTo ?? null, e.target.checked)}
                         className="size-5 border-border bg-elevated accent-brand"
                       />
                       {t('purchases.bought')}
@@ -393,7 +335,7 @@ export function PurchasesTab() {
                       {t('purchases.assignedShort')}
                       <select
                         value={p.assignedTo ?? ''}
-                        onChange={(e) => assignBuyer(p, e.target.value || null)}
+                        onChange={(e) => assign(p, e.target.value || null, p.purchased)}
                         className="min-h-11 max-w-[9rem] truncate border border-border bg-surface px-2 text-base text-ink sm:text-sm"
                       >
                         <option value="">{t('purchases.unassigned')}</option>
@@ -401,7 +343,7 @@ export function PurchasesTab() {
                           .filter((u) => canBeAssigned(u.kind))
                           .map((u) => (
                             <option key={u.id} value={u.id}>
-                              {u.alias ? `${u.name} (${u.alias})` : u.name}
+                              {userLabel(u)}
                             </option>
                           ))}
                       </select>

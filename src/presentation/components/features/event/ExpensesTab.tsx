@@ -22,6 +22,8 @@ import { ExpenseSummary } from './ExpenseSummary'
 import { GeneralSummary } from './GeneralSummary'
 import { ManualLiquidations } from './ManualLiquidations'
 import { formatMoney } from '@/presentation/utils/money'
+import { live, trashed } from '@/presentation/utils/collections'
+import { userName } from '@/presentation/utils/userLabel'
 import { PrimaryAction } from '@/presentation/components/common/PrimaryAction'
 
 export function ExpensesTab() {
@@ -52,9 +54,9 @@ export function ExpensesTab() {
     setEditing(e)
   }
 
-  const visible = event.expenses.filter((e) => !e.deleted)
-  const deleted = event.expenses.filter((e) => e.deleted)
-  const nameOf = (id: string) => event.users.find((u) => u.id === id)?.name ?? '?'
+  const visible = live(event.expenses)
+  const deleted = trashed(event.expenses)
+  const nameOf = (id: string) => userName(event.users, id)
 
   function recover(e: ExpenseSnapshot) {
     if (!event || !me) return

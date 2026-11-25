@@ -24,12 +24,22 @@ import { friendlyError } from '@/presentation/utils/friendlyError'
 import { parseDecimal } from '@/shared/utils/parseDecimal'
 import { SHARED_UNIT } from '@/domain/entities/Purchase'
 import { SELECTABLE_UNITS as UNITS } from '@/presentation/utils/units'
+import { canBeAssigned, canBring } from '@/domain/services/participantRoles'
 import {
-  canBeAssigned,
-  canBring,
-  defaultMultiplier,
-  isDefaultConsumer,
-} from '@/domain/services/participantRoles'
+  allConsumers,
+  allergenLabel,
+  buyConsumers,
+  existingGroups,
+  existingSubgroups,
+  groupFields,
+  initialConsumers,
+  isSubmitBlocked,
+  isValidConsumption,
+  toggleConsumer as toggleConsumerIn,
+  totalPreview,
+} from '@/presentation/utils/purchaseForm'
+import { isPositiveNumber } from '@/presentation/utils/numbers'
+import { userLabel } from '@/presentation/utils/userLabel'
 
 export function PurchaseForm({
   onDone,
@@ -61,21 +71,9 @@ export function PurchaseForm({
   // Shared staples (unit "single"): fixed quantity, no per-person/day calc.
   const isSingle = mode === 'buy' && unit === SHARED_UNIT
   const [days, setDays] = useState(inferredDays)
-  const [consumers, setConsumers] = useState<Record<string, number>>(() => {
-    if (purchase) {
-      const map: Record<string, number> = {}
-      for (const c of purchase.consumers) map[c.userId] = c.multiplier
-      return map
-    }
-    // New purchase: pre-select everyone at their default multiplier. Dogs are
-    // left out — they eat dog food, not the shopping list — but can be ticked
-    // by hand for the bag of kibble.
-    const map: Record<string, number> = {}
-    for (const u of event?.users ?? []) {
-      if (isDefaultConsumer(u.kind)) map[u.id] = defaultMultiplier(u.kind)
-    }
-    return map
-  })
+  const [consumers, setConsumers] = useState<Record<string, number>>(() =>
+    initialConsumers(event?.users ?? [], purchase),
+  )
   const [assignedTo, setAssignedTo] = useState<string | null>(purchase?.assignedTo ?? null)
   const [group, setGroup] = useState(purchase?.group ?? '')
   const [subgroup, setSubgroup] = useState(purchase?.subgroup ?? '')
@@ -113,52 +111,17 @@ export function PurchaseForm({
 
   if (!event || !me) return null
 
-  const existingGroups = [
-    ...new Set(event.purchases.filter((p) => !p.deleted && p.group).map((p) => p.group as string)),
-  ].sort()
+  const preview = totalPreview(consumers, dailyConsumption, days)
+  const groupSuggestions = existingGroups(event.purchases)
+  const subgroupSuggestions = existingSubgroups(event.purchases, group.trim())
 
-  const currentGroup = group.trim()
-  const existingSubgroups = [
-    ...new Set(
-      event.purchases
-        .filter((p) => !p.deleted && p.group === currentGroup && p.subgroup)
-        .map((p) => p.subgroup as string),
-    ),
-  ].sort()
-
-  function selectAllConsumers() {
-    const map: Record<string, number> = {}
-    for (const u of event?.users ?? []) {
-      map[u.id] = defaultMultiplier(u.kind)
-    }
-    setConsumers(map)
-  }
-
-  function selectNoConsumers() {
-    setConsumers({})
-  }
-
-  function toggleConsumer(id: string) {
-    setConsumers((prev) => {
-      const copy = { ...prev }
-      if (copy[id] !== undefined) {
-        delete copy[id]
-      } else {
-        const user = event?.users.find((u) => u.id === id)
-        copy[id] = user ? defaultMultiplier(user.kind) : 1
-      }
-      return copy
-    })
-  }
+  const selectAllConsumers = () => setConsumers(allConsumers(event?.users ?? []))
+  const selectNoConsumers = () => setConsumers({})
+  const toggleConsumer = (id: string) =>
+    setConsumers((prev) => toggleConsumerIn(prev, id, event?.users ?? []))
 
   function setMultiplier(id: string, m: number) {
     setConsumers((prev) => ({ ...prev, [id]: m }))
-  }
-
-  function allergenLabel(a: { name: string; notes: string | null }): string {
-    const base = t(`allergens.${a.name}`)
-    if (a.name === 'other') return a.notes || base
-    return a.notes ? `${base} (${a.notes})` : base
   }
 
   function switchMode(next: 'buy' | 'bring') {
@@ -174,108 +137,54 @@ export function PurchaseForm({
         setBusy(true)
         setError(null)
         try {
+          const failInvalid = () => {
+            setError(t('purchases.form.invalidQuantity'))
+            setBusy(false)
+          }
           if (mode === 'bring') {
             const qty = parseDecimal(bringQtyStr)
-            if (!Number.isFinite(qty) || qty <= 0) {
-              setError(t('purchases.form.invalidQuantity'))
-              setBusy(false)
-              return
-            }
-            if (purchase) {
-              const handler = container.resolve<EditBroughtItemHandler>('editBroughtItem')
-              const result = await handler.execute({
-                eventId: event.id,
-                purchaseId: purchase.id,
-                editedBy: me.id,
-                item,
-                quantity: qty,
-                unit,
-                group: group.trim() || null,
-                subgroup: group.trim() ? subgroup.trim() || null : null,
-                broughtBy,
-              })
-              setEvent(result.event, result.version)
-            } else {
-              const handler = container.resolve<AddBroughtItemHandler>('addBroughtItem')
-              const result = await handler.execute({
-                eventId: event.id,
-                createdBy: me.id,
-                item,
-                quantity: qty,
-                unit,
-                group: group.trim() || null,
-                subgroup: group.trim() ? subgroup.trim() || null : null,
-                broughtBy,
-              })
-              setEvent(result.event, result.version)
-            }
+            if (!isPositiveNumber(qty)) return failInvalid()
+            const fields = { item, quantity: qty, unit, ...groupFields(group, subgroup), broughtBy }
+            const result = purchase
+              ? await container.resolve<EditBroughtItemHandler>('editBroughtItem').execute({
+                  eventId: event.id,
+                  purchaseId: purchase.id,
+                  editedBy: me.id,
+                  ...fields,
+                })
+              : await container
+                  .resolve<AddBroughtItemHandler>('addBroughtItem')
+                  .execute({ eventId: event.id, createdBy: me.id, ...fields })
+            setEvent(result.event, result.version)
             setPendingMatches(null)
             onDone()
             return
           }
           // Shared-staple items use a fixed quantity and skip the per-person calc;
           // pass valid placeholders for the calc fields the domain still validates.
-          let buyQuantity = quantity
-          if (isSingle) {
-            buyQuantity = parseDecimal(singleQtyStr)
-            if (!Number.isFinite(buyQuantity) || buyQuantity <= 0) {
-              setError(t('purchases.form.invalidQuantity'))
-              setBusy(false)
-              return
-            }
+          const buyQuantity = isSingle ? parseDecimal(singleQtyStr) : quantity
+          const valid = isSingle
+            ? isPositiveNumber(buyQuantity)
+            : isValidConsumption(dailyConsumption, days)
+          if (!valid) return failInvalid()
+          const fields = {
+            item,
+            quantity: buyQuantity,
+            unit,
+            dailyConsumption: isSingle ? 1 : dailyConsumption,
+            consumers: buyConsumers(isSingle, event.users, consumers),
+            days: isSingle ? 1 : days,
+            assignedTo,
+            ...groupFields(group, subgroup),
           }
-          if (
-            !isSingle &&
-            (!Number.isFinite(dailyConsumption) ||
-              dailyConsumption <= 0 ||
-              !Number.isInteger(days) ||
-              days <= 0)
-          ) {
-            setError(t('purchases.form.invalidQuantity'))
-            setBusy(false)
-            return
-          }
-          const buyDaily = isSingle ? 1 : dailyConsumption
-          const buyDays = isSingle ? 1 : days
-          const list = isSingle
-            ? event.users
-                .filter((u) => isDefaultConsumer(u.kind))
-                .map((u) => ({ userId: u.id, multiplier: 1 }))
-            : Object.entries(consumers).map(([userId, multiplier]) => ({ userId, multiplier }))
-          if (purchase) {
-            const handler = container.resolve<EditPurchaseHandler>('editPurchase')
-            const result = await handler.execute({
-              eventId: event.id,
-              purchaseId: purchase.id,
-              editedBy: me.id,
-              item,
-              quantity: buyQuantity,
-              unit,
-              dailyConsumption: buyDaily,
-              consumers: list,
-              days: buyDays,
-              assignedTo,
-              group: group.trim() || null,
-              subgroup: group.trim() ? subgroup.trim() || null : null,
-            })
-            setEvent(result.event, result.version)
-          } else {
-            const handler = container.resolve<AddPurchaseHandler>('addPurchase')
-            const result = await handler.execute({
-              eventId: event.id,
-              createdBy: me.id,
-              item,
-              quantity: buyQuantity,
-              unit,
-              dailyConsumption: buyDaily,
-              consumers: list,
-              days: buyDays,
-              assignedTo,
-              group: group.trim() || null,
-              subgroup: group.trim() ? subgroup.trim() || null : null,
-            })
-            setEvent(result.event, result.version)
-          }
+          const result = purchase
+            ? await container
+                .resolve<EditPurchaseHandler>('editPurchase')
+                .execute({ eventId: event.id, purchaseId: purchase.id, editedBy: me.id, ...fields })
+            : await container
+                .resolve<AddPurchaseHandler>('addPurchase')
+                .execute({ eventId: event.id, createdBy: me.id, ...fields })
+          setEvent(result.event, result.version)
           setPendingMatches(null)
           onDone()
         } catch (err) {
@@ -302,7 +211,7 @@ export function PurchaseForm({
         item,
         users: event.users.map((u) => ({
           userId: u.id,
-          displayName: u.alias ? `${u.name} (${u.alias})` : u.name,
+          displayName: userLabel(u),
           allergies: u.allergies ?? [],
         })),
       })
@@ -386,7 +295,7 @@ export function PurchaseForm({
             placeholder={t('purchases.form.groupPlaceholder')}
           />
           <datalist id="group-suggestions">
-            {existingGroups.map((g) => (
+            {groupSuggestions.map((g) => (
               <option key={g} value={g} />
             ))}
           </datalist>
@@ -403,7 +312,7 @@ export function PurchaseForm({
               placeholder={t('purchases.form.subgroupPlaceholder')}
             />
             <datalist id="subgroup-suggestions">
-              {existingSubgroups.map((s) => (
+              {subgroupSuggestions.map((s) => (
                 <option key={s} value={s} />
               ))}
             </datalist>
@@ -452,7 +361,7 @@ export function PurchaseForm({
                   .filter((u) => canBring(u.kind))
                   .map((u) => (
                     <option key={u.id} value={u.id}>
-                      {u.alias ? `${u.name} (${u.alias})` : u.name}
+                      {userLabel(u)}
                     </option>
                   ))}
               </select>
@@ -552,7 +461,7 @@ export function PurchaseForm({
                               checked={selected}
                               onChange={() => toggleConsumer(u.id)}
                             />
-                            <span>{u.alias ? `${u.name} (${u.alias})` : u.name}</span>
+                            <span>{userLabel(u)}</span>
                           </label>
                           <YouLabel userId={u.id} />
                           {allergens.length > 0 && (
@@ -560,7 +469,9 @@ export function PurchaseForm({
                               icon={<IconAlert className="size-4" />}
                               tone={allergyMatchesItem ? 'rose' : 'amber'}
                               label={t('purchases.form.allergyChip', {
-                                list: allergens.map((a) => allergenLabel(a)).join(', '),
+                                list: allergens
+                                  .map((a) => allergenLabel(a, t(`allergens.${a.name}`)))
+                                  .join(', '),
                               })}
                             />
                           )}
@@ -603,30 +514,21 @@ export function PurchaseForm({
                   .filter((u) => canBeAssigned(u.kind))
                   .map((u) => (
                     <option key={u.id} value={u.id}>
-                      {u.alias ? `${u.name} (${u.alias})` : u.name}
+                      {userLabel(u)}
                     </option>
                   ))}
               </select>
             </label>
-            {!isSingle &&
-              (() => {
-                const totalDaily = Object.values(consumers).reduce(
-                  (sum, mul) => sum + dailyConsumption * mul,
-                  0,
-                )
-                const total = totalDaily * days
-                if (!Number.isFinite(total) || total <= 0) return null
-                return (
-                  <div className="border-l-2 border-brand bg-brand-soft px-3 py-2 text-sm text-brand-soft-fg">
-                    {t('purchases.form.totalPreview', {
-                      n: Math.round(total * 100) / 100,
-                      unit: UNITS.includes(unit as (typeof UNITS)[number])
-                        ? t(`purchases.form.units.${unit}`)
-                        : unit,
-                    })}
-                  </div>
-                )
-              })()}
+            {!isSingle && preview !== null && (
+              <div className="border-l-2 border-brand bg-brand-soft px-3 py-2 text-sm text-brand-soft-fg">
+                {t('purchases.form.totalPreview', {
+                  n: preview,
+                  unit: UNITS.includes(unit as (typeof UNITS)[number])
+                    ? t(`purchases.form.units.${unit}`)
+                    : unit,
+                })}
+              </div>
+            )}
           </>
         )}
         {error && <p className="text-sm text-danger">{error}</p>}
@@ -668,12 +570,15 @@ export function PurchaseForm({
           <Button
             type="submit"
             loading={busy}
-            disabled={
-              busy ||
-              !online ||
-              (!purchase && !item) ||
-              (mode === 'buy' && !isSingle && Object.keys(consumers).length === 0)
-            }
+            disabled={isSubmitBlocked({
+              busy,
+              online,
+              isEdit: !!purchase,
+              item,
+              mode,
+              isSingle,
+              consumerCount: Object.keys(consumers).length,
+            })}
           >
             {purchase ? t('purchases.form.update') : t('purchases.form.submit')}
           </Button>
