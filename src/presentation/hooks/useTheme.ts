@@ -14,8 +14,7 @@ function systemPrefersDark(): boolean {
 function readPref(): ThemePref {
   try {
     const v = localStorage.getItem(STORAGE_KEY)
-    // Stryker disable next-line ConditionalExpression,StringLiteral: 'system' is also the fallback, so matching it explicitly changes nothing
-    return v === 'light' || v === 'dark' || v === 'system' ? v : 'system'
+    return v === 'light' || v === 'dark' ? v : 'system'
   } catch {
     return 'system'
   }
