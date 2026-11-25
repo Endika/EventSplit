@@ -54,15 +54,11 @@ export async function googlePlaceDetails(
       formattedAddress?: string
       displayName?: { text?: string }
     }
-    // Stryker disable next-line OptionalChaining: the latitude check above already guarantees location exists
     // 200 OK but the place genuinely has no coordinates/address — a real "not found".
-    if (!data.location?.latitude || !data.location?.longitude || !data.formattedAddress) return null
-    return {
-      label: data.formattedAddress,
-      name: data.displayName?.text ?? '',
-      lat: data.location.latitude,
-      lng: data.location.longitude,
-    }
+    const lat = data.location?.latitude
+    const lng = data.location?.longitude
+    if (typeof lat !== 'number' || typeof lng !== 'number' || !data.formattedAddress) return null
+    return { label: data.formattedAddress, name: data.displayName?.text ?? '', lat, lng }
   } catch (err) {
     if (err instanceof GeoLookupError) throw err
     throw new GeoLookupError('Google Place details request failed')
