@@ -1,26 +1,27 @@
 import { describe, it, expect } from 'vitest'
 import { formatOptionLabel } from '@/presentation/utils/formatOptionLabel'
 
+const label = (start: string, end: string) => formatOptionLabel({ start, end, note: null }, 'es')
+
 describe('formatOptionLabel', () => {
-  it('formats a single day with its weekday', () => {
-    const label = formatOptionLabel({ start: '2026-06-05', end: '2026-06-05', note: null }, 'es')
-    expect(label).toMatch(/5/)
-    expect(label).toMatch(/jun/i)
+  it.each([
+    ['a single day with its weekday', '2026-06-05', '2026-06-05', 'vie, 5 jun'],
+    ['a same-month range collapsed', '2026-06-12', '2026-06-14', '12–14 jun'],
+    ['both months when the range crosses one', '2026-06-30', '2026-07-02', '30 jun – 2 jul'],
+    [
+      'both months when it lands on the same month a year on',
+      '2026-12-05',
+      '2027-12-08',
+      '5 dic – 8 dic',
+    ],
+  ])('writes %s', (_, start, end, expected) => {
+    expect(label(start, end)).toBe(expected)
   })
 
-  it('collapses a same-month range', () => {
-    expect(formatOptionLabel({ start: '2026-06-12', end: '2026-06-14', note: null }, 'es')).toMatch(
-      /^12.14 jun/,
-    )
-  })
-
-  it('spells both months when the range crosses one', () => {
-    const label = formatOptionLabel({ start: '2026-06-30', end: '2026-07-02', note: null }, 'es')
-    expect(label).toMatch(/30 jun/i)
-    expect(label).toMatch(/2 jul/i)
-  })
-
-  it('falls back to the raw key when the dates are not parseable', () => {
-    expect(formatOptionLabel({ start: 'x', end: 'x', note: null }, 'es')).toBe('x..x')
-  })
+  it.each([['x', '2026-06-05']])(
+    'falls back to the raw key when %s..%s is not parseable',
+    (start, end) => {
+      expect(label(start, end)).toBe(`${start}..${end}`)
+    },
+  )
 })

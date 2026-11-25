@@ -13,9 +13,14 @@ const emptyResult: ConsumptionResult = {
 
 describe('formatConsumptionSummary', () => {
   it('returns mode "empty" for isEmpty', () => {
-    const blocks = formatConsumptionSummary(emptyResult, t)
-    expect(blocks.mode).toBe('empty')
-    expect(blocks.emptyMessage).toBe('consumption.empty')
+    expect(formatConsumptionSummary(emptyResult, t)).toEqual({
+      mode: 'empty',
+      emptyMessage: 'consumption.empty',
+      detail: [],
+      brought: [],
+      shared: [],
+      closing: null,
+    })
   })
 
   it('returns mode "onlyBrings" when user only brings', () => {
@@ -25,10 +30,28 @@ describe('formatConsumptionSummary', () => {
       shared: [],
       isEmpty: false,
     }
-    const blocks = formatConsumptionSummary(r, t)
-    expect(blocks.mode).toBe('onlyBrings')
-    expect(blocks.brought).toEqual([{ item: 'Ice' }])
-    expect(blocks.closing).toBeNull()
+    expect(formatConsumptionSummary(r, t)).toEqual({
+      mode: 'onlyBrings',
+      emptyMessage: null,
+      detail: [],
+      brought: [{ item: 'Ice' }],
+      shared: [],
+      closing: null,
+    })
+  })
+
+  it.each([
+    ['nothing at all', [], [], []],
+    ['a share with something brought', [], [{ item: 'Ice' }], [{ item: 'Salt' }]],
+    [
+      'consumption with something brought',
+      [{ item: 'Wine', quantity: 1, unit: 'kg' }],
+      [{ item: 'Ice' }],
+      [],
+    ],
+  ])('is "full" for %s', (_, detail, brought, shared) => {
+    const r: ConsumptionResult = { detail, brought, shared, isEmpty: false }
+    expect(formatConsumptionSummary(r, t).mode).toBe('full')
   })
 
   it('returns mode "full" with detail + brought + shared + closing when user consumes', () => {

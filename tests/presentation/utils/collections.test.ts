@@ -1,5 +1,11 @@
 import { describe, it, expect } from 'vitest'
-import { live, swapWithNeighbour, toggleInSet, trashed } from '@/presentation/utils/collections'
+import {
+  live,
+  pickAt,
+  swapWithNeighbour,
+  toggleInSet,
+  trashed,
+} from '@/presentation/utils/collections'
 
 describe('toggleInSet', () => {
   it.each([
@@ -41,5 +47,11 @@ describe('live and trashed', () => {
   it('splits them by the deleted flag', () => {
     expect(live(items).map((i) => i.id)).toEqual([1, 3])
     expect(trashed(items).map((i) => i.id)).toEqual([2])
+  })
+})
+
+describe('pickAt', () => {
+  it('takes the items at the indexes, in that order, skipping any that do not exist', () => {
+    expect(pickAt(['a', 'b', 'c'], [2, 0, 7, -1])).toEqual(['c', 'a'])
   })
 })

@@ -22,6 +22,6 @@ describe('formatQuantity', () => {
 
   it('rounds to two decimals rather than printing a float tail', async () => {
     await i18n.changeLanguage('en')
-    expect(formatQuantity(0.1 + 0.2)).toBe('0.3')
+    expect([formatQuantity(0.1 + 0.2), formatQuantity(1.2349)]).toEqual(['0.3', '1.23'])
   })
 })

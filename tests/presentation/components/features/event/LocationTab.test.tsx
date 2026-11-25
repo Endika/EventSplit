@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach, vi } from 'vitest'
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
 import { render, screen, fireEvent, waitFor } from '@testing-library/react'
 import { useEffect, type ReactNode } from 'react'
 import '@/presentation/i18n/config'
@@ -9,6 +9,8 @@ import { EditPinProvider } from '@/presentation/context/EditPinContext'
 import { WriteGuardProvider } from '@/presentation/context/WriteGuardContext'
 import { LocationTab } from '@/presentation/components/features/event/LocationTab'
 import type { EventSnapshot, EventLocation } from '@/domain/entities/Event'
+import { makeEvent as makeSavedEvent, makeUser, uid } from '../../../../support/eventFixtures'
+import { renderWithEvent } from '../../../../support/renderWithEvent'
 
 function makeEvent(location: EventLocation | null): EventSnapshot {
   return {
@@ -229,5 +231,53 @@ describe('LocationTab', () => {
     expect(document.activeElement).toBe(
       screen.getByPlaceholderText(/nombre del sitio|place name|lekuaren|nom del/i),
     )
+  })
+
+  describe('on a saved event', () => {
+    afterEach(() => vi.unstubAllGlobals())
+
+    const ME = uid(1)
+    const event = () => makeSavedEvent({ name: 'Trip', users: [makeUser(ME), makeUser(uid(2))] })
+    const nameField = () => screen.getByLabelText(/event name|nombre del evento/i)
+
+    it('renames the event on blur, trimmed, and puts back a name that is too short', async () => {
+      const app = await renderWithEvent(<LocationTab />, event(), ME)
+      fireEvent.change(nameField(), { target: { value: '  Summer trip  ' } })
+      fireEvent.blur(nameField())
+      await waitFor(async () => expect((await app.saved()).name).toBe('Summer trip'))
+
+      fireEvent.change(nameField(), { target: { value: 'ab' } })
+      fireEvent.blur(nameField())
+      expect(nameField()).toHaveValue('Summer trip')
+      expect((await app.saved()).name).toBe('Summer trip')
+    })
+
+    it('sets, then removes, the edit PIN, taking digits only and 4 to 6 of them', async () => {
+      await renderWithEvent(<LocationTab />, event(), ME)
+      const field = () => screen.getByPlaceholderText(/new pin/i)
+      const setPin = screen.getByRole('button', { name: 'Set PIN' })
+      fireEvent.change(field(), { target: { value: '12a3' } })
+      expect(field()).toHaveValue('123')
+      expect(setPin).toBeDisabled()
+
+      fireEvent.change(field(), { target: { value: '1234' } })
+      fireEvent.click(setPin)
+      expect(await screen.findByText(/PIN active/)).toBeInTheDocument()
+
+      fireEvent.click(screen.getByRole('button', { name: 'Remove PIN' }))
+      fireEvent.click(screen.getByRole('button', { name: 'Remove PIN' }))
+      expect(await screen.findByText(/No PIN/)).toBeInTheDocument()
+    })
+
+    it('deletes the event for good only after a confirmation, then goes home', async () => {
+      const assign = vi.fn()
+      vi.stubGlobal('location', { ...window.location, pathname: '/app/', assign })
+      const app = await renderWithEvent(<LocationTab />, event(), ME)
+      fireEvent.click(screen.getByRole('button', { name: 'Delete event' }))
+      expect(assign).not.toHaveBeenCalled()
+      fireEvent.click(screen.getByRole('button', { name: 'Delete forever' }))
+      await waitFor(() => expect(assign).toHaveBeenCalledWith('/app/'))
+      await expect(app.saved()).rejects.toThrow()
+    })
   })
 })
