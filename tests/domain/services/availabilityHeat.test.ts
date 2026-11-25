@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { heatLevel, votesPerOption } from '@/domain/services/availabilityHeat'
+import { dayHeat, heatLevel, votesPerOption } from '@/domain/services/availabilityHeat'
 import type { DayOption } from '@/domain/value-objects/DayOption'
 
 const day = (d: string): DayOption => ({ start: d, end: d, note: null })
@@ -13,6 +13,7 @@ describe('heatLevel', () => {
     expect(heatLevel(7, 8)).toBe(3)
     expect([heatLevel(33, 100), heatLevel(34, 100)]).toEqual([1, 2])
     expect([heatLevel(66, 100), heatLevel(67, 100)]).toEqual([2, 3])
+    expect(heatLevel(8, 8)).toBe(4)
   })
 
   it('never divides by zero', () => {
@@ -26,5 +27,17 @@ describe('votesPerOption', () => {
     const options = [day('2026-06-05'), day('2026-06-06')]
     const votes = { u1: [true, false], u2: [true, true], child: [true, true] }
     expect(votesPerOption(options, votes, ['u1', 'u2'])).toEqual([2, 1])
+  })
+})
+
+describe('dayHeat', () => {
+  it('takes the best option through a day, and nothing for a day no option covers', () => {
+    const options = [day('2026-06-05'), { start: '2026-06-04', end: '2026-06-06', note: null }]
+    expect(dayHeat(options, [1, 3], '2026-06-05', 4)).toEqual({
+      level: 3,
+      votes: 3,
+      optionIndexes: [0, 1],
+    })
+    expect(dayHeat(options, [1, 3], '2026-06-09', 4)).toBeNull()
   })
 })
