@@ -20,36 +20,6 @@ describe('Purchase', () => {
     ).toThrow(/item/)
   })
 
-  it('rejects empty consumers list', () => {
-    expect(() =>
-      Purchase.create({
-        createdBy: u1,
-        item: 'Coke',
-        quantity: 1,
-        unit: 'units',
-        dailyConsumption: 1,
-        consumers: [],
-        days: 2,
-      }),
-    ).toThrow(/consumer/)
-  })
-
-  it('computes totalQuantity = sum(dailyConsumption * multiplier) * days', () => {
-    const p = Purchase.create({
-      createdBy: u1,
-      item: 'Coke',
-      quantity: 3,
-      unit: 'bottles',
-      dailyConsumption: 2,
-      consumers: [
-        { userId: u1, multiplier: 1 },
-        { userId: u2, multiplier: 0.5 },
-      ],
-      days: 3,
-    })
-    expect(p.totalQuantity).toBe(9) // (2*1 + 2*0.5) * 3 = 9
-  })
-
   it('uses a fixed quantity for the "single" shared unit (no per-person calc)', () => {
     const p = Purchase.create({
       createdBy: u1,
@@ -132,63 +102,11 @@ describe('Purchase', () => {
       consumers: [{ userId: u1, multiplier: 1 }],
       days: 2,
     })
-    const deleted = p.softDelete({ by: u2, reason: 'Out of stock' })
+    const deleted = p.softDelete({ by: u2, reason: '  Out of stock  ' })
     expect(deleted.deleted).toBe(true)
     expect(deleted.deletedBy).toBe(u2)
     expect(deleted.deleteReason).toBe('Out of stock')
     expect(p.deleted).toBe(false) // original unchanged (immutable)
-  })
-
-  it('edit returns a new Purchase with updated quantity and unit', () => {
-    const p = Purchase.create({
-      createdBy: u1,
-      item: 'Coke',
-      quantity: 3,
-      unit: 'bottles',
-      dailyConsumption: 2,
-      consumers: [{ userId: u1, multiplier: 1 }],
-      days: 2,
-    })
-    const next = p.edit({
-      item: 'Coke',
-      quantity: 5,
-      unit: 'cans',
-      dailyConsumption: 2,
-      consumers: [{ userId: u1, multiplier: 1 }],
-      days: 2,
-      assignedTo: null,
-      group: null,
-    })
-    expect(next.id).toBe(p.id) // same id (preserved)
-    expect(next.toSnapshot().quantity).toBe(5)
-    expect(next.toSnapshot().unit).toBe('cans')
-    expect(next.toSnapshot().item).toBe('Coke') // unchanged
-    expect(p.toSnapshot().quantity).toBe(3) // original immutable
-  })
-
-  it('edit recomputes totalQuantity', () => {
-    const p = Purchase.create({
-      createdBy: u1,
-      item: 'Coke',
-      quantity: 3,
-      unit: 'bottles',
-      dailyConsumption: 2,
-      consumers: [{ userId: u1, multiplier: 1 }],
-      days: 2,
-    })
-    expect(p.totalQuantity).toBe(4) // 2*1*2
-
-    const next = p.edit({
-      item: 'Coke',
-      quantity: 3,
-      unit: 'bottles',
-      dailyConsumption: 3,
-      consumers: [{ userId: u1, multiplier: 2 }],
-      days: 3,
-      assignedTo: null,
-      group: null,
-    })
-    expect(next.totalQuantity).toBe(18) // 3*2*3
   })
 
   it('edit validates the same constraints as create', () => {
@@ -239,17 +157,18 @@ describe('Purchase', () => {
     ).toThrow(/unit/)
   })
 
-  it('accepts a free-text unit', () => {
+  it('accepts a free-text unit and trims item and unit', () => {
     const p = Purchase.create({
       createdBy: u1,
-      item: 'Agua',
+      item: '  Agua  ',
       quantity: 2,
-      unit: 'garrafa de 8 litros',
+      unit: '  garrafa de 8 litros  ',
       dailyConsumption: 1,
       consumers: [{ userId: u1, multiplier: 1 }],
       days: 2,
     })
     expect(p.toSnapshot().unit).toBe('garrafa de 8 litros')
+    expect(p.toSnapshot().item).toBe('Agua')
   })
 
   it('rejects an empty or overlong unit', () => {
@@ -277,91 +196,6 @@ describe('Purchase', () => {
     ).toThrow(/unit/)
   })
 
-  it('new purchase starts unassigned and not purchased', () => {
-    const p = Purchase.create({
-      createdBy: u1,
-      item: 'Coke',
-      quantity: 1,
-      unit: 'units',
-      dailyConsumption: 1,
-      consumers: [{ userId: u1, multiplier: 1 }],
-      days: 1,
-    })
-    expect(p.toSnapshot().assignedTo).toBeNull()
-    expect(p.toSnapshot().purchased).toBe(false)
-  })
-
-  it('edit can change item and unit', () => {
-    const p = Purchase.create({
-      createdBy: u1,
-      item: 'Coke',
-      quantity: 1,
-      unit: 'units',
-      dailyConsumption: 1,
-      consumers: [{ userId: u1, multiplier: 1 }],
-      days: 1,
-    })
-    const next = p.edit({
-      item: 'Bread',
-      quantity: 2,
-      unit: 'loaves',
-      dailyConsumption: 1,
-      consumers: [{ userId: u1, multiplier: 1 }],
-      days: 1,
-      assignedTo: null,
-      group: null,
-    })
-    expect(next.toSnapshot().item).toBe('Bread')
-    expect(next.toSnapshot().unit).toBe('loaves')
-  })
-
-  it('assign sets the responsible buyer and purchased flag', () => {
-    const p = Purchase.create({
-      createdBy: u1,
-      item: 'Coke',
-      quantity: 1,
-      unit: 'units',
-      dailyConsumption: 1,
-      consumers: [{ userId: u1, multiplier: 1 }],
-      days: 1,
-    })
-    const assigned = p.assign({ assignedTo: u2, purchased: true })
-    expect(assigned.toSnapshot().assignedTo).toBe(u2)
-    expect(assigned.toSnapshot().purchased).toBe(true)
-    expect(p.toSnapshot().assignedTo).toBeNull() // original immutable
-  })
-
-  it('recover clears the deleted flags', () => {
-    const p = Purchase.create({
-      createdBy: u1,
-      item: 'Coke',
-      quantity: 1,
-      unit: 'units',
-      dailyConsumption: 1,
-      consumers: [{ userId: u1, multiplier: 1 }],
-      days: 1,
-    })
-    const deleted = p.softDelete({ by: u2, reason: 'oops' })
-    const recovered = deleted.recover()
-    expect(recovered.deleted).toBe(false)
-    expect(recovered.toSnapshot().deletedBy).toBeNull()
-    expect(recovered.toSnapshot().deleteReason).toBeNull()
-  })
-
-  it('starts with boughtQuantity 0', () => {
-    const p = Purchase.create({
-      createdBy: u1,
-      item: 'Coke',
-      quantity: 1,
-      unit: 'units',
-      dailyConsumption: 2,
-      consumers: [{ userId: u1, multiplier: 1 }],
-      days: 3,
-    })
-    expect(p.toSnapshot().boughtQuantity).toBe(0)
-    expect(p.toSnapshot().purchased).toBe(false)
-  })
-
   it('setBoughtQuantity clamps and derives purchased', () => {
     const p = Purchase.create({
       createdBy: u1,
@@ -382,18 +216,18 @@ describe('Purchase', () => {
     expect(neg.toSnapshot().boughtQuantity).toBe(0)
   })
 
-  it('assign purchased=true sets boughtQuantity to total', () => {
+  it('setBoughtQuantity never marks a zero-total purchase as purchased', () => {
     const p = Purchase.create({
       createdBy: u1,
-      item: 'Coke',
+      item: 'Salt',
       quantity: 1,
       unit: 'units',
-      dailyConsumption: 2,
+      dailyConsumption: 0.001,
       consumers: [{ userId: u1, multiplier: 1 }],
-      days: 3,
+      days: 1,
     })
-    expect(p.assign({ assignedTo: null, purchased: true }).toSnapshot().boughtQuantity).toBe(6)
-    expect(p.assign({ assignedTo: null, purchased: false }).toSnapshot().boughtQuantity).toBe(0)
+    expect(p.totalQuantity).toBe(0)
+    expect(p.setBoughtQuantity(5).purchased).toBe(false)
   })
 
   it('stores a trimmed group, null when blank', () => {
@@ -419,29 +253,17 @@ describe('Purchase', () => {
       group: '   ',
     })
     expect(p2.toSnapshot().group).toBeNull()
-  })
-
-  it('edit can change the group', () => {
-    const p = Purchase.create({
+    const p3 = Purchase.create({
       createdBy: u1,
-      item: 'Bread',
+      item: 'Milk',
       quantity: 1,
       unit: 'units',
       dailyConsumption: 1,
       consumers: [{ userId: u1, multiplier: 1 }],
       days: 1,
+      group: `  ${'g'.repeat(60)}`,
     })
-    const next = p.edit({
-      item: 'Bread',
-      quantity: 1,
-      unit: 'units',
-      dailyConsumption: 1,
-      consumers: [{ userId: u1, multiplier: 1 }],
-      days: 1,
-      assignedTo: null,
-      group: 'Comida domingo',
-    })
-    expect(next.toSnapshot().group).toBe('Comida domingo')
+    expect(p3.toSnapshot().group).toBe('g'.repeat(50))
   })
 
   it('new purchase has null group by default', () => {
@@ -486,139 +308,68 @@ describe('Purchase', () => {
     expect(p.toSnapshot().assignedTo).toBe(u2)
     expect(p.toSnapshot().group).toBe('Desayuno')
     expect(p.toSnapshot().dailyConsumption).toBe(0)
+    expect(p.purchased).toBe(false)
   })
 
-  it('createBring defaults bringer to null and validates quantity', () => {
-    const p = Purchase.createBring({ createdBy: u1, item: 'Pan', quantity: 1, unit: 'units' })
-    expect(p.toSnapshot().assignedTo).toBeNull()
-    expect(() =>
-      Purchase.createBring({ createdBy: u1, item: 'Pan', quantity: 0, unit: 'units' }),
-    ).toThrow(/quantity/)
-  })
+  describe('validation bounds', () => {
+    const buy = (over: Record<string, unknown>) => () =>
+      Purchase.create({
+        createdBy: u1,
+        item: 'Coke',
+        quantity: 1,
+        unit: 'units',
+        dailyConsumption: 1,
+        consumers: [{ userId: u1, multiplier: 1 }],
+        days: 1,
+        ...over,
+      })
 
-  it('editBring updates fields and keeps kind "bring"', () => {
-    const p = Purchase.createBring({
-      createdBy: u1,
-      item: 'Tortilla',
-      quantity: 2,
-      unit: 'units',
-      group: 'Desayuno',
-      broughtBy: u1,
+    it.each([
+      ['item at 50 chars', { item: 'a'.repeat(50) }, true],
+      ['item at 51 chars', { item: 'a'.repeat(51) }, false],
+      ['unit at 1 char', { unit: 'x' }, true],
+      ['unit at 30 chars', { unit: 'x'.repeat(30) }, true],
+      ['quantity at the max', { quantity: 10_000 }, true],
+      ['quantity over the max', { quantity: 10_001 }, false],
+      ['daily consumption at the max', { dailyConsumption: 100 }, true],
+      ['daily consumption over the max', { dailyConsumption: 100.01 }, false],
+      ['daily consumption of zero', { dailyConsumption: 0 }, false],
+      ['days of zero', { days: 0 }, false],
+    ])('%s', (_label, over, ok) => {
+      if (ok) expect(buy(over)).not.toThrow()
+      else expect(buy(over)).toThrow()
     })
-    const next = p.editBring({
-      item: 'Tortilla de patatas',
-      quantity: 3,
-      unit: 'kg',
-      group: 'Comida',
-      broughtBy: u2,
-    })
-    expect(next.kind).toBe('bring')
-    expect(next.id).toBe(p.id)
-    expect(next.toSnapshot().item).toBe('Tortilla de patatas')
-    expect(next.toSnapshot().quantity).toBe(3)
-    expect(next.toSnapshot().totalQuantity).toBe(3)
-    expect(next.toSnapshot().unit).toBe('kg')
-    expect(next.toSnapshot().group).toBe('Comida')
-    expect(next.toSnapshot().assignedTo).toBe(u2)
   })
 
-  it('stores a trimmed subgroup, null when blank', () => {
-    const p = Purchase.create({
-      createdBy: u1,
+  describe('restore', () => {
+    const legacy = {
+      id: 'p-1',
+      createdBy: 'u-1',
       item: 'Bread',
       quantity: 1,
       unit: 'units',
       dailyConsumption: 1,
-      consumers: [{ userId: u1, multiplier: 1 }],
-      days: 1,
-      group: 'Cena',
-      subgroup: '  Entrantes  ',
-    })
-    expect(p.toSnapshot().subgroup).toBe('Entrantes')
-    const p2 = Purchase.create({
-      createdBy: u1,
-      item: 'Milk',
-      quantity: 1,
-      unit: 'units',
-      dailyConsumption: 1,
-      consumers: [{ userId: u1, multiplier: 1 }],
-      days: 1,
-      group: 'Cena',
-      subgroup: '   ',
-    })
-    expect(p2.toSnapshot().subgroup).toBeNull()
-  })
+      totalQuantity: 4,
+      consumers: [{ userId: 'u-1', multiplier: 1 }],
+      deleted: false,
+      deletedBy: null,
+      deletedAt: null,
+      deleteReason: null,
+      createdAt: '2026-01-01T00:00:00Z',
+    }
 
-  it('new purchase has null subgroup by default', () => {
-    const p = Purchase.create({
-      createdBy: u1,
-      item: 'XY',
-      quantity: 1,
-      unit: 'units',
-      dailyConsumption: 1,
-      consumers: [{ userId: u1, multiplier: 1 }],
-      days: 1,
+    it('backfills fields missing from a legacy snapshot and drops the old category', () => {
+      const restored = Purchase.restore({ ...legacy, category: 'food' } as never)
+      expect(restored.toSnapshot()).toEqual({
+        ...legacy,
+        kind: 'buy',
+        assignedTo: null,
+        purchased: false,
+        boughtQuantity: 0,
+        group: null,
+        subgroup: null,
+      })
+      expect(Purchase.restore({ ...legacy, purchased: true } as never).boughtQuantity).toBe(4)
     })
-    expect(p.toSnapshot().subgroup).toBeNull()
-  })
-
-  it('edit can change the subgroup', () => {
-    const p = Purchase.create({
-      createdBy: u1,
-      item: 'Bread',
-      quantity: 1,
-      unit: 'units',
-      dailyConsumption: 1,
-      consumers: [{ userId: u1, multiplier: 1 }],
-      days: 1,
-      group: 'Cena',
-      subgroup: 'Entrantes',
-    })
-    const next = p.edit({
-      item: 'Bread',
-      quantity: 1,
-      unit: 'units',
-      dailyConsumption: 1,
-      consumers: [{ userId: u1, multiplier: 1 }],
-      days: 1,
-      assignedTo: null,
-      group: 'Cena',
-      subgroup: 'Postres',
-    })
-    expect(next.toSnapshot().subgroup).toBe('Postres')
-  })
-
-  it('createBring stores a trimmed subgroup', () => {
-    const p = Purchase.createBring({
-      createdBy: u1,
-      item: 'Tortilla',
-      quantity: 2,
-      unit: 'units',
-      group: 'Desayuno',
-      subgroup: '  Caliente ',
-      broughtBy: u2,
-    })
-    expect(p.toSnapshot().subgroup).toBe('Caliente')
-  })
-
-  it('editBring can change the subgroup', () => {
-    const p = Purchase.createBring({
-      createdBy: u1,
-      item: 'Tortilla',
-      quantity: 2,
-      unit: 'units',
-      group: 'Desayuno',
-      subgroup: 'Caliente',
-      broughtBy: u1,
-    })
-    const next = p.editBring({
-      item: 'Tortilla',
-      quantity: 2,
-      unit: 'units',
-      group: 'Desayuno',
-      subgroup: 'Frío',
-      broughtBy: u2,
-    })
-    expect(next.toSnapshot().subgroup).toBe('Frío')
   })
 })

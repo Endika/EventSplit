@@ -59,6 +59,7 @@ export const AVAILABILITY_NOTE_MAX = 200
 
 /** Keep only the most recent entries; history is an informational audit log. */
 export function capHistory(entries: HistoryEntry[]): HistoryEntry[] {
+  // Stryker disable next-line EqualityOperator: at exactly MAX_HISTORY_ENTRIES, slice(-MAX) returns the same entries
   return entries.length > MAX_HISTORY_ENTRIES ? entries.slice(-MAX_HISTORY_ENTRIES) : entries
 }
 

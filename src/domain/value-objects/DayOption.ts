@@ -16,6 +16,7 @@ const MS_PER_DAY = 86_400_000
 
 /** Local noon: immune to the daylight-saving jump when adding days. */
 function atNoon(iso: string): Date {
+  // Stryker disable next-line StringLiteral: only observable west of UTC, and the test runner cannot switch timezone per mutant
   return new Date(iso + 'T12:00:00')
 }
 
@@ -36,6 +37,7 @@ export function optionKey(o: DayOption): string {
 
 export function parseOptionKey(key: string): DayOption | null {
   const parts = key.split('..')
+  // Stryker disable next-line StringLiteral: any non-ISO fallback is rejected the same, and split always yields a first part
   const [start, end] = [parts[0] ?? '', parts[1] ?? '']
   if (!ISO.test(start) || !ISO.test(end)) return null
   return { start, end, note: null }
@@ -52,6 +54,7 @@ export function normalizeNote(raw: string | null | undefined): string | null {
 }
 
 export function isValidOption(o: DayOption): boolean {
+  // Stryker disable next-line ConditionalExpression,LogicalOperator: the calendar check below rejects every non-ISO string too
   if (!ISO.test(o.start) || !ISO.test(o.end)) return false
   if (!isCalendarDate(o.start) || !isCalendarDate(o.end)) return false
   if (o.note !== null && (typeof o.note !== 'string' || o.note.length > MAX_NOTE_LEN)) return false
@@ -91,5 +94,6 @@ export function optionsCoveringDay(os: DayOption[], iso: string): number[] {
 }
 
 export function makeRange(a: string, b: string): DayOption {
+  // Stryker disable next-line EqualityOperator: for equal ends both branches build the same range
   return a <= b ? { start: a, end: b, note: null } : { start: b, end: a, note: null }
 }

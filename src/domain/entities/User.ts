@@ -186,6 +186,7 @@ export class User {
     // Only a child has one: stop being a child and the link goes with it, so a
     // former child can never leave a dangling guardian behind.
     const guardianId = kind === 'child' ? requested : null
+    // Stryker disable next-line ConditionalExpression: a null guardian never equals the user's id, so the null check only short-circuits
     if (guardianId !== null && guardianId === this.id.value)
       throw new Error('User: guardian cannot be the child themselves')
 

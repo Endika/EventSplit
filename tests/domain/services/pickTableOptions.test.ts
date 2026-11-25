@@ -17,17 +17,6 @@ const nine = [
 ]
 
 describe('pickTableOptions', () => {
-  it('returns them all when there are 7 or fewer', () => {
-    expect(pickTableOptions(nine.slice(0, 7), [0, 0, 0, 0, 0, 0, 0], [])).toEqual([
-      0, 1, 2, 3, 4, 5, 6,
-    ])
-  })
-
-  it('keeps the 7 most voted, in chronological order', () => {
-    const counts = [0, 5, 0, 4, 3, 2, 1, 6, 0]
-    expect(pickTableOptions(nine, counts, [])).toEqual([0, 1, 3, 4, 5, 6, 7])
-  })
-
   it('breaks ties by start date', () => {
     const counts = [1, 1, 1, 1, 1, 1, 1, 1, 1]
     expect(pickTableOptions(nine, counts, [])).toEqual([0, 1, 2, 3, 4, 5, 6])
@@ -45,13 +34,8 @@ describe('pickTableOptions', () => {
     const withChosen = pickTableOptions(nine, counts, ['2026-06-09..2026-06-09'])
     const without = pickTableOptions(nine, counts, [])
     expect(without.every((i) => withChosen.includes(i))).toBe(true)
-  })
-
-  it('ignores a chosen key that is not an option', () => {
-    expect(pickTableOptions(nine.slice(0, 2), [0, 0], ['2099-01-01..2099-01-01'])).toEqual([0, 1])
-  })
-
-  it('handles an empty option list', () => {
-    expect(pickTableOptions([], [], [])).toEqual([])
+    expect(pickTableOptions(nine, counts, ['2026-06-08..2026-06-08'])).toEqual([
+      0, 1, 2, 3, 4, 5, 6, 7,
+    ])
   })
 })

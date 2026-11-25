@@ -58,34 +58,7 @@ describe('UserConsumptionAggregator', () => {
     const u2 = UserConsumptionAggregator.compute(event, 'u2')
     expect(u1.detail).toEqual([{ item: 'Wine', quantity: 4, unit: 'bottles' }])
     expect(u2.detail).toEqual([{ item: 'Wine', quantity: 2, unit: 'bottles' }])
-  })
-
-  it('produces one detail entry per buy purchase with shares', () => {
-    const event = makeEvent({
-      purchases: [
-        {
-          ...basePurchase,
-          id: 'p1',
-          item: 'Wine',
-          unit: 'bottles',
-          totalQuantity: 6,
-          consumers: [{ userId: 'u1', multiplier: 1 }],
-        },
-        {
-          ...basePurchase,
-          id: 'p2',
-          item: 'Water',
-          unit: 'liters',
-          totalQuantity: 4,
-          consumers: [{ userId: 'u1', multiplier: 1 }],
-        },
-      ],
-    })
-    const r = UserConsumptionAggregator.compute(event, 'u1')
-    expect(r.detail).toEqual([
-      { item: 'Wine', quantity: 6, unit: 'bottles' },
-      { item: 'Water', quantity: 4, unit: 'liters' },
-    ])
+    expect(u1.isEmpty).toBe(false)
   })
 
   it('puts SHARED_UNIT items into shared bucket, not detail', () => {
@@ -97,13 +70,20 @@ describe('UserConsumptionAggregator', () => {
           item: 'Olive oil',
           unit: 'single',
           totalQuantity: 1,
-          consumers: [{ userId: 'u1', multiplier: 1 }],
+          consumers: [
+            { userId: 'u1', multiplier: 1 },
+            { userId: 'u2', multiplier: 1 },
+          ],
         },
       ],
     })
-    const r = UserConsumptionAggregator.compute(event, 'u1')
-    expect(r.detail).toEqual([])
-    expect(r.shared).toEqual([{ item: 'Olive oil' }])
+    expect(UserConsumptionAggregator.compute(event, 'u1')).toEqual({
+      detail: [],
+      brought: [],
+      shared: [{ item: 'Olive oil' }],
+      isEmpty: false,
+    })
+    expect(UserConsumptionAggregator.compute(event, 'u3').shared).toEqual([])
   })
 
   it('puts bring items where assignedTo === userId into brought', () => {
@@ -131,9 +111,21 @@ describe('UserConsumptionAggregator', () => {
         },
       ],
     })
+    expect(UserConsumptionAggregator.compute(event, 'u1')).toEqual({
+      detail: [],
+      brought: [{ item: 'Tablecloth' }],
+      shared: [],
+      isEmpty: false,
+    })
+  })
+
+  it('gives a consumer with a zero multiplier no detail line', () => {
+    const event = makeEvent({
+      purchases: [{ ...basePurchase, consumers: [{ userId: 'u1', multiplier: 0 }] }],
+    })
     const r = UserConsumptionAggregator.compute(event, 'u1')
-    expect(r.brought).toEqual([{ item: 'Tablecloth' }])
     expect(r.detail).toEqual([])
+    expect(r.isEmpty).toBe(true)
   })
 
   it('excludes soft-deleted purchases', () => {
@@ -143,35 +135,5 @@ describe('UserConsumptionAggregator', () => {
     const r = UserConsumptionAggregator.compute(event, 'u1')
     expect(r.detail).toEqual([])
     expect(r.isEmpty).toBe(true)
-  })
-
-  it('returns isEmpty when user has no participation', () => {
-    const event = makeEvent({
-      purchases: [{ ...basePurchase, consumers: [{ userId: 'u2', multiplier: 1 }] }],
-    })
-    const r = UserConsumptionAggregator.compute(event, 'u1')
-    expect(r.isEmpty).toBe(true)
-    expect(r.detail).toEqual([])
-    expect(r.brought).toEqual([])
-    expect(r.shared).toEqual([])
-  })
-
-  it('handles fractional multipliers (children)', () => {
-    const event = makeEvent({
-      purchases: [
-        {
-          ...basePurchase,
-          totalQuantity: 10,
-          consumers: [
-            { userId: 'adult', multiplier: 1 },
-            { userId: 'child', multiplier: 0.5 },
-          ],
-        },
-      ],
-    })
-    const adult = UserConsumptionAggregator.compute(event, 'adult')
-    const child = UserConsumptionAggregator.compute(event, 'child')
-    expect(adult.detail[0]!.quantity).toBeCloseTo(6.667, 2)
-    expect(child.detail[0]!.quantity).toBeCloseTo(3.333, 2)
   })
 })

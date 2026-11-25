@@ -32,6 +32,7 @@ export function pruneSubgroupOrder(
   }
   const result: Record<string, string[]> = {}
   for (const [group, liveSubs] of active) {
+    // Stryker disable next-line ArrayDeclaration: a spurious saved entry is dropped by the live filter
     const saved = subgroupOrder[group] ?? []
     const kept = saved.filter((s) => liveSubs.has(s))
     const appended = [...liveSubs].filter((s) => !kept.includes(s))

@@ -7,7 +7,9 @@ import {
   MAX_OPTIONS,
 } from '@/domain/value-objects/DayOption'
 
+// Stryker disable next-line ObjectLiteral: only the wording of the validation message
 const INVALID_OPTION_ISSUE = {
+  // Stryker disable next-line StringLiteral: only the wording of the validation message
   message: `Each option needs ISO dates, an end on or after its start, and at most ${MAX_OPTIONS} days`,
 }
 
