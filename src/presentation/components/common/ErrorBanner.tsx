@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { ERROR_EVENT, type ReportedError } from '@/shared/utils/reportError'
+import { errorReportLine } from '@/presentation/utils/errorDetails'
 import { IconClose } from '@/presentation/components/common/icons'
 
 export function ErrorBanner() {
@@ -20,7 +21,7 @@ export function ErrorBanner() {
 
   if (!error) return null
 
-  const fullText = `[${error.context}] ${error.name}: ${error.message}`
+  const fullText = errorReportLine(error)
 
   async function copy() {
     try {

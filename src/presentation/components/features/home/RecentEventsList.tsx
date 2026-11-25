@@ -1,21 +1,7 @@
 import { useTranslation } from 'react-i18next'
 import type { CachedEventSummary } from '@/infrastructure/persistence/LocalStorageCache'
 import { IconClose } from '@/presentation/components/common/icons'
-
-function formatRelative(iso: string, locale: string): string {
-  const then = new Date(iso).getTime()
-  const now = Date.now()
-  const diff = Math.round((now - then) / 1000)
-  if (diff < 60) return 'just now'
-  if (diff < 3600) return `${Math.floor(diff / 60)}m ago`
-  if (diff < 86400) return `${Math.floor(diff / 3600)}h ago`
-  if (diff < 604800) return `${Math.floor(diff / 86400)}d ago`
-  try {
-    return new Intl.DateTimeFormat(locale, { dateStyle: 'medium' }).format(new Date(iso))
-  } catch {
-    return iso
-  }
-}
+import { formatRecentActivity } from '@/presentation/utils/recentActivity'
 
 export function RecentEventsList({
   items,
@@ -49,7 +35,7 @@ export function RecentEventsList({
             >
               <div className="truncate font-semibold text-ink">{e.name}</div>
               <div className="fineprint mt-0.5">
-                {t('home.lastActivity', { when: formatRelative(e.updatedAt, i18n.language) })}
+                {t('home.lastActivity', { when: formatRecentActivity(e.updatedAt, i18n.language) })}
                 {' · '}
                 {t('home.participants', { count: e.participantCount })}
               </div>

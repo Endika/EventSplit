@@ -14,7 +14,9 @@ import { Input } from '@/presentation/components/common/Input'
 import { IconPlus } from '@/presentation/components/common/icons'
 import { RecentEventsList } from './RecentEventsList'
 import { reportError } from '@/shared/utils/reportError'
-import { isValidPinLength } from '@/presentation/utils/pinInput'
+import { digitsOnly, isValidPinLength } from '@/presentation/utils/pinInput'
+import { creatorIdentity, newEventInput, withPinSet } from '@/presentation/utils/homeForm'
+import { errorMessage } from '@/presentation/utils/errorDetails'
 
 export function HomePage() {
   const { t } = useTranslation()
@@ -46,17 +48,9 @@ export function HomePage() {
     setError(null)
     try {
       const handler = container.resolve<CreateEventHandler>('createEvent')
-      const result = await handler.execute({
-        name,
-        creatorName: yourName,
-        creatorAlias: alias || null,
-      })
+      const result = await handler.execute(newEventInput(name, yourName, alias))
       cache.set(result.event.id, { snapshot: result.event, version: result.version })
-      cache.setIdentity(result.event.id, {
-        id: result.creator.id,
-        name: yourName.trim(),
-        alias: alias.trim() || null,
-      })
+      cache.setIdentity(result.event.id, creatorIdentity(result.creator.id, yourName, alias))
       if (isValidPinLength(pin)) {
         const pinHandler = container.resolve<SetEditPinHandler>('setEditPin')
         await pinHandler.execute({
@@ -67,16 +61,13 @@ export function HomePage() {
         // The creator must not meet their own gate; set_event_pin bumped the
         // version once, and caching the old one would cost a full re-download.
         rememberPin(result.event.id, pin)
-        cache.set(result.event.id, {
-          snapshot: { ...result.event, hasPin: true },
-          version: result.version + 1,
-        })
+        cache.set(result.event.id, withPinSet(result.event, result.version))
       }
       window.history.pushState({}, '', `${import.meta.env.BASE_URL}?event=${result.event.id}`)
       window.dispatchEvent(new PopStateEvent('popstate'))
     } catch (err) {
       reportError('HomePage', err)
-      setError(err instanceof Error ? err.message : 'Unknown error')
+      setError(errorMessage(err, 'Unknown error'))
     } finally {
       setBusy(false)
     }
@@ -124,7 +115,7 @@ export function HomePage() {
             maxLength={6}
             placeholder={t('pin.createField')}
             value={pin}
-            onChange={(e) => setPin(e.target.value.replace(/\D/g, ''))}
+            onChange={(e) => setPin(digitsOnly(e.target.value))}
           />
           <p className="-mt-1 text-xs text-muted">{t('pin.createHint')}</p>
           {error && <p className="text-sm text-danger">{error}</p>}
