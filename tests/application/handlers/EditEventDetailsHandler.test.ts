@@ -61,4 +61,43 @@ describe('EditEventDetailsHandler', () => {
     // The history log records only who/what/when — never sensitive content.
     expect(JSON.stringify(result.event.history)).not.toContain('secret123')
   })
+
+  const CASA = { name: 'Casa', address: 'Calle Mayor 1', lat: 43.26, lng: -2.93 }
+
+  it.each([
+    ['sets the first location', null, { location: CASA }, 'location_set', 'Location set: Casa'],
+    [
+      'moves to another place',
+      CASA,
+      { location: { ...CASA, name: 'Faro' } },
+      'location_set',
+      'Location set: Faro',
+    ],
+    [
+      'saves the wifi with the same place resent',
+      CASA,
+      { location: CASA, wifiPassword: 'secret' },
+      'notes_added',
+      'Event details updated',
+    ],
+    [
+      'renames the event',
+      CASA,
+      { name: 'Mountain weekend' },
+      'notes_added',
+      'Event details updated',
+    ],
+    ['removes the location', CASA, { location: null }, 'notes_added', 'Event details updated'],
+  ])('logs a %s edit as what it is', async (_case, before, edit, type, description) => {
+    const repo = new InMemoryEventRepository()
+    const create = await new CreateEventHandler(repo).execute({ name: 'Trip', creatorName: 'John' })
+    const handler = new EditEventDetailsHandler(repo)
+    if (before) await handler.execute({ eventId: create.event.id, location: before })
+    const result = await handler.execute({ eventId: create.event.id, ...edit })
+    expect(result.event.history.at(-1)).toMatchObject({
+      type,
+      userId: create.event.createdBy,
+      description,
+    })
+  })
 })
