@@ -7,15 +7,18 @@ const MAX_WRITES = 60
  * Defeatable (it's localStorage) but cheap protection against UX-bot loops.
  * Returns true if the write is allowed (and records it), false if over budget.
  */
-export function allowWrite(now: number = Date.now()): boolean {
-  let times: number[] = []
+function storedWrites(): number[] {
   try {
-    const raw = localStorage.getItem(KEY)
-    if (raw) times = JSON.parse(raw) as number[]
+    // Stryker disable next-line StringLiteral: any other fallback fails to parse and lands on the same empty list
+    return JSON.parse(localStorage.getItem(KEY) ?? '[]') as number[]
   } catch {
-    times = []
+    // Stryker disable next-line ArrayDeclaration: a placeholder entry is not a timestamp and the window filter drops it
+    return []
   }
-  const recent = times.filter((t) => now - t < WINDOW_MS)
+}
+
+export function allowWrite(now: number = Date.now()): boolean {
+  const recent = storedWrites().filter((t) => now - t < WINDOW_MS)
   if (recent.length >= MAX_WRITES) {
     localStorage.setItem(KEY, JSON.stringify(recent))
     return false

@@ -45,6 +45,44 @@ import type { IEventRepository } from '@/domain/repositories/IEventRepository'
 import type { IEventChangeNotifier } from '@/domain/ports/IEventChangeNotifier'
 import { UnlockedPinHolder } from '@/shared/di/UnlockedPinHolder'
 
+export const REPO_HANDLERS = {
+  createEvent: CreateEventHandler,
+  joinAsNewUser: JoinAsNewUserHandler,
+  addPurchase: AddPurchaseHandler,
+  addBroughtItem: AddBroughtItemHandler,
+  editBroughtItem: EditBroughtItemHandler,
+  addExpense: AddExpenseHandler,
+  editExpense: EditExpenseHandler,
+  deleteExpense: DeleteExpenseHandler,
+  refreshEvent: RefreshEventHandler,
+  updateProfile: UpdateProfileHandler,
+  setDayOptions: SetDayOptionsHandler,
+  cloneIntoEvent: CloneIntoEventHandler,
+  setAvailabilityBatch: SetAvailabilityBatchHandler,
+  setAvailabilityMeta: SetAvailabilityMetaHandler,
+  editEventDetails: EditEventDetailsHandler,
+  setEditPin: SetEditPinHandler,
+  verifyPin: VerifyPinHandler,
+  deleteEvent: DeleteEventHandler,
+  editPurchase: EditPurchaseHandler,
+  assignPurchase: AssignPurchaseHandler,
+  deletePurchase: DeletePurchaseHandler,
+  recoverPurchase: RecoverPurchaseHandler,
+  recoverExpense: RecoverExpenseHandler,
+  removeParticipant: RemoveParticipantHandler,
+  setEventStage: SetEventStageHandler,
+  toggleSettlement: ToggleSettlementHandler,
+  renameGroup: RenameGroupHandler,
+  setGroupOrder: SetGroupOrderHandler,
+  renameSubgroup: RenameSubgroupHandler,
+  setSubgroupOrder: SetSubgroupOrderHandler,
+  addManualLiquidation: AddManualLiquidationHandler,
+  editManualLiquidation: EditManualLiquidationHandler,
+  deleteManualLiquidation: DeleteManualLiquidationHandler,
+  recoverManualLiquidation: RecoverManualLiquidationHandler,
+  toggleLiquidationShare: ToggleLiquidationShareHandler,
+} satisfies Record<string, new (repo: IEventRepository) => unknown>
+
 export function buildContainer(): Container {
   const c = new Container()
   c.register('supabase', () => getSupabase())
@@ -67,52 +105,8 @@ export function buildContainer(): Container {
     d.start()
     return d
   })
-  c.register('createEvent', () => new CreateEventHandler(c.resolve('eventRepo')))
-  c.register('joinAsNewUser', () => new JoinAsNewUserHandler(c.resolve('eventRepo')))
-  c.register('addPurchase', () => new AddPurchaseHandler(c.resolve('eventRepo')))
-  c.register('addBroughtItem', () => new AddBroughtItemHandler(c.resolve('eventRepo')))
-  c.register('editBroughtItem', () => new EditBroughtItemHandler(c.resolve('eventRepo')))
-  c.register('addExpense', () => new AddExpenseHandler(c.resolve('eventRepo')))
-  c.register('editExpense', () => new EditExpenseHandler(c.resolve('eventRepo')))
-  c.register('deleteExpense', () => new DeleteExpenseHandler(c.resolve('eventRepo')))
-  c.register('refreshEvent', () => new RefreshEventHandler(c.resolve('eventRepo')))
-  c.register('updateProfile', () => new UpdateProfileHandler(c.resolve('eventRepo')))
-  c.register('setDayOptions', () => new SetDayOptionsHandler(c.resolve('eventRepo')))
-  c.register('cloneIntoEvent', () => new CloneIntoEventHandler(c.resolve('eventRepo')))
-  c.register('setAvailabilityBatch', () => new SetAvailabilityBatchHandler(c.resolve('eventRepo')))
-  c.register('setAvailabilityMeta', () => new SetAvailabilityMetaHandler(c.resolve('eventRepo')))
-  c.register('editEventDetails', () => new EditEventDetailsHandler(c.resolve('eventRepo')))
-  c.register('setEditPin', () => new SetEditPinHandler(c.resolve('eventRepo')))
-  c.register('verifyPin', () => new VerifyPinHandler(c.resolve('eventRepo')))
-  c.register('deleteEvent', () => new DeleteEventHandler(c.resolve('eventRepo')))
-  c.register('editPurchase', () => new EditPurchaseHandler(c.resolve('eventRepo')))
-  c.register('assignPurchase', () => new AssignPurchaseHandler(c.resolve('eventRepo')))
-  c.register('deletePurchase', () => new DeletePurchaseHandler(c.resolve('eventRepo')))
-  c.register('recoverPurchase', () => new RecoverPurchaseHandler(c.resolve('eventRepo')))
-  c.register('recoverExpense', () => new RecoverExpenseHandler(c.resolve('eventRepo')))
-  c.register('removeParticipant', () => new RemoveParticipantHandler(c.resolve('eventRepo')))
-  c.register('setEventStage', () => new SetEventStageHandler(c.resolve('eventRepo')))
-  c.register('toggleSettlement', () => new ToggleSettlementHandler(c.resolve('eventRepo')))
-  c.register('renameGroup', () => new RenameGroupHandler(c.resolve('eventRepo')))
-  c.register('setGroupOrder', () => new SetGroupOrderHandler(c.resolve('eventRepo')))
-  c.register('renameSubgroup', () => new RenameSubgroupHandler(c.resolve('eventRepo')))
-  c.register('setSubgroupOrder', () => new SetSubgroupOrderHandler(c.resolve('eventRepo')))
-  c.register('addManualLiquidation', () => new AddManualLiquidationHandler(c.resolve('eventRepo')))
-  c.register(
-    'editManualLiquidation',
-    () => new EditManualLiquidationHandler(c.resolve('eventRepo')),
-  )
-  c.register(
-    'deleteManualLiquidation',
-    () => new DeleteManualLiquidationHandler(c.resolve('eventRepo')),
-  )
-  c.register(
-    'recoverManualLiquidation',
-    () => new RecoverManualLiquidationHandler(c.resolve('eventRepo')),
-  )
-  c.register(
-    'toggleLiquidationShare',
-    () => new ToggleLiquidationShareHandler(c.resolve('eventRepo')),
-  )
+  for (const [key, Handler] of Object.entries(REPO_HANDLERS)) {
+    c.register(key, () => new Handler(c.resolve<IEventRepository>('eventRepo')))
+  }
   return c
 }

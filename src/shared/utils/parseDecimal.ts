@@ -4,7 +4,7 @@
  * Returns NaN for empty or non-numeric input (callers validate).
  */
 export function parseDecimal(raw: string): number {
-  const normalized = raw.trim().replace(/\s/g, '').replace(/,/g, '.')
+  const normalized = raw.replace(/\s/g, '').replace(/,/g, '.')
   if (normalized === '') return NaN
   return Number(normalized)
 }
