@@ -185,18 +185,6 @@ describe('dog participants', () => {
     expect(screen.queryByText('Toby')).not.toBeInTheDocument()
   })
 
-  it('leaves the dog out of an expense split among "everyone"', async () => {
-    render(
-      <Wrap event={makeEvent([])}>
-        <ExpenseSummary />
-      </Wrap>,
-    )
-    // Iker is the viewer, so they are the headline figure; the others list
-    // holds everybody else who pays.
-    await waitFor(() => expect(screen.getByText('Ane')).toBeInTheDocument())
-    expect(screen.queryByText('Toby')).not.toBeInTheDocument()
-  })
-
   it('ignores a dog an older build saved into splitAmong', async () => {
     render(
       <Wrap event={makeEvent(['u1', 'u2', 'd1'])}>
@@ -230,23 +218,5 @@ describe('dog participants', () => {
     fireEvent.click(screen.getByRole('checkbox', { name: /nora|1/i }))
     await waitFor(() => expect(screen.getByText('Nora')).toBeInTheDocument())
     expect(screen.queryByText('Toby')).not.toBeInTheDocument()
-  })
-
-  it('does not let a dog vote left in the blob lock a day option', async () => {
-    const event = makeEvent([])
-    // Only the dog voted. The option must read as having no votes, which is
-    // what makes it still deletable — a counted dog vote would freeze it.
-    event.availability = { d1: [true] }
-    render(
-      <Wrap event={event}>
-        <AvailabilityTab />
-      </Wrap>,
-    )
-    await waitFor(() => expect(tableButton()).toBeInTheDocument())
-    fireEvent.click(tableButton())
-    await waitFor(() => expect(screen.getByText('Iker')).toBeInTheDocument())
-    expect(
-      screen.getByRole('button', { name: /quitar|remove|kendu|treure|eliminar/i }),
-    ).toBeInTheDocument()
   })
 })

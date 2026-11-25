@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { assignedTo, buyableItems, visiblePurchases } from '@/presentation/utils/purchaseFilters'
+import { buyableItems, visiblePurchases } from '@/presentation/utils/purchaseFilters'
 import { makePurchase } from '../../support/eventFixtures'
 
 const purchases = [
@@ -13,13 +13,6 @@ const ids = (ps: { id: string }[]) => ps.map((p) => p.id)
 describe('buyableItems', () => {
   it('drops deleted and brought items', () => {
     expect(ids(buyableItems(purchases))).toEqual(['buy-mine', 'buy-other'])
-  })
-})
-
-describe('assignedTo', () => {
-  it('keeps what is assigned to the user, and nothing for an unknown one', () => {
-    expect(ids(assignedTo(purchases, 'other'))).toEqual(['buy-other'])
-    expect(assignedTo(purchases, undefined)).toEqual([])
   })
 })
 

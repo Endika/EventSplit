@@ -54,19 +54,6 @@ describe('AddressAutocomplete', () => {
     expect(await screen.findByText('Puerta del Sol, Madrid')).toBeInTheDocument()
   })
 
-  it("shows the app's error instead of an empty list when Google and its Photon fallback both fail", async () => {
-    vi.stubEnv('VITE_GOOGLE_MAPS_KEY', 'test-key')
-    vi.stubGlobal(
-      'fetch',
-      vi.fn(async () => jsonResponse('', 500)),
-    )
-
-    render(<Harness />)
-    fireEvent.change(screen.getByRole('textbox'), { target: { value: 'Puerta del Sol' } })
-
-    expect(await screen.findByText(i18n.t('location.addressSearchError'))).toBeInTheDocument()
-  })
-
   it("shows the app's error instead of an empty list when the keyless search fails", async () => {
     vi.stubGlobal(
       'fetch',

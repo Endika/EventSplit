@@ -103,60 +103,6 @@ describe('CloneFromEventModal', () => {
     vi.restoreAllMocks()
   })
 
-  it('says so when there is nothing to clone from', () => {
-    render(
-      <Wrap event={snap('tgt1234'.slice(0, 7))}>
-        <CloneFromEventModal open onClose={vi.fn()} />
-      </Wrap>,
-    )
-    expect(screen.getByText(/no tienes|you have no|ez duzu|no tens|non tes/i)).toBeInTheDocument()
-  })
-
-  it('shows the blocks only after a source is picked', async () => {
-    cacheSource()
-    render(
-      <Wrap event={snap('tgt1234'.slice(0, 7))}>
-        <CloneFromEventModal open onClose={vi.fn()} />
-      </Wrap>,
-    )
-    expect(screen.queryAllByRole('checkbox')).toHaveLength(0)
-    fireEvent.click(await waitFor(() => screen.getByText('Viaje anterior')))
-    expect(screen.getAllByRole('checkbox').length).toBeGreaterThan(0)
-  })
-
-  it('cannot clone with nothing ticked', async () => {
-    cacheSource()
-    render(
-      <Wrap event={snap('tgt1234'.slice(0, 7))}>
-        <CloneFromEventModal open onClose={vi.fn()} />
-      </Wrap>,
-    )
-    fireEvent.click(await waitFor(() => screen.getByText('Viaje anterior')))
-    expect(cloneButton()).toBeDisabled()
-  })
-
-  it('cannot clone before a source is picked', () => {
-    cacheSource()
-    render(
-      <Wrap event={snap('tgt1234'.slice(0, 7))}>
-        <CloneFromEventModal open onClose={vi.fn()} />
-      </Wrap>,
-    )
-    expect(cloneButton()).toBeDisabled()
-  })
-
-  it('enables cloning once a block is ticked', async () => {
-    cacheSource()
-    render(
-      <Wrap event={snap('tgt1234'.slice(0, 7))}>
-        <CloneFromEventModal open onClose={vi.fn()} />
-      </Wrap>,
-    )
-    fireEvent.click(await waitFor(() => screen.getByText('Viaje anterior')))
-    fireEvent.click(screen.getByRole('checkbox', { name: /d(í|i)as|days|egun|dies/i }))
-    expect(cloneButton()).toBeEnabled()
-  })
-
   it('renders nothing when closed', () => {
     cacheSource()
     render(

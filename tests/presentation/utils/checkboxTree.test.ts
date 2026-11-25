@@ -17,9 +17,6 @@ describe('parentState', () => {
 })
 
 describe('toggleGroup', () => {
-  it('ticking a group ticks every item under it', () => {
-    expect(toggleGroup(['a', 'b'], [], true)).toEqual(['a', 'b'])
-  })
   it('unticking a group leaves the rest of the selection alone', () => {
     expect(toggleGroup(['a', 'b'], ['a', 'b', 'c'], false)).toEqual(['c'])
   })

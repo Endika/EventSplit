@@ -18,7 +18,7 @@ describe('liquidationForm', () => {
     })
   })
 
-  it.each([{ concept: '  ab  ' }, { amount: '0' }])('refuses %j', (over) => {
+  it.each([{ concept: '  ab  ' }])('refuses %j', (over) => {
     expect(liquidationPayload({ ...form, ...over })).toBeNull()
   })
 

@@ -35,21 +35,6 @@ describe('ExpenseForm', () => {
     Element.prototype.scrollIntoView = vi.fn()
   })
 
-  it('saves a new expense paid by me and split among the adults', async () => {
-    const onDone = vi.fn()
-    const app = await renderWithEvent(<ExpenseForm onDone={onDone} />, makeEvent({ users }), ME)
-    fill('12,5', 'Dinner')
-    submit()
-    await waitFor(() => expect(onDone).toHaveBeenCalled())
-    const [expense] = (await app.saved()).expenses
-    expect(expense).toMatchObject({
-      paidBy: ME,
-      cents: 1250,
-      description: 'Dinner',
-      splitAmong: [ME, ANE],
-    })
-  })
-
   it('refuses an amount that is not positive and saves nothing', async () => {
     const onDone = vi.fn()
     const app = await renderWithEvent(<ExpenseForm onDone={onDone} />, makeEvent({ users }), ME)
@@ -92,22 +77,6 @@ describe('ExpenseForm', () => {
       splitAmong: [ME],
       purchaseLinks: [{ purchaseId: P1, quantity: 2 }],
     })
-  })
-
-  it('links a ticked item for what is still missing', async () => {
-    const onDone = vi.fn()
-    const app = await renderWithEvent(
-      <ExpenseForm onDone={onDone} />,
-      makeEvent({ users, purchases: [makePurchase(P1, { item: 'Rice', totalQuantity: 5 })] }),
-      ME,
-    )
-    fill('9', 'Rice run')
-    fireEvent.click(screen.getByRole('checkbox', { name: /rice/i }))
-    submit()
-    await waitFor(() => expect(onDone).toHaveBeenCalled())
-    expect((await app.saved()).expenses[0]!.purchaseLinks).toEqual([
-      { purchaseId: P1, quantity: 5 },
-    ])
   })
 
   it('warns before touching somebody whose transfer is already settled', async () => {

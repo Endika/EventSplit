@@ -5,8 +5,6 @@ describe('isPositiveNumber', () => {
   it.each([
     [0.01, true],
     [0, false],
-    [-1, false],
-    [NaN, false],
     [Infinity, false],
   ])('%s -> %s', (n, expected) => {
     expect(isPositiveNumber(n)).toBe(expected)

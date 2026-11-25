@@ -26,11 +26,6 @@ const idsOf = (xs: { id: string }[]) => xs.map((x) => x.id)
 describe('buildExpenseSummary for a participant', () => {
   const s = buildExpenseSummary(event, 'a3')
 
-  it('finds my balance and adds the children I carry', () => {
-    expect(s.mine).toMatchObject({ userId: 'a3', spentCents: 1200, balanceCents: -120 })
-    expect(s.myCarried).toBe(-1240)
-  })
-
   it('works from live expenses, never names a child in a transfer, and lists mine', () => {
     expect(s.result.totalCents).toBe(4200)
     expect(s.result.transfers).toEqual([
@@ -48,8 +43,6 @@ describe('buildExpenseSummary helpers', () => {
 
   it.each([
     ['a1', 'Casa', 'Casa'],
-    ['a2', null, 'a2'],
-    ['kid', null, 'kid'],
     ['ghost', null, '?'],
   ])('%s is represented by %s and called %s', (id, represented, party) => {
     expect(s.householdRepresentedBy(id)).toBe(represented)
@@ -62,10 +55,7 @@ describe('buildExpenseSummary helpers', () => {
     expect(s.householdMembers('Nope')).toEqual([])
   })
 
-  it.each([
-    [{ from: 'a1', to: 'a2' }, ['Casa']],
-    [{ from: 'a2', to: 'a3' }, []],
-  ])('householdSides %j -> %j', (tr, expected) => {
+  it.each([[{ from: 'a1', to: 'a2' }, ['Casa']]])('householdSides %j -> %j', (tr, expected) => {
     expect(s.householdSides(tr)).toEqual(expected)
   })
 

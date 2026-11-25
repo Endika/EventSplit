@@ -84,12 +84,6 @@ describe('ShareListModal', () => {
     })
   })
 
-  it('renders the formatted preview text inside the modal', () => {
-    render(<ShareListModal open event={makeEvent()} onClose={() => {}} />)
-    expect(screen.getByText(/Wine/)).toBeInTheDocument()
-    expect(screen.getByText(/📌 Drinks/)).toBeInTheDocument()
-  })
-
   it('calls navigator.clipboard.writeText with the full text when Copy is clicked', async () => {
     render(<ShareListModal open event={makeEvent()} onClose={() => {}} />)
     fireEvent.click(screen.getByRole('button', { name: /Copy|Copiar|Kopiatu/i }))

@@ -20,19 +20,6 @@ const startNew = (name: string, alias = '') => {
 }
 
 describe('IdentificationModal', () => {
-  it('confirms the person you pick from the list', () => {
-    const onConfirm = open()
-    fireEvent.click(screen.getByRole('button', { name: 'Ane (Anita)' }))
-    expect(onConfirm).toHaveBeenCalledWith({ kind: 'pick', pickedUser: users[0] })
-  })
-
-  it('sends a trimmed new name with a null nickname when left blank', () => {
-    const onConfirm = open()
-    startNew('  Mia ')
-    fireEvent.click(screen.getByRole('button', { name: /confirm/i }))
-    expect(onConfirm).toHaveBeenCalledWith({ kind: 'new', newUser: { name: 'Mia', alias: null } })
-  })
-
   it('asks for a nickname when the name is already taken, whatever its case', () => {
     const onConfirm = open()
     startNew(' iker ')

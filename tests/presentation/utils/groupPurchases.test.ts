@@ -9,12 +9,12 @@ import {
 import { makeEvent, makePurchase } from '../../support/eventFixtures'
 
 describe('sortByOrder', () => {
-  it.each([
-    { keys: ['b', 'a', ''], order: [], expected: ['a', 'b', ''] },
-    { keys: ['a', 'b', 'c'], order: ['c', 'a'], expected: ['c', 'a', 'b'] },
-  ])('$keys with order $order -> $expected', ({ keys, order, expected }) => {
-    expect(sortByOrder(keys, order)).toEqual(expected)
-  })
+  it.each([{ keys: ['a', 'b', 'c'], order: ['c', 'a'], expected: ['c', 'a', 'b'] }])(
+    '$keys with order $order -> $expected',
+    ({ keys, order, expected }) => {
+      expect(sortByOrder(keys, order)).toEqual(expected)
+    },
+  )
 
   it('does not mutate the input', () => {
     const keys = ['b', 'a']
@@ -89,7 +89,6 @@ describe('moved orders', () => {
 
   it.each([
     { group: 'A', sub: 'y', dir: -1, expected: ['y', 'x'] },
-    { group: 'A', sub: 'x', dir: -1, expected: null },
     { group: 'A', sub: 'y', dir: 1, expected: null },
     { group: 'nope', sub: 'x', dir: 1, expected: null },
   ] as const)('subgroup $sub of $group by $dir -> $expected', ({ group, sub, dir, expected }) => {

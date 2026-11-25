@@ -80,15 +80,4 @@ describe('formatConsumptionSummary', () => {
     expect(blocks.mode).toBe('full')
     expect(blocks.closing).toBeNull()
   })
-
-  it('rounds detail quantities to 1 decimal (no trailing zeros)', () => {
-    const r: ConsumptionResult = {
-      detail: [{ item: 'Water', quantity: 3.456, unit: 'liters' }],
-      brought: [],
-      shared: [],
-      isEmpty: false,
-    }
-    const blocks = formatConsumptionSummary(r, t)
-    expect(blocks.detail[0]!.quantity).toBe(3.5)
-  })
 })

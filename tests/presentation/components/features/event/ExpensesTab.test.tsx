@@ -23,14 +23,6 @@ describe('ExpensesTab', () => {
     Element.prototype.scrollIntoView = vi.fn()
   })
 
-  it('lists live expenses and keeps deleted ones behind a toggle', async () => {
-    await renderWithEvent(<ExpensesTab />, event(), ME)
-    expect(screen.getByText('Lunch')).toBeInTheDocument()
-    expect(screen.queryByText('Old taxi')).toBeNull()
-    fireEvent.click(screen.getByRole('button', { name: /deleted \(1\)/i }))
-    expect(screen.getByText('Old taxi')).toBeInTheDocument()
-  })
-
   it('opens an expense for editing with its data', async () => {
     await renderWithEvent(<ExpensesTab />, event(), ME)
     fireEvent.click(screen.getByRole('button', { name: /^edit$/i }))

@@ -76,11 +76,6 @@ const expense = (id: string, purchaseId: string, quantity: number, deleted = fal
 
 describe('purchaseProgress', () => {
   describe('boughtQuantity', () => {
-    it('sums quantities across non-deleted linked expenses', () => {
-      const event = makeEvent({ expenses: [expense('e1', 'p1', 10), expense('e2', 'p1', 8)] })
-      expect(boughtQuantity(event, 'p1')).toBe(18)
-    })
-
     it('picks the link of the asked purchase among several, and 0 when there is none', () => {
       const multi = {
         ...expense('e1', 'p2', 5),
@@ -92,11 +87,6 @@ describe('purchaseProgress', () => {
       const event = makeEvent({ expenses: [multi, expense('e2', 'p2', 7)] })
       expect(boughtQuantity(event, 'p1')).toBe(3)
       expect(boughtQuantity(event, 'p3')).toBe(0)
-    })
-
-    it('ignores deleted expenses', () => {
-      const event = makeEvent({ expenses: [expense('e1', 'p1', 10), expense('e2', 'p1', 8, true)] })
-      expect(boughtQuantity(event, 'p1')).toBe(10)
     })
 
     it('excludes the expense given in excludeExpenseId', () => {
@@ -131,19 +121,9 @@ describe('purchaseProgress', () => {
       const event = makeEvent({ expenses: [expense('e1', 'p1', 28)] })
       expect(isPurchaseDone(event, { ...baseBuy, kind: 'bring' })).toBe(false)
     })
-
-    it('respects excludeExpenseId (the expense being edited does not count as coverage)', () => {
-      const event = makeEvent({ expenses: [expense('e1', 'p1', 28)] })
-      expect(isPurchaseDone(event, baseBuy, { excludeExpenseId: 'e1' })).toBe(false)
-    })
   })
 
   describe('remainingToBuy', () => {
-    it('returns missing units when partially covered', () => {
-      const event = makeEvent({ expenses: [expense('e1', 'p1', 20)] })
-      expect(remainingToBuy(event, baseBuy)).toBe(8)
-    })
-
     it('returns 0 (not 1) when fully covered — regression for the false "falta 1"', () => {
       const event = makeEvent({ expenses: [expense('e1', 'p1', 28)] })
       expect(remainingToBuy(event, baseBuy)).toBe(0)

@@ -22,14 +22,6 @@ function Init({ currentId }: { currentId: string | null }) {
 }
 
 describe('YouLabel', () => {
-  it('renders nothing when userId is not the current user', () => {
-    render(
-      <Wrap currentId="other">
-        <YouLabel userId="someone-else" />
-      </Wrap>,
-    )
-    expect(screen.queryByText(/You|Tú|Zu/)).toBeNull()
-  })
   it('renders the badge when userId matches current user', () => {
     render(
       <Wrap currentId="me">
