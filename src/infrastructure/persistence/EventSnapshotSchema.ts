@@ -18,7 +18,9 @@ function migrateLegacyDays(raw: unknown): unknown {
       .map((d) => ({ start: d, end: d, note: null }))
   }
   if (!Array.isArray(out.chosenOptions)) {
+    // Stryker disable next-line ConditionalExpression: a non-string legacy value yields a key no option has, and chosenOptions is filtered by option keys below
     const legacy = typeof out.chosenDay === 'string' ? out.chosenDay : null
+    // Stryker disable next-line ArrayDeclaration: any placeholder entry is dropped by the option-key filter below
     out.chosenOptions = legacy ? [`${legacy}..${legacy}`] : []
   }
   delete out.days
@@ -146,7 +148,9 @@ export const EventSnapshotSchema = z.object({
   users: z.array(UserSchema).default([]),
   availability: z.record(z.string(), z.array(z.boolean())).default({}),
   availabilityNote: z.string().nullable().default(null),
+  // Stryker disable next-line ArrayDeclaration: a placeholder default is dropped by the option-key filter in parseEventSnapshot
   chosenOptions: z.array(z.string()).default([]),
+  // Stryker disable ArrayDeclaration: a placeholder default is dropped by isValidOption in parseEventSnapshot
   dayOptions: z
     .array(
       z.object({
@@ -156,6 +160,7 @@ export const EventSnapshotSchema = z.object({
       }),
     )
     .default([]),
+  // Stryker restore ArrayDeclaration
   purchases: z.array(PurchaseSchema).default([]),
   groupOrder: z.array(z.string()).default([]),
   subgroupOrder: z.record(z.string(), z.array(z.string())).default({}),

@@ -1,214 +1,293 @@
 import { describe, it, expect } from 'vitest'
 import { parseEventSnapshot } from '@/infrastructure/persistence/EventSnapshotSchema'
+import { COMMON_ALLERGENS, ALLERGEN_SEVERITIES } from '@/domain/value-objects/Allergen'
 
-describe('EventSnapshotSchema', () => {
-  it('parses a minimal valid snapshot and fills defaults', () => {
-    const minimal = {
-      id: 'abc123x',
-      name: 'Test',
-      createdBy: 'user1',
-      createdAt: '2026-01-01T00:00:00Z',
-      updatedAt: '2026-01-01T00:00:00Z',
-      users: [],
-    }
-    const parsed = parseEventSnapshot(minimal)
-    expect(parsed.hasPin).toBe(false)
-    expect(parsed.dayOptions).toEqual([])
-    expect(parsed.chosenOptions).toEqual([])
-    expect(parsed.availability).toEqual({})
-    expect(parsed.location).toBeNull()
-    expect(parsed.expenses).toEqual([])
-    expect(parsed.purchases).toEqual([])
-    expect(parsed.history).toEqual([])
-  })
+const T = '2026-01-01T00:00:00.000Z'
+const base = { id: 'abc123x', name: 'Viaje', createdBy: 'u1', createdAt: T, updatedAt: T }
 
-  it('fills user defaults (kind, allergies, email, etc.)', () => {
-    const snapshot = {
-      id: 'abc123x',
-      name: 'Test',
-      createdBy: 'user1',
-      createdAt: '2026-01-01T00:00:00Z',
-      updatedAt: '2026-01-01T00:00:00Z',
-      users: [{ id: 'u1', name: 'Old', alias: null, joinedAt: '2026-01-01T00:00:00Z' }],
-    }
-    const parsed = parseEventSnapshot(snapshot)
-    expect(parsed.users[0]!.kind).toBe('adult')
-    expect(parsed.users[0]!.allergies).toEqual([])
-    expect(parsed.users[0]!.email).toBeNull()
-  })
+const purchase = {
+  createdBy: 'u1',
+  item: 'Rice',
+  quantity: 1,
+  unit: 'kg',
+  dailyConsumption: 1,
+  totalQuantity: 1,
+  createdAt: T,
+}
+const expense = { paidBy: 'u1', cents: 100, description: 'Pan', date: T, createdAt: T }
+const liquidation = { concept: 'Bizum', cents: 50, createdAt: T }
 
-  it('keeps a dog participant', () => {
-    const snapshot = {
-      id: 'abc123x',
-      name: 'Test',
-      createdBy: 'user1',
-      createdAt: '2026-01-01T00:00:00Z',
-      updatedAt: '2026-01-01T00:00:00Z',
-      users: [
-        { id: 'd1', name: 'Toby', alias: null, joinedAt: '2026-01-01T00:00:00Z', kind: 'dog' },
-      ],
-    }
-    expect(parseEventSnapshot(snapshot).users[0]!.kind).toBe('dog')
-  })
-
-  it('degrades an unknown kind to adult instead of losing the whole event', () => {
-    const snapshot = {
-      id: 'abc123x',
-      name: 'Test',
-      createdBy: 'user1',
-      createdAt: '2026-01-01T00:00:00Z',
-      updatedAt: '2026-01-01T00:00:00Z',
-      users: [
-        { id: 'u1', name: 'Iker', alias: null, joinedAt: '2026-01-01T00:00:00Z', kind: 'adult' },
-        { id: 'c1', name: 'Kirby', alias: null, joinedAt: '2026-01-01T00:00:00Z', kind: 'cat' },
-      ],
-    }
-    const parsed = parseEventSnapshot(snapshot)
-    expect(parsed.users.map((u) => u.kind)).toEqual(['adult', 'adult'])
-    expect(parsed.users[1]!.name).toBe('Kirby')
-  })
-
-  it('fills expense splitAmong default', () => {
-    const snapshot = {
-      id: 'abc123x',
-      name: 'Test',
-      createdBy: 'user1',
-      createdAt: '2026-01-01T00:00:00Z',
-      updatedAt: '2026-01-01T00:00:00Z',
-      users: [],
-      expenses: [
-        {
-          id: 'e1',
-          paidBy: 'u1',
-          cents: 100,
-          description: 'Test',
-          date: '2026-01-01T00:00:00Z',
-          createdAt: '2026-01-01T00:00:00Z',
-        },
-      ],
-    }
-    const parsed = parseEventSnapshot(snapshot)
-    expect(parsed.expenses[0]!.splitAmong).toEqual([])
-    expect(parsed.expenses[0]!.currency).toBe('EUR')
-  })
-
-  it('throws a descriptive error on missing required fields', () => {
-    const bad = { id: 'abc123x' }
-    expect(() => parseEventSnapshot(bad)).toThrow(/validation failed/i)
-  })
-
-  it('mirrors a real legacy event shape (from production)', () => {
-    const real = {
-      id: '7fv2lk2',
-      days: ['2026-06-05'],
-      name: 'Demo movil',
-      users: [
-        {
-          id: '019e6345-9df0-7541-8d82-87fb7667b90b',
-          name: 'Endika',
-          alias: 'Endi',
-          email: null,
-          notes: null,
-          phone: null,
-          dietary: 'No pescado',
-          joinedAt: '2026-05-26T07:52:47.348Z',
-          allergies: [],
-        },
-      ],
-      history: [
-        {
-          id: '2fe4b0d8-1d9d-4d1c-97bf-4c1bf261f772',
-          type: 'event_created',
-          after: { name: 'Demo movil' },
-          before: null,
-          userId: '019e6345-9df0-7541-8d82-87fb7667b90b',
-          version: 1,
-          timestamp: '2026-05-26T07:52:47.351Z',
-          description: 'Event created: Demo movil',
-        },
-      ],
-      expenses: [],
-      location: null,
-      createdAt: '2026-05-26T07:52:47.351Z',
-      createdBy: '019e6345-9df0-7541-8d82-87fb7667b90b',
-      purchases: [],
-      updatedAt: '2026-05-26T09:26:19.667Z',
+describe('parseEventSnapshot', () => {
+  it('fills every top-level default of a minimal snapshot', () => {
+    expect(parseEventSnapshot(base)).toEqual({
+      ...base,
       description: null,
-      availability: {},
+      location: null,
       generalNotes: null,
       wifiPassword: null,
       emergencyContact: null,
-    }
-    const parsed = parseEventSnapshot(real)
-    expect(parsed.users[0]!.kind).toBe('adult') // backfilled
-    expect(parsed.hasPin).toBe(false) // backfilled
-  })
-
-  it('migrates legacy days into single-day options', () => {
-    const parsed = parseEventSnapshot({
-      id: 'abc123x',
-      name: 'Viaje',
-      createdBy: 'u1',
-      createdAt: '2026-01-01T00:00:00.000Z',
-      updatedAt: '2026-01-01T00:00:00.000Z',
-      days: ['2026-06-05', '2026-06-06'],
-      chosenDay: '2026-06-06',
-      availability: { u1: [true, false] },
+      users: [],
+      availability: {},
+      availabilityNote: null,
+      chosenOptions: [],
+      dayOptions: [],
+      purchases: [],
+      groupOrder: [],
+      subgroupOrder: {},
+      expenses: [],
+      hasPin: false,
+      stage: 'doodle',
+      settledTransfers: [],
+      manualLiquidations: [],
+      history: [],
     })
-    expect(parsed.dayOptions).toEqual([
-      { start: '2026-06-05', end: '2026-06-05', note: null },
-      { start: '2026-06-06', end: '2026-06-06', note: null },
-    ])
-    expect(parsed.chosenOptions).toEqual(['2026-06-06..2026-06-06'])
-    expect(parsed.availability.u1).toEqual([true, false])
-    expect('days' in parsed).toBe(false)
-    expect('chosenDay' in parsed).toBe(false)
   })
 
-  it('reads a v4 blob straight through and drops invalid options', () => {
+  it('fills the defaults of every nested entity and drops unknown keys', () => {
     const parsed = parseEventSnapshot({
-      id: 'abc123x',
-      name: 'Viaje',
+      ...base,
+      location: { name: 'Casa' },
+      users: [
+        {
+          id: 'u1',
+          name: 'Old',
+          joinedAt: T,
+          allergies: [{ name: COMMON_ALLERGENS[0], severity: ALLERGEN_SEVERITIES[0] }],
+        },
+        { id: 'u2', name: 'Bare', joinedAt: T },
+      ],
+      dayOptions: [{ start: '2026-06-05', end: '2026-06-05' }],
+      purchases: [
+        { ...purchase, id: 'p1' },
+        { ...purchase, id: 'p2', kind: 'bring', consumers: [{ userId: 'u1', multiplier: 2 }] },
+        { ...purchase, id: 'p3', kind: 'buy' },
+      ],
+      expenses: [
+        { ...expense, id: 'e1' },
+        {
+          ...expense,
+          id: 'e2',
+          currency: 'EUR',
+          purchaseLinks: [{ purchaseId: 'p1', quantity: 2 }],
+        },
+      ],
+      manualLiquidations: [
+        { ...liquidation, id: 'm1' },
+        { ...liquidation, id: 'm2', currency: 'EUR' },
+      ],
+      settledTransfers: [{ from: 'u1', to: 'u2', extra: 'dropped' }],
+      history: [
+        {
+          id: 'h1',
+          version: 1,
+          timestamp: T,
+          type: 'from_the_future',
+          userId: 'u1',
+          description: 'x',
+          after: { name: 'dropped' },
+        },
+      ],
+    })
+
+    expect(parsed.location).toEqual({
+      name: 'Casa',
+      address: null,
+      lat: null,
+      lng: null,
+      postalCode: null,
+      googleMapsUrl: null,
+    })
+    expect(parsed.users).toEqual([
+      {
+        id: 'u1',
+        name: 'Old',
+        alias: null,
+        joinedAt: T,
+        email: null,
+        phone: null,
+        allergies: [{ name: COMMON_ALLERGENS[0], severity: ALLERGEN_SEVERITIES[0], notes: null }],
+        dietary: null,
+        notes: null,
+        kind: 'adult',
+        guardianId: null,
+        household: null,
+      },
+      {
+        id: 'u2',
+        name: 'Bare',
+        alias: null,
+        joinedAt: T,
+        email: null,
+        phone: null,
+        allergies: [],
+        dietary: null,
+        notes: null,
+        kind: 'adult',
+        guardianId: null,
+        household: null,
+      },
+    ])
+    expect(parsed.dayOptions).toEqual([{ start: '2026-06-05', end: '2026-06-05', note: null }])
+    const purchaseDefaults = {
       createdBy: 'u1',
-      createdAt: '2026-01-01T00:00:00.000Z',
-      updatedAt: '2026-01-01T00:00:00.000Z',
+      item: 'Rice',
+      quantity: 1,
+      unit: 'kg',
+      dailyConsumption: 1,
+      totalQuantity: 1,
+      deleted: false,
+      deletedBy: null,
+      deletedAt: null,
+      deleteReason: null,
+      createdAt: T,
+      assignedTo: null,
+      purchased: false,
+      boughtQuantity: 0,
+      group: null,
+      subgroup: null,
+    }
+    expect(parsed.purchases).toEqual([
+      { ...purchaseDefaults, id: 'p1', kind: 'buy', consumers: [] },
+      {
+        ...purchaseDefaults,
+        id: 'p2',
+        kind: 'bring',
+        consumers: [{ userId: 'u1', multiplier: 2 }],
+      },
+      { ...purchaseDefaults, id: 'p3', kind: 'buy', consumers: [] },
+    ])
+    const expenseDefaults = {
+      paidBy: 'u1',
+      cents: 100,
+      currency: 'EUR',
+      description: 'Pan',
+      purchaseId: null,
+      date: T,
+      createdAt: T,
+      splitAmong: [],
+      deleted: false,
+      deletedBy: null,
+      deletedAt: null,
+    }
+    expect(parsed.expenses).toEqual([
+      { ...expenseDefaults, id: 'e1', purchaseLinks: [] },
+      { ...expenseDefaults, id: 'e2', purchaseLinks: [{ purchaseId: 'p1', quantity: 2 }] },
+    ])
+    const liquidationDefaults = {
+      concept: 'Bizum',
+      cents: 50,
+      currency: 'EUR',
+      paidBy: null,
+      affects: [],
+      paidShares: [],
+      createdAt: T,
+      deleted: false,
+      deletedBy: null,
+      deletedAt: null,
+    }
+    expect(parsed.manualLiquidations).toEqual([
+      { ...liquidationDefaults, id: 'm1' },
+      { ...liquidationDefaults, id: 'm2' },
+    ])
+    expect(parsed.settledTransfers).toEqual([{ from: 'u1', to: 'u2' }])
+    expect(parsed.history).toEqual([
+      {
+        id: 'h1',
+        version: 1,
+        timestamp: T,
+        type: 'from_the_future',
+        userId: 'u1',
+        description: 'x',
+      },
+    ])
+  })
+
+  it('keeps a dog and degrades an unknown kind to adult instead of losing the event', () => {
+    const user = { alias: null, joinedAt: T }
+    const parsed = parseEventSnapshot({
+      ...base,
+      users: [
+        { id: 'd1', name: 'Toby', kind: 'dog', ...user },
+        { id: 'c1', name: 'Kirby', kind: 'cat', ...user },
+      ],
+    })
+
+    expect(parsed.users.map((u) => [u.name, u.kind])).toEqual([
+      ['Toby', 'dog'],
+      ['Kirby', 'adult'],
+    ])
+  })
+
+  it('reads a v4 blob straight through, dropping invalid options and sorting the rest', () => {
+    const parsed = parseEventSnapshot({
+      ...base,
       dayOptions: [
         { start: '2026-06-12', end: '2026-06-14', note: 'casa rural' },
         { start: '2026-06-20', end: '2026-06-18', note: null },
+        { start: '2026-06-05', end: '2026-06-05', note: null },
       ],
       chosenOptions: ['2026-06-12..2026-06-14', '2099-01-01..2099-01-01'],
     })
+
     expect(parsed.dayOptions).toEqual([
+      { start: '2026-06-05', end: '2026-06-05', note: null },
       { start: '2026-06-12', end: '2026-06-14', note: 'casa rural' },
     ])
     expect(parsed.chosenOptions).toEqual(['2026-06-12..2026-06-14'])
   })
 
-  it('legacy chosenDay null becomes an empty chosenOptions', () => {
-    const parsed = parseEventSnapshot({
-      id: 'abc123x',
-      name: 'Viaje',
-      createdBy: 'u1',
-      createdAt: '2026-01-01T00:00:00.000Z',
-      updatedAt: '2026-01-01T00:00:00.000Z',
-      days: ['2026-06-05'],
-      chosenDay: null,
-    })
-    expect(parsed.chosenOptions).toEqual([])
+  it.each([
+    [
+      'single-day options and the chosen day',
+      { days: ['2026-06-05', '2026-06-06'], chosenDay: '2026-06-06' },
+      ['2026-06-05', '2026-06-06'],
+      ['2026-06-06..2026-06-06'],
+    ],
+    [
+      'non-string days skipped',
+      { days: ['2026-06-05', 7, null], chosenDay: '2026-06-05' },
+      ['2026-06-05'],
+      ['2026-06-05..2026-06-05'],
+    ],
+    ['a null chosenDay', { days: ['2026-06-05'], chosenDay: null }, ['2026-06-05'], []],
+    ['no chosenDay', { days: ['2026-06-05'] }, ['2026-06-05'], []],
+  ])('migrates legacy days: %s', (_name, legacy, starts, chosen) => {
+    const parsed = parseEventSnapshot({ ...base, ...legacy })
+
+    expect(parsed.dayOptions.map((o) => [o.start, o.end, o.note])).toEqual(
+      starts.map((s) => [s, s, null]),
+    )
+    expect(parsed.chosenOptions).toEqual(chosen)
+    expect(Object.keys(parsed)).not.toContain('days')
+    expect(Object.keys(parsed)).not.toContain('chosenDay')
   })
 
-  it('sorts the options it reads', () => {
-    const parsed = parseEventSnapshot({
-      id: 'abc123x',
-      name: 'Viaje',
-      createdBy: 'u1',
-      createdAt: '2026-01-01T00:00:00.000Z',
-      updatedAt: '2026-01-01T00:00:00.000Z',
-      dayOptions: [
-        { start: '2026-06-12', end: '2026-06-14', note: null },
-        { start: '2026-06-05', end: '2026-06-05', note: null },
-      ],
-    })
-    expect(parsed.dayOptions.map((o) => o.start)).toEqual(['2026-06-05', '2026-06-12'])
+  it('reports the path and message of at most five issues', () => {
+    const run = () => parseEventSnapshot({ users: [{}] })
+
+    expect(run).toThrow(/^Event snapshot validation failed: /)
+    const issues = (() => {
+      try {
+        run()
+      } catch (e) {
+        return (e as Error).message.replace('Event snapshot validation failed: ', '').split('; ')
+      }
+      return []
+    })()
+    expect(issues).toHaveLength(5)
+    expect(issues.map((i) => i.split(': ')[0])).toEqual([
+      'id',
+      'name',
+      'createdBy',
+      'users.0.id',
+      'users.0.name',
+    ])
   })
+
+  it.each([[null], [[]], ['text'], [undefined]])(
+    'rejects the non-object %j as a whole instead of treating it as an empty event',
+    (raw) => {
+      expect(() => parseEventSnapshot(raw)).toThrow(/^Event snapshot validation failed: : /)
+    },
+  )
 })

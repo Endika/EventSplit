@@ -1,11 +1,15 @@
-import { describe, it, expect, beforeEach } from 'vitest'
+import { describe, it, expect, beforeEach, vi } from 'vitest'
 import { CreateEventHandler } from '@/application/handlers/CreateEventHandler'
 import { SetEditPinHandler } from '@/application/handlers/SetEditPinHandler'
 import { AddExpenseHandler } from '@/application/handlers/AddExpenseHandler'
 import { InMemoryEventRepository } from '@/infrastructure/persistence/InMemoryEventRepository'
 import { PinForwardingEventRepository } from '@/infrastructure/persistence/PinForwardingEventRepository'
 import { UnlockedPinHolder } from '@/shared/di/UnlockedPinHolder'
-import { isLockedEvent, WrongPinError } from '@/domain/repositories/IEventRepository'
+import {
+  isLockedEvent,
+  WrongPinError,
+  type IEventRepository,
+} from '@/domain/repositories/IEventRepository'
 
 /**
  * Regression guard for the hardening bug: collaborative write handlers go
@@ -152,5 +156,58 @@ describe('PinForwardingEventRepository (collaborative write on a PIN-protected e
         description: 'Bread',
       }),
     ).rejects.toBeInstanceOf(WrongPinError)
+  })
+})
+
+describe('PinForwardingEventRepository (delegation)', () => {
+  const recorder = () => ({
+    findById: vi.fn(async () => null),
+    getVersion: vi.fn(async () => 5),
+    create: vi.fn(async () => ({ version: 1 })),
+    update: vi.fn(async () => ({ version: 2 })),
+    setPin: vi.fn(async () => undefined),
+    verifyPin: vi.fn(async () => true),
+    deleteEvent: vi.fn(async () => undefined),
+  })
+
+  it('fills the held PIN only where the caller passed none, and forwards the rest untouched', async () => {
+    const target = recorder()
+    const holder = new UnlockedPinHolder()
+    holder.set('e1', 'held')
+    const repo = new PinForwardingEventRepository(target as unknown as IEventRepository, holder)
+    const snapshot = { id: 'e1' } as never
+
+    await repo.findById('e1')
+    await repo.findById('e1', 'own')
+    await repo.update('e1', snapshot, 3, null)
+    await repo.update('e1', snapshot, 3, 'own')
+    await repo.setPin('e1', '5678', null)
+    await repo.setPin('e1', '5678', 'own')
+    await repo.deleteEvent('e1', null)
+    await repo.deleteEvent('e1', 'own')
+
+    expect(target.findById.mock.calls).toEqual([
+      ['e1', 'held'],
+      ['e1', 'own'],
+    ])
+    expect(target.update.mock.calls).toEqual([
+      ['e1', snapshot, 3, 'held'],
+      ['e1', snapshot, 3, 'own'],
+    ])
+    expect(target.setPin.mock.calls).toEqual([
+      ['e1', '5678', 'held'],
+      ['e1', '5678', 'own'],
+    ])
+    expect(target.deleteEvent.mock.calls).toEqual([
+      ['e1', 'held'],
+      ['e1', 'own'],
+    ])
+
+    expect(await repo.getVersion('e1')).toBe(5)
+    expect(await repo.create(snapshot)).toEqual({ version: 1 })
+    expect(await repo.verifyPin('e1', '1234')).toBe(true)
+    expect(target.getVersion).toHaveBeenCalledExactlyOnceWith('e1')
+    expect(target.create).toHaveBeenCalledExactlyOnceWith(snapshot)
+    expect(target.verifyPin).toHaveBeenCalledExactlyOnceWith('e1', '1234')
   })
 })

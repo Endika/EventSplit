@@ -16,9 +16,11 @@ function toLabel(p: Record<string, string | undefined>): string {
   return [street, p.postcode, p.city, p.state, p.country].filter(Boolean).join(', ')
 }
 
+// Stryker disable next-line StringLiteral: an empty default language is unsupported and falls back to 'en' anyway
 export async function searchAddresses(query: string, lang = 'en'): Promise<AddressSuggestion[]> {
   const q = query.trim()
   if (q.length < 3) return []
+  // Stryker disable next-line StringLiteral: blanking 'en' still resolves to 'en' through the fallback
   const supported = ['en', 'de', 'fr', 'it']
   const photonLang = supported.includes(lang) ? lang : 'en'
   try {

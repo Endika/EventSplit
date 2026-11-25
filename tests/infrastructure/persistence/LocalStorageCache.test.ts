@@ -28,9 +28,11 @@ describe('LocalStorageCache', () => {
     expect(cache.getIdentity('abc1234')?.name).toBe('John')
   })
 
-  it('returns null on corrupted payload', () => {
+  it('returns null on a corrupted event or identity payload', () => {
     localStorage.setItem('eventsplit.event.bad1234', '{not json')
+    localStorage.setItem('eventsplit.identity.bad1234', '{not json')
     expect(new LocalStorageCache().get('bad1234')).toBeNull()
+    expect(new LocalStorageCache().getIdentity('bad1234')).toBeNull()
   })
 
   it('listAll returns empty array when nothing cached', () => {
@@ -67,8 +69,8 @@ describe('LocalStorageCache', () => {
     const e = Event.create({ name: 'Mine', creator: User.create({ name: 'John' }) }).toSnapshot()
     cache.set(e.id, { snapshot: e, version: 1 })
     localStorage.setItem('eventsplit.identity.xxxxxxx', '{"id":"x","name":"y","alias":null}')
-    localStorage.setItem('some.other.key', 'whatever')
-    expect(cache.listAll()).toHaveLength(1)
+    localStorage.setItem('other.event.copy', localStorage.getItem(`eventsplit.event.${e.id}`)!)
+    expect(cache.listAll().map((x) => x.id)).toEqual([e.id])
   })
 
   it('remove deletes both event and identity entries', () => {
@@ -203,16 +205,21 @@ describe('LocalStorageCache', () => {
     })
   })
 
-  it('dropping only the snapshot keeps the identity for that event', () => {
+  it('dropping the snapshot or the identity leaves the other one in place', () => {
     const cache = new LocalStorageCache()
     const s = sample()
+    const identity = { id: 'uid', name: 'John', alias: null }
     cache.set(s.id, { snapshot: s, version: 1 })
-    cache.setIdentity(s.id, { id: 'uid', name: 'John', alias: null })
+    cache.setIdentity(s.id, identity)
 
     cache.removeSnapshot(s.id)
-
     expect(cache.get(s.id)).toBeNull()
     expect(cache.listAll()).toEqual([])
-    expect(cache.getIdentity(s.id)?.name).toBe('John')
+    expect(cache.getIdentity(s.id)).toEqual(identity)
+
+    cache.set(s.id, { snapshot: s, version: 1 })
+    cache.removeIdentity(s.id)
+    expect(cache.getIdentity(s.id)).toBeNull()
+    expect(cache.get(s.id)?.version).toBe(1)
   })
 })
