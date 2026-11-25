@@ -12,6 +12,7 @@ import {
 import { EventTabs } from '@/presentation/components/features/event/EventTabs'
 import { EventPinGate } from '@/presentation/components/features/security/EventPinGate'
 import { useEditPin } from '@/presentation/context/EditPinContext'
+import { toCurrentUser, toIdentity } from '@/presentation/utils/identity'
 import { ShareButton } from '@/presentation/components/common/ShareButton'
 
 export function EventPage({ eventId }: { eventId: string }) {
@@ -26,29 +27,14 @@ export function EventPage({ eventId }: { eventId: string }) {
   useEffect(() => {
     const cache = container.resolve<LocalStorageCache>('cache')
     const identity = cache.getIdentity(eventId)
-    if (identity) {
-      setMe({
-        ...identity,
-        displayName: identity.alias ? `${identity.name} (${identity.alias})` : identity.name,
-      })
-    }
+    if (identity) setMe(toCurrentUser(identity))
   }, [eventId, container, setMe])
 
   async function handleIdentification(r: IdentificationResult) {
     const cache = container.resolve<LocalStorageCache>('cache')
     if (r.kind === 'pick' && r.pickedUser) {
-      const identity = {
-        id: r.pickedUser.id,
-        name: r.pickedUser.name,
-        alias: r.pickedUser.alias,
-      }
-      cache.setIdentity(eventId, identity)
-      setMe({
-        ...identity,
-        displayName: r.pickedUser.alias
-          ? `${r.pickedUser.name} (${r.pickedUser.alias})`
-          : r.pickedUser.name,
-      })
+      cache.setIdentity(eventId, toIdentity(r.pickedUser))
+      setMe(toCurrentUser(r.pickedUser))
       return
     }
     if (r.kind === 'new' && r.newUser) {

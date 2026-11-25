@@ -5,6 +5,8 @@ import { Modal } from '@/presentation/components/common/Modal'
 import { Button } from '@/presentation/components/common/Button'
 import { Input } from '@/presentation/components/common/Input'
 import { isSelectableAsSelf } from '@/domain/services/participantRoles'
+import { hasValidName, needsAlias } from '@/presentation/utils/participants'
+import { userLabel } from '@/presentation/utils/userLabel'
 
 export interface IdentificationResult {
   kind: 'pick' | 'new'
@@ -28,11 +30,9 @@ export function IdentificationModal({
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
-  const nameCollision = users.some((u) => u.name.trim().toLowerCase() === name.trim().toLowerCase())
-
   async function submitNew(e: FormEvent) {
     e.preventDefault()
-    if (nameCollision && !alias.trim()) {
+    if (needsAlias(users, name, alias)) {
       setError(t('id.nameNeedsAlias', { name: name.trim() }))
       return
     }
@@ -75,7 +75,7 @@ export function IdentificationModal({
                     onClick={() => pick(u)}
                     disabled={busy}
                   >
-                    <span className="truncate">{u.alias ? `${u.name} (${u.alias})` : u.name}</span>
+                    <span className="truncate">{userLabel(u)}</span>
                   </button>
                 </li>
               ))}
@@ -114,7 +114,7 @@ export function IdentificationModal({
             >
               {t('id.back')}
             </Button>
-            <Button type="submit" disabled={busy || name.trim().length < 2}>
+            <Button type="submit" disabled={busy || !hasValidName(name)}>
               {t('id.confirm')}
             </Button>
           </div>

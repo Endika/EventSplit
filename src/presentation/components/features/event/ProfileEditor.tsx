@@ -4,7 +4,6 @@ import { useContainer } from '@/presentation/context/ContainerProvider'
 import { useEventState } from '@/presentation/context/EventContext'
 import { useCurrentUser, useSetCurrentUser } from '@/presentation/context/UserContext'
 import {
-  COMMON_ALLERGENS,
   type AllergenName,
   type AllergenSeverity,
   type AllergenSnapshot,
@@ -13,10 +12,18 @@ import type { UpdateProfileHandler } from '@/application/handlers/UpdateProfileH
 import type { RemoveParticipantHandler } from '@/application/handlers/RemoveParticipantHandler'
 import type { LocalStorageCache } from '@/infrastructure/persistence/LocalStorageCache'
 import type { UserKind } from '@/domain/entities/User'
-import { canBeGuardian } from '@/domain/services/participantRoles'
 import { useWriteGuard } from '@/presentation/context/WriteGuardContext'
 import { reportError } from '@/shared/utils/reportError'
 import { friendlyError } from '@/presentation/utils/friendlyError'
+import { toCurrentUser, toIdentity } from '@/presentation/utils/identity'
+import {
+  addAllergy,
+  allergenOptions,
+  existingHouseholds,
+  guardianCandidates,
+  profileFields,
+} from '@/presentation/utils/participants'
+import { userLabel } from '@/presentation/utils/userLabel'
 import { Modal } from '@/presentation/components/common/Modal'
 import { Button } from '@/presentation/components/common/Button'
 import { Input } from '@/presentation/components/common/Input'
@@ -59,16 +66,15 @@ export function ProfileEditor({ userId, onClose }: { userId?: string; onClose: (
   if (!event || !targetUserId) return null
 
   const isSelf = targetUserId === me?.id
-  const existingHouseholds = [
-    ...new Set(event.users.flatMap((u) => (u.household ? [u.household] : []))),
-  ].sort()
 
-  function addAllergy() {
-    if (newAllergen !== 'other' && allergies.some((a) => a.name === newAllergen)) return
-    setAllergies([
-      ...allergies,
-      { name: newAllergen, severity: newSeverity, notes: newAllergyNote.trim() || null },
-    ])
+  function submitAllergy() {
+    const next = addAllergy(allergies, {
+      name: newAllergen,
+      severity: newSeverity,
+      notes: newAllergyNote,
+    })
+    if (!next) return
+    setAllergies(next)
     setNewAllergyNote('')
   }
 
@@ -88,33 +94,26 @@ export function ProfileEditor({ userId, onClose }: { userId?: string; onClose: (
           eventId: event.id,
           userId: targetUserId,
           actorId: me.id,
-          name: name.trim(),
-          alias: alias.trim() || null,
-          email: email.trim() || null,
-          phone: phone.trim() || null,
-          dietary: dietary.trim() || null,
-          notes: notes.trim() || null,
-          kind,
-          guardianId: kind === 'child' ? guardianId || null : null,
-          household: kind === 'adult' ? household.trim() || null : null,
-          allergies,
+          ...profileFields({
+            name,
+            alias,
+            email,
+            phone,
+            dietary,
+            notes,
+            kind,
+            guardianId,
+            household,
+            allergies,
+          }),
         })
         setEvent(result.event, result.version)
         // Sync local identity only when editing self
         if (targetUserId === me?.id) {
           const updated = result.event.users.find((u) => u.id === me.id)
           if (updated) {
-            setMe({
-              id: updated.id,
-              name: updated.name,
-              alias: updated.alias,
-              displayName: updated.alias ? `${updated.name} (${updated.alias})` : updated.name,
-            })
-            container.resolve<LocalStorageCache>('cache').setIdentity(event.id, {
-              id: updated.id,
-              name: updated.name,
-              alias: updated.alias,
-            })
+            setMe(toCurrentUser(updated))
+            container.resolve<LocalStorageCache>('cache').setIdentity(event.id, toIdentity(updated))
           }
         }
         onClose()
@@ -201,13 +200,11 @@ export function ProfileEditor({ userId, onClose }: { userId?: string; onClose: (
               disabled={busy}
             >
               <option value="">{t('participants.guardianNone')}</option>
-              {(event?.users ?? [])
-                .filter((u) => canBeGuardian(u.kind) && u.id !== targetUserId)
-                .map((u) => (
-                  <option key={u.id} value={u.id}>
-                    {u.alias ? `${u.name} (${u.alias})` : u.name}
-                  </option>
-                ))}
+              {guardianCandidates(event.users, targetUserId).map((u) => (
+                <option key={u.id} value={u.id}>
+                  {userLabel(u)}
+                </option>
+              ))}
             </select>
           </label>
         )}
@@ -223,7 +220,7 @@ export function ProfileEditor({ userId, onClose }: { userId?: string; onClose: (
               disabled={busy}
             />
             <datalist id="household-suggestions">
-              {existingHouseholds.map((h) => (
+              {existingHouseholds(event.users).map((h) => (
                 <option key={h} value={h} />
               ))}
             </datalist>
@@ -303,19 +300,11 @@ export function ProfileEditor({ userId, onClose }: { userId?: string; onClose: (
                   onChange={(e) => setNewAllergen(e.target.value as AllergenName)}
                   disabled={busy}
                 >
-                  {(() => {
-                    const opts: AllergenName[] = [
-                      ...COMMON_ALLERGENS.filter((n) => n !== 'other').sort((a, b) =>
-                        t(`allergens.${a}`).localeCompare(t(`allergens.${b}`)),
-                      ),
-                      'other',
-                    ]
-                    return opts.map((name) => (
-                      <option key={name} value={name}>
-                        {t(`allergens.${name}`)}
-                      </option>
-                    ))
-                  })()}
+                  {allergenOptions((n) => t(`allergens.${n}`)).map((name) => (
+                    <option key={name} value={name}>
+                      {t(`allergens.${name}`)}
+                    </option>
+                  ))}
                 </select>
                 <select
                   className="min-h-11 border border-border bg-surface px-2 text-base text-ink sm:text-sm"
@@ -355,7 +344,7 @@ export function ProfileEditor({ userId, onClose }: { userId?: string; onClose: (
                 <Button
                   type="button"
                   onClick={() => {
-                    addAllergy()
+                    submitAllergy()
                     setShowAllergyPicker(false)
                   }}
                   disabled={busy}
@@ -395,7 +384,7 @@ export function ProfileEditor({ userId, onClose }: { userId?: string; onClose: (
               <div className="space-y-2">
                 <p className="text-xs text-muted">
                   {t('participants.removeConfirm', {
-                    name: myRow?.alias ? `${myRow.name} (${myRow.alias})` : (myRow?.name ?? ''),
+                    name: myRow ? userLabel(myRow) : '',
                   })}
                 </p>
                 <p className="text-xs text-danger">{t('participants.removeWarning')}</p>
