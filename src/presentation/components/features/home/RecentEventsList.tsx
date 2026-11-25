@@ -1,7 +1,9 @@
 import { useTranslation } from 'react-i18next'
 import type { CachedEventSummary } from '@/infrastructure/persistence/LocalStorageCache'
 import { IconClose } from '@/presentation/components/common/icons'
-import { formatRecentActivity } from '@/presentation/utils/recentActivity'
+import { formatRelative } from '@/presentation/utils/formatRelative'
+
+const WEEK = 604800
 
 export function RecentEventsList({
   items,
@@ -35,7 +37,12 @@ export function RecentEventsList({
             >
               <div className="truncate font-semibold text-ink">{e.name}</div>
               <div className="fineprint mt-0.5">
-                {t('home.lastActivity', { when: formatRecentActivity(e.updatedAt, i18n.language) })}
+                {t('home.lastActivity', {
+                  when: formatRelative(e.updatedAt, i18n.language, {
+                    relativeFor: WEEK,
+                    dateFormat: { dateStyle: 'medium' },
+                  }),
+                })}
                 {' · '}
                 {t('home.participants', { count: e.participantCount })}
               </div>
