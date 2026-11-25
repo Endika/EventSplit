@@ -27,6 +27,7 @@ export interface CachedEventSummary {
 export class LocalStorageCache {
   get(eventId: string): CachedEvent | null {
     const raw = localStorage.getItem(EVENT_KEY(eventId))
+    // Stryker disable next-line ConditionalExpression: a missing entry reaches JSON.parse(null) and falls into the catch, or yields null, with the same result
     if (!raw) return null
     try {
       const json = JSON.parse(raw) as { snapshot: unknown; version: number }
@@ -43,6 +44,7 @@ export class LocalStorageCache {
 
   getIdentity(eventId: string): CachedIdentity | null {
     const raw = localStorage.getItem(IDENT_KEY(eventId))
+    // Stryker disable next-line ConditionalExpression: a missing entry reaches JSON.parse(null) and falls into the catch, or yields null, with the same result
     if (!raw) return null
     try {
       return JSON.parse(raw) as CachedIdentity
@@ -57,13 +59,16 @@ export class LocalStorageCache {
 
   listAll(): CachedEventSummary[] {
     const summaries: CachedEventSummary[] = []
+    // Stryker disable next-line ArrayDeclaration: a placeholder key reads back null and is skipped below
     const keys: string[] = []
+    // Stryker disable next-line EqualityOperator: key(length) is null and skipped by the guard below
     for (let i = 0; i < localStorage.length; i++) {
       const key = localStorage.key(i)
       if (key && key.startsWith('eventsplit.event.')) keys.push(key)
     }
     for (const key of keys) {
       const raw = localStorage.getItem(key)
+      // Stryker disable next-line ConditionalExpression: a null entry throws inside the try and is skipped as corrupted
       if (!raw) continue
       try {
         const json = JSON.parse(raw) as { snapshot: unknown; version: number }

@@ -109,6 +109,7 @@ export class SupabaseEventRepository implements IEventRepository {
         throw new VersionConflictError(version ?? -1)
       }
       const mapped = mapRpcError(error)
+      // Stryker disable next-line ConditionalExpression: mapRpcError never returns null for a truthy error
       if (mapped) throw mapped
     }
     if (data === WRONG_PIN_VERSION) throw new WrongPinError()

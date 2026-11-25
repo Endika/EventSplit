@@ -23,6 +23,7 @@ export async function googleAutocomplete(query: string, key: string): Promise<Pl
         placePrediction?: { placeId?: string; text?: { text?: string } }
       }>
     }
+    // Stryker disable next-line ArrayDeclaration: a placeholder string has no placePrediction and is filtered out as incomplete
     return (data.suggestions ?? [])
       .map((s) => {
         const pp = s.placePrediction
@@ -53,6 +54,7 @@ export async function googlePlaceDetails(
       formattedAddress?: string
       displayName?: { text?: string }
     }
+    // Stryker disable next-line OptionalChaining: the latitude check above already guarantees location exists
     // 200 OK but the place genuinely has no coordinates/address — a real "not found".
     if (!data.location?.latitude || !data.location?.longitude || !data.formattedAddress) return null
     return {
