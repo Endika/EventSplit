@@ -1,5 +1,13 @@
 # Changelog
 
+## [3.12.3](https://github.com/Endika/EventSplit/compare/v3.12.2...v3.12.3) (2026-11-25)
+
+
+### Bug Fixes
+
+* **event:** log a location only when the place changes ([caa2d93](https://github.com/Endika/EventSplit/commit/caa2d931d4802e65349fc837268b081736b4c12c))
+* **geo:** accept places at latitude or longitude zero ([09af58a](https://github.com/Endika/EventSplit/commit/09af58adaba33910250e4e05c371e1c4d25824e8))
+
 ## [3.12.2](https://github.com/Endika/EventSplit/compare/v3.12.1...v3.12.2) (2026-11-24)
 
 
