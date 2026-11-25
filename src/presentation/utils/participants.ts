@@ -1,3 +1,4 @@
+import { blankToNull } from '@/presentation/utils/text'
 import {
   COMMON_ALLERGENS,
   type AllergenName,
@@ -8,8 +9,6 @@ import type { UserKind } from '@/domain/entities/User'
 import { canBeGuardian } from '@/domain/services/participantRoles'
 
 const MIN_NAME_LENGTH = 2
-
-const blankToNull = (s: string): string | null => s.trim() || null
 
 export const hasValidName = (name: string): boolean => name.trim().length >= MIN_NAME_LENGTH
 

@@ -1,3 +1,4 @@
+import { blankToNull } from '@/presentation/utils/text'
 import type { EventLocation } from '@/domain/entities/Event'
 
 export interface LocationFields {
@@ -7,8 +8,6 @@ export interface LocationFields {
   lng: string
   postalCode: string
 }
-
-export const emptyToNull = (raw: string): string | null => raw.trim() || null
 
 /** Whether anything besides the place's name was typed. */
 export const hasLocationDetails = (f: LocationFields): boolean =>
@@ -27,10 +26,10 @@ export function toLocationInput(f: LocationFields): Omit<EventLocation, 'googleM
   if (!f.name.trim()) return null
   return {
     name: f.name.trim(),
-    address: emptyToNull(f.address),
+    address: blankToNull(f.address),
     lat: parseCoordinate(f.lat),
     lng: parseCoordinate(f.lng),
-    postalCode: emptyToNull(f.postalCode),
+    postalCode: blankToNull(f.postalCode),
   }
 }
 
@@ -57,7 +56,7 @@ export function mapQuery(
 
 /** The typed fields as the map embed takes them. */
 export const mapSubject = (f: Pick<LocationFields, 'address' | 'lat' | 'lng'>) => ({
-  address: emptyToNull(f.address),
+  address: blankToNull(f.address),
   lat: f.lat.trim() ? Number(f.lat) : null,
   lng: f.lng.trim() ? Number(f.lng) : null,
 })
