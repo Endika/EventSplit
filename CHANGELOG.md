@@ -1,5 +1,12 @@
 # Changelog
 
+## [3.12.4](https://github.com/Endika/EventSplit/compare/v3.12.3...v3.12.4) (2026-11-25)
+
+
+### Bug Fixes
+
+* **ui:** localise the recent activity time on Home ([4f1851e](https://github.com/Endika/EventSplit/commit/4f1851e877867a508d29d51bbeb9f816a5fe4f54))
+
 ## [3.12.3](https://github.com/Endika/EventSplit/compare/v3.12.2...v3.12.3) (2026-11-25)
 
 
