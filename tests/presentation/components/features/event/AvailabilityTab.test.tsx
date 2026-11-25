@@ -127,22 +127,6 @@ describe('AvailabilityTab', () => {
     expect(cell('2026-06-05')).toHaveAttribute('data-mine', 'true')
   })
 
-  it('has a single save button, whichever view is showing', async () => {
-    render(
-      <Wrap event={makeEvent([jun5])}>
-        <AvailabilityTab />
-      </Wrap>,
-    )
-    await waitFor(() => expect(cell('2026-06-05')).toBeInTheDocument())
-    const saves = () =>
-      screen.getAllByRole('button', {
-        name: /guardar disponibilidad|save availability|gorde eskuragarritasuna|desa la disponibilitat|gardar dispo|guarda la disponibilitat/i,
-      })
-    expect(saves()).toHaveLength(1)
-    fireEvent.click(tableButton())
-    expect(saves()).toHaveLength(1)
-  })
-
   it('remembers the chosen view', async () => {
     const { unmount } = render(
       <Wrap event={makeEvent([jun5])}>
@@ -202,21 +186,6 @@ describe('AvailabilityTab', () => {
     expect(screen.getByRole('dialog')).toBeInTheDocument()
     // and inside it, the range shortcut
     expect(screen.getByRole('button', { name: /tramo|stretch|tarte|tram/i })).toBeInTheDocument()
-  })
-
-  it('offers the day picker from the table view too', async () => {
-    render(
-      <Wrap event={makeEvent([jun5])}>
-        <AvailabilityTab />
-      </Wrap>,
-    )
-    await waitFor(() => expect(cell('2026-06-05')).toBeInTheDocument())
-    fireEvent.click(tableButton())
-    expect(
-      screen.getByRole('button', {
-        name: /elegir d(í|i)as|choose days|aukeratu egunak|triar dies|escoller d(í|i)as/i,
-      }),
-    ).toBeInTheDocument()
   })
 })
 

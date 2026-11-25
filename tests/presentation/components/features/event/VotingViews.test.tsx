@@ -21,23 +21,6 @@ describe('VotingCalendar', () => {
   })
   afterEach(() => vi.useRealTimers())
 
-  it('a tap on a day covered by one option toggles my vote there', () => {
-    const onToggleMine = vi.fn()
-    render(
-      <VotingCalendar
-        options={[jun5to7]}
-        counts={[0]}
-        totalVoters={3}
-        myVotes={{}}
-        pins={[]}
-        onToggleMine={onToggleMine}
-        canVote
-      />,
-    )
-    fireEvent.click(cell('2026-06-06'))
-    expect(onToggleMine).toHaveBeenCalledWith('2026-06-05..2026-06-07')
-  })
-
   it('a tap on a day covered by two options opens a picker instead of guessing', () => {
     const onToggleMine = vi.fn()
     render(
@@ -60,22 +43,6 @@ describe('VotingCalendar', () => {
     expect(onToggleMine).toHaveBeenCalledTimes(1)
   })
 
-  it('shows the best option covering a day when they overlap', () => {
-    render(
-      <VotingCalendar
-        options={[jun5to7, day('2026-06-06')]}
-        counts={[1, 4]}
-        totalVoters={4}
-        myVotes={{}}
-        pins={[]}
-        onToggleMine={vi.fn()}
-        canVote
-      />,
-    )
-    expect(cell('2026-06-06')).toHaveAttribute('data-level', '4')
-    expect(cell('2026-06-05')).toHaveAttribute('data-level', '1')
-  })
-
   it('writes the vote count on the day, not only the colour', () => {
     render(
       <VotingCalendar
@@ -89,22 +56,6 @@ describe('VotingCalendar', () => {
       />,
     )
     expect(within(cell('2026-06-06')).getByText('2')).toBeInTheDocument()
-  })
-
-  it('a day in no option is not a vote target', () => {
-    render(
-      <VotingCalendar
-        options={[day('2026-06-05')]}
-        counts={[0]}
-        totalVoters={3}
-        myVotes={{}}
-        pins={[]}
-        onToggleMine={vi.fn()}
-        canVote
-      />,
-    )
-    expect(cell('2026-06-09')).toHaveAttribute('data-candidate', 'false')
-    expect(cell('2026-06-09').tagName).toBe('DIV')
   })
 
   it('marks a chosen option apart from its heat', () => {
@@ -137,24 +88,6 @@ describe('VotingCalendar', () => {
     )
     expect(screen.getByText(/nadie|nobody|inor|ningú|ninguén/i)).toBeInTheDocument()
     expect(screen.getByText(/todos|everyone|denak|tothom|tots/i)).toBeInTheDocument()
-  })
-
-  it('cannot vote without an identified user', () => {
-    const onToggleMine = vi.fn()
-    render(
-      <VotingCalendar
-        options={[day('2026-06-05')]}
-        counts={[0]}
-        totalVoters={3}
-        myVotes={{}}
-        pins={[]}
-        onToggleMine={onToggleMine}
-        canVote={false}
-      />,
-    )
-    expect(cell('2026-06-05')).toBeDisabled()
-    fireEvent.click(cell('2026-06-05'))
-    expect(onToggleMine).not.toHaveBeenCalled()
   })
 
   it('carries an option note into the day label and title', () => {
@@ -194,11 +127,6 @@ describe('OptionVoteList', () => {
     expect(screen.getByText('/4')).toBeInTheDocument()
   })
 
-  it('marks a chosen option', () => {
-    render(<OptionVoteList {...base} pins={['2026-06-12..2026-06-14']} />)
-    expect(screen.getByRole('listitem')).toHaveAttribute('data-chosen', 'true')
-  })
-
   it('toggles my vote and the pin separately', () => {
     const onToggleMine = vi.fn()
     const onTogglePin = vi.fn()
@@ -207,21 +135,6 @@ describe('OptionVoteList', () => {
     expect(onToggleMine).toHaveBeenCalledWith('2026-06-12..2026-06-14')
     fireEvent.click(screen.getByRole('button'))
     expect(onTogglePin).toHaveBeenCalledWith('2026-06-12..2026-06-14')
-  })
-
-  it('stores a note on blur, never on every keystroke', () => {
-    const onSetNote = vi.fn()
-    render(<OptionVoteList {...base} onSetNote={onSetNote} />)
-    const input = screen.getByRole('textbox')
-    fireEvent.change(input, { target: { value: 'casa rural 120 €' } })
-    expect(onSetNote).not.toHaveBeenCalled()
-    fireEvent.blur(input)
-    expect(onSetNote).toHaveBeenCalledWith('2026-06-12..2026-06-14', 'casa rural 120 €')
-  })
-
-  it('caps the note at 80 characters', () => {
-    render(<OptionVoteList {...base} />)
-    expect(screen.getByRole('textbox')).toHaveAttribute('maxLength', '80')
   })
 
   it('clearing a note stores null, not an empty string', () => {

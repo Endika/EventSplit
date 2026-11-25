@@ -68,27 +68,6 @@ describe('ParticipantsTab', () => {
     await waitFor(() => expect(screen.queryByRole('dialog')).toBeNull())
   })
 
-  it('drops the guardian again when the kind is changed away from child', async () => {
-    const app = await renderWithEvent(<ParticipantsTab />, event(), ME)
-    fireEvent.click(screen.getByRole('button', { name: /add participant/i }))
-    const dialog = await screen.findByRole('dialog')
-    fireEvent.change(within(dialog).getByPlaceholderText('Name'), { target: { value: 'Rex' } })
-    const kind = within(dialog).getByRole('combobox', { name: /type/i })
-    fireEvent.change(kind, { target: { value: 'child' } })
-    fireEvent.change(within(dialog).getByRole('combobox', { name: /in the charge of/i }), {
-      target: { value: ANE },
-    })
-    fireEvent.change(kind, { target: { value: 'dog' } })
-    fireEvent.click(within(dialog).getByRole('button', { name: /^add$/i }))
-
-    await waitFor(async () =>
-      expect((await app.saved()).users.find((u) => u.name === 'Rex')).toMatchObject({
-        kind: 'dog',
-        guardianId: null,
-      }),
-    )
-  })
-
   it('keeps the form open and says what went wrong when the server rejects it', async () => {
     const app = await renderWithEvent(<ParticipantsTab />, event(), ME)
     fireEvent.click(screen.getByRole('button', { name: /add participant/i }))

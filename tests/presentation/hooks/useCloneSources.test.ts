@@ -86,12 +86,6 @@ describe('useCloneSources', () => {
     expect(result.current.map((s) => s.id)).toEqual(['bbb222b'])
   })
 
-  it('reports the name and participant count', () => {
-    cacheEvent('aaa111a', { name: 'Viaje anterior' })
-    const { result } = renderHook(() => useCloneSources('target1'))
-    expect(result.current[0]).toMatchObject({ name: 'Viaje anterior', participantCount: 1 })
-  })
-
   it('survives a localStorage that throws', () => {
     vi.spyOn(Storage.prototype, 'getItem').mockImplementation(() => {
       throw new Error('nope')

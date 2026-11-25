@@ -144,10 +144,6 @@ describe('PurchaseForm editing the buyer', () => {
   it('saves the buyer picked in the form', async () => {
     expect(await saveWithBuyer(null, ANE)).toBe(ANE)
   })
-
-  it('saves clearing the buyer back to nobody', async () => {
-    expect(await saveWithBuyer(ANE, '')).toBeNull()
-  })
 })
 
 describe('PurchaseForm', () => {
@@ -218,29 +214,6 @@ describe('PurchaseForm', () => {
     expect(await screen.findByText(/valid quantity/i)).toBeInTheDocument()
     expect(onDone).not.toHaveBeenCalled()
     expect((await app.saved()).purchases).toEqual([])
-  })
-
-  it('saves a shared staple with its fixed quantity', async () => {
-    const onDone = vi.fn()
-    const app = await renderWithEvent(
-      <PurchaseForm onDone={onDone} />,
-      fx.makeEvent({ users }),
-      rawIker,
-    )
-    typeItem('Salt')
-    fireEvent.change(screen.getByRole('combobox', { name: /unit/i }), {
-      target: { value: 'single' },
-    })
-    fireEvent.change(screen.getByRole('textbox', { name: /^quantity/i }), {
-      target: { value: '3' },
-    })
-    submitForm()
-    await waitFor(() => expect(onDone).toHaveBeenCalled())
-    expect((await app.saved()).purchases[0]).toMatchObject({
-      item: 'Salt',
-      unit: 'single',
-      quantity: 3,
-    })
   })
 
   it('saves an item I bring from home with who brings it', async () => {

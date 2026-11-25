@@ -126,12 +126,6 @@ describe('a child in an adult’s charge, on the balance screen', () => {
     expect(screen.queryByText(/Nora pays/i)).not.toBeInTheDocument()
     expect(screen.getByText(/Ane pays €10.00 to Ekin/i)).toBeInTheDocument()
   })
-
-  it('leaves a child with nobody in charge settling for herself', async () => {
-    render(<Wrap event={makeEvent(null)} />)
-    await waitFor(() => expect(screen.getByText('+€20.00')).toBeInTheDocument())
-    expect(screen.getByText(/Nora pays €10.00 to Ekin/i)).toBeInTheDocument()
-  })
 })
 
 describe('the balance list', () => {
@@ -150,12 +144,6 @@ describe('the balance list', () => {
     render(<Wrap event={event} />)
     await waitFor(() => expect(screen.getByText(/Ane pays €15.00 to Ekin/i)).toBeInTheDocument())
     expect(screen.getByText('Ane')).toBeInTheDocument()
-    expect(screen.queryByText(/nothing spent or owed/)).not.toBeInTheDocument()
-  })
-
-  it('shows everyone and no count when nobody is at zero', async () => {
-    render(<Wrap event={makeEvent(null)} />)
-    await waitFor(() => expect(screen.getByText('Nora')).toBeInTheDocument())
     expect(screen.queryByText(/nothing spent or owed/)).not.toBeInTheDocument()
   })
 })

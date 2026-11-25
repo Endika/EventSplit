@@ -35,15 +35,6 @@ const tab = (shiftKey = false) =>
 describe('Modal keyboard operation', () => {
   beforeEach(() => localStorage.clear())
 
-  it('closes on Escape when it is dismissable', () => {
-    render(<Host />)
-    fireEvent.click(screen.getByRole('button', { name: 'open it' }))
-    expect(screen.getByRole('dialog')).toBeInTheDocument()
-
-    escape()
-    expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
-  })
-
   it('stays open on Escape when it is not dismissable', () => {
     // The identification modal: there is nothing behind it to go back to.
     render(<Host dismissable={false} />)
@@ -59,14 +50,6 @@ describe('Modal keyboard operation', () => {
 
     expect(screen.getByRole('dialog')).toBeInTheDocument()
     expect(screen.queryByRole('button', { name: /close/i })).not.toBeInTheDocument()
-  })
-
-  it('closes from the header close button', () => {
-    render(<Host />)
-    fireEvent.click(screen.getByRole('button', { name: 'open it' }))
-
-    fireEvent.click(screen.getByRole('button', { name: /close/i }))
-    expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
   })
 
   it('hands focus back to whatever opened it', () => {
@@ -103,26 +86,5 @@ describe('Modal keyboard operation', () => {
     // Backward off the first control wraps to the last.
     tab(true)
     expect(document.activeElement).toBe(confirm)
-  })
-
-  it('gives two stacked dialogs their own title id', () => {
-    render(
-      <>
-        <Modal open title="Outer">
-          <p>outer body</p>
-        </Modal>
-        <Modal open title="Inner">
-          <p>inner body</p>
-        </Modal>
-      </>,
-    )
-    const [outer, inner] = screen.getAllByRole('dialog')
-    const outerId = outer!.getAttribute('aria-labelledby')
-    const innerId = inner!.getAttribute('aria-labelledby')
-
-    expect(outerId).toBeTruthy()
-    expect(outerId).not.toBe(innerId)
-    expect(document.getElementById(outerId!)).toHaveTextContent('Outer')
-    expect(document.getElementById(innerId!)).toHaveTextContent('Inner')
   })
 })

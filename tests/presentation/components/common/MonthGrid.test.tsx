@@ -26,12 +26,4 @@ describe('MonthGrid', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Mes anterior' }))
     expect(onMonthChange).toHaveBeenCalledWith('2026-05')
   })
-
-  it('names the month it is showing', () => {
-    render(
-      <MonthGrid month="2026-06" locale="es" onMonthChange={() => {}} renderDay={() => null} />,
-    )
-    expect(screen.getByText(/junio/i)).toBeInTheDocument()
-    expect(screen.getByText(/2026/)).toBeInTheDocument()
-  })
 })

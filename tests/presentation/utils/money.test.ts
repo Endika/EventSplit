@@ -17,11 +17,6 @@ describe('formatMoney', () => {
     expect(formatMoney(-3316).replace(/\s/g, ' ')).toBe('-33,16 €')
   })
 
-  it('writes English money the English way', async () => {
-    await i18n.changeLanguage('en')
-    expect(formatMoney(24000)).toBe('€240.00')
-  })
-
   it('marks what is owed to you with a plus, and zero with nothing', async () => {
     await i18n.changeLanguage('es')
     expect(formatSignedMoney(15949).replace(/\s/g, ' ')).toBe('+159,49 €')

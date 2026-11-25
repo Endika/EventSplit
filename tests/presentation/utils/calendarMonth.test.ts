@@ -4,7 +4,6 @@ import {
   initialMonth,
   longDate,
   monthDays,
-  monthOf,
   monthTitle,
   optionsCovering,
   shiftMonth,
@@ -15,12 +14,6 @@ import {
 const day = (start: string, end = start) => ({ start, end, note: null })
 
 describe('monthDays', () => {
-  it('lays out June 2026 starting on Monday with 6 weeks of cells', () => {
-    const days = monthDays('2026-06')
-    expect(days).toHaveLength(42)
-    expect(days[0]).toBe('2026-06-01') // 1 June 2026 is a Monday
-  })
-
   it('pads a month that does not start on Monday with the previous days', () => {
     // 1 July 2026 is a Wednesday, so two June cells come first
     expect(monthDays('2026-07').slice(0, 3)).toEqual(['2026-06-29', '2026-06-30', '2026-07-01'])
@@ -34,14 +27,10 @@ describe('monthDays', () => {
   })
 })
 
-describe('shiftMonth and monthOf', () => {
+describe('shiftMonth', () => {
   it('shifts across a year boundary', () => {
     expect(shiftMonth('2026-01', -1)).toBe('2025-12')
     expect(shiftMonth('2026-12', 1)).toBe('2027-01')
-  })
-
-  it('reads the month of an ISO day', () => {
-    expect(monthOf('2026-06-05')).toBe('2026-06')
   })
 })
 

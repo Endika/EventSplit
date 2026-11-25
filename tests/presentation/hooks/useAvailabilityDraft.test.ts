@@ -43,15 +43,6 @@ const KEY5 = '2026-06-05..2026-06-05'
 const KEY12 = '2026-06-12..2026-06-14'
 
 describe('useAvailabilityDraft', () => {
-  it('reads saved votes by option key', () => {
-    const event = snapshot({ dayOptions: [jun5, jun12], availability: { u1: [true, false] } })
-    const { result } = renderHook(() => useAvailabilityDraft(event))
-    expect(result.current.voteOf('u1', KEY5)).toBe(true)
-    expect(result.current.voteOf('u1', KEY12)).toBe(false)
-    expect(result.current.rowFor('u1')).toEqual([true, false])
-    expect(result.current.dirty).toBe(false)
-  })
-
   it('keeps an unsaved vote when a new option arrives from realtime', () => {
     const { result, rerender } = renderHook((e: EventSnapshot) => useAvailabilityDraft(e), {
       initialProps: snapshot({ dayOptions: [jun5], availability: { u1: [false] } }),

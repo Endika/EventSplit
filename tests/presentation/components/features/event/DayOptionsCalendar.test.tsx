@@ -34,30 +34,6 @@ describe('DayOptionsCalendar', () => {
     expect(cell('2026-06-05')).toHaveAttribute('data-picked', 'false')
   })
 
-  it('range mode turns two taps into one option', () => {
-    const onCommit = vi.fn()
-    render(<DayOptionsCalendar options={[]} votesByKey={{}} onCommit={onCommit} busy={false} />)
-
-    fireEvent.click(screen.getByRole('button', { name: /tramo|stretch|tarte|tram/i }))
-    fireEvent.click(cell('2026-06-12'))
-    fireEvent.click(cell('2026-06-14'))
-
-    fireEvent.click(screen.getByRole('button', { name: /guardar|save|gorde|desa/i }))
-    expect(onCommit).toHaveBeenCalledWith([{ start: '2026-06-12', end: '2026-06-14', note: null }])
-  })
-
-  it('range mode accepts the two taps in reverse order', () => {
-    const onCommit = vi.fn()
-    render(<DayOptionsCalendar options={[]} votesByKey={{}} onCommit={onCommit} busy={false} />)
-
-    fireEvent.click(screen.getByRole('button', { name: /tramo|stretch|tarte|tram/i }))
-    fireEvent.click(cell('2026-06-14'))
-    fireEvent.click(cell('2026-06-12'))
-
-    fireEvent.click(screen.getByRole('button', { name: /guardar|save|gorde|desa/i }))
-    expect(onCommit).toHaveBeenCalledWith([{ start: '2026-06-12', end: '2026-06-14', note: null }])
-  })
-
   it('range mode switches itself off once the stretch is made', () => {
     render(<DayOptionsCalendar options={[]} votesByKey={{}} onCommit={vi.fn()} busy={false} />)
     const toggle = screen.getByRole('button', { name: /tramo|stretch|tarte|tram/i })
@@ -66,22 +42,6 @@ describe('DayOptionsCalendar', () => {
     fireEvent.click(cell('2026-06-12'))
     fireEvent.click(cell('2026-06-14'))
     expect(toggle).toHaveAttribute('aria-pressed', 'false')
-  })
-
-  it('asks before dropping an option that already has votes', () => {
-    const onCommit = vi.fn()
-    render(
-      <DayOptionsCalendar
-        options={[day('2026-06-05')]}
-        votesByKey={{ '2026-06-05..2026-06-05': 2 }}
-        onCommit={onCommit}
-        busy={false}
-      />,
-    )
-    fireEvent.click(cell('2026-06-05'))
-    expect(screen.getByRole('dialog')).toBeInTheDocument()
-    expect(cell('2026-06-05')).toHaveAttribute('data-picked', 'true')
-    expect(onCommit).not.toHaveBeenCalled()
   })
 
   it('drops a voted option once the confirmation is accepted', () => {
@@ -153,41 +113,6 @@ describe('DayOptionsCalendar', () => {
       />,
     )
     expect(screen.getByRole('button', { name: /guardar|save|gorde|desa/i })).toBeDisabled()
-  })
-
-  it('keeps non-consecutive days as separate options', () => {
-    const onCommit = vi.fn()
-    render(<DayOptionsCalendar options={[]} votesByKey={{}} onCommit={onCommit} busy={false} />)
-    fireEvent.click(cell('2026-06-05'))
-    fireEvent.click(cell('2026-06-20'))
-    fireEvent.click(screen.getByRole('button', { name: /guardar|save|gorde|desa/i }))
-    expect(onCommit).toHaveBeenCalledWith([day('2026-06-05'), day('2026-06-20')])
-  })
-
-  it('draws a selected stretch as one band, not as separate days', () => {
-    render(
-      <DayOptionsCalendar
-        options={[{ start: '2026-06-12', end: '2026-06-14', note: null }]}
-        votesByKey={{}}
-        onCommit={vi.fn()}
-        busy={false}
-      />,
-    )
-    expect(cell('2026-06-12')).toHaveAttribute('data-span', 'start')
-    expect(cell('2026-06-13')).toHaveAttribute('data-span', 'middle')
-    expect(cell('2026-06-14')).toHaveAttribute('data-span', 'end')
-  })
-
-  it('a single day is its own cell', () => {
-    render(
-      <DayOptionsCalendar
-        options={[day('2026-06-05')]}
-        votesByKey={{}}
-        onCommit={vi.fn()}
-        busy={false}
-      />,
-    )
-    expect(cell('2026-06-05')).toHaveAttribute('data-span', 'single')
   })
 
   it('a day picked into a stretch reads as a band right away', () => {

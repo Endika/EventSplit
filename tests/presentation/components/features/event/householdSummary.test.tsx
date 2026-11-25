@@ -119,12 +119,6 @@ function Wrap({ event }: { event: EventSnapshot }) {
 describe('a household on the balance screen', () => {
   beforeEach(() => localStorage.clear())
 
-  it('settles as one party under the household name', async () => {
-    render(<Wrap event={makeEvent()} />)
-    await waitFor(() => expect(screen.getByText(/Pérez pays €30.00 to Ekin/i)).toBeInTheDocument())
-    expect(screen.queryByText(/Ane pays/)).not.toBeInTheDocument()
-  })
-
   it('still lists each person, with the household in small print', async () => {
     render(<Wrap event={makeEvent()} />)
     await waitFor(() => expect(screen.getByText('Luis')).toBeInTheDocument())

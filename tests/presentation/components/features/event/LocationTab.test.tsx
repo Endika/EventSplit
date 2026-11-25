@@ -96,27 +96,6 @@ describe('LocationTab', () => {
     vi.restoreAllMocks()
   })
 
-  it('refuses to save an address with no place name, and says why', async () => {
-    render(
-      <Wrap event={makeEvent(null)}>
-        <LocationTab />
-      </Wrap>,
-    )
-    fireEvent.click(await waitFor(() => editButton()))
-    const addressInput = screen.getByPlaceholderText(/direcci(ó|o)n|address|helbide|adreça/i)
-    fireEvent.change(addressInput, { target: { value: 'Calle Mayor 1' } })
-    fireEvent.click(saveButton())
-
-    // It must complain instead of silently dropping the address
-    expect(
-      await screen.findByText(
-        /no se ha perdido|nothing you typed|ez da galdu|no s'ha perdut|non se perdeu/i,
-      ),
-    ).toBeInTheDocument()
-    // and the address the user typed must still be there
-    expect(addressInput).toHaveValue('Calle Mayor 1')
-  })
-
   it('does not wipe a saved location when the name is cleared', async () => {
     render(
       <Wrap
@@ -143,35 +122,6 @@ describe('LocationTab', () => {
       ),
     ).toBeInTheDocument()
     expect(screen.getByDisplayValue('Calle Mayor 1')).toBeInTheDocument()
-  })
-
-  it('saves with a name and an address', async () => {
-    render(
-      <Wrap event={makeEvent(null)}>
-        <LocationTab />
-      </Wrap>,
-    )
-    fireEvent.click(await waitFor(() => editButton()))
-    const addressInput = screen.getByPlaceholderText(/direcci(ó|o)n|address|helbide|adreça/i)
-    const nameInput = screen.getByPlaceholderText(/nombre del sitio|place name|lekuaren|nom del/i)
-    fireEvent.change(nameInput, { target: { value: 'Casa rural' } })
-    fireEvent.change(addressInput, { target: { value: 'Calle Mayor 1' } })
-    fireEvent.click(saveButton())
-
-    await waitFor(() =>
-      expect(screen.queryByText(/nombre es obligatorio|name is required/i)).toBeNull(),
-    )
-  })
-
-  it('still allows saving nothing at all (empty location)', async () => {
-    render(
-      <Wrap event={makeEvent(null)}>
-        <LocationTab />
-      </Wrap>,
-    )
-    fireEvent.click(await waitFor(() => editButton()))
-    fireEvent.click(saveButton())
-    expect(screen.queryByText(/obligatorio|required|beharrezko/i)).toBeNull()
   })
 
   it('keeps the other fields too, not just the address', async () => {

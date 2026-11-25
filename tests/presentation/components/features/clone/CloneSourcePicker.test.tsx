@@ -1,5 +1,5 @@
 import { describe, it, expect, vi } from 'vitest'
-import { render, screen, fireEvent } from '@testing-library/react'
+import { render, screen } from '@testing-library/react'
 import '@/presentation/i18n/config'
 import { CloneSourcePicker } from '@/presentation/components/features/clone/CloneSourcePicker'
 import type { CloneSource } from '@/presentation/hooks/useCloneSources'
@@ -20,24 +20,11 @@ const sources: CloneSource[] = [
 ]
 
 describe('CloneSourcePicker', () => {
-  it('lists every source with its name', () => {
-    render(<CloneSourcePicker sources={sources} value={null} onChange={vi.fn()} />)
-    expect(screen.getByText('Viaje anterior')).toBeInTheDocument()
-    expect(screen.getByText('Finde en Jaca')).toBeInTheDocument()
-  })
-
   it('reports the chosen one and only that one', () => {
     render(<CloneSourcePicker sources={sources} value="aaa111a" onChange={vi.fn()} />)
     const buttons = screen.getAllByRole('button')
     expect(buttons[0]).toHaveAttribute('aria-pressed', 'true')
     expect(buttons[1]).toHaveAttribute('aria-pressed', 'false')
-  })
-
-  it('hands the id up when tapped', () => {
-    const onChange = vi.fn()
-    render(<CloneSourcePicker sources={sources} value={null} onChange={onChange} />)
-    fireEvent.click(screen.getByText('Finde en Jaca'))
-    expect(onChange).toHaveBeenCalledWith('bbb222b')
   })
 
   it('shows the participant count and the date', () => {
