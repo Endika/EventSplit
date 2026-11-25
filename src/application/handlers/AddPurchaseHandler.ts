@@ -4,7 +4,7 @@ import { Purchase } from '@/domain/entities/Purchase'
 import { HistoryAppender } from '@/domain/services/HistoryAppender'
 import type { IEventRepository } from '@/domain/repositories/IEventRepository'
 import { withOptimisticRetry } from '@/application/support/withOptimisticRetry'
-import { assertMember, memberName } from '@/application/support/eventMembers'
+import { assertMember, memberName } from '@/application/support/snapshotLookups'
 
 export interface AddPurchaseResult {
   event: EventSnapshot

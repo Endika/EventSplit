@@ -8,7 +8,7 @@ import { HistoryAppender } from '@/domain/services/HistoryAppender'
 import { buildClonePatch, type CloneSelection } from '@/domain/services/buildClonePatch'
 import { type IEventRepository, isLockedEvent } from '@/domain/repositories/IEventRepository'
 import { withOptimisticRetry } from '@/application/support/withOptimisticRetry'
-import { assertMember } from '@/application/support/eventMembers'
+import { assertMember } from '@/application/support/snapshotLookups'
 import { MAX_OPTIONS, optionKey, sortOptions } from '@/domain/value-objects/DayOption'
 
 function describeBlocks(

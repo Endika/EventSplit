@@ -5,7 +5,13 @@ import { Money } from '@/domain/value-objects/Money'
 import { HistoryAppender } from '@/domain/services/HistoryAppender'
 import type { IEventRepository } from '@/domain/repositories/IEventRepository'
 import { withOptimisticRetry } from '@/application/support/withOptimisticRetry'
-import { assertMember, memberName } from '@/application/support/eventMembers'
+import {
+  assertMember,
+  memberName,
+  requireById,
+  replaceById,
+  assertLivePurchases,
+} from '@/application/support/snapshotLookups'
 
 export class EditExpenseHandler {
   constructor(private readonly repo: IEventRepository) {}
@@ -20,19 +26,10 @@ export class EditExpenseHandler {
           assertMember(row.snapshot, id, 'splitAmong user')
         }
       }
-      const existing = row.snapshot.expenses.find((e) => e.id === parsed.expenseId)
-      if (!existing) throw new Error(`Expense ${parsed.expenseId} not found`)
+      const existing = requireById(row.snapshot.expenses, parsed.expenseId, 'Expense')
       if (existing.deleted) throw new Error('Cannot edit a deleted expense')
 
-      if (parsed.purchaseLinks && parsed.purchaseLinks.length > 0) {
-        const livePurchaseIds = new Set(
-          row.snapshot.purchases.filter((p) => !p.deleted).map((p) => p.id),
-        )
-        for (const l of parsed.purchaseLinks) {
-          if (!livePurchaseIds.has(l.purchaseId))
-            throw new Error(`Link purchase ${l.purchaseId} not found`)
-        }
-      }
+      assertLivePurchases(row.snapshot, parsed.purchaseLinks ?? [])
 
       const updated = Expense.restore(existing).edit({
         paidBy: parsed.paidBy,
@@ -46,9 +43,7 @@ export class EditExpenseHandler {
       const nextSnapshot: EventSnapshot = HistoryAppender.append(
         {
           ...row.snapshot,
-          expenses: row.snapshot.expenses.map((e) =>
-            e.id === parsed.expenseId ? updated.toSnapshot() : e,
-          ),
+          expenses: replaceById(row.snapshot.expenses, parsed.expenseId, updated.toSnapshot()),
         },
         {
           type: 'expense_edited',

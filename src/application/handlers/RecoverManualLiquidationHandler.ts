@@ -7,7 +7,12 @@ import { ManualLiquidation } from '@/domain/entities/ManualLiquidation'
 import { HistoryAppender } from '@/domain/services/HistoryAppender'
 import type { IEventRepository } from '@/domain/repositories/IEventRepository'
 import { withOptimisticRetry } from '@/application/support/withOptimisticRetry'
-import { assertMember, memberName } from '@/application/support/eventMembers'
+import {
+  assertMember,
+  memberName,
+  requireById,
+  replaceById,
+} from '@/application/support/snapshotLookups'
 
 export class RecoverManualLiquidationHandler {
   constructor(private readonly repo: IEventRepository) {}
@@ -18,16 +23,21 @@ export class RecoverManualLiquidationHandler {
     const parsed = RecoverManualLiquidationSchema.parse(input)
     const saved = await withOptimisticRetry(this.repo, parsed.eventId, (row) => {
       assertMember(row.snapshot, parsed.userId, 'User')
-      const existing = row.snapshot.manualLiquidations.find((l) => l.id === parsed.liquidationId)
-      if (!existing) throw new Error(`Manual liquidation ${parsed.liquidationId} not found`)
+      const existing = requireById(
+        row.snapshot.manualLiquidations,
+        parsed.liquidationId,
+        'Manual liquidation',
+      )
 
       const recovered = ManualLiquidation.restore(existing).recover().toSnapshot()
       const actorName = memberName(row.snapshot, parsed.userId)
       return HistoryAppender.append(
         {
           ...row.snapshot,
-          manualLiquidations: row.snapshot.manualLiquidations.map((l) =>
-            l.id === parsed.liquidationId ? recovered : l,
+          manualLiquidations: replaceById(
+            row.snapshot.manualLiquidations,
+            parsed.liquidationId,
+            recovered,
           ),
         },
         {

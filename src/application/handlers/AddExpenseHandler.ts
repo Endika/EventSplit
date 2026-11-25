@@ -5,7 +5,11 @@ import { Money } from '@/domain/value-objects/Money'
 import { HistoryAppender } from '@/domain/services/HistoryAppender'
 import type { IEventRepository } from '@/domain/repositories/IEventRepository'
 import { withOptimisticRetry } from '@/application/support/withOptimisticRetry'
-import { assertMember, memberName } from '@/application/support/eventMembers'
+import {
+  assertMember,
+  memberName,
+  assertLivePurchases,
+} from '@/application/support/snapshotLookups'
 
 export class AddExpenseHandler {
   constructor(private readonly repo: IEventRepository) {}
@@ -26,15 +30,7 @@ export class AddExpenseHandler {
       }
 
       const purchaseLinks = parsed.purchaseLinks ?? []
-      if (purchaseLinks.length > 0) {
-        const livePurchaseIds = new Set(
-          row.snapshot.purchases.filter((p) => !p.deleted).map((p) => p.id),
-        )
-        for (const l of purchaseLinks) {
-          if (!livePurchaseIds.has(l.purchaseId))
-            throw new Error(`Link purchase ${l.purchaseId} not found`)
-        }
-      }
+      assertLivePurchases(row.snapshot, purchaseLinks)
 
       const expense = Expense.create({
         paidBy: parsed.paidBy,
