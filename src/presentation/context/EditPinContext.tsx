@@ -22,6 +22,7 @@ export function EditPinProvider({ children }: { children: ReactNode }) {
   const container = useContainer()
   const [revision, setRevision] = useState(0)
 
+  // Stryker disable ArithmeticOperator: r - 1 gives the same fresh value per call as r + 1; only the identity change matters
   const setPin = useCallback(
     (eventId: string, next: string | null) => {
       container.resolve<UnlockedPinHolder>('unlockedPin').set(eventId, next)
@@ -29,6 +30,7 @@ export function EditPinProvider({ children }: { children: ReactNode }) {
     },
     [container],
   )
+  // Stryker restore ArithmeticOperator
 
   const value = useMemo<EditPinStore>(() => {
     void revision // a new store identity per change re-renders every consumer
