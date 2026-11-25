@@ -4,9 +4,8 @@ import { useContainer } from '@/presentation/context/ContainerProvider'
 import { useEventState } from '@/presentation/context/EventContext'
 import { useCurrentUser } from '@/presentation/context/UserContext'
 import { useWriteGuard } from '@/presentation/context/WriteGuardContext'
-import { ExpenseSplitter } from '@/domain/services/ExpenseSplitter'
-import { payingUsers } from '@/domain/services/participantRoles'
-import { Money } from '@/domain/value-objects/Money'
+import { buildExpenseSummary } from '@/presentation/utils/expenseSummary'
+import { toggleInSet } from '@/presentation/utils/collections'
 import { formatMoney, formatSignedMoney } from '@/presentation/utils/money'
 import { YouLabel } from '@/presentation/components/common/YouLabel'
 import type { ToggleSettlementHandler } from '@/application/handlers/ToggleSettlementHandler'
@@ -22,10 +21,6 @@ export function ExpenseSummary() {
   const [openBreakdowns, setOpenBreakdowns] = useState<ReadonlySet<string>>(new Set())
   if (!event) return null
 
-  function isSettled(from: string, to: string): boolean {
-    return event!.settledTransfers.some((s) => s.from === from && s.to === to)
-  }
-
   function toggleSettled(from: string, to: string) {
     if (!event || !me) return
     guardedExecute(async () => {
@@ -39,91 +34,26 @@ export function ExpenseSummary() {
     })
   }
 
-  const payers = payingUsers(event.users)
-  const payerIds = payers.map((u) => u.id)
-  const householdOf: Record<string, string> = Object.fromEntries(
-    payers.flatMap((u) => (u.kind === 'adult' && u.household ? [[u.id, u.household]] : [])),
-  )
-  const live = event.expenses.filter((e) => !e.deleted)
-  const result = ExpenseSplitter.compute({
-    // Dogs attend but never owe: they are kept out of the split entirely,
-    // which also drops their id from any expense that still lists them.
-    participantIds: payerIds,
-    // Nobody settles up with a child: their balance is carried by the adult
-    // answerable for them, so no transfer ever names a minor.
-    guardianOf: Object.fromEntries(
-      payers.flatMap((u) => (u.guardianId ? [[u.id, u.guardianId]] : [])),
-    ),
+  const {
+    result,
+    mine,
+    myCarried,
+    shown,
+    hiddenCount,
+    allSquare,
+    myExpenses,
     householdOf,
-    expenses: live.map((e) => ({
-      paidBy: e.paidBy,
-      amount: Money.fromCents(e.cents),
-      splitAmong: e.splitAmong,
-    })),
-  })
-  const nameOf = (id: string) => event.users.find((u) => u.id === id)?.name ?? '?'
-  const householdMembers = (household: string) =>
-    payers.filter((u) => householdOf[u.id] === household)
-  // A transfer names the first member of a household, so that is who stands in
-  // for the whole group.
-  const householdRepresentedBy = (id: string): string | null => {
-    const household = householdOf[id]
-    return household && householdMembers(household)[0]?.id === id ? household : null
-  }
-  const partyName = (id: string) => householdRepresentedBy(id) ?? nameOf(id)
-  const toggleBreakdown = (key: string) =>
-    setOpenBreakdowns((open) => {
-      const next = new Set(open)
-      if (!next.delete(key)) next.add(key)
-      return next
-    })
-
-  const mine = result.balances.find((b) => b.userId === me?.id)
-  // What this person actually ends up with. Carrying a child means carrying
-  // their balance too, so showing the bare personal figure would contradict the
-  // settlement list right underneath it.
-  const carriedFor = (payerId: string) =>
-    result.balances
-      .filter((b) => event.users.find((u) => u.id === b.userId)?.guardianId === payerId)
-      .reduce((n, b) => n + b.balanceCents, 0)
-  const memberBalance = (id: string) =>
-    (result.balances.find((b) => b.userId === id)?.balanceCents ?? 0) + carriedFor(id)
-  const myCarried = mine ? memberBalance(mine.userId) : 0
-  const others = result.balances.filter((b) => b.userId !== mine?.userId)
-  // Somebody who paid nothing and owes nothing only lengthens the list, unless
-  // they carry a child's balance and so still show up in the transfers.
-  const isZero = (b: { userId: string; spentCents: number; balanceCents: number }) =>
-    b.spentCents === 0 && b.balanceCents === 0 && carriedFor(b.userId) === 0
-  const shown = others.filter((b) => !isZero(b))
-  const hiddenCount = others.length - shown.length
-  const allSquare =
-    result.transfers.length > 0 && result.transfers.every((tr) => isSettled(tr.from, tr.to))
-
-  // The expenses this person is actually in. An empty splitAmong means everyone
-  // who pays, so it is resolved against the payer list, the same way the
-  // splitter resolves it.
-  const myExpenses = me
-    ? live.filter((e) => {
-        const split = e.splitAmong.filter((id) => payerIds.includes(id))
-        return (split.length > 0 ? split : payerIds).includes(me.id)
-      })
-    : []
-
-  // Whose share this person is carrying, so a bigger figure than their own
-  // consumption never looks like an error.
-  const carriedNames = (payerId: string): string =>
-    event.users
-      .filter((u) => u.guardianId === payerId)
-      .map((u) => u.name)
-      .join(', ')
-
-  const householdSides = (tr: { from: string; to: string }): string[] =>
-    [tr.from, tr.to].flatMap((id) => householdRepresentedBy(id) ?? [])
-
-  const guardianNameOf = (userId: string): string => {
-    const guardianId = event.users.find((u) => u.id === userId)?.guardianId
-    return guardianId ? nameOf(guardianId) : ''
-  }
+    isSettled,
+    nameOf,
+    partyName,
+    householdMembers,
+    householdRepresentedBy,
+    householdSides,
+    memberBalance,
+    carriedNames,
+    guardianNameOf,
+  } = buildExpenseSummary(event, me?.id)
+  const toggleBreakdown = (key: string) => setOpenBreakdowns((open) => toggleInSet(open, key))
 
   // One ink, by decision: the sign and the fine print carry the meaning. This
   // deliberately overrides the pos/warn semantic pair for this surface — green

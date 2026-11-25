@@ -6,6 +6,11 @@ interface ExcludeOpts {
   excludeExpenseId?: string
 }
 
+type Linked = EventSnapshot['expenses'][number]
+
+// Stryker disable next-line ArrayDeclaration: a stray element never matches a purchase id
+const linksOf = (e: Linked) => e.purchaseLinks ?? []
+
 /** Total quantity bought for a purchase, summed across non-deleted linked expenses. */
 export function boughtQuantity(
   event: EventSnapshot,
@@ -14,11 +19,24 @@ export function boughtQuantity(
 ): number {
   return event.expenses
     .filter((e) => !e.deleted && e.id !== opts.excludeExpenseId)
-    .reduce(
-      (sum, e) =>
-        sum + ((e.purchaseLinks ?? []).find((l) => l.purchaseId === purchaseId)?.quantity ?? 0),
-      0,
-    )
+    .reduce((sum, e) => sum + linkedQuantity(e, purchaseId), 0)
+}
+
+const linkedQuantity = (e: Linked, purchaseId: string): number =>
+  linksOf(e).find((l) => l.purchaseId === purchaseId)?.quantity ?? 0
+
+/** The non-deleted expenses that link this purchase. */
+export function linkedExpenses(
+  event: EventSnapshot,
+  purchaseId: string,
+  opts: ExcludeOpts = {},
+): EventSnapshot['expenses'] {
+  return event.expenses.filter(
+    (e) =>
+      !e.deleted &&
+      e.id !== opts.excludeExpenseId &&
+      linksOf(e).some((l) => l.purchaseId === purchaseId),
+  )
 }
 
 /** Whether any non-deleted expense links this purchase. */
@@ -27,12 +45,17 @@ export function hasLinkedExpense(
   purchaseId: string,
   opts: ExcludeOpts = {},
 ): boolean {
-  return event.expenses.some(
-    (e) =>
-      !e.deleted &&
-      e.id !== opts.excludeExpenseId &&
-      (e.purchaseLinks ?? []).some((l) => l.purchaseId === purchaseId),
-  )
+  return linkedExpenses(event, purchaseId, opts).length > 0
+}
+
+/** Who paid for this purchase, once each, in the order the expenses appear. */
+export function buyerIds(event: EventSnapshot, purchaseId: string): string[] {
+  return [...new Set(linkedExpenses(event, purchaseId).map((e) => e.paidBy))]
+}
+
+/** How much of the total is covered, as a bar width; a zero total reads as full. */
+export function progressPercent(bought: number, total: number): number {
+  return total > 0 ? Math.min(100, (bought / total) * 100) : 100
 }
 
 /**

@@ -1,5 +1,6 @@
 import type { EventSnapshot } from '@/domain/entities/Event'
 import type { PurchaseSnapshot } from '@/domain/entities/Purchase'
+import { swapWithNeighbour } from '@/presentation/utils/collections'
 
 /** A group of purchases, partitioned into subgroups. `''` = no group / no subgroup. */
 export interface PurchaseGroup {
@@ -37,6 +38,7 @@ export function groupPurchases(event: EventSnapshot, items: PurchaseSnapshot[]):
     if (!map.has(key)) map.set(key, [])
     map.get(key)!.push(p)
   }
+  // Stryker disable next-line ArrayDeclaration: an order naming no group sorts like an empty one
   const order = event.groupOrder ?? []
   const subOrders = event.subgroupOrder ?? {}
   const keys = sortByOrder([...map.keys()], order)
@@ -48,8 +50,42 @@ export function groupPurchases(event: EventSnapshot, items: PurchaseSnapshot[]):
       if (!subMap.has(sk)) subMap.set(sk, [])
       subMap.get(sk)!.push(p)
     }
+    // Stryker disable next-line ArrayDeclaration: an order naming no subgroup sorts like an empty one
     const subKeys = sortByOrder([...subMap.keys()], subOrders[group] ?? [])
     const subgroups = subKeys.map((subgroup) => ({ subgroup, items: subMap.get(subgroup)! }))
     return { group, items: groupItems, subgroups }
   })
+}
+
+/** Stable collapse key for a subgroup. NUL can't occur in trimmed user input. */
+export const subCollapseKey = (group: string, subgroup: string): string =>
+  `${group}\u0000${subgroup}`
+
+/** The group order after moving `group` one step, or null when it cannot move. */
+export function movedGroupOrder(
+  grouped: readonly PurchaseGroup[],
+  group: string,
+  dir: -1 | 1,
+): string[] | null {
+  return swapWithNeighbour(
+    grouped.map((g) => g.group).filter((g) => g !== ''),
+    group,
+    dir,
+  )
+}
+
+/** The subgroup order of `group` after moving `subgroup` one step, or null when it cannot move. */
+export function movedSubgroupOrder(
+  grouped: readonly PurchaseGroup[],
+  group: string,
+  subgroup: string,
+  dir: -1 | 1,
+): string[] | null {
+  const entry = grouped.find((g) => g.group === group)
+  if (!entry) return null
+  return swapWithNeighbour(
+    entry.subgroups.map((s) => s.subgroup).filter((s) => s !== ''),
+    subgroup,
+    dir,
+  )
 }
