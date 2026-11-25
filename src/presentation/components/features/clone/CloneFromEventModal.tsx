@@ -9,6 +9,7 @@ import { useEventState } from '@/presentation/context/EventContext'
 import { useCurrentUser } from '@/presentation/context/UserContext'
 import { useWriteGuard } from '@/presentation/context/WriteGuardContext'
 import { useCloneSources } from '@/presentation/hooks/useCloneSources'
+import { isEmptySelection } from '@/presentation/utils/cloneSelection'
 import { friendlyError } from '@/presentation/utils/friendlyError'
 import { reportError } from '@/shared/utils/reportError'
 import { Button } from '@/presentation/components/common/Button'
@@ -22,15 +23,6 @@ const EMPTY: CloneSelection = {
   mergeUserIds: [],
   purchaseIds: [],
   site: { location: false, emergencyContact: false, wifiPassword: false, generalNotes: false },
-}
-
-function isEmpty(selection: CloneSelection): boolean {
-  return (
-    !selection.dayOptions &&
-    selection.userIds.length === 0 &&
-    selection.purchaseIds.length === 0 &&
-    !Object.values(selection.site).some(Boolean)
-  )
 }
 
 /** Bring blocks over from another event: pick the source, then tick what you want. */
@@ -122,7 +114,7 @@ export function CloneFromEventModal(props: { open: boolean; onClose: () => void 
           <Button
             type="button"
             onClick={clone}
-            disabled={busy || !me || !sourceSnapshot || isEmpty(selection)}
+            disabled={busy || !me || !sourceSnapshot || isEmptySelection(selection)}
           >
             {busy ? t('clone.cloning') : t('clone.clone')}
           </Button>

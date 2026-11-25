@@ -1,6 +1,6 @@
 import { useTranslation } from 'react-i18next'
 import type { EventSnapshot } from '@/domain/entities/Event'
-import { matchDuplicate, type CloneSelection } from '@/domain/services/buildClonePatch'
+import type { CloneSelection } from '@/domain/services/buildClonePatch'
 import { groupPurchases } from '@/presentation/utils/groupPurchases'
 import {
   parentState,
@@ -8,8 +8,15 @@ import {
   toggleOne,
   type TriState,
 } from '@/presentation/utils/checkboxTree'
-
-type SiteField = keyof CloneSelection['site']
+import {
+  duplicateUserIds,
+  presentSiteFields,
+  siteSelection,
+  userDetails,
+  withMerge,
+  type SiteField,
+} from '@/presentation/utils/cloneSelection'
+import { userLabel } from '@/presentation/utils/userLabel'
 
 function TriCheckbox(props: {
   state: TriState
@@ -102,9 +109,7 @@ export function CloneBlockTree(props: {
   // Who here already has a namesake in the target. Merging is the default for
   // them, so it has to live in the selection from the moment they are ticked —
   // a radio that renders as checked while the state says otherwise is a lie.
-  const duplicateIds = new Set(
-    source.users.filter((u) => matchDuplicate(u.name, target.users)).map((u) => u.id),
-  )
+  const duplicateIds = duplicateUserIds(source.users, target.users)
 
   /** Ticking someone off must not leave their merge decision behind. */
   function toggleUser(id: string, next: CloneSelection['userIds']) {
@@ -112,33 +117,25 @@ export function CloneBlockTree(props: {
     onChange({
       ...selection,
       userIds: next,
-      mergeUserIds:
-        stillTicked && duplicateIds.has(id)
-          ? [...new Set([...selection.mergeUserIds, id])]
-          : selection.mergeUserIds.filter((x) => x !== id),
+      mergeUserIds: withMerge(selection.mergeUserIds, id, stillTicked && duplicateIds.has(id)),
     })
   }
 
   function setMerge(id: string, merge: boolean) {
     onChange({
       ...selection,
-      mergeUserIds: merge
-        ? [...new Set([...selection.mergeUserIds, id])]
-        : selection.mergeUserIds.filter((x) => x !== id),
+      mergeUserIds: withMerge(selection.mergeUserIds, id, merge),
     })
   }
 
-  const siteFields: { key: SiteField; label: string; present: boolean }[] = [
-    { key: 'location', label: t('clone.fieldLocation'), present: source.location !== null },
-    {
-      key: 'emergencyContact',
-      label: t('clone.fieldEmergency'),
-      present: Boolean(source.emergencyContact),
-    },
-    { key: 'wifiPassword', label: t('clone.fieldWifi'), present: Boolean(source.wifiPassword) },
-    { key: 'generalNotes', label: t('clone.fieldNotes'), present: Boolean(source.generalNotes) },
+  const presentSite = presentSiteFields(source)
+  const siteFields: { key: SiteField; label: string }[] = [
+    { key: 'location', label: t('clone.fieldLocation') },
+    { key: 'emergencyContact', label: t('clone.fieldEmergency') },
+    { key: 'wifiPassword', label: t('clone.fieldWifi') },
+    { key: 'generalNotes', label: t('clone.fieldNotes') },
   ]
-  const availableSite = siteFields.filter((f) => f.present)
+  const availableSite = siteFields.filter((f) => presentSite[f.key])
 
   return (
     <div className="space-y-4">
@@ -177,14 +174,12 @@ export function CloneBlockTree(props: {
               const duplicate = duplicateIds.has(u.id)
               const ticked = selection.userIds.includes(u.id)
               const merging = selection.mergeUserIds.includes(u.id)
-              const details = [u.dietary, u.allergies.map((a) => a.name).join(', ')]
-                .filter(Boolean)
-                .join(' · ')
+              const details = userDetails(u)
               return (
                 <li key={u.id} data-user={u.id} data-duplicate={duplicate}>
                   <TriCheckbox
                     state={ticked ? 'on' : 'off'}
-                    label={u.alias ? `${u.name} (${u.alias})` : u.name}
+                    label={userLabel(u)}
                     hint={duplicate ? t('clone.duplicateName') : details || undefined}
                     onToggle={() => toggleUser(u.id, toggleOne(u.id, selection.userIds))}
                   />
@@ -273,12 +268,7 @@ export function CloneBlockTree(props: {
             onToggle={(on) =>
               onChange({
                 ...selection,
-                site: {
-                  location: on && siteFields[0]!.present,
-                  emergencyContact: on && siteFields[1]!.present,
-                  wifiPassword: on && siteFields[2]!.present,
-                  generalNotes: on && siteFields[3]!.present,
-                },
+                site: siteSelection(presentSite, on),
               })
             }
           />

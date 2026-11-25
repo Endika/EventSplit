@@ -1,17 +1,6 @@
 import { useTranslation } from 'react-i18next'
 import type { CloneSource } from '@/presentation/hooks/useCloneSources'
-
-function formatDate(iso: string, locale: string): string {
-  try {
-    return new Intl.DateTimeFormat(locale, {
-      day: 'numeric',
-      month: 'short',
-      year: 'numeric',
-    }).format(new Date(iso))
-  } catch {
-    return iso.slice(0, 10)
-  }
-}
+import { formatSourceDate } from '@/presentation/utils/cloneSelection'
 
 /** Which event to copy from. One row per event, tap to choose. */
 export function CloneSourcePicker(props: {
@@ -45,7 +34,7 @@ export function CloneSourcePicker(props: {
               <span className={`fineprint ${selected ? 'text-white dark:text-bg' : ''}`}>
                 {t('clone.sourceMeta', {
                   count: s.participantCount,
-                  date: formatDate(s.updatedAt, i18n.language),
+                  date: formatSourceDate(s.updatedAt, i18n.language),
                 })}
               </span>
             </button>
