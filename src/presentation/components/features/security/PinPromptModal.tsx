@@ -7,6 +7,7 @@ import { useEditPin } from '@/presentation/context/EditPinContext'
 import { RateLimitedError } from '@/domain/repositories/IEventRepository'
 import type { VerifyPinHandler } from '@/application/handlers/VerifyPinHandler'
 import { Modal } from '@/presentation/components/common/Modal'
+import { digitsOnly, hasMinPinLength } from '@/presentation/utils/pinInput'
 import { Button } from '@/presentation/components/common/Button'
 import { Input } from '@/presentation/components/common/Input'
 import { reportError } from '@/shared/utils/reportError'
@@ -76,7 +77,7 @@ export function PinPromptModal() {
           maxLength={6}
           placeholder={t('pin.promptField')}
           value={pin}
-          onChange={(e) => setPin(e.target.value.replace(/\D/g, ''))}
+          onChange={(e) => setPin(digitsOnly(e.target.value))}
           disabled={busy}
         />
         {error && <p className="text-sm text-danger">{error}</p>}
@@ -84,7 +85,7 @@ export function PinPromptModal() {
           <Button type="button" variant="secondary" onClick={cancel} disabled={busy}>
             {t('pin.promptCancel')}
           </Button>
-          <Button type="submit" disabled={busy || pin.length < 4}>
+          <Button type="submit" disabled={busy || !hasMinPinLength(pin)}>
             {t('pin.promptSubmit')}
           </Button>
         </div>

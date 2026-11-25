@@ -5,6 +5,7 @@ import { RateLimitedError } from '@/domain/repositories/IEventRepository'
 import type { VerifyPinHandler } from '@/application/handlers/VerifyPinHandler'
 import { useContainer } from '@/presentation/context/ContainerProvider'
 import { useEditPin } from '@/presentation/context/EditPinContext'
+import { digitsOnly, hasMinPinLength } from '@/presentation/utils/pinInput'
 import { Button } from '@/presentation/components/common/Button'
 import { Input } from '@/presentation/components/common/Input'
 import { IconLock } from '@/presentation/components/common/icons'
@@ -66,11 +67,11 @@ export function EventPinGate({
             maxLength={6}
             placeholder={t('pin.gateField')}
             value={pin}
-            onChange={(e) => setPin(e.target.value.replace(/\D/g, ''))}
+            onChange={(e) => setPin(digitsOnly(e.target.value))}
             disabled={busy}
           />
           {error && <p className="text-sm text-danger">{error}</p>}
-          <Button type="submit" disabled={busy || pin.length < 4} className="w-full">
+          <Button type="submit" disabled={busy || !hasMinPinLength(pin)} className="w-full">
             {t('pin.gateUnlock')}
           </Button>
         </form>

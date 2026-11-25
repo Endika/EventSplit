@@ -7,6 +7,8 @@ import { Input } from '@/presentation/components/common/Input'
 import { isSelectableAsSelf } from '@/domain/services/participantRoles'
 import { hasValidName, needsAlias } from '@/presentation/utils/participants'
 import { userLabel } from '@/presentation/utils/userLabel'
+import { errorMessage } from '@/presentation/utils/errorDetails'
+import { blankToNull } from '@/presentation/utils/text'
 
 export interface IdentificationResult {
   kind: 'pick' | 'new'
@@ -39,9 +41,9 @@ export function IdentificationModal({
     setBusy(true)
     setError(null)
     try {
-      await onConfirm({ kind: 'new', newUser: { name: name.trim(), alias: alias.trim() || null } })
+      await onConfirm({ kind: 'new', newUser: { name: name.trim(), alias: blankToNull(alias) } })
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Error')
+      setError(errorMessage(err, 'Error'))
     } finally {
       setBusy(false)
     }
@@ -53,7 +55,7 @@ export function IdentificationModal({
     try {
       await onConfirm({ kind: 'pick', pickedUser: u })
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Error')
+      setError(errorMessage(err, 'Error'))
     } finally {
       setBusy(false)
     }
