@@ -3,6 +3,7 @@ import { renderHook } from '@testing-library/react'
 import { useCloneSources } from '@/presentation/hooks/useCloneSources'
 import { LocalStorageCache } from '@/infrastructure/persistence/LocalStorageCache'
 import type { EventSnapshot } from '@/domain/entities/Event'
+import { PIN_KEY } from '@/shared/di/UnlockedPinHolder'
 
 function snapshot(id: string, over: Partial<EventSnapshot> = {}): EventSnapshot {
   return {
@@ -72,25 +73,28 @@ describe('useCloneSources', () => {
     expect(result.current).toEqual([])
   })
 
-  it('excludes the event being cloned into', () => {
+  it('excludes the event being cloned into, following it when it changes', () => {
     cacheEvent('target1')
     cacheEvent('aaa111a')
-    const { result } = renderHook(() => useCloneSources('target1'))
+    const { result, rerender } = renderHook(({ target }) => useCloneSources(target), {
+      initialProps: { target: 'target1' },
+    })
     expect(result.current.map((s) => s.id)).toEqual(['aaa111a'])
+    rerender({ target: 'aaa111a' })
+    expect(result.current.map((s) => s.id)).toEqual(['target1'])
   })
 
-  it('excludes PIN-protected events', () => {
+  it('excludes PIN-protected events, even one this device has unlocked', () => {
     cacheEvent('aaa111a', { hasPin: true })
+    localStorage.setItem(PIN_KEY('aaa111a'), '1234')
     cacheEvent('bbb222b')
     const { result } = renderHook(() => useCloneSources('target1'))
     expect(result.current.map((s) => s.id)).toEqual(['bbb222b'])
   })
 
   it('survives a localStorage that throws', () => {
-    vi.spyOn(Storage.prototype, 'getItem').mockImplementation(() => {
-      throw new Error('nope')
-    })
-    vi.spyOn(Storage.prototype, 'key').mockImplementation(() => {
+    cacheEvent('aaa111a')
+    vi.spyOn(LocalStorageCache.prototype, 'listAll').mockImplementation(() => {
       throw new Error('nope')
     })
     const { result } = renderHook(() => useCloneSources('target1'))
