@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Button } from '@/presentation/components/common/Button'
 import { IconClose } from '@/presentation/components/common/icons'
+import { installBanner, isIosUserAgent, isStandaloneDisplay } from '@/presentation/utils/pwaInstall'
 
 interface BeforeInstallPromptEvent extends Event {
   prompt: () => Promise<void>
@@ -11,15 +12,10 @@ interface BeforeInstallPromptEvent extends Event {
 const DISMISS_KEY = 'eventsplit.installDismissed'
 
 function isStandalone(): boolean {
-  return (
-    window.matchMedia('(display-mode: standalone)').matches ||
-    // iOS Safari
-    (window.navigator as unknown as { standalone?: boolean }).standalone === true
+  return isStandaloneDisplay(
+    window.matchMedia('(display-mode: standalone)').matches,
+    (window.navigator as unknown as { standalone?: boolean }).standalone,
   )
-}
-
-function isIos(): boolean {
-  return /iphone|ipad|ipod/i.test(window.navigator.userAgent)
 }
 
 export function InstallPrompt() {
@@ -27,7 +23,9 @@ export function InstallPrompt() {
   const [deferred, setDeferred] = useState<BeforeInstallPromptEvent | null>(null)
   const [dismissed, setDismissed] = useState(() => localStorage.getItem(DISMISS_KEY) === 'true')
   // iOS: no beforeinstallprompt event — show the hint if it's iOS Safari and not installed
-  const [showIosHint] = useState(() => isIos() && !isStandalone())
+  const [showIosHint] = useState(
+    () => isIosUserAgent(window.navigator.userAgent) && !isStandalone(),
+  )
 
   useEffect(() => {
     if (isStandalone()) return
@@ -52,10 +50,15 @@ export function InstallPrompt() {
     dismiss()
   }
 
-  if (dismissed || isStandalone()) return null
+  const banner = installBanner({
+    dismissed,
+    standalone: isStandalone(),
+    canPrompt: deferred !== null,
+    iosHint: showIosHint,
+  })
 
   // Android / desktop Chromium: native prompt available
-  if (deferred) {
+  if (banner === 'native') {
     return (
       <div
         role="region"
@@ -79,7 +82,7 @@ export function InstallPrompt() {
   }
 
   // iOS: instructions only (no programmatic install)
-  if (showIosHint) {
+  if (banner === 'ios') {
     return (
       <div
         role="region"
